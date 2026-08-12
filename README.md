@@ -1,5 +1,6 @@
 # Dojify
 O **Dojify** é o projeto final do Curso Técnico em Informática desenvolvido para a gestão completa de escolas, academias e dojôs de artes marciais. O sistema automatiza a rotina operacional, técnica e financeira dessas instituições de forma simples e integrada.
+
 #Alunos:
 Caroline Lima de Menezes
 Cecília Nunes de Brito
