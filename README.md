@@ -2,30 +2,30 @@
 O **Dojify** é o projeto final do Curso Técnico em Informática desenvolvido para a gestão completa de escolas, academias e dojôs de artes marciais. O sistema automatiza a rotina operacional, técnica e financeira dessas instituições de forma simples e integrada.
 
 #Alunos:
-Caroline Lima de Menezes
-Cecília Nunes de Brito
-Guilherme Araújo Silva
+Caroline Lima de Menezes,
+Cecília Nunes de Brito,
+Guilherme Araújo Silva,
 Pedro Francisco Madureira Dourado
 
-## Funcionalidades do Sistema
-### Gestão de Pessoas, Turmas e Frequência* **Cadastros Gerais:** Registro completo de alunos, professores e modalidades de artes marciais.* **Turmas e Horários:** Definição de grades horárias, limites de vagas e associação de professores.* **Frequência e Agendamento:** Controle de presença dos alunos e agendamento de aulas.
-### Evolução Técnica e Graduações* **Histórico de Faixas:** Acompanhamento cronológico da evolução do aluno (troca de faixas e graus).* **Desempenho:** Registro do progresso técnico e prontidão para exames de graduação.
-### Controle Financeiro* **Mensalidades:** *Controle de status (pago, pendente e atrasado).* **Relatórios:** Identificação rápida de fluxo de caixa e alertas de inadimplência.
+# Funcionalidades do Sistema
+# Gestão de Pessoas, Turmas e Frequência* **Cadastros Gerais:** Registro completo de alunos, professores e modalidades de artes marciais.* **Turmas e Horários:** Definição de grades horárias, limites de vagas e associação de professores.* **Frequência e Agendamento:** Controle de presença dos alunos e agendamento de aulas.
+# Evolução Técnica e Graduações* **Histórico de Faixas:** Acompanhamento cronológico da evolução do aluno (troca de faixas e graus).* **Desempenho:** Registro do progresso técnico e prontidão para exames de graduação.
+# Controle Financeiro* **Mensalidades:** *Controle de status (pago, pendente e atrasado).* **Relatórios:** Identificação rápida de fluxo de caixa e alertas de inadimplência.
 ---
-## Tecnologias Utilizadas
+# Tecnologias Utilizadas
 O projeto foi construído utilizando as seguintes tecnologias exigidas pela grade técnica:
 
 * **Frontend:** HTML5 e CSS3 (Interface responsiva para administração e usuários).
 * **Backend:** PHP Orientado a Objetos (POO) estruturado no padrão de arquitetura **MVC (Model-View-Controller)**. Essa abordagem garante a separação clara entre a regra de negócios (Model), a interface do usuário (View) e o controle de requisições (Controller), tornando o código mais limpo, seguro e escalável.
 * **Banco de Dados:** SQL / MySQL (Modelagem relacional para persistência de dados das tabelas de alunos, finanças, turmas, entre outras).
 ---
-## Estrutura Simplificada do Banco de Dados (SQL)
+# Estrutura Simplificada do Banco de Dados (SQL)
 O banco de dados do sistema foi modelado para garantir a integridade referencial dos dados, contendo tabelas principais como:* `usuários` (Dados pessoais) * `modalidades` e `turmas` (Grades de horários e professores)* Histórico de graduações` (Registro de evolução de faixas)* `pagamento` (Controle financeiro).
 
 ---
-## Como Executar o Projeto Localmente
-### Pré-requisitos: Para rodar a aplicação, você precisará de um ambiente de servidor local que suporte PHP e MySQL. Recomendamos o uso de:* [XAMPP](https://apachefriends.org) ou [WampServer](https://wampserver.com)
-### Passo a Passo
+# Como Executar o Projeto Localmente
+# Pré-requisitos: Para rodar a aplicação, você precisará de um ambiente de servidor local que suporte PHP e MySQL. Recomendamos o uso de:* [XAMPP](https://apachefriends.org) ou [WampServer](https://wampserver.com)
+# Passo a Passo
 ```bash# 1. Clone este repositório na pasta correspondente do seu servidor (ex: xampp/htdocs/)\$ git clone https://github.com
 # 2. Inicie os serviços do Apache e MySQL através do painel de controle do XAMPP
 # 3. Configure o Banco de Dados# - Abra o phpMyAdmin (http://localhost/phpmyadmin)# - Crie um novo banco de dados chamado `dojify`# - Importe o arquivo SQL estruturado do projeto (ex: database/db_dojify.sql)
