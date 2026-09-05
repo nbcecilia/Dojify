@@ -7,10 +7,15 @@ Cecília Nunes de Brito,
 Guilherme Araújo Silva,
 Pedro Francisco Madureira Dourado
 
+
 # Funcionalidades do Sistema
-# Gestão de Pessoas, Turmas e Frequência* **Cadastros Gerais:** Registro completo de alunos, professores e modalidades de artes marciais.* **Turmas e Horários:** Definição de grades horárias, limites de vagas e associação de professores.* **Frequência e Agendamento:** Controle de presença dos alunos e agendamento de aulas.
-# Evolução Técnica e Graduações* **Histórico de Faixas:** Acompanhamento cronológico da evolução do aluno (troca de faixas e graus).* **Desempenho:** Registro do progresso técnico e prontidão para exames de graduação.
-# Controle Financeiro* **Mensalidades:** *Controle de status (pago, pendente e atrasado).* **Relatórios:** Identificação rápida de fluxo de caixa e alertas de inadimplência.
+# Gestão de Pessoas, Turmas e Frequência* **Cadastros Gerais:** Registro completo de alunos, professores e modalidades de artes marciais.
+**Turmas e Horários:** Definição de grades horárias, limites de vagas e associação de professores.* 
+**Frequência e Agendamento:** Controle de presença dos alunos e agendamento de aulas.
+# Evolução Técnica e Graduações
+**Histórico de Faixas:** Acompanhamento cronológico da evolução do aluno (troca de faixas e graus).* **Desempenho:** Registro do progresso técnico e prontidão para exames de graduação.
+# Controle Financeiro
+**Mensalidades:** *Controle de status (pago, pendente e atrasado).* **Relatórios:** Identificação rápida de fluxo de caixa e alertas de inadimplência.
 ---
 # Tecnologias Utilizadas
 O projeto foi construído utilizando as seguintes tecnologias exigidas pela grade técnica:
