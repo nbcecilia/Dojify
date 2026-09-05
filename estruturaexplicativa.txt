@@ -1,0 +1,65 @@
+G:.
+├── estrutura.txt - Arquivo de texto que armazena o mapeamento da árvore de diretórios do projeto[cite: 1]
+├── index.php - Ponto de entrada principal da aplicação web[cite: 1]
+├── README.md - Documentação descritiva do projeto[cite: 1]
+│
+├── assets - Pasta de recursos visuais e scripts[cite: 1]
+│   ├── css - Pasta de folhas de estilo[cite: 1]
+│   │       style.css - Folha de estilos responsável pelo design e formatação visual[cite: 1]
+│   │
+│   ├── img - Pasta de imagens do sistema[cite: 1]
+│   └── js - Pasta de scripts do lado do cliente[cite: 1]
+│           main.js - Arquivo de scripts em JavaScript para manipulação do frontend e interatividade[cite: 1]
+│
+├── config - Pasta de arquivos de configuração[cite: 1]
+│       auth.php - Configurações voltadas para a validação e controle de sessões e autenticação[cite: 1]
+│       conexao.php - Configurações gerais do sistema, como conexões de banco de dados e constantes globais[cite: 1]
+│
+├── controller - Camada de controle da aplicação[cite: 1]
+│       aulacontroller.php - Gerencia a lógica de negócios relacionada às aulas[cite: 1]
+│       authcontroller.php - Controla o fluxo de autenticação, login e encerramento de sessões[cite: 1]
+│       financeirocontroller.php - Controla as regras de negócio do setor financeiro[cite: 1]
+│       pedagogicocontroller.php - Gerencia a lógica e os processos do setor pedagógico[cite: 1]
+│       turmacontroller.php - Controla as operações referentes à criação e gestão de turmas[cite: 1]
+│       usuariocontroller.php - Gerencia as ações e regras aplicadas aos usuários do sistema[cite: 1]
+│
+├── model - Camada de dados e interação com o banco[cite: 1]
+│       aulamodel.php - Faz a comunicação com o banco de dados para gerenciar os dados das aulas[cite: 1]
+│       financeiromodel.php - Responsável pelas consultas e manipulações de dados financeiros no banco[cite: 1]
+│       pedagogicomodel.php - Camada de dados focada nas regras e tabelas do setor pedagógico[cite: 1]
+│       turmamodel.php - Gerencia as operações de banco de dados para as turmas[cite: 1]
+│       usuariomodel.php - Manipula os dados referentes aos usuários na base de dados[cite: 1]
+│
+├── script - Pasta de scripts auxiliares[cite: 1]
+└── view - Camada de apresentação e telas do sistema[cite: 1]
+    ├── login.php - Interface gráfica da página de acesso/login do sistema[cite: 1]
+    │
+    ├── aulas - Módulo de aulas[cite: 1]
+    │       agendamento.php - Tela voltada para o agendamento de aulas[cite: 1]
+    │       frequencia.php - Tela para controle de presença e frequência dos alunos nas aulas[cite: 1]
+    │
+    ├── dashboards - Módulo de painéis de controle[cite: 1]
+    │       admin.php - Painel de controle visual voltado para o perfil de administrador[cite: 1]
+    │       aluno.php - Painel de controle visual voltado para o perfil de aluno[cite: 1]
+    │       gerente.php - Painel de controle visual voltado para o perfil de gerente[cite: 1]
+    │       professor.php - Painel de controle visual voltado para o perfil de professor[cite: 1]
+    │
+    ├── financeiro - Módulo financeiro[cite: 1]
+    │       pagamentos.php - Tela para controle e exibição de pagamentos[cite: 1]
+    │       planos.php - Tela de gerenciamento de planos financeiros[cite: 1]
+    │
+    ├── includes - Elementos reutilizáveis de interface[cite: 1]
+    │       footer.php - Bloco de rodapé reutilizável nas páginas da aplicação[cite: 1]
+    │       header.php - Bloco de cabeçalho reutilizável nas páginas da aplicação[cite: 1]
+    │       sidebar.php - Barra lateral de navegação reaproveitável nas interfaces[cite: 1]
+    │
+    ├── pedagogico - Módulo pedagógico[cite: 1]
+    │       graduacao.php - Tela voltada para o acompanhamento da graduação dos alunos[cite: 1]
+    │
+    ├── turmas - Módulo de turmas[cite: 1]
+    │       form.php - Formulário de cadastro e edição de turmas[cite: 1]
+    │       listar.php - Tela de listagem das turmas cadastradas[cite: 1]
+    │
+    └── usuarios - Módulo de usuários[cite: 1]
+            formcadastrados.php - Formulário utilizado para cadastrar novos usuários[cite: 1]
+            listarcadastrados.php - Tela para exibir a lista de usuários cadastrados[cite: 1]
