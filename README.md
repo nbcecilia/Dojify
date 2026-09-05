@@ -68,3 +68,7 @@ git clone https://github.com/SEU_USUARIO/SEU_REPOSITORIO.git
 # 5. Acesse o sistema no seu navegador através da URL:
 http://localhost/dojify
 
+# Licença e Fins Acadêmicos
+
+Este projeto foi desenvolvido exclusivamente para fins acadêmicos como requisito para conclusão do **Curso Técnico em Informática**.
+
