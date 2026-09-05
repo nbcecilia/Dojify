@@ -17,7 +17,7 @@ O projeto foi construído utilizando as seguintes tecnologias exigidas pela grad
 * **Frontend:** HTML5 e CSS3 (Interface responsiva para administração e usuários)* **Backend:** PHP (Lógica de negócios, sessões e validações)* **Banco de Dados:** SQL / MySQL (Modelagem relacional para persistência de dados das tabelas de alunos, finanças e estoque)
 ---
 ## Estrutura Simplificada do Banco de Dados (SQL)
-O banco de dados do sistema foi modelado para garantir a integridade referencial dos dados, contendo tabelas principais como:* `alunos` (Dados pessoais e matrícula)* `modalidades` e `turmas` (Grades de horários e professores)* Histórico de graduações` (Registro de evolução de faixas)* `mensalidades` (Controle financeiro)* `produtos` e `vendas` (Fluxo de caixa e loja)
+O banco de dados do sistema foi modelado para garantir a integridade referencial dos dados, contendo tabelas principais como:* `usuários` (Dados pessoais) * `modalidades` e `turmas` (Grades de horários e professores)* Histórico de graduações` (Registro de evolução de faixas)* `pagamento` (Controle financeiro)
 ---
 ## Como Executar o Projeto Localmente
 ### Pré-requisitos: Para rodar a aplicação, você precisará de um ambiente de servidor local que suporte PHP e MySQL. Recomendamos o uso de:* [XAMPP](https://apachefriends.org) ou [WampServer](https://wampserver.com)
