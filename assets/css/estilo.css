@@ -1,0 +1,423 @@
+/* ../assets/css/estilo.css */
+/* ==========================================================
+   DOJIFY - SISTEMA DE DESIGN 
+   ========================================================== */
+
+:root {
+    /* Superfícies e Fundos */
+    -bg-gradient-start: #d8d8d8;
+    --bg-gradient-end: #fafafa;
+    --bg-card: #ffffff;
+    --bg-navbar: #09090b;
+    --bg-hover: #f1f5f9;
+    --accent-dark: #000000;
+    
+    /* Textos */
+    --text-primary: #0f172a;
+    --text-secondary: #64748b;
+    --text-muted: #94a3b8;
+    --text-on-dark: #ffffff;
+
+    /* Bordas e Divisores */
+    --border-color: #e2e8f0;
+    --input-border: #cbd5e1;
+
+    /* Botões Neutros (Padrão Minimalista) */
+    --btn-neutral-bg: #18181b;
+    --btn-neutral-hover: #27272a;
+    --btn-neutral-text: #ffffff;
+
+    /* Ações de Destaque / Status */
+    --action-submit: #10b981;      /* Verde estratégico para confirmação/salvar */
+    --action-submit-hover: #059669;
+    --action-info: #0284c7;        /* Azul discreto para informação */
+    --action-info-hover: #0369a1;
+    --action-warning: #f59e0b;      /* Amarelo/Âmbar para alertas */
+    --action-warning-hover: #d97706;
+    --action-danger: #ef4444;      /* Vermelho para exclusão */
+    --action-danger-hover: #dc2626;
+
+    /* Sombras Sutis */
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+
+}
+
+/* ----------------------------------------------------------
+   PREPARAÇÃO PARA MODO ESCURO (FUTURE PROOF)
+   ---------------------------------------------------------- */
+[data-theme="dark"] {
+    --bg-body: #09090b;
+    --bg-card: #18181b;
+    --bg-navbar: #000000;
+    --bg-hover: #27272a;
+
+    --text-primary: #f8fafc;
+    --text-secondary: #a1a1aa;
+    --text-muted: #71717a;
+
+    --border-color: #27272a;
+    --input-border: #3f3f46;
+
+    --btn-neutral-bg: #27272a;
+    --btn-neutral-hover: #3f3f46;
+}
+
+/* ----------------------------------------------------------
+   RESET & ESTILOS BASE
+   ---------------------------------------------------------- */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+body {
+    background-color: var(--bg-body);
+    color: var(--text-primary);
+    display: flex;              
+    flex-direction: column;     
+    min-height: 100vh;          
+    padding: 0;
+    padding: 0;
+    line-height: 1.5;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Container principal das páginas (Alargado para ocupar mais espaço) */
+.container {
+    padding: 24px;
+    max-width: 1400px;
+    width: 95%;
+    margin: 0 auto;
+}
+
+/* Links */
+a {
+    color: var(--text-primary);
+    font-weight: 500;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+    transition: color 0.2s;
+}
+
+a:hover {
+    color: var(--text-secondary);
+}
+
+/* ----------------------------------------------------------
+   BARRA SUPERIOR (NAVBAR FIXA COM LOGO)
+   ---------------------------------------------------------- */
+.navbar {
+    background-color: var(--bg-navbar);
+    color: var(--text-on-dark);
+    padding: 12px 24px;
+    border-radius: 0;
+    margin-bottom: 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: var(--shadow-sm);
+    border-bottom: 1px solid #27272a;
+    
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.navbar-brand {
+    display: flex;
+    align-items: center;
+}
+
+.navbar-brand .logo-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+    color: var(--text-on-dark);
+}
+
+.navbar-logo {
+    height: 38px;
+    width: auto;
+    object-fit: contain;
+}
+
+.navbar h1 {
+    font-size: 1.15rem;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: var(--text-on-dark);
+    margin: 0;
+    line-height: 1.2;
+}
+
+.navbar p {
+    font-size: 0.75rem;
+    color: #a1a1aa;
+    margin: 0;
+}
+
+.navbar-user {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-size: 0.875rem;
+}
+
+/* ----------------------------------------------------------
+   BOTÕES E AÇÕES (PADRÃO MINIMALISTA)
+   ---------------------------------------------------------- */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 16px;
+    background-color: var(--btn-neutral-bg);
+    color: var(--btn-neutral-text) !important;
+    border-radius: 6px;
+    font-weight: 500;
+    font-size: 0.875rem;
+    border: 1px solid transparent;
+    cursor: pointer;
+    text-decoration: none !important;
+    transition: background-color 0.2s, border-color 0.2s;
+}
+
+.btn:hover {
+    background-color: var(--btn-neutral-hover);
+}
+
+/* Botão Estratégico Verde (Para ações principais de cadastro/sucesso) */
+.btn-success {
+    background-color: var(--action-submit);
+    color: #ffffff !important;
+}
+.btn-success:hover {
+    background-color: var(--action-submit-hover);
+}
+
+.btn-info {
+    background-color: var(--action-info);
+}
+.btn-info:hover {
+    background-color: var(--action-info-hover);
+}
+
+.btn-warning {
+    background-color: var(--action-warning);
+    color: #ffffff !important;
+}
+.btn-warning:hover {
+    background-color: var(--action-warning-hover);
+}
+
+.btn-danger {
+    background-color: var(--action-danger);
+}
+.btn-danger:hover {
+    background-color: var(--action-danger-hover);
+}
+
+.btn-sm {
+    padding: 5px 10px;
+    font-size: 0.8rem;
+    border-radius: 4px;
+}
+
+.text-center { text-align: center; }
+.text-muted { color: var(--text-muted); }
+
+/* ----------------------------------------------------------
+   BARRA DE PESQUISA & PAINEL
+   ---------------------------------------------------------- */
+.busca-container {
+    background-color: var(--bg-card);
+    padding: 16px 20px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-sm);
+    margin-bottom: 20px;
+}
+
+.busca-form {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    padding: 0;
+    margin: 0;
+    box-shadow: none;
+    background: transparent;
+    border: none;
+    max-width: 100%;
+}
+
+.busca-input {
+    flex: 1;
+    margin: 0;
+}
+
+.busca-btn {
+    margin: 0 !important;
+    width: auto !important;
+    white-space: nowrap;
+}
+
+/* Botões do topo centralizados */
+.acoes-topbar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+/* ----------------------------------------------------------
+   TABELAS DE DADOS
+   ---------------------------------------------------------- */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: var(--bg-card);
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-sm);
+    margin-top: 16px;
+}
+
+th {
+    background-color: var(--bg-body);
+    color: var(--text-secondary);
+    text-align: left;
+    padding: 12px 16px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid var(--border-color);
+}
+
+td {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border-color);
+    font-size: 0.875rem;
+    color: var(--text-primary);
+}
+
+tr:last-child td {
+    border-bottom: none;
+}
+
+tr:hover td {
+    background-color: var(--bg-hover);
+}
+
+/* ----------------------------------------------------------
+   FORMULÁRIOS CENTRALIZADOS
+   ---------------------------------------------------------- */
+form {
+    background-color: var(--bg-card);
+    padding: 28px;
+    border-radius: 8px;
+    max-width: 550px;
+    width: 100%;
+    margin: 24px auto 40px auto;
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-sm);
+}
+
+label {
+    display: block;
+    margin-top: 16px;
+    margin-bottom: 6px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="date"],
+select,
+textarea {
+    width: 100%;
+    padding: 10px 12px;
+    background-color: var(--bg-card);
+    border: 1px solid var(--input-border);
+    border-radius: 6px;
+    font-size: 0.875rem;
+    color: var(--text-primary);
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+    border-color: var(--text-primary);
+    box-shadow: 0 0 0 2px rgba(15, 23, 42, 0.1);
+}
+
+button[type="submit"] {
+    margin-top: 24px;
+    width: 100%;
+    padding: 10px 16px;
+    background-color: var(--action-submit);
+    color: #ffffff;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+button[type="submit"]:hover {
+    background-color: var(--action-submit-hover);
+}
+
+/* ----------------------------------------------------------
+   MENSAGENS E ALERTAS
+   ---------------------------------------------------------- */
+.alert-sucesso {
+    background-color: rgba(16, 185, 129, 0.1);
+    color: #065f46;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    padding: 12px 16px;
+    border-radius: 6px;
+    margin-bottom: 16px;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.alert-erro {
+    background-color: rgba(239, 68, 68, 0.1);
+    color: #991b1b;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    padding: 12px 16px;
+    border-radius: 6px;
+    margin-bottom: 16px;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.container h2 {
+    text-align: center;
+    margin-bottom: 24px;
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.footer {
+    background-color: var(--accent-dark);
+    color: #94a3b8;
+    text-align: center;
+    padding: 2rem;
+    font-size: 0.95rem;
+    margin-top: auto;
+    border-top: 1px solid #222222;
+}
