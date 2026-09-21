@@ -1,5 +1,5 @@
 <?php
-// view/gerente/cadastrar_modalidade.php
+// view/gerente/editar_modalidade.php
 
 session_start();
 
@@ -11,6 +11,25 @@ if (
     header('Location: ../login.php');
     exit;
 }
+
+require_once __DIR__ . '/../../model/dao/ModalidadeDAO.php';
+
+$id = (int)($_GET['id'] ?? 0);
+$idAcademia = (int)$_SESSION['id_academia'];
+
+if ($id <= 0) {
+    header('Location: listar_modalidade.php');
+    exit;
+}
+
+$dao = new ModalidadeDAO();
+
+$modalidade = $dao->buscarPorId($id, $idAcademia);
+
+if (!$modalidade) {
+    header('Location: listar_modalidade.php?erro=1');
+    exit;
+}
 ?>
 
 <!DOCTYPE html>
@@ -20,7 +39,7 @@ if (
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Cadastrar Modalidade - Dojify</title>
+    <title>Editar Modalidade - Dojify</title>
 
     <link rel="stylesheet" href="../../assets/css/estilo.css">
 </head>
@@ -31,13 +50,20 @@ if (
 
     <main class="conteudo">
 
-        <h1>Cadastrar Modalidade</h1>
+        <h1>Editar Modalidade</h1>
 
         <form action="../../controller/ModalidadeController.php" method="POST">
 
-            <input type="hidden" name="acao" value="cadastrar">
+            <input type="hidden" name="acao" value="atualizar">
+
+            <input
+                type="hidden"
+                name="id_modalidade"
+                value="<?= $modalidade['id_modalidade'] ?>"
+            >
 
             <div class="campo">
+
                 <label for="nome">Nome da modalidade</label>
 
                 <input
@@ -45,26 +71,30 @@ if (
                     id="nome"
                     name="nome"
                     maxlength="100"
+                    value="<?= htmlspecialchars($modalidade['nome']) ?>"
                     required
                 >
+
             </div>
 
             <div class="campo">
+
                 <label for="descricao">Descrição</label>
 
                 <textarea
                     id="descricao"
                     name="descricao"
                     rows="5"
-                ></textarea>
+                ><?= htmlspecialchars($modalidade['descricao'] ?? '') ?></textarea>
+
             </div>
 
             <button type="submit">
-                Cadastrar
+                Salvar alterações
             </button>
 
             <a href="listar_modalidade.php">
-                Voltar
+                Cancelar
             </a>
 
         </form>
