@@ -14,11 +14,8 @@ $idAcademia = $_SESSION['usuario']['id_academia'];
 $idGerenteLogado = $_SESSION['usuario']['id_usuario'] ?? $_SESSION['usuario']['id'] ?? 0;
 
 $usuarioDAO = new UsuarioDAO();
-
-// Busca todos os utilizadores da academia
 $usuarios = $usuarioDAO->listarPorAcademia($idAcademia);
 
-// Separa os utilizadores por categorias corretas
 $gerentes = [];
 $professores = [];
 $alunos = [];
@@ -59,207 +56,204 @@ foreach ($usuarios as $u) {
         
         <div class="navbar-user">
             <span class="user-greeting">Olá, <strong><?= htmlspecialchars($_SESSION['usuario']['nome']) ?></strong></span>
-            <a href="home_gerente.php" class="btn btn-sm btn-voltar">Início</a>
+            <a href="home_gerente.php" class="btn btn-sm">Início</a>
             <a href="../../controller/UsuarioController.php?acao=logout" class="btn btn-sm btn-danger">Sair</a>
         </div>
     </header>
 
     <div class="container">
-        <div class="card shadow-sm p-4">
-            <h2>Gestão de Utilizadores</h2>
-            <p class="lead">Administração de professores e alunos registados na sua academia.</p>
+        <h2>Gestão de Utilizadores</h2>
+        <p class="text-center text-muted" style="margin-bottom: 24px;">Administração de professores e alunos registados na sua academia.</p>
 
-            <!-- Barra de Ações com Pesquisa em Tempo Real -->
-            <div class="acoes-topbar" style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 50px;">
-                <div style="flex: 1; max-width: 300px; min-width: 220px;">
-                    <input type="text" id="inputPesquisa" placeholder="Pesquisar por nome ou e-mail..." style="width: 100%; padding: 8px 12px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px;">
-                </div>
+        <!-- Barra de Pesquisa a aproveitar as classes nativas do design system -->
+        <div class="busca-container">
+            <div class="busca-form">
+                <input type="text" id="inputPesquisa" placeholder="Pesquisar por nome ou e-mail..." class="busca-input">
             </div>
-
-            <!-- Mensagem de Sucesso -->
-            <?php if (isset($_GET['sucesso'])): ?>
-                <div class="alert-sucesso">Operação realizada com sucesso!</div>
-            <?php endif; ?>
-
-            <!-- SECÇÃO DE GERENTES -->
-            <h3 style="margin-top: 20px; margin-bottom: 10px;">Gerente</h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Nome</th>
-                        <th>Perfil</th>
-                        <th>E-mail</th>
-                        <th>Telefone</th>
-                        <th>Estado</th>
-                        <th>Ações</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php if (empty($gerentes)): ?>
-                        <tr>
-                            <td colspan="6" class="text-center text-muted py-4">Nenhum gerente registado.</td>
-                        </tr>
-                    <?php else: ?>
-                        <?php foreach ($gerentes as $u): ?>
-                            <?php $isPropraConta = ((int)$u['id_usuario'] === (int)$idGerenteLogado); ?>
-                            <tr>
-                                <td>
-                                    <strong><?php echo htmlspecialchars($u['nome']); ?></strong>
-                                    <?php if ($isPropraConta): ?>
-                                        <span class="text-muted">(Sua conta)</span>
-                                    <?php endif; ?>
-                                </td>
-                                <td><span><?php echo htmlspecialchars($u['perfil_nome'] ?? 'Gerente'); ?></span></td>
-                                <td><?php echo htmlspecialchars($u['email']); ?></td>
-                                <td><?php echo htmlspecialchars($u['telefone']); ?></td>
-                                <td>
-                                    <?php if ($u['status'] === 'ATIVO'): ?>
-                                        <span>Ativo</span>
-                                    <?php elseif ($u['status'] === 'SUSPENSO'): ?>
-                                        <span>Suspenso</span>
-                                    <?php else: ?>
-                                        <span>Inativo</span>
-                                    <?php endif; ?>
-                                </td>
-                                <td>
-                                    <?php if ($isPropraConta): ?>
-                                        <small class="text-muted">Não aplicável</small>
-                                    <?php else: ?>
-                                        <div class="acoes-topbar">
-                                            <?php if ($u['status'] !== 'ATIVO'): ?>
-                                                <a href="../../controller/UsuarioController.php?acao=alternar_status&id=<?php echo $u['id_usuario']; ?>&status=ATIVO" class="btn btn-sm btn-success">Ativar</a>
-                                            <?php endif; ?>
-                                            <?php if ($u['status'] !== 'SUSPENSO'): ?>
-                                                <a href="../../controller/UsuarioController.php?acao=alternar_status&id=<?php echo $u['id_usuario']; ?>&status=SUSPENSO" class="btn btn-sm btn-warning">Suspender</a>
-                                            <?php endif; ?>
-                                            <?php if ($u['status'] !== 'INATIVO'): ?>
-                                                <a href="../../controller/UsuarioController.php?acao=alternar_status&id=<?php echo $u['id_usuario']; ?>&status=INATIVO" class="btn btn-sm btn-danger">Inativar</a>
-                                            <?php endif; ?>
-                                        </div>
-                                    <?php endif; ?>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    <?php endif; ?>
-                </tbody>
-            </table>
-
-            <hr style="margin: 40px 0;">
-
-            <!-- SECÇÃO DE PROFESSORES -->
-            <h3 style="margin-bottom: 10px;">Professores</h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Nome</th>
-                        <th>Perfil</th>
-                        <th>E-mail</th>
-                        <th>Telefone</th>
-                        <th>Estado</th>
-                        <th>Ações</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php if (empty($professores)): ?>
-                        <tr>
-                            <td colspan="6" class="text-center text-muted py-4">Nenhum professor registado nesta academia.</td>
-                        </tr>
-                    <?php else: ?>
-                        <?php foreach ($professores as $u): ?>
-                            <tr>
-                                <td><strong><?php echo htmlspecialchars($u['nome']); ?></strong></td>
-                                <td><span><?php echo htmlspecialchars($u['perfil_nome'] ?? 'Professor'); ?></span></td>
-                                <td><?php echo htmlspecialchars($u['email']); ?></td>
-                                <td><?php echo htmlspecialchars($u['telefone']); ?></td>
-                                <td>
-                                    <?php if ($u['status'] === 'ATIVO'): ?>
-                                        <span>Ativo</span>
-                                    <?php elseif ($u['status'] === 'SUSPENSO'): ?>
-                                        <span>Suspenso</span>
-                                    <?php else: ?>
-                                        <span>Inativo</span>
-                                    <?php endif; ?>
-                                </td>
-                                <td>
-                                    <div class="acoes-topbar">
-                                        <?php if ($u['status'] !== 'ATIVO'): ?>
-                                            <a href="../../controller/UsuarioController.php?acao=alternar_status&id=<?php echo $u['id_usuario']; ?>&status=ATIVO" class="btn btn-sm btn-success">Ativar</a>
-                                        <?php endif; ?>
-                                        <?php if ($u['status'] !== 'SUSPENSO'): ?>
-                                            <a href="../../controller/UsuarioController.php?acao=alternar_status&id=<?php echo $u['id_usuario']; ?>&status=SUSPENSO" class="btn btn-sm btn-warning">Suspender</a>
-                                        <?php endif; ?>
-                                        <?php if ($u['status'] !== 'INATIVO'): ?>
-                                            <a href="../../controller/UsuarioController.php?acao=alternar_status&id=<?php echo $u['id_usuario']; ?>&status=INATIVO" class="btn btn-sm btn-danger">Inativar</a>
-                                        <?php endif; ?>
-                                    </div>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    <?php endif; ?>
-                </tbody>
-            </table>
-
-            <hr style="margin: 40px 0;">
-
-            <!-- SECÇÃO DE ALUNOS (Data de Matrícula removida) -->
-            <h3 style="margin-bottom: 10px;">Alunos</h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Nome</th>
-                        <th>Perfil</th>
-                        <th>E-mail</th>
-                        <th>Telefone</th>
-                        <th>Estado</th>
-                        <th>Ações</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php if (empty($alunos)): ?>
-                        <tr>
-                            <td colspan="6" class="text-center text-muted py-4">Nenhum aluno registado nesta academia.</td>
-                        </tr>
-                    <?php else: ?>
-                        <?php foreach ($alunos as $u): ?>
-                            <tr>
-                                <td>
-                                    <strong><?php echo htmlspecialchars($u['nome']); ?></strong>
-                                    <?php if (!empty($u['responsavel'])): ?>
-                                        <br><small class="text-muted">Resp: <?php echo htmlspecialchars($u['responsavel']); ?></small>
-                                    <?php endif; ?>
-                                </td>
-                                <td><span><?php echo htmlspecialchars($u['perfil_nome'] ?? 'Aluno'); ?></span></td>
-                                <td><?php echo htmlspecialchars($u['email']); ?></td>
-                                <td><?php echo htmlspecialchars($u['telefone']); ?></td>
-                                <td>
-                                    <?php if ($u['status'] === 'ATIVO'): ?>
-                                        <span>Ativo</span>
-                                    <?php elseif ($u['status'] === 'SUSPENSO'): ?>
-                                        <span>Suspenso</span>
-                                    <?php else: ?>
-                                        <span>Inativo</span>
-                                    <?php endif; ?>
-                                </td>
-                                <td>
-                                    <div class="acoes-topbar">
-                                        <?php if ($u['status'] !== 'ATIVO'): ?>
-                                            <a href="../../controller/UsuarioController.php?acao=alternar_status&id=<?php echo $u['id_usuario']; ?>&status=ATIVO" class="btn btn-sm btn-success">Ativar</a>
-                                        <?php endif; ?>
-                                        <?php if ($u['status'] !== 'SUSPENSO'): ?>
-                                            <a href="../../controller/UsuarioController.php?acao=alternar_status&id=<?php echo $u['id_usuario']; ?>&status=SUSPENSO" class="btn btn-sm btn-warning">Suspender</a>
-                                        <?php endif; ?>
-                                        <?php if ($u['status'] !== 'INATIVO'): ?>
-                                            <a href="../../controller/UsuarioController.php?acao=alternar_status&id=<?php echo $u['id_usuario']; ?>&status=INATIVO" class="btn btn-sm btn-danger">Inativar</a>
-                                        <?php endif; ?>
-                                    </div>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    <?php endif; ?>
-                </tbody>
-            </table>
-
         </div>
+
+        <!-- Mensagem de Sucesso -->
+        <?php if (isset($_GET['sucesso'])): ?>
+            <div class="alert-sucesso">Operação realizada com sucesso!</div>
+        <?php endif; ?>
+
+        <!-- SECÇÃO DE GERENTES -->
+        <h3 style="margin: 24px 0 12px 0;">Gerente</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>Perfil</th>
+                    <th>E-mail</th>
+                    <th>Telefone</th>
+                    <th>Estado</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php if (empty($gerentes)): ?>
+                    <tr>
+                        <td colspan="6" class="text-center text-muted">Nenhum gerente registado.</td>
+                    </tr>
+                <?php else: ?>
+                    <?php foreach ($gerentes as $u): ?>
+                        <?php $isPropraConta = ((int)$u['id_usuario'] === (int)$idGerenteLogado); ?>
+                        <tr>
+                            <td>
+                                <strong><?php echo htmlspecialchars($u['nome']); ?></strong>
+                                <?php if ($isPropraConta): ?>
+                                    <span class="text-muted">(Sua conta)</span>
+                                <?php endif; ?>
+                            </td>
+                            <td><span><?php echo htmlspecialchars($u['perfil_nome'] ?? 'Gerente'); ?></span></td>
+                            <td><?php echo htmlspecialchars($u['email']); ?></td>
+                            <td><?php echo htmlspecialchars($u['telefone']); ?></td>
+                            <td>
+                                <?php if ($u['status'] === 'ATIVO'): ?>
+                                    <span>Ativo</span>
+                                <?php elseif ($u['status'] === 'SUSPENSO'): ?>
+                                    <span>Suspenso</span>
+                                <?php else: ?>
+                                    <span>Inativo</span>
+                                <?php endif; ?>
+                            </td>
+                            <td>
+                                <?php if ($isPropraConta): ?>
+                                    <span class="text-muted">Não aplicável</span>
+                                <?php else: ?>
+                                    <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                                        <?php if ($u['status'] !== 'ATIVO'): ?>
+                                            <a href="../../controller/UsuarioController.php?acao=alternar_status&id=<?php echo $u['id_usuario']; ?>&status=ATIVO" class="btn btn-sm btn-success">Ativar</a>
+                                        <?php endif; ?>
+                                        <?php if ($u['status'] !== 'SUSPENSO'): ?>
+                                            <a href="../../controller/UsuarioController.php?acao=alternar_status&id=<?php echo $u['id_usuario']; ?>&status=SUSPENSO" class="btn btn-sm btn-warning">Suspender</a>
+                                        <?php endif; ?>
+                                        <?php if ($u['status'] !== 'INATIVO'): ?>
+                                            <a href="../../controller/UsuarioController.php?acao=alternar_status&id=<?php echo $u['id_usuario']; ?>&status=INATIVO" class="btn btn-sm btn-danger">Inativar</a>
+                                        <?php endif; ?>
+                                    </div>
+                                <?php endif; ?>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </tbody>
+        </table>
+
+        <!-- SECÇÃO DE PROFESSORES -->
+        <h3 style="margin: 32px 0 12px 0;">Professores</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>Perfil</th>
+                    <th>E-mail</th>
+                    <th>Telefone</th>
+                    <th>Estado</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php if (empty($professores)): ?>
+                    <tr>
+                        <td colspan="6" class="text-center text-muted">Nenhum professor registado nesta academia.</td>
+                    </tr>
+                <?php else: ?>
+                    <?php foreach ($professores as $u): ?>
+                        <tr>
+                            <td><strong><?php echo htmlspecialchars($u['nome']); ?></strong></td>
+                            <td><span><?php echo htmlspecialchars($u['perfil_nome'] ?? 'Professor'); ?></span></td>
+                            <td><?php echo htmlspecialchars($u['email']); ?></td>
+                            <td><?php echo htmlspecialchars($u['telefone']); ?></td>
+                            <td>
+                                <?php if ($u['status'] === 'ATIVO'): ?>
+                                    <span>Ativo</span>
+                                <?php elseif ($u['status'] === 'SUSPENSO'): ?>
+                                    <span>Suspenso</span>
+                                <?php else: ?>
+                                    <span>Inativo</span>
+                                <?php endif; ?>
+                            </td>
+                            <td>
+                                <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                                    <?php if ($u['status'] !== 'ATIVO'): ?>
+                                        <a href="../../controller/UsuarioController.php?acao=alternar_status&id=<?php echo $u['id_usuario']; ?>&status=ATIVO" class="btn btn-sm btn-success">Ativar</a>
+                                    <?php endif; ?>
+                                    <?php if ($u['status'] !== 'SUSPENSO'): ?>
+                                        <a href="../../controller/UsuarioController.php?acao=alternar_status&id=<?php echo $u['id_usuario']; ?>&status=SUSPENSO" class="btn btn-sm btn-warning">Suspender</a>
+                                    <?php endif; ?>
+                                    <?php if ($u['status'] !== 'INATIVO'): ?>
+                                        <a href="../../controller/UsuarioController.php?acao=alternar_status&id=<?php echo $u['id_usuario']; ?>&status=INATIVO" class="btn btn-sm btn-danger">Inativar</a>
+                                    <?php endif; ?>
+                                </div>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </tbody>
+        </table>
+
+        <!-- SECÇÃO DE ALUNOS -->
+        <h3 style="margin: 32px 0 12px 0;">Alunos</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>Perfil</th>
+                    <th>E-mail</th>
+                    <th>Telefone</th>
+                    <th>Estado</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php if (empty($alunos)): ?>
+                    <tr>
+                        <td colspan="6" class="text-center text-muted">Nenhum aluno registado nesta academia.</td>
+                    </tr>
+                <?php else: ?>
+                    <?php foreach ($alunos as $u): ?>
+                        <tr>
+                            <td>
+                                <strong><?php echo htmlspecialchars($u['nome']); ?></strong>
+                                <?php if (!empty($u['responsavel'])): ?>
+                                    <br><span class="text-muted" style="font-size: 0.75rem;">Resp: <?php echo htmlspecialchars($u['responsavel']); ?></span>
+                                <?php endif; ?>
+                            </td>
+                            <td><span><?php echo htmlspecialchars($u['perfil_nome'] ?? 'Aluno'); ?></span></td>
+                            <td><?php echo htmlspecialchars($u['email']); ?></td>
+                            <td><?php echo htmlspecialchars($u['telefone']); ?></td>
+                            <td>
+                                <?php if ($u['status'] === 'ATIVO'): ?>
+                                    <span>Ativo</span>
+                                <?php elseif ($u['status'] === 'SUSPENSO'): ?>
+                                    <span>Suspenso</span>
+                                <?php else: ?>
+                                    <span>Inativo</span>
+                                <?php endif; ?>
+                            </td>
+                            <td>
+                                <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                                    <!-- Botão de Editar a usar a classe .btn-info já existente no design system -->
+                                    <a href="editar_aluno.php?id=<?php echo $u['id_usuario']; ?>" class="btn btn-sm btn-info">Editar</a>
+
+                                    <?php if ($u['status'] !== 'ATIVO'): ?>
+                                        <a href="../../controller/UsuarioController.php?acao=alternar_status&id=<?php echo $u['id_usuario']; ?>&status=ATIVO" class="btn btn-sm btn-success">Ativar</a>
+                                    <?php endif; ?>
+                                    <?php if ($u['status'] !== 'SUSPENSO'): ?>
+                                        <a href="../../controller/UsuarioController.php?acao=alternar_status&id=<?php echo $u['id_usuario']; ?>&status=SUSPENSO" class="btn btn-sm btn-warning">Suspender</a>
+                                    <?php endif; ?>
+                                    <?php if ($u['status'] !== 'INATIVO'): ?>
+                                        <a href="../../controller/UsuarioController.php?acao=alternar_status&id=<?php echo $u['id_usuario']; ?>&status=INATIVO" class="btn btn-sm btn-danger">Inativar</a>
+                                    <?php endif; ?>
+                                </div>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </tbody>
+        </table>
+
     </div>
 
     <!-- Script de Pesquisa em Tempo Real -->

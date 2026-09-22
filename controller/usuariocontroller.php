@@ -27,6 +27,9 @@ class UsuarioController {
             case 'atualizar':
                 $this->atualizar();
                 break;
+            case 'atualizar_aluno':
+                $this->atualizarAluno();
+                break;
             case 'excluir':
                 $this->excluir();
                 break;
@@ -65,14 +68,23 @@ class UsuarioController {
             $senha          = $_POST['senha'] ?? '';
 
             $nomePlano      = trim($_POST['nome_plano'] ?? '');
-            $valorPlano     = isset($_POST['valor_plano']) ? (float)$_POST['valor_plano'] : 0.0;
+            
+            // Tratamento do valor do plano: converte vírgula para ponto e garante float
+            $valorPlanoStr  = $_POST['valor_plano'] ?? '0';
+            $valorPlanoStr  = str_replace(',', '.', $valorPlanoStr);
+            $valorPlano     = (float)$valorPlanoStr;
+
+            // Tratamento dos campos opcionais (responsavel, observacao, data_matricula)
+            $responsavel    = !empty($_POST['responsavel']) ? trim($_POST['responsavel']) : null;
+            $observacao     = !empty($_POST['observacao']) ? trim($_POST['observacao']) : null;
+            $dataMatricula  = !empty($_POST['data_matricula']) ? $_POST['data_matricula'] : date('Y-m-d');
 
             if (empty($idAcademia) || empty($nome) || empty($cpf) || empty($dataNascimento) || !$email || empty($senha) || empty($nomePlano)) {
                 throw new Exception("Preencha todos os campos obrigatórios corretamente.");
             }
 
-            $sqlUsuario = "INSERT INTO usuario (id_academia, perfil_id, nome, cpf, data_nascimento, telefone, email, data_matricula, status) 
-                           VALUES (:id_academia, 4, :nome, :cpf, :data_nascimento, :telefone, :email, CURDATE(), 'ATIVO')";
+            $sqlUsuario = "INSERT INTO usuario (id_academia, perfil_id, nome, cpf, data_nascimento, telefone, email, responsavel, observacao, data_matricula, status) 
+                            VALUES (:id_academia, 4, :nome, :cpf, :data_nascimento, :telefone, :email, :responsavel, :observacao, :data_matricula, 'ATIVO')";
             
             $stmt = $pdo->prepare($sqlUsuario);
             $stmt->execute([
@@ -81,7 +93,10 @@ class UsuarioController {
                 ':cpf'             => $cpf,
                 ':data_nascimento' => $dataNascimento,
                 ':telefone'        => $telefone,
-                ':email'           => $email
+                ':email'           => $email,
+                ':responsavel'     => $responsavel,
+                ':observacao'      => $observacao,
+                ':data_matricula'  => $dataMatricula
             ]);
             $idUsuarioNovo = $pdo->lastInsertId();
 
@@ -95,7 +110,7 @@ class UsuarioController {
             ]);
 
             $sqlPlano = "INSERT INTO plano (id_usuario_aluno, nome_plano, valor, data_inicio, data_fim, status) 
-                         VALUES (:id_usuario_aluno, :nome_plano, :valor, CURDATE(), DATE_ADD(CURDATE(), INTERVAL 1 MONTH), 'ATIVO')";
+                       VALUES (:id_usuario_aluno, :nome_plano, :valor, CURDATE(), DATE_ADD(CURDATE(), INTERVAL 1 MONTH), 'ATIVO')";
             
             $stmtPlano = $pdo->prepare($sqlPlano);
             $stmtPlano->execute([
@@ -123,6 +138,84 @@ class UsuarioController {
                 $pdo->rollBack();
             }
             header('Location: ../view/gerente/cadastrar_aluno.php?erro=falha_cadastro');
+            exit;
+        }
+    }
+
+    private function atualizarAluno(): void {
+        if (!isset($_SESSION['usuario']) || (int)$_SESSION['usuario']['perfil_id'] !== 2) {
+            header('Location: ../view/login.php?erro=acesso_negado');
+            exit;
+        }
+
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header('Location: ../view/gerente/listar_usuarios.php');
+            exit;
+        }
+
+        $pdo = null;
+
+        try {
+            $pdo = Conexao::getConexao();
+            $pdo->beginTransaction();
+
+            $idUsuario     = filter_input(INPUT_POST, 'id_usuario', FILTER_VALIDATE_INT);
+            $idAcademia    = $_SESSION['usuario']['id_academia'] ?? null;
+            $nome          = trim($_POST['nome'] ?? '');
+            $telefone      = trim($_POST['telefone'] ?? '');
+            $email         = filter_input(INPUT_POST, 'email', FILTER_VALIDATE_EMAIL);
+            $responsavel   = !empty($_POST['responsavel']) ? trim($_POST['responsavel']) : null;
+            $observacao    = !empty($_POST['observacao']) ? trim($_POST['observacao']) : null;
+            $status        = $_POST['status'] ?? 'ATIVO';
+
+            $nomePlano     = trim($_POST['nome_plano'] ?? '');
+            $valorPlanoStr = $_POST['valor_plano'] ?? '0';
+            $valorPlanoStr = str_replace(',', '.', $valorPlanoStr);
+            $valorPlano    = (float)$valorPlanoStr;
+
+            if (!$idUsuario || empty($idAcademia) || empty($nome) || !$email || empty($nomePlano)) {
+                throw new Exception("Preencha todos os campos obrigatórios corretamente.");
+            }
+
+            // Atualiza os dados cadastrais do aluno
+            $sqlUsuario = "UPDATE usuario 
+                           SET nome = :nome, telefone = :telefone, email = :email, 
+                               responsavel = :responsavel, observacao = :observacao, status = :status 
+                           WHERE id_usuario = :id_usuario AND id_academia = :id_academia";
+            
+            $stmt = $pdo->prepare($sqlUsuario);
+            $stmt->execute([
+                ':nome'        => $nome,
+                ':telefone'    => $telefone,
+                ':email'       => $email,
+                ':responsavel' => $responsavel,
+                ':observacao'  => $observacao,
+                ':status'      => $status,
+                ':id_usuario'  => $idUsuario,
+                ':id_academia' => $idAcademia
+            ]);
+
+            // Atualiza o plano ativo do aluno
+            $sqlPlano = "UPDATE plano 
+                         SET nome_plano = :nome_plano, valor = :valor 
+                         WHERE id_usuario_aluno = :id_usuario_aluno AND status = 'ATIVO'";
+            
+            $stmtPlano = $pdo->prepare($sqlPlano);
+            $stmtPlano->execute([
+                ':nome_plano'       => $nomePlano,
+                ':valor'            => $valorPlano,
+                ':id_usuario_aluno' => $idUsuario
+            ]);
+
+            $pdo->commit();
+            header('Location: ../view/gerente/listar_usuarios.php?sucesso=atualizado');
+            exit;
+
+        } catch (Exception $e) {
+            if ($pdo instanceof PDO && $pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
+            header('Location: ../view/gerente/listar_usuarios.php?erro=falha_atualizacao');
             exit;
         }
     }

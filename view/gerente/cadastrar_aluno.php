@@ -54,20 +54,48 @@
                 <input type="password" id="senha" name="senha" placeholder="Mínimo de 6 caracteres" required>
             </div>
 
+        <div>
+                <label for="data_matricula">Data da Matrícula:</label>
+                <input type="date" id="data_matricula" name="data_matricula" required>
+            </div>
+
+            <div>
+                <label for="responsavel">Responsável Legal (Caso seja menor):</label>
+                <input type="text" id="responsavel" name="responsavel" placeholder="Nome do pai ou responsável">
+            </div>
+
+            <div>
+                <label for="observacao">Observações Médicas / Alergias:</label>
+                <textarea id="observacao" name="observacao" placeholder="Ex: Alérgico a dipirona, lesão antiga no joelho..."></textarea>
+            </div> 
+            
             <div>
                 <label for="nome_plano">Plano Contratado:</label>
                 <select id="nome_plano" name="nome_plano" required>
                     <option value="">Selecione o plano...</option>
-                    <option value="Mensal 2x/semana">Mensal 2x/semana</option>
-                    <option value="Mensal 3x/semana">Mensal 3x/semana</option>
-                    <option value="Mensal 5x/semana">Mensal 5x/semana</option>
+                    
+                    <optgroup label="Planos Mensais">
+                        <option value="Mensal 2x/semana">Mensal (2x/semana)</option>
+                        <option value="Mensal 3x/semana">Mensal (3x/semana)</option>
+                        <option value="Mensal Ilimitado">Mensal (Ilimitado)</option>
+                    </optgroup>
+
+                    <optgroup label="Planos Trimestrais">
+                        <option value="Trimestral 2x/semana">Trimestral (2x/semana)</option>
+                        <option value="Trimestral 3x/semana">Trimestral (3x/semana)</option>
+                        <option value="Trimestral Ilimitado">Trimestral (Ilimitado)</option>
+                    </optgroup>
+
+                    <optgroup label="Planos Anuais">
+                        <option value="Anual 2x/semana">Anual (2x/semana)</option>
+                        <option value="Anual 3x/semana">Anual (3x/semana)</option>
+                        <option value="Anual Ilimitado">Anual (Ilimitado)</option>
+                    </optgroup>
                 </select>
             </div>
-
             <div>
                 <label for="valor_plano">Valor do Plano (R$):</label>
                 <input type="number" step="0.01" min="0" id="valor_plano" name="valor_plano" placeholder="Ex: 150.00" required>
-                <small class="text-muted form-hint">💡 Insira no formato decimal usando <strong>ponto</strong>(Ex: <code>150.00</code>).</small>
             </div>
 
             <button type="submit">Concluir Matrícula</button>
