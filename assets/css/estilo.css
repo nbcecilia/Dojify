@@ -105,7 +105,16 @@ a {
 a:hover {
     color: var(--text-secondary);
 }
+.titulo-formulario {
+    margin-bottom: 20px;
+}
 
+.logo-formulario {
+    width: 100px;
+    height: auto;
+    margin-bottom: 12px;
+    filter: grayscale(100%);
+}
 /* ----------------------------------------------------------
    BARRA SUPERIOR (NAVBAR FIXA COM LOGO)
    ---------------------------------------------------------- */

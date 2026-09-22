@@ -31,7 +31,7 @@ if (
 
     <main class="conteudo">
             <form action="../../controller/ModalidadeController.php" method="POST">
-            <div class="text-center" style="margin-bottom: 20px;">
+            <div class="text-center">
                 <img src="../../assets/img/dojify_logo1.png" alt="Dojify Logo" style="width: 100px; height: auto; margin-bottom: 12px; filter: grayscale(100%);">
                 <h2>Cadastrar Modalidade</h2>
             </div>

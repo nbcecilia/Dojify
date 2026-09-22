@@ -1,3 +1,4 @@
+```php
 <?php
 // view/gerente/home_gerente.php
 session_start();
@@ -97,6 +98,13 @@ if (!isset($_SESSION['usuario']) || (int)$_SESSION['usuario']['perfil_id'] !== 2
                     Gerir Modalidades
                 </a>
 
+                <a
+                    href="listar_turma.php"
+                    class="btn btn-dark"
+                >
+                    Gerir Turmas
+                </a>
+
             </div>
 
         </div>
@@ -115,3 +123,4 @@ if (!isset($_SESSION['usuario']) || (int)$_SESSION['usuario']['perfil_id'] !== 2
 
 </body>
 </html>
+```
