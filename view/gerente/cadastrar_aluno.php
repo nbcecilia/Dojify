@@ -63,6 +63,7 @@
             </form>
         </div>
     </div>
+     <a href="home_gerente.php">Voltar</a>
 
     <?php include '../includes/footer.php'; ?>
 </body>
