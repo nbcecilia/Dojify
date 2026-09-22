@@ -30,10 +30,11 @@ if (
     <?php include '../includes/sidebar.php'; ?>
 
     <main class="conteudo">
-
-        <h1>Cadastrar Modalidade</h1>
-
-        <form action="../../controller/ModalidadeController.php" method="POST">
+            <form action="../../controller/ModalidadeController.php" method="POST">
+            <div class="text-center" style="margin-bottom: 20px;">
+                <img src="../../assets/img/dojify_logo1.png" alt="Dojify Logo" style="width: 100px; height: auto; margin-bottom: 12px; filter: grayscale(100%);">
+                <h2>Cadastrar Modalidade</h2>
+            </div>
 
             <input type="hidden" name="acao" value="cadastrar">
 
