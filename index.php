@@ -26,7 +26,6 @@ session_start();
             <a href="#contato">Contato</a>
             <div class="nav-auth-buttons">
                 <a href="view/login.php" class="btn-login">Login</a>
-                <a href="controller/UsuarioController.php?acao=novo_cadastro" class="btn-cadastrar">Cadastrar</a>
             </div>
         </nav>
 
@@ -45,7 +44,6 @@ session_start();
         <a href="#contato">Contato</a>
         <div class="mobile-auth">
             <a href="view/login.php" class="btn-login-mobile">Login</a>
-            <a href="controller/UsuarioController.php?acao=novo_cadastro" class="btn-cadastrar-mobile">Cadastrar</a>
         </div>
     </div>
 
@@ -56,7 +54,7 @@ session_start();
                 <h2>A evolução na gestão da sua academia</h2>
                 <p>Simplifique o controle de graduações, alunos, turmas e frequências com uma plataforma moderna, segura e focada na simplicidade do tatame.</p>
                 <div class="hero-buttons">
-                    <a href="controller/UsuarioController.php?acao=novo_cadastro" class="btn-primary">Começar Agora</a>
+                    <a href="https://wa.me" target="_blank" class="btn-primary">Começar Agora</a>
                     <a href="#recursos" class="btn-secondary">Ver Recursos</a>
                 </div>
             </div>

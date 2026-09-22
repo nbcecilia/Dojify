@@ -84,6 +84,14 @@ if (!isset($_SESSION['usuario']) || (int)$_SESSION['usuario']['perfil_id'] !== 2
 
             <div class="acoes-topbar">
 
+                <!-- Botão adicionado para acesso ao formulário de cadastro de aluno -->
+                <a
+                    href="cadastrar_aluno.php"
+                    class="btn btn-primary"
+                >
+                    Cadastrar Aluno
+                </a>
+
                 <a
                     href="listar_usuarios.php"
                     class="btn btn-dark"

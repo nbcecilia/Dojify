@@ -430,3 +430,9 @@ button[type="submit"]:hover {
     margin-top: auto;
     border-top: 1px solid #222222;
 }
+/* Dicas e textos de ajuda em formulários */
+.form-hint {
+    display: block;
+    margin-top: 4px;
+    font-size: 0.75rem;
+}
