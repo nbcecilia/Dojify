@@ -24,7 +24,6 @@ session_start();
         </div>
         <div class="navbar-user">
             <a href="../index.php" class="btn btn-sm">Início</a>
-            <a href="../controller/UsuarioController.php?acao=novo_cadastro" class="btn btn-sm btn-success">Cadastrar</a>
         </div>
     </header>
 
@@ -39,7 +38,7 @@ session_start();
                 <h2>Acesso ao Sistema</h2>
             </div>
 
-            <!-- Mensagem de Erro (Usa a classe .alert-erro que já existe no teu CSS) -->
+            <!-- Mensagem de Erro -->
             <?php if (isset($_GET['erro'])): ?>
                 <div class="alert-erro">
                     <?php 
@@ -62,17 +61,18 @@ session_start();
             <label for="senha">Palavra-passe</label>
             <input type="password" id="senha" name="senha" placeholder="••••••••" required>
 
+            <!-- Link de Recuperação de Senha -->
+            <div style="text-align: right; margin-top: 8px; margin-bottom: 4px;">
+                <a href="login_recuperar.php" style="font-size: 0.8rem; text-decoration: none;" class="text-muted">Esqueceu a palavra-passe?</a>
+            </div>
+
             <!-- Botão de Submissão -->
             <button type="submit">Entrar</button>
 
-            <!-- Botão Voltar (Utiliza a classe .btn padrão) -->
+            <!-- Botão Voltar -->
             <a href="../index.php" class="btn" style="width: 100%; margin-top: 10px; background-color: transparent; border: 1px solid var(--border-color); color: var(--text-primary) !important;">
                 Voltar
             </a>
-
-            <div class="text-center" style="margin-top: 20px; font-size: 0.875rem;">
-                <span class="text-muted">Ainda não tem conta?</span> <a href="../controller/UsuarioController.php?acao=novo_cadastro">Cadastre-se</a>
-            </div>
 
         </form>
     </div>

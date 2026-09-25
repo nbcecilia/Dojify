@@ -1,0 +1,87 @@
+Listagem de caminhos de pasta
+O n£mero de s‚rie do volume ‚ 50F6-8B76
+C:.
+|   estrutura.txt
+|   estruturaexplicativa.txt
+|   estrutura_completa.txt
+|   index.php
+|   README.md
+|   SCRIPT_BD.txt
+|   
++---assets
+|   +---css
+|   |       estilo.css
+|   |       landing.css
+|   |       
+|   +---img
+|   |       dojify_logo.png
+|   |       dojify_logo1.png
+|   |       Dojify_original.png
+|   |       Dojify_original2.png
+|   |       
+|   \---js
+|           main.js
+|           usuario.js
+|           
++---controller
+|       AcademiaController.php
+|       FinanceiroController.php
+|       LoginController.php
+|       ModalidadeController.php
+|       turmacontroller.php
+|       UsuarioController.php
+|       
++---model
+|   +---dao
+|   |       AcademiaDAO.php
+|   |       Conexao.php
+|   |       LoginDAO.php
+|   |       ModalidadeDAO.php
+|   |       PlanoDAO.php
+|   |       TurmaDAO.php
+|   |       UsuarioDAO.php
+|   |       
+|   \---dto
+|           AcademiaDTO.php
+|           ModalidadeDTO.php
+|           PlanoDTO.php
+|           TurmaDTO.php
+|           UsuarioDTO.php
+|           
+\---view
+    |   login.php
+    |   login_recuperar.php
+    |   
+    +---admin
+    |       cadastrar_academia.php
+    |       cadastrar_gerente.php
+    |       editar_academia.php
+    |       editar_gerente.php
+    |       home_admin.php
+    |       listar_academias_gerentes.php
+    |       
+    +---aluno
+    +---gerente
+    |       cadastrar_aluno.php
+    |       cadastrar_modalidade.php
+    |       cadastrar_professor.php
+    |       cadastrar_turma.php
+    |       editar_aluno.php
+    |       editar_modalidade.php
+    |       editar_professor.php
+    |       editar_turma.php
+    |       home_gerente.php
+    |       listar_modalidade.php
+    |       listar_turma.php
+    |       listar_usuarios.php
+    |       
+    +---includes
+    |       footer.php
+    |       header.php
+    |       sidebar.php
+    |       
+    +---professor
+    \---usuarios
+            home_usuario.php
+            listarcadastrados.php
+            
