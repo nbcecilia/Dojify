@@ -18,29 +18,43 @@ class UsuarioController {
         $acao = $_REQUEST['acao'] ?? '';
 
         switch ($acao) {
+            // === AÇÕES DO GERENTE ===
             case 'cadastrar_aluno':
                 $this->cadastrarAluno();
                 break;
+            case 'cadastrar_professor':
+                $this->cadastrarProfessor();
+                break;
+            case 'atualizar_aluno':
+                $this->atualizarAluno();
+                break;
+            case 'alternar_status': 
+                $this->alternarStatus();
+                break;
+
+            // === AÇÕES DO ADMINISTRADOR ===
             case 'cadastrar_gerente':
                 $this->cadastrarGerente();
                 break;
             case 'atualizar':
                 $this->atualizar();
                 break;
-            case 'atualizar_aluno':
-                $this->atualizarAluno();
+            case 'atualizar_gerente':
+                $this->atualizarGerente();
                 break;
             case 'excluir':
                 $this->excluir();
                 break;
-            case 'alternar_status': 
-                $this->alternarStatus();
-                break;
+
             default:
                 header('Location: ../view/login.php');
                 exit;
         }
     }
+
+    // ==========================================
+    // MÉTODOS EXECUTADOS PELO GERENTE (Perfil 2)
+    // ==========================================
 
     private function cadastrarAluno(): void {
         if (!isset($_SESSION['usuario']) || (int)$_SESSION['usuario']['perfil_id'] !== 2) {
@@ -69,12 +83,10 @@ class UsuarioController {
 
             $nomePlano      = trim($_POST['nome_plano'] ?? '');
             
-            // Tratamento do valor do plano: converte vírgula para ponto e garante float
             $valorPlanoStr  = $_POST['valor_plano'] ?? '0';
             $valorPlanoStr  = str_replace(',', '.', $valorPlanoStr);
             $valorPlano     = (float)$valorPlanoStr;
 
-            // Tratamento dos campos opcionais (responsavel, observacao, data_matricula)
             $responsavel    = !empty($_POST['responsavel']) ? trim($_POST['responsavel']) : null;
             $observacao     = !empty($_POST['observacao']) ? trim($_POST['observacao']) : null;
             $dataMatricula  = !empty($_POST['data_matricula']) ? $_POST['data_matricula'] : date('Y-m-d');
@@ -83,6 +95,7 @@ class UsuarioController {
                 throw new Exception("Preencha todos os campos obrigatórios corretamente.");
             }
 
+            // Inserção do Aluno (Perfil 4)
             $sqlUsuario = "INSERT INTO usuario (id_academia, perfil_id, nome, cpf, data_nascimento, telefone, email, responsavel, observacao, data_matricula, status) 
                             VALUES (:id_academia, 4, :nome, :cpf, :data_nascimento, :telefone, :email, :responsavel, :observacao, :data_matricula, 'ATIVO')";
             
@@ -142,6 +155,83 @@ class UsuarioController {
         }
     }
 
+    private function cadastrarProfessor(): void {
+        if (!isset($_SESSION['usuario']) || (int)$_SESSION['usuario']['perfil_id'] !== 2) {
+            header('Location: ../view/login.php?erro=acesso_negado');
+            exit;
+        }
+
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header('Location: ../view/gerente/cadastrar_professor.php');
+            exit;
+        }
+
+        $pdo = null;
+
+        try {
+            $pdo = Conexao::getConexao();
+            $pdo->beginTransaction();
+
+            $idAcademia     = $_SESSION['usuario']['id_academia'] ?? null;
+            $nome           = trim($_POST['nome'] ?? '');
+            $cpf            = preg_replace('/[^0-9]/', '', $_POST['cpf'] ?? '');
+            $dataNascimento = $_POST['data_nascimento'] ?? '';
+            $telefone       = trim($_POST['telefone'] ?? '');
+            $email          = filter_input(INPUT_POST, 'email', FILTER_VALIDATE_EMAIL);
+            $senha          = $_POST['senha'] ?? '';
+            $especialidade  = trim($_POST['especialidade'] ?? '');
+            $dataAdmissao   = !empty($_POST['data_admissao']) ? $_POST['data_admissao'] : date('Y-m-d');
+
+            if (empty($idAcademia) || empty($nome) || empty($cpf) || empty($dataNascimento) || !$email || empty($senha)) {
+                throw new Exception("Preencha todos os campos obrigatórios corretamente.");
+            }
+
+            // Inserção do Professor (perfil_id = 3)
+            $sqlUsuario = "INSERT INTO usuario (id_academia, perfil_id, nome, cpf, data_nascimento, telefone, email, especialidade, data_admissao, status) 
+                            VALUES (:id_academia, 3, :nome, :cpf, :data_nascimento, :telefone, :email, :especialidade, :data_admissao, 'ATIVO')";
+            
+            $stmt = $pdo->prepare($sqlUsuario);
+            $stmt->execute([
+                ':id_academia'     => $idAcademia,
+                ':nome'            => $nome,
+                ':cpf'             => $cpf,
+                ':data_nascimento' => $dataNascimento,
+                ':telefone'        => $telefone,
+                ':email'           => $email,
+                ':especialidade'   => $especialidade,
+                ':data_admissao'   => $dataAdmissao
+            ]);
+            $idUsuarioNovo = $pdo->lastInsertId();
+
+            $senhaHash = password_hash($senha, PASSWORD_DEFAULT);
+            $sqlLogin = "INSERT INTO login (id_usuario, senha_hash) VALUES (:id_usuario, :senha_hash)";
+            
+            $stmtLogin = $pdo->prepare($sqlLogin);
+            $stmtLogin->execute([
+                ':id_usuario' => $idUsuarioNovo,
+                ':senha_hash' => $senhaHash
+            ]);
+
+            $pdo->commit();
+            header('Location: ../view/gerente/listar_usuarios.php?sucesso=professor_cadastrado');
+            exit;
+
+        } catch (Exception $e) {
+            if ($pdo instanceof PDO && $pdo->inTransaction()) {
+            $pdo->rollBack();
+            }
+    
+            if ($e->getCode() == '23000' || strpos($e->getMessage(), '1062') !== false) {
+            header('Location: ../view/gerente/cadastrar_professor.php?erro=cpf_duplicado');
+            exit;
+            }
+
+
+            header('Location: ../view/gerente/cadastrar_professor.php?erro=falha_cadastro');
+    exit;
+        }
+    }
+
     private function atualizarAluno(): void {
         if (!isset($_SESSION['usuario']) || (int)$_SESSION['usuario']['perfil_id'] !== 2) {
             header('Location: ../view/login.php?erro=acesso_negado');
@@ -177,7 +267,6 @@ class UsuarioController {
                 throw new Exception("Preencha todos os campos obrigatórios corretamente.");
             }
 
-            // Atualiza os dados cadastrais do aluno
             $sqlUsuario = "UPDATE usuario 
                            SET nome = :nome, telefone = :telefone, email = :email, 
                                responsavel = :responsavel, observacao = :observacao, status = :status 
@@ -195,7 +284,6 @@ class UsuarioController {
                 ':id_academia' => $idAcademia
             ]);
 
-            // Atualiza o plano ativo do aluno
             $sqlPlano = "UPDATE plano 
                          SET nome_plano = :nome_plano, valor = :valor 
                          WHERE id_usuario_aluno = :id_usuario_aluno AND status = 'ATIVO'";
@@ -219,7 +307,43 @@ class UsuarioController {
             exit;
         }
     }
-    
+
+    private function alternarStatus(): void {
+        if (!isset($_SESSION['usuario']) || (int)$_SESSION['usuario']['perfil_id'] !== 2) {
+            header('Location: ../view/login.php');
+            exit;
+        }
+
+        $id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
+        $novoStatus = $_GET['status'] ?? '';
+        $statusPermitidos = ['ATIVO', 'INATIVO', 'SUSPENSO'];
+
+        if ($id && in_array($novoStatus, $statusPermitidos)) {
+            $usuario = $this->dao->buscarPorId($id);
+            
+            if ($usuario && (int)$usuario['id_academia'] === (int)$_SESSION['usuario']['id_academia']) {
+                $uDTO = new UsuarioDTO();
+                $uDTO->setIdUsuario($id);
+                $uDTO->setNome($usuario['nome']);
+                $uDTO->setCpf($usuario['cpf']);
+                $uDTO->setDataNascimento($usuario['data_nascimento']);
+                $uDTO->setTelefone($usuario['telefone']);
+                $uDTO->setEmail($usuario['email']);
+                $uDTO->setStatus($novoStatus);
+
+                $this->dao->atualizar($uDTO);
+            }
+        }
+        
+        header('Location: ../view/gerente/listar_usuarios.php?sucesso=1');
+        exit;
+    }
+
+
+    // ==========================================
+    // MÉTODOS EXECUTADOS PELO ADMINISTRADOR (Perfil 1)
+    // ==========================================
+
     private function cadastrarGerente(): void {
         if (!isset($_SESSION['usuario']) || (int)$_SESSION['usuario']['perfil_id'] !== 1) {
             header('Location: ../view/login.php');
@@ -234,7 +358,7 @@ class UsuarioController {
         try {
             $u = new UsuarioDTO();
             $u->setIdAcademia((int)($_POST['id_academia'] ?? 0));
-            $u->setPerfilId(2);
+            $u->setPerfilId(2); // Perfil 2 = Gerente
             $u->setNome(trim($_POST['nome'] ?? ''));
             $u->setCpf(preg_replace('/[^0-9]/', '', $_POST['cpf'] ?? ''));
             $u->setDataNascimento($_POST['data_nascimento'] ?? '');
@@ -298,6 +422,58 @@ class UsuarioController {
         exit;
     }
 
+    private function atualizarGerente(): void {
+        if (!isset($_SESSION['usuario']) || (int)$_SESSION['usuario']['perfil_id'] !== 1) {
+            header('Location: ../view/login.php?erro=acesso_negado');
+            exit;
+        }
+
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header('Location: ../view/admin/home_admin.php');
+            exit;
+        }
+
+        try {
+            $idUsuario  = filter_input(INPUT_POST, 'id_usuario', FILTER_VALIDATE_INT);
+            $nome       = trim($_POST['nome'] ?? '');
+            $email      = filter_input(INPUT_POST, 'email', FILTER_VALIDATE_EMAIL);
+            $telefone   = trim($_POST['telefone'] ?? '');
+            $idAcademia = filter_input(INPUT_POST, 'id_academia', FILTER_VALIDATE_INT);
+            $status     = $_POST['status'] ?? 'ATIVO';
+
+            if (!$idUsuario || empty($nome) || !$email || !$idAcademia) {
+                header('Location: ../view/admin/editar_gerente.php?id=' . $idUsuario . '&erro=dados_incompletos');
+                exit;
+            }
+
+            $usuarioAtual = $this->dao->buscarPorId($idUsuario);
+            if (!$usuarioAtual || (int)$usuarioAtual['perfil_id'] !== 2) {
+                header('Location: ../view/admin/home_admin.php?erro=nao_encontrado');
+                exit;
+            }
+
+            $uDTO = new UsuarioDTO();
+            $uDTO->setIdUsuario($idUsuario);
+            $uDTO->setIdAcademia($idAcademia);
+            $uDTO->setPerfilId(2);
+            $uDTO->setNome($nome);
+            $uDTO->setCpf($usuarioAtual['cpf']);
+            $uDTO->setDataNascimento($usuarioAtual['data_nascimento']);
+            $uDTO->setTelefone($telefone);
+            $uDTO->setEmail($email);
+            $uDTO->setStatus($status);
+
+            if ($this->dao->atualizar($uDTO)) {
+                header('Location: ../view/admin/home_admin.php?sucesso=gerente_atualizado');
+            } else {
+                header('Location: ../view/admin/editar_gerente.php?id=' . $idUsuario . '&erro=falha_atualizacao');
+            }
+        } catch (Exception $e) {
+            header('Location: ../view/admin/home_admin.php?erro=excecao');
+        }
+        exit;
+    }
+
     private function excluir(): void {
         if (!isset($_SESSION['usuario']) || (int)$_SESSION['usuario']['perfil_id'] !== 1) {
             header('Location: ../view/login.php');
@@ -320,37 +496,6 @@ class UsuarioController {
         } catch (Exception $e) {
             header('Location: ../view/admin/home_admin.php?erro=excecao');
         }
-        exit;
-    }
-
-    private function alternarStatus(): void {
-        if (!isset($_SESSION['usuario']) || (int)$_SESSION['usuario']['perfil_id'] !== 2) {
-            header('Location: ../view/login.php');
-            exit;
-        }
-
-        $id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
-        $novoStatus = $_GET['status'] ?? '';
-        $statusPermitidos = ['ATIVO', 'INATIVO', 'SUSPENSO'];
-
-        if ($id && in_array($novoStatus, $statusPermitidos)) {
-            $usuario = $this->dao->buscarPorId($id);
-            
-            if ($usuario && (int)$usuario['id_academia'] === (int)$_SESSION['usuario']['id_academia']) {
-                $uDTO = new UsuarioDTO();
-                $uDTO->setIdUsuario($id);
-                $uDTO->setNome($usuario['nome']);
-                $uDTO->setCpf($usuario['cpf']);
-                $uDTO->setDataNascimento($usuario['data_nascimento']);
-                $uDTO->setTelefone($usuario['telefone']);
-                $uDTO->setEmail($usuario['email']);
-                $uDTO->setStatus($novoStatus);
-
-                $this->dao->atualizar($uDTO);
-            }
-        }
-        
-        header('Location: ../view/gerente/listar_usuarios.php?sucesso=1');
         exit;
     }
 }

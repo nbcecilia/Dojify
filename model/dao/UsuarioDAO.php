@@ -93,7 +93,7 @@ class UsuarioDAO {
         return $resultado ? $resultado : null;
     }
 
-    /* Atualiza os dados cadastrais de um usuário existente */
+    /* Atualiza os dados cadastrais de um usuário existente*/
     public function atualizar(UsuarioDTO $u): bool {
         try {
             $sql = "UPDATE usuario SET 
@@ -102,6 +102,7 @@ class UsuarioDAO {
                         data_nascimento = :data_nascimento, 
                         telefone = :telefone, 
                         email = :email, 
+                        especialidade = :especialidade,
                         status = :status 
                     WHERE id_usuario = :id_usuario";
             
@@ -111,6 +112,7 @@ class UsuarioDAO {
             $stmt->bindValue(':data_nascimento', $u->getDataNascimento());
             $stmt->bindValue(':telefone', $u->getTelefone());
             $stmt->bindValue(':email', $u->getEmail());
+            $stmt->bindValue(':especialidade', $u->getEspecialidade() ?: null);
             $stmt->bindValue(':status', $u->getStatus());
             $stmt->bindValue(':id_usuario', $u->getIdUsuario(), PDO::PARAM_INT);
             

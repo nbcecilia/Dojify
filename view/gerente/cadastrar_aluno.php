@@ -21,7 +21,7 @@
         <form action="../../controller/UsuarioController.php?acao=cadastrar_aluno" method="POST">
             <div class="text-center" style="margin-bottom: 20px;">
                 <img src="../../assets/img/dojify_logo1.png" alt="Dojify Logo" style="width: 100px; height: auto; margin-bottom: 12px; filter: grayscale(100%);">
-                <h2>Registrar Novo Aluno</h2>
+                <h2>Cadastrar Novo Aluno</h2>
             </div>
             
             <div>
@@ -50,7 +50,7 @@
             </div>
 
             <div>
-                <label for="senha">Palavra-passe (Senha):</label>
+                <label for="senha">Senha temporária de Acesso:</label>
                 <input type="password" id="senha" name="senha" placeholder="Mínimo de 6 caracteres" required>
             </div>
 

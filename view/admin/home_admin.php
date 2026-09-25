@@ -1,21 +1,9 @@
 <?php
-//view/admin/home_admin.php
+// view/admin/home_admin.php
 session_start();
 if (!isset($_SESSION['usuario']) || $_SESSION['usuario']['perfil_id'] != 1) {
     header('Location: ../login.php');
     exit;
-}
-
-require_once '../../model/dao/AcademiaDAO.php';
-$dao = new AcademiaDAO();
-
-// Verifica se há termo de busca na URL
-$termo = trim($_GET['busca'] ?? '');
-
-if (!empty($termo)) {
-    $lista = $dao->buscarAcademiasEGerentes($termo);
-} else {
-    $lista = $dao->listarAcademiasEGerentes();
 }
 ?>
 <!DOCTYPE html>
@@ -24,10 +12,12 @@ if (!empty($termo)) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Admin - Dojify</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Estilo Personalizado Dojify -->
     <link rel="stylesheet" href="../../assets/css/estilo.css">
 </head>
 <body>
-    <!-- Navbar Padronizada-->
     <header class="navbar">
         <div class="navbar-brand">
             <a href="home_admin.php" class="logo-link">
@@ -39,117 +29,68 @@ if (!empty($termo)) {
         </div>
         
         <div class="navbar-user">
-            <span class="user-greeting">Logado como: <strong><?= htmlspecialchars($_SESSION['usuario']['nome']) ?></strong></span>
+            <span class="user-greeting">Logado como: <strong><?= htmlspecialchars($_SESSION['usuario']['nome']) ?></strong> (Suporte Técnico)</span>
             <a href="../../controller/LoginController.php?acao=logout" class="btn btn-sm btn-danger">Sair</a>
         </div>
     </header>
     
-        <div class="container">
-        <!-- BOTÕES CADASTRAR ACADEMIA E GERENTE-->
-        <div class="acoes-topbar">
-        <a href="cadastrar_academia.php" class="btn btn-success">🏢 Cadastrar Academia</a>
-        <a href="cadastrar_gerente.php" class="btn btn-info">👤 Cadastrar Gerente</a>
-        </div>
+    <div class="container my-4">
+        <h2 class="text-center mb-3">Painel do Administrador</h2>
+        <p class="text-muted text-center mb-4">Bem-vindo ao sistema de suporte técnico do Dojify. Selecione uma opção abaixo para gerir o ecossistema:</p>
 
-        <!-- BARRA DE PESQUISA -->
-        <div class="busca-container">
-            <form action="home_admin.php" method="GET" class="busca-form">
-                <input type="text" 
-                       name="busca" 
-                       class="busca-input" 
-                       placeholder="Pesquisar por nome da academia, CNPJ/CPF, e-mail ou gerente..." 
-                       value="<?= htmlspecialchars($termo) ?>">
-                
-                <button type="submit" class="busca-btn btn">🔍 Pesquisar</button>
-                
-                <?php if (!empty($termo)): ?>
-                    <a href="home_admin.php" class="btn btn-danger busca-btn">✖ Limpar Filtro</a>
-                <?php endif; ?>
-            </form>
-        </div>
-
+        <!-- Mensagens de Feedback -->
         <?php if (isset($_GET['sucesso'])): ?>
             <div class="alert-sucesso">Operação realizada com sucesso!</div>
         <?php endif; ?>
-
         <?php if (isset($_GET['erro'])): ?>
             <div class="alert-erro">Não foi possível realizar a operação. Verifique os dados fornecidos.</div>
         <?php endif; ?>
 
-        <h2>Academias e Gestores Cadastrados</h2>
-        
-        <table>
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Academia (CNPJ/CPF)</th>
-                    <th>Contato Academia</th>
-                    <th>Gerente Responsável</th>
-                    <th>Contato Gerente</th>
-                    <th class="text-center">Ações</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php if (empty($lista)): ?>
-                    <tr>
-                        <td colspan="6" class="text-center">
-                            <?= !empty($termo) ? 'Nenhuma academia encontrada para a busca "' . htmlspecialchars($termo) . '".' : 'Nenhuma academia cadastrada.' ?>
-                        </td>
-                    </tr>
-                <?php endif; ?>
+        <!-- Atalhos Principais com Grelha do Bootstrap -->
+        <div class="row g-4 justify-content-center">
+            <div class="col-md-4">
+                <div class="card h-100 shadow-sm border p-4 text-center">
+                    <div class="card-body d-flex flex-column justify-content-between">
+                        <div>
+                            <h3 class="h5 card-title mb-3">Academias & Gerentes</h3>
+                            <p class="text-muted small mb-4">Visualize, pesquise e gira todas as academias e os respetivos gestores.</p>
+                        </div>
+                        <a href="listar_academias_gerentes.php" class="btn btn-warning w-100">Gerir Academias</a>
+                    </div>
+                </div>
+            </div>
 
-                <?php foreach ($lista as $linha): ?>
-                <tr>
-                    <td><?= htmlspecialchars($linha['id_academia']) ?></td>
-                    <td>
-                        <strong><?= htmlspecialchars($linha['academia_nome']) ?></strong><br>
-                        <small class="text-muted">Doc: <?= htmlspecialchars($linha['documento']) ?></small>
-                    </td>
-                    <td>
-                        <?= htmlspecialchars($linha['academia_email']) ?><br>
-                        <small class="text-muted"><?= htmlspecialchars($linha['academia_telefone']) ?></small>
-                    </td>
-                    <td>
-                        <?php if (!empty($linha['gerente_nome'])): ?>
-                            <?= htmlspecialchars($linha['gerente_nome']) ?>
-                        <?php else: ?>
-                            <span class="text-muted">Sem gerente vinculado</span>
-                        <?php endif; ?>
-                    </td>
-                    <td>
-                        <?php if (!empty($linha['gerente_email'])): ?>
-                            <?= htmlspecialchars($linha['gerente_email']) ?><br>
-                            <small class="text-muted"><?= htmlspecialchars($linha['gerente_telefone']) ?></small>
-                        <?php else: ?>
-                            <span class="text-muted">-</span>
-                        <?php endif; ?>
-                    </td>
-                    <td class="text-center">
-                        <!-- 1. Editar Academia -->
-                        <a href="editar_academia.php?id=<?= $linha['id_academia'] ?>" class="btn btn-sm btn-warning">Editar Academia</a>
-                        
-                        <!-- 2. Excluir Academia -->
-                        <a href="../../controller/AcademiaController.php?acao=excluir&id=<?= $linha['id_academia'] ?>" 
-                           class="btn btn-sm btn-danger" 
-                           onclick="return confirm('Tem certeza que deseja excluir esta academia e os dados vinculados?')">Excluir Academia</a>
+            <div class="col-md-4">
+                <div class="card h-100 shadow-sm border p-4 text-center">
+                    <div class="card-body d-flex flex-column justify-content-between">
+                        <div>
+                            <h3 class="h5 card-title mb-3">Nova Academia</h3>
+                            <p class="text-muted small mb-4">Registe uma nova academia no sistema.</p>
+                        </div>
+                        <a href="cadastrar_academia.php" class="btn btn-success w-100">+ Cadastrar Academia</a>
+                    </div>
+                </div>
+            </div>
 
-                        <?php if (!empty($linha['id_gerente'])): ?>
-                            <!-- 3. Editar Gerente -->
-                            <a href="editar_gerente.php?id=<?= $linha['id_gerente'] ?>" class="btn btn-sm btn-info">Editar Gerente</a>
-                            
-                            <!-- 4. Excluir Gerente -->
-                            <a href="../../controller/UsuarioController.php?acao=excluir&id=<?= $linha['id_gerente'] ?>" 
-                               class="btn btn-sm btn-danger" 
-                               onclick="return confirm('Tem certeza que deseja excluir este gerente?')">Excluir Gerente</a>
-                        <?php endif; ?>
-                    </td>
-                </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
+            <div class="col-md-4">
+                <div class="card h-100 shadow-sm border p-4 text-center">
+                    <div class="card-body d-flex flex-column justify-content-between">
+                        <div>
+                            <h3 class="h5 card-title mb-3">Novo Gerente</h3>
+                            <p class="text-muted small mb-4">Cadastre um novo gestor para uma academia.</p>
+                        </div>
+                        <a href="cadastrar_gerente.php" class="btn btn-info w-100">+ Cadastrar Gerente</a>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
+
     <footer class="footer">
-            <p>&copy; <?php echo date('Y'); ?> Dojify. Todos os direitos reservados.</p>
+        <p>&copy; <?= date('Y'); ?> Dojify. Todos os direitos reservados.</p>
     </footer>
+
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

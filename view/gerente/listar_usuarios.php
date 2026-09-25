@@ -176,6 +176,9 @@ foreach ($usuarios as $u) {
                             </td>
                             <td>
                                 <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                                    <!-- Botão de Editar Professor -->
+                                    <a href="editar_professor.php?id=<?php echo $u['id_usuario']; ?>" class="btn btn-sm btn-info">Editar</a>
+
                                     <?php if ($u['status'] !== 'ATIVO'): ?>
                                         <a href="../../controller/UsuarioController.php?acao=alternar_status&id=<?php echo $u['id_usuario']; ?>&status=ATIVO" class="btn btn-sm btn-success">Ativar</a>
                                     <?php endif; ?>
@@ -234,7 +237,7 @@ foreach ($usuarios as $u) {
                             </td>
                             <td>
                                 <div style="display: flex; gap: 6px; flex-wrap: wrap;">
-                                    <!-- Botão de Editar a usar a classe .btn-info já existente no design system -->
+                                    <!-- Botão de Editar Aluno -->
                                     <a href="editar_aluno.php?id=<?php echo $u['id_usuario']; ?>" class="btn btn-sm btn-info">Editar</a>
 
                                     <?php if ($u['status'] !== 'ATIVO'): ?>
