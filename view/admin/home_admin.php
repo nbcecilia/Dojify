@@ -53,7 +53,7 @@ if (!isset($_SESSION['usuario']) || $_SESSION['usuario']['perfil_id'] != 1) {
                     <div class="card-body d-flex flex-column justify-content-between">
                         <div>
                             <h3 class="h5 card-title mb-3">Academias & Gerentes</h3>
-                            <p class="text-muted small mb-4">Visualize, pesquise e gira todas as academias e os respetivos gestores.</p>
+                            <p class="text-muted small mb-4">Visualize, pesquise e gerencie todas as academias e os respetivos gestores.</p>
                         </div>
                         <a href="listar_academias_gerentes.php" class="btn btn-warning w-100">Gerir Academias</a>
                     </div>
