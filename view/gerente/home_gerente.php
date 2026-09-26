@@ -1,7 +1,5 @@
 <?php
-// ========================================================================
-// 1. CONFIGURAÇÕES INICIAIS E SEGURANÇA
-// ========================================================================
+//  view/gerente/home_gerente.php
 
 session_start();
 
@@ -24,30 +22,23 @@ if (!isset($_SESSION['usuario']) || (int)$_SESSION['usuario']['perfil_id'] !== 2
 
 <body style="background-color: var(--bg-body, #f8f9fa);">
 
-    <!-- ========================================================================
-         2. CABEÇALHO DA PÁGINA (Com o sino de notificações)
-         ======================================================================== -->
     <?php include '../includes/header.php'; ?>
 
-
-    <!-- ========================================================================
-         3. CONTEÚDO PRINCIPAL (DASHBOARD COM 6 CARTÕES)
-         ======================================================================== -->
     <main class="container py-4">
         
-        <h2 class="text-center mb-3">Painel do Gerente</h2>
+        <h2 class="text-center mb-2">Painel do Gerente</h2>
         <p class="text-muted text-center mb-5">Painel de controlo e gestão da sua academia.</p>
 
-        <!-- PRIMEIRA LINHA (3 Cartões) -->
+      
         <div class="row g-4 justify-content-center mb-4">
             
             <!-- Cartão 1: Cadastrar Aluno -->
-            <div class="col-md-4">
-                <div class="card h-100 shadow-sm border p-4 text-center">
+            <div class="col-md-6 col-lg-3">
+                <div class="card h-100 shadow-sm border p-3 text-center">
                     <div class="card-body d-flex flex-column justify-content-between">
                         <div>
-                            <h3 class="h5 card-title mb-3">Cadastrar Aluno</h3>
-                            <p class="text-muted small mb-4">Registe um novo aluno no sistema da sua academia.</p>
+                            <h3 class="h5 card-title mb-2">Cadastrar Aluno</h3>
+                            <p class="text-muted small mb-4">Registe um novo aluno no sistema.</p>
                         </div>
                         <a href="cadastrar_aluno.php" class="btn btn-success w-100">+ Cadastrar Aluno</a>
                     </div>
@@ -55,12 +46,12 @@ if (!isset($_SESSION['usuario']) || (int)$_SESSION['usuario']['perfil_id'] !== 2
             </div>
 
             <!-- Cartão 2: Cadastrar Professor -->
-            <div class="col-md-4">
-                <div class="card h-100 shadow-sm border p-4 text-center">
+            <div class="col-md-6 col-lg-3">
+                <div class="card h-100 shadow-sm border p-3 text-center">
                     <div class="card-body d-flex flex-column justify-content-between">
                         <div>
-                            <h3 class="h5 card-title mb-3">Cadastrar Professor</h3>
-                            <p class="text-muted small mb-4">Registe um novo professor para lecionar nas turmas.</p>
+                            <h3 class="h5 card-title mb-2">Cadastrar Professor</h3>
+                            <p class="text-muted small mb-4">Registe um novo professor na academia.</p>
                         </div>
                         <a href="cadastrar_professor.php" class="btn btn-info w-100 text-white">+ Cadastrar Professor</a>
                     </div>
@@ -68,66 +59,76 @@ if (!isset($_SESSION['usuario']) || (int)$_SESSION['usuario']['perfil_id'] !== 2
             </div>
 
             <!-- Cartão 3: Gerir Utilizadores -->
-            <div class="col-md-4">
-                <div class="card h-100 shadow-sm border p-4 text-center">
+            <div class="col-md-6 col-lg-3">
+                <div class="card h-100 shadow-sm border p-3 text-center">
                     <div class="card-body d-flex flex-column justify-content-between">
                         <div>
-                            <h3 class="h5 card-title mb-3">Alunos & Professores</h3>
-                            <p class="text-muted small mb-4">Visualize, pesquise e faça a gestão de todos os utilizadores.</p>
+                            <h3 class="h5 card-title mb-2">Alunos & Professores</h3>
+                            <p class="text-muted small mb-4">Gerencie todos os utilizadores.</p>
                         </div>
-                        <a href="listar_usuarios.php" class="btn btn-warning w-100">Gerir Alunos & Professores</a>
+                        <a href="listar_usuarios.php" class="btn btn-warning w-100">Gerir Utilizadores</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cartão 4: Planos e Mensalidades -->
+            <div class="col-md-6 col-lg-3">
+                <div class="card h-100 shadow-sm border p-3 text-center">
+                    <div class="card-body d-flex flex-column justify-content-between">
+                        <div>
+                            <h3 class="h5 card-title mb-2">Planos</h3>
+                            <p class="text-muted small mb-4">Gerir planos e vigências dos alunos.</p>
+                        </div>
+                        <a href="listar_plano.php" class="btn btn-primary w-100">Gerir Planos</a>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- SEGUNDA LINHA (3 Cartões) -->
+        <!-- SEGUNDA LINHA -->
         <div class="row g-4 justify-content-center mb-4">
             
-            <!-- Cartão 4: Modalidades -->
-            <div class="col-md-4">
-                <div class="card h-100 shadow-sm border p-4 text-center">
+            <!-- Cartão 5: Modalidades -->
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 shadow-sm border p-3 text-center">
                     <div class="card-body d-flex flex-column justify-content-between">
                         <div>
-                            <h3 class="h5 card-title mb-3">Modalidades</h3>
-                            <p class="text-muted small mb-4">Configure as artes marciais oferecidas pela academia.</p>
+                            <h3 class="h5 card-title mb-2">Modalidades</h3>
+                            <p class="text-muted small mb-4">Configure as artes marciais oferecidas.</p>
                         </div>
                         <a href="listar_modalidade.php" class="btn btn-secondary w-100">Gerir Modalidades</a>
                     </div>
                 </div>
             </div>
 
-            <!-- Cartão 5: Turmas -->
-            <div class="col-md-4">
-                <div class="card h-100 shadow-sm border p-4 text-center">
+            <!-- Cartão 6: Turmas -->
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 shadow-sm border p-3 text-center">
                     <div class="card-body d-flex flex-column justify-content-between">
                         <div>
-                            <h3 class="h5 card-title mb-3">Turmas</h3>
-                            <p class="text-muted small mb-4">Crie e organize turmas, horários e atribua professores.</p>
+                            <h3 class="h5 card-title mb-2">Turmas</h3>
+                            <p class="text-muted small mb-4">Crie turmas, horários e professores.</p>
                         </div>
                         <a href="listar_turma.php" class="btn btn-dark w-100">Gerir Turmas</a>
                     </div>
                 </div>
             </div>
 
-            <!-- Cartão 6: Financeiro -->
-            <div class="col-md-4">
-                <div class="card h-100 shadow-sm border p-4 text-center">
+            <!-- Cartão 7: Financeiro -->
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 shadow-sm border p-3 text-center">
                     <div class="card-body d-flex flex-column justify-content-between">
                         <div>
-                            <h3 class="h5 card-title mb-3">Financeiro</h3>
-                            <p class="text-muted small mb-4">Controle mensalidades, veja atrasos e emita relatórios.</p>
+                            <h3 class="h5 card-title mb-2">Financeiro</h3>
+                            <p class="text-muted small mb-4">Controle de mensalidades e pagamentos.</p>
                         </div>
-                        <a href="pagamentos.php" class="btn btn-success w-100">Gerir Pagamentos</a>
+                        <a href="listar_pagamentos.php" class="btn btn-success w-100">Gerir Pagamentos</a>
                     </div>
                 </div>
             </div>
         </div>
     </main>
 
-    <!-- ========================================================================
-         4. RODAPÉ E SCRIPTS
-         ======================================================================== -->
     <?php include '../includes/footer.php'; ?>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>

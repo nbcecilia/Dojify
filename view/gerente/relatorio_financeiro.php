@@ -45,6 +45,7 @@ if (isset($_GET['filtrar'])) {
             table { width: 100%; border-collapse: collapse; }
             th, td { border: 1px solid #ccc; padding: 8px; font-size: 12px; }
             th { background-color: #f1f5f9 !important; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+            span[style*="background-color"] { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
         }
     </style>
 </head>
@@ -62,25 +63,27 @@ if (isset($_GET['filtrar'])) {
         </div>
 
         <!-- Formulário de Filtros (Não aparece na impressão) -->
-        <form method="GET" class="no-print" style="max-width: 100%; display: flex; gap: 16px; align-items: flex-end; margin-bottom: 24px; padding: 16px; background: var(--bg-hover); border-radius: 8px;">
-            <div style="flex: 1;">
+        <form method="GET" class="no-print" style="max-width: 100%; display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-end; margin-bottom: 24px; padding: 16px; background: var(--bg-hover); border-radius: 8px;">
+            <div style="flex: 1; min-width: 150px;">
                 <label for="data_inicio">Data Início</label>
-                <input type="date" name="data_inicio" id="data_inicio" value="<?= htmlspecialchars($dataInicio) ?>" required style="margin-top: 4px;">
+                <input type="date" name="data_inicio" id="data_inicio" value="<?= htmlspecialchars($dataInicio) ?>" required style="margin-top: 4px; width: 100%;">
             </div>
-            <div style="flex: 1;">
+            <div style="flex: 1; min-width: 150px;">
                 <label for="data_fim">Data Fim</label>
-                <input type="date" name="data_fim" id="data_fim" value="<?= htmlspecialchars($dataFim) ?>" required style="margin-top: 4px;">
+                <input type="date" name="data_fim" id="data_fim" value="<?= htmlspecialchars($dataFim) ?>" required style="margin-top: 4px; width: 100%;">
             </div>
-            <div style="flex: 1;">
+            <div style="flex: 1; min-width: 150px;">
                 <label for="status">Estado</label>
-                <select name="status" id="status" style="margin-top: 4px;">
+                <select name="status" id="status" style="margin-top: 4px; width: 100%;">
                     <option value="TODOS" <?= $status === 'TODOS' ? 'selected' : '' ?>>Todos</option>
                     <option value="PAGO" <?= $status === 'PAGO' ? 'selected' : '' ?>>Pagos</option>
                     <option value="PENDENTE" <?= $status === 'PENDENTE' ? 'selected' : '' ?>>Pendentes</option>
                     <option value="ATRASADO" <?= $status === 'ATRASADO' ? 'selected' : '' ?>>Atrasados</option>
                 </select>
             </div>
-            <button type="submit" name="filtrar" value="1" class="btn btn-info" style="margin-top: 0; height: 42px;">Gerar</button>
+            <div style="flex: 0 0 auto;">
+                <button type="submit" name="filtrar" value="1" class="btn btn-info" style="margin-top: 0; height: 42px; width: auto !important; padding: 0 24px;">Gerar</button>
+            </div>
         </form>
 
         <!-- Área do Relatório (Aparece na impressão) -->
@@ -110,12 +113,33 @@ if (isset($_GET['filtrar'])) {
                     </thead>
                     <tbody>
                         <?php foreach ($dadosRelatorio as $pag): ?>
+                            <?php 
+                                // Definir cores do badge conforme o estado
+                                $statusUpper = strtoupper($pag['status']);
+                                if ($statusUpper === 'PAGO') {
+                                    $bgBadge = '#d1fae5';
+                                    $txtBadge = '#065f46';
+                                } elseif ($statusUpper === 'PENDENTE') {
+                                    $bgBadge = '#fef3c7';
+                                    $txtBadge = '#92400e';
+                                } elseif ($statusUpper === 'ATRASADO') {
+                                    $bgBadge = '#fee2e2';
+                                    $txtBadge = '#991b1b';
+                                } else {
+                                    $bgBadge = '#e2e8f0';
+                                    $txtBadge = '#475569';
+                                }
+                            ?>
                             <tr>
                                 <td><?= htmlspecialchars($pag['aluno_nome']) ?></td>
                                 <td><?= htmlspecialchars($pag['nome_plano']) ?></td>
                                 <td><?= date('d/m/Y', strtotime($pag['data_vencimento'])) ?></td>
                                 <td><?= number_format($pag['valor'], 2, ',', '.') ?></td>
-                                <td><?= htmlspecialchars($pag['status']) ?></td>
+                                <td>
+                                    <span style="display: inline-block; padding: 4px 10px; border-radius: 12px; font-size: 0.85rem; font-weight: 600; background-color: <?= $bgBadge ?>; color: <?= $txtBadge ?>;">
+                                        <?= htmlspecialchars($pag['status']) ?>
+                                    </span>
+                                </td>
                                 <td><?= $pag['forma_pagamento'] ? htmlspecialchars($pag['forma_pagamento']) : '-' ?></td>
                             </tr>
                         <?php endforeach; ?>

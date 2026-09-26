@@ -18,6 +18,7 @@ class PagamentoDAO {
                 INNER JOIN plano pl ON p.id_plano_matricula = pl.id_plano
                 INNER JOIN usuario u ON pl.id_usuario_aluno = u.id_usuario
                 WHERE u.id_academia = :id_academia
+                AND u.perfil_id = 4
                 ORDER BY p.data_vencimento ASC";
                 
         $stmt = $this->conexao->prepare($sql);

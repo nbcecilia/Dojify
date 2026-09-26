@@ -1,5 +1,5 @@
 <?php
-// view/gerente/pagamentos.php
+// view/gerente/listar_pagamentos.php
 
 session_start();
 
