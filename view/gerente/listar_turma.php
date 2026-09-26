@@ -33,23 +33,23 @@ $turmas = $dao->listarPorAcademia($idAcademia);
 
 <body>
 
-    <!-- 1. Adicionado o topo dinâmico (com logotipo e sino de notificações) -->
+    <!-- Topo dinâmico (com logotipo e notificações) -->
     <?php include '../includes/header.php'; ?>
 
-    <!-- 2. Alterada a classe para 'container' (para não encostar nas bordas) -->
+    <!-- Conteúdo principal -->
     <main class="container" style="padding-top: 24px; padding-bottom: 24px;">
 
-        <!-- 3. Novo cabeçalho flexível: Título à esquerda, botões à direita -->
+        <!-- Cabeçalho flexível: Título à esquerda, botões à direita -->
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
             <h1 style="margin: 0;">Turmas</h1>
             
             <div style="display: flex; gap: 12px;">
-                <!-- O seu botão de Cadastrar original -->
+                <!-- Botão de Cadastrar Turma -->
                 <a href="cadastrar_turma.php" class="btn btn-success">
                     + Cadastrar Turma
                 </a>
                 
-                <!-- Novo botão para voltar à página principal sem precisar do menu lateral -->
+                <!-- Botão para voltar à página principal -->
                 <a href="home_gerente.php" class="btn" style="background-color: var(--border-color); color: var(--text-primary) !important; text-decoration: none;">
                     ⬅ Voltar ao Painel
                 </a>
@@ -93,6 +93,10 @@ $turmas = $dao->listarPorAcademia($idAcademia);
                             <td><?= htmlspecialchars($turma['nivel']) ?></td>
                             <td><?= htmlspecialchars($turma['status']) ?></td>
                             <td>
+                                <!-- Botão de Gestão de Horários corrigido para usar o ID da turma atual -->
+                                <a href="gerenciar_horarios_turma.php?id=<?= $turma['id_turma'] ?>" class="btn btn-warning btn-sm">
+                                    Gerir Horário
+                                </a>
                                 <a href="editar_turma.php?id=<?= $turma['id_turma'] ?>" class="btn btn-info btn-sm">
                                     Editar
                                 </a>
@@ -110,7 +114,7 @@ $turmas = $dao->listarPorAcademia($idAcademia);
 
     </main>
 
-    <!-- Adicionado o rodapé para manter o padrão -->
+    <!-- Rodapé -->
     <?php include '../includes/footer.php'; ?>
 
 </body>

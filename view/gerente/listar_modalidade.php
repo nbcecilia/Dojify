@@ -15,9 +15,7 @@ if (
 require_once __DIR__ . '/../../model/dao/ModalidadeDAO.php';
 
 $dao = new ModalidadeDAO();
-
 $idAcademia = (int) $_SESSION['id_academia'];
-
 $modalidades = $dao->listarPorAcademia($idAcademia);
 ?>
 
@@ -25,177 +23,85 @@ $modalidades = $dao->listarPorAcademia($idAcademia);
 <html lang="pt-br">
 
 <head>
-
     <meta charset="UTF-8">
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>Modalidades - Dojify</title>
-
     <link rel="stylesheet" href="../../assets/css/estilo.css">
-
 </head>
 
 <body>
 
-    <header class="navbar">
+    <!-- Topo dinâmico -->
+    <?php include '../includes/header.php'; ?>
 
-        <div class="navbar-brand">
+    <!-- Conteúdo principal -->
+    <main class="container" style="padding-top: 24px; padding-bottom: 24px;">
 
-            <a href="home_gerente.php" class="logo-link">
-
-                <img
-                    src="../../assets/img/Dojify_original2.png"
-                    alt="Dojify Logo"
-                    class="navbar-logo"
-                >
-
-                <div>
-                    <h1>Dojify</h1>
-                </div>
-
-            </a>
-
+        <!-- Cabeçalho flexível: Título à esquerda, botões à direita -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+            <h1 style="margin: 0;">Modalidades</h1>
+            
+            <div style="display: flex; gap: 12px;">
+                <!-- Botão de Cadastrar Modalidade -->
+                <a href="cadastrar_modalidade.php" class="btn btn-success">
+                    + Cadastrar Modalidade
+                </a>
+                
+                <!-- Botão para voltar ao painel -->
+                <a href="home_gerente.php" class="btn" style="background-color: var(--border-color); color: var(--text-primary) !important; text-decoration: none;">
+                    ⬅ Voltar ao Painel
+                </a>
+            </div>
         </div>
-
-        <div class="navbar-user">
-
-            <span class="user-greeting">
-                Olá,
-                <strong>
-                    <?= htmlspecialchars($_SESSION['usuario']['nome']) ?>
-                </strong>
-            </span>
-
-            <a href="home_gerente.php" class="btn btn-sm">
-                Início
-            </a>
-
-            <a
-                href="../../controller/UsuarioController.php?acao=logout"
-                class="btn btn-sm btn-danger"
-            >
-                Sair
-            </a>
-
-        </div>
-
-    </header>
-
-
-    <main class="container">
-
-        <h2>Modalidades</h2>
 
         <?php if (isset($_GET['sucesso'])): ?>
-
-            <div class="alert-sucesso">
+            <p class="alert-sucesso">
                 Operação realizada com sucesso!
-            </div>
-
+            </p>
         <?php endif; ?>
-
 
         <?php if (isset($_GET['erro'])): ?>
-
-            <div class="alert-erro">
+            <p class="alert-erro">
                 Não foi possível realizar a operação.
-            </div>
-
+            </p>
         <?php endif; ?>
 
-
-        <div class="acoes-topbar">
-
-            <a
-                href="cadastrar_modalidade.php"
-                class="btn btn-success"
-            >
-                Cadastrar modalidade
-            </a>
-
-        </div>
-
-
         <?php if (empty($modalidades)): ?>
-
-            <p class="text-center text-muted">
-                Nenhuma modalidade cadastrada.
-            </p>
-
+            <p>Nenhuma modalidade cadastrada.</p>
         <?php else: ?>
-
             <table>
-
                 <thead>
-
                     <tr>
-
                         <th>Nome</th>
-
                         <th>Descrição</th>
-
                         <th>Ações</th>
-
                     </tr>
-
                 </thead>
-
-
                 <tbody>
-
                     <?php foreach ($modalidades as $modalidade): ?>
-
                         <tr>
-
+                            <td><?= htmlspecialchars($modalidade['nome']) ?></td>
+                            <td><?= htmlspecialchars($modalidade['descricao'] ?? '') ?></td>
                             <td>
-                                <?= htmlspecialchars($modalidade['nome']) ?>
-                            </td>
-
-                            <td>
-                                <?= htmlspecialchars($modalidade['descricao'] ?? '') ?>
-                            </td>
-
-                            <td>
-
-                                <a
-                                    href="editar_modalidade.php?id=<?= $modalidade['id_modalidade'] ?>"
-                                    class="btn btn-sm btn-info"
-                                >
+                                <a href="editar_modalidade.php?id=<?= $modalidade['id_modalidade'] ?>" class="btn btn-info btn-sm">
                                     Editar
                                 </a>
-
-                                <a
-                                    href="../../controller/ModalidadeController.php?acao=excluir&id=<?= $modalidade['id_modalidade'] ?>"
-                                    class="btn btn-sm btn-danger"
-                                    onclick="return confirm('Deseja realmente excluir esta modalidade?');"
-                                >
+                                <a href="../../controller/ModalidadeController.php?acao=excluir&id=<?= $modalidade['id_modalidade'] ?>" 
+                                   class="btn btn-danger btn-sm" 
+                                   onclick="return confirm('Deseja realmente excluir esta modalidade?');">
                                     Excluir
                                 </a>
-
                             </td>
-
                         </tr>
-
                     <?php endforeach; ?>
-
                 </tbody>
-
             </table>
-
         <?php endif; ?>
 
     </main>
 
-
-    <footer class="footer">
-
-        <p>
-            &copy; <?php echo date('Y'); ?> Dojify.
-            Todos os direitos reservados.
-        </p>
-
-    </footer>
+    <!-- Rodapé -->
+    <?php include '../includes/footer.php'; ?>
 
 </body>
 

@@ -351,6 +351,7 @@ input[type="text"],
 input[type="email"],
 input[type="password"],
 input[type="date"],
+input[type="time"],
 select,
 textarea {
     width: 100%;
@@ -435,4 +436,73 @@ button[type="submit"]:hover {
     display: block;
     margin-top: 4px;
     font-size: 0.75rem;
+}
+
+/* ----------------------------------------------------------
+   CLASSES UTILITÁRIAS DE LAYOUT
+   ---------------------------------------------------------- */
+.form-row-inline {
+    display: flex;
+    gap: 12px;
+    align-items: flex-end;
+    margin-top: 16px;
+}
+
+.form-row-inline > div {
+    flex: 1;
+}
+
+.form-row-inline label {
+    margin-top: 0; /* Remove a margem superior padrão do label dentro da linha */
+}
+
+/* ----------------------------------------------------------
+   ESTILOS COMPLEMENTARES PARA GERENCIAR HORÁRIOS
+   ---------------------------------------------------------- */
+.card {
+    background-color: var(--bg-card);
+    padding: 24px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-sm);
+    margin-bottom: 24px;
+}
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.form-row-inline {
+    display: flex;
+    gap: 16px;
+    align-items: flex-end;
+}
+
+.form-row-inline > div {
+    flex: 1;
+}
+
+.form-row-inline label {
+    margin-top: 0;
+}
+
+/* Suporte a inputs do tipo time no design system */
+input[type="time"] {
+    width: 100%;
+    padding: 10px 12px;
+    background-color: var(--bg-card);
+    border: 1px solid var(--input-border);
+    border-radius: 6px;
+    font-size: 0.875rem;
+    color: var(--text-primary);
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+input[type="time"]:focus {
+    border-color: var(--text-primary);
+    box-shadow: 0 0 0 2px rgba(15, 23, 42, 0.1);
 }
