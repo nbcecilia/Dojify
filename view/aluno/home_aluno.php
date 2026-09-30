@@ -495,7 +495,12 @@ try {
                     <?php endif; ?>
                 </div>
             </div>
-
+        <!-- BOTÃO PARA ACEDER À PÁGINA DE HISTÓRICO -->
+            <div class="text-center mt-3">
+                <a href="historico_aluno.php" class="btn btn-outline-dark btn-sm fw-bold px-4 py-2">
+                    📜 Ver Histórico Completo de Presenças
+                </a>
+            </div>
         <?php endif; ?>
 
     </main>
