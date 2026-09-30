@@ -18,11 +18,14 @@ $mensagem_sucesso = "";
 $is_primeiro_acesso = false;
 $id_aluno = $_SESSION['usuario']['id_usuario'];
 
-// Variáveis padrão para o contrato
+// Variáveis padrão para o contrato e financeiro
 $c_nome = $c_cpf = $c_data_nasc = $c_sexo = $c_responsavel = $c_cpf_resp = $c_email = $c_tel = $c_endereco = $c_cidade = $c_estado = "---";
 $c_luta = "Artes Marciais / Ver agenda"; 
 $c_plano = "Não especificado";
 $c_infoMedica = $c_especial = $c_obs = "---";
+$status_pagamento = 'PENDENTE';
+$data_vencimento = '---';
+$valor_pagamento = '---';
 
 try {
     $pdo_agenda = \Conexao::getConexao();
@@ -96,19 +99,18 @@ try {
     }
 
     // ==============================================================================
-    // 3. SE NÃO FOR PRIMEIRO ACESSO, CARREGA O PAINEL NORMAL E OS DADOS DINÂMICOS
+    // 3. SE NÃO FOR PRIMEIRO ACESSO, CARREGA O PAINEL E DADOS DINÂMICOS
     // ==============================================================================
     if (!$is_primeiro_acesso) {
         
-        // --- PASSO 1: PUXAR DADOS DA GRADUAÇÃO ---
+        // Graduação
         $stmt_grad = $pdo_agenda->prepare("SELECT faixa, grau FROM graduacao WHERE id_usuario_aluno = ? ORDER BY data_graduacao DESC LIMIT 1");
         $stmt_grad->execute([$id_aluno]);
         $dados_grad = $stmt_grad->fetch(PDO::FETCH_ASSOC);
         $faixa_aluno = $dados_grad ? $dados_grad['faixa'] : 'Sem Faixa';
         $grau_aluno = $dados_grad && !empty($dados_grad['grau']) ? $dados_grad['grau'] : 'Iniciante';
 
-        // --- PASSO 2: GAMIFICAÇÃO VIA PHP (Baseado na tabela 'presenca') ---
-        // 1º Conta quantas vezes o aluno esteve presente
+        // Gamificação (XP baseado em presenças)
         $stmt_xp = $pdo_agenda->prepare("
             SELECT COUNT(p.id_presenca) as total_presencas 
             FROM presenca p 
@@ -117,11 +119,8 @@ try {
         ");
         $stmt_xp->execute([$id_aluno]);
         $total_presencas = (int)$stmt_xp->fetchColumn();
-
-        // 2º Cada presença vale 15 XP
         $xp_atual = $total_presencas * 15;
 
-        // 3º Tabela de Níveis (Definida no código, sem alterar a BD)
         $tabela_niveis = [
             ['nivel' => 1, 'nome' => 'Iniciante', 'min' => 0, 'max' => 150],
             ['nivel' => 2, 'nome' => 'Aprendiz', 'min' => 151, 'max' => 350],
@@ -130,32 +129,38 @@ try {
             ['nivel' => 5, 'nome' => 'Mestre', 'min' => 1501, 'max' => 999999]
         ];
 
-        // 4º Descobre em que nível o aluno está agora
         $num_nivel = 1; $nome_nivel = 'Iniciante'; $xp_min = 0; $xp_max = 150;
         foreach ($tabela_niveis as $n) {
             if ($xp_atual >= $n['min'] && $xp_atual <= $n['max']) {
-                $num_nivel = $n['nivel'];
-                $nome_nivel = $n['nome'];
-                $xp_min = $n['min'];
-                $xp_max = $n['max'];
+                $num_nivel = $n['nivel']; $nome_nivel = $n['nome']; $xp_min = $n['min']; $xp_max = $n['max'];
                 break;
             }
         }
         
-        // 5º Lógica de % para a barra de progresso encher corretamente
         $progresso_xp = 0;
-        if ($xp_max > $xp_min) {
-            $progresso_xp = (($xp_atual - $xp_min) / ($xp_max - $xp_min)) * 100;
-        }
+        if ($xp_max > $xp_min) { $progresso_xp = (($xp_atual - $xp_min) / ($xp_max - $xp_min)) * 100; }
         $progresso_xp = min(100, max(0, $progresso_xp)); 
 
-        // --- PASSO 3: PUXAR DADOS DA MATRÍCULA (PLANO) ---
-        $stmt_plano_card = $pdo_agenda->prepare("SELECT nome_plano, status FROM plano WHERE id_usuario_aluno = ? ORDER BY data_inicio DESC LIMIT 1");
+        // Matrícula / Plano
+        $stmt_plano_card = $pdo_agenda->prepare("SELECT id_plano, nome_plano, status FROM plano WHERE id_usuario_aluno = ? ORDER BY data_inicio DESC LIMIT 1");
         $stmt_plano_card->execute([$id_aluno]);
         $dados_plano_card = $stmt_plano_card->fetch(PDO::FETCH_ASSOC);
         $status_plano = $dados_plano_card ? $dados_plano_card['status'] : 'INATIVO';
         $nome_plano_card = $dados_plano_card ? $dados_plano_card['nome_plano'] : 'Nenhum plano ativo';
+        $id_plano_atual = $dados_plano_card ? $dados_plano_card['id_plano'] : null;
 
+        // --- PASSO 4: BUSCAR DADOS FINANCEIROS / PAGAMENTO ---
+        if ($id_plano_atual) {
+            $stmt_pag = $pdo_agenda->prepare("SELECT status, data_vencimento, valor FROM pagamento WHERE id_plano_matricula = ? ORDER BY data_vencimento DESC LIMIT 1");
+            $stmt_pag->execute([$id_plano_atual]);
+            $dados_pag = $stmt_pag->fetch(PDO::FETCH_ASSOC);
+            
+            if ($dados_pag) {
+                $status_pagamento = $dados_pag['status'] ?? 'PENDENTE';
+                $data_vencimento = $dados_pag['data_vencimento'] ? date('d/m/Y', strtotime($dados_pag['data_vencimento'])) : '---';
+                $valor_pagamento = $dados_pag['valor'] ? 'R$ ' . number_format($dados_pag['valor'], 2, ',', '.') : '---';
+            }
+        }
 
         // Cancelamento
         if (isset($_GET['cancelar'])) {
@@ -175,7 +180,6 @@ try {
             if (!empty($id_turma) && !empty($data_escolhida)) {
                 $data_formatada = $data_escolhida . ' ' . $hora_aula;
                 
-                // Evitar Duplicados
                 $stmtCheckDup = $pdo_agenda->prepare("SELECT COUNT(*) as total FROM agendamento WHERE id_usuario_aluno = ? AND id_turma = ? AND DATE(data_agendamento) = DATE(?) AND status = 'CONFIRMADO'");
                 $stmtCheckDup->execute([$id_aluno, $id_turma, $data_formatada]);
                 
@@ -194,7 +198,6 @@ try {
                     if ($vagasOcupadas >= $capacidadeMax) {
                         $mensagem_erro = "Turma lotada! Limite de {$capacidadeMax} alunos atingido.";
                     } else {
-                        // Validação de Limite Semanal
                         $stmtPlano = $pdo_agenda->prepare("SELECT nome_plano FROM plano WHERE id_usuario_aluno = ? AND status = 'ATIVO' LIMIT 1");
                         $stmtPlano->execute([$id_aluno]);
                         $dadosPlano = $stmtPlano->fetch(PDO::FETCH_ASSOC);
@@ -246,8 +249,8 @@ try {
             }
         }
 
-        // Buscar agendamentos do aluno
-        $stmt_meus = $pdo_agenda->prepare("SELECT a.id_agendamento, a.data_agendamento, t.nome as nome_turma FROM agendamento a JOIN turma t ON a.id_turma = t.id_turma WHERE a.id_usuario_aluno = ? AND a.status = 'CONFIRMADO' ORDER BY a.data_agendamento ASC");
+        // Buscar agendamentos futuros
+        $stmt_meus = $pdo_agenda->prepare("SELECT a.id_agendamento, a.data_agendamento, t.nome as nome_turma FROM agendamento a JOIN turma t ON a.id_turma = t.id_turma WHERE a.id_usuario_aluno = ? AND a.status = 'CONFIRMADO' AND a.data_agendamento >= NOW() ORDER BY a.data_agendamento ASC");
         $stmt_meus->execute([$id_aluno]);
         $meus_agendamentos = $stmt_meus->fetchAll(PDO::FETCH_ASSOC);
     }
@@ -277,7 +280,7 @@ try {
         
         <?php if ($is_primeiro_acesso): ?>
             <!-- ========================================================= -->
-            <!-- TELA DE PRIMEIRO ACESSO (CONTRATO) FICA AQUI INTACTA      -->
+            <!-- TELA DE PRIMEIRO ACESSO (CONTRATO)                        -->
             <!-- ========================================================= -->
             <div class="row justify-content-center d-print-block">
                 <div class="col-lg-10">
@@ -372,7 +375,7 @@ try {
 
         <?php else: ?>
             <!-- ========================================================= -->
-            <!-- PAINEL NORMAL COM CARTÕES DINÂMICOS (XP VIA PHP)          -->
+            <!-- PAINEL NORMAL COM CARTÕES, FINANCEIRO, CALENDÁRIO E BOTÃO -->
             <!-- ========================================================= -->
             
             <h2 class="text-center mb-2">Painel do Aluno</h2>
@@ -385,9 +388,8 @@ try {
                 <div class="alert alert-danger text-center py-2"><?= $mensagem_erro; ?></div>
             <?php endif; ?>
 
+            <!-- CARTÕES DO TOPO (Graduação, XP e Matrícula) -->
             <div class="row g-3 justify-content-center mb-4">
-                
-                <!-- CARTÃO 1: GRADUAÇÃO DINÂMICA -->
                 <div class="col-md-4">
                     <div class="card h-100 shadow-sm border p-2 text-center">
                         <h6 class="text-dark fw-bold mb-1">🥋 Graduação</h6>
@@ -396,7 +398,6 @@ try {
                     </div>
                 </div>
 
-                <!-- CARTÃO 2: GAMIFICAÇÃO VIA PHP (CONTAGEM DE PRESENÇAS) -->
                 <div class="col-md-4">
                     <div class="card h-100 shadow-sm border p-2 text-center">
                         <h6 class="text-dark fw-bold mb-1">⭐ Nível <?= $num_nivel ?> - <?= htmlspecialchars($nome_nivel) ?></h6>
@@ -407,7 +408,6 @@ try {
                     </div>
                 </div>
 
-                <!-- CARTÃO 3: MATRÍCULA DINÂMICA -->
                 <div class="col-md-4">
                     <div class="card h-100 shadow-sm border p-2 text-center">
                         <h6 class="text-dark fw-bold mb-1">📋 Matrícula</h6>
@@ -421,6 +421,37 @@ try {
                             <?php endif; ?>
                         </p>
                         <span class="text-muted small mt-1 fw-bold d-block"><?= htmlspecialchars($nome_plano_card) ?></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SEÇÃO FINANCEIRA / STATUS DA MENSALIDADE (PASSO 4) -->
+            <div class="card shadow-sm border p-3 mb-4">
+                <h5 class="text-uppercase fw-bold text-danger mb-1" style="font-size: 1rem;">💳 Estado Financeiro & Mensalidade</h5>
+                <p class="text-muted small mb-3">Acompanhe o estado do seu pagamento do mês atual.</p>
+
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <div class="p-3 bg-light border rounded text-center h-100">
+                            <span class="text-muted small d-block mb-1">Estado do Pagamento:</span>
+                            <?php if (strtoupper($status_pagamento) === 'PAGO'): ?>
+                                <span class="badge bg-success px-3 py-2 fs-6">🟢 PAGO</span>
+                            <?php else: ?>
+                                <span class="badge bg-warning text-dark px-3 py-2 fs-6">🟡 PENDENTE</span>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="p-3 bg-light border rounded text-center h-100">
+                            <span class="text-muted small d-block mb-1">Data de Vencimento:</span>
+                            <span class="fw-bold text-dark fs-6"><?= $data_vencimento; ?></span>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="p-3 bg-light border rounded text-center h-100">
+                            <span class="text-muted small d-block mb-1">Valor da Mensalidade:</span>
+                            <span class="fw-bold text-dark fs-6"><?= $valor_pagamento; ?></span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -463,12 +494,12 @@ try {
                 </div>
             </div>
 
-            <!-- TABELA DE TREINOS AGENDADOS -->
-            <div class="card shadow-sm border p-3">
-                <h6 class="fw-bold text-muted text-uppercase small mb-2">📌 Os Seus Treinos Marcados</h6>
+            <!-- TABELA DE TREINOS AGENDADOS (FUTUROS) -->
+            <div class="card shadow-sm border p-3 mb-3">
+                <h6 class="fw-bold text-muted text-uppercase small mb-2">📌 Os Seus Próximos Treinos Marcados</h6>
                 <div class="table-responsive">
                     <?php if (empty($meus_agendamentos)): ?>
-                        <p class="text-muted small fst-italic mb-0">Ainda não tem nenhum treino agendado.</p>
+                        <p class="text-muted small fst-italic mb-0">Ainda não tem nenhum treino agendado para os próximos dias.</p>
                     <?php else: ?>
                         <table class="table table-sm table-hover align-middle mb-0 small">
                             <thead>
@@ -495,12 +526,14 @@ try {
                     <?php endif; ?>
                 </div>
             </div>
-        <!-- BOTÃO PARA ACEDER À PÁGINA DE HISTÓRICO -->
-            <div class="text-center mt-3">
+
+            <!-- BOTÃO PARA ACEDER À PÁGINA DE HISTÓRICO -->
+            <div class="text-center mb-4">
                 <a href="historico_aluno.php" class="btn btn-outline-dark btn-sm fw-bold px-4 py-2">
                     📜 Ver Histórico Completo de Presenças
                 </a>
             </div>
+
         <?php endif; ?>
 
     </main>
