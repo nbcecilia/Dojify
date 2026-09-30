@@ -39,7 +39,6 @@ try {
         if ($user_data && (int)$user_data['primeiro_acesso'] === 1) {
             $is_primeiro_acesso = true;
             
-            // Buscar dados baseados no seu SQL exato
             $stmt_aluno = $pdo_agenda->prepare("
                 SELECT u.nome, u.email, u.cpf, u.data_nascimento, u.telefone, 
                        u.responsavel, u.observacao, p.nome_plano
@@ -54,11 +53,8 @@ try {
             if ($dados_contrato) {
                 $c_nome = $dados_contrato['nome'] ?: "Não informado";
                 $c_email = $dados_contrato['email'] ?: "Não informado";
-                
-                // Formatar CPF
                 $cpf_limpo = $dados_contrato['cpf'];
                 $c_cpf = (strlen($cpf_limpo) == 11) ? preg_replace("/(\d{3})(\d{3})(\d{3})(\d{2})/", "\$1.\$2.\$3-\$4", $cpf_limpo) : "Não informado";
-                
                 $c_data_nasc = $dados_contrato['data_nascimento'] ? date('d/m/Y', strtotime($dados_contrato['data_nascimento'])) : "Não informado";
                 $c_tel = $dados_contrato['telefone'] ?: "Não informado";
                 $c_responsavel = $dados_contrato['responsavel'] ?: "O próprio";
@@ -87,15 +83,11 @@ try {
         } elseif ($senha_nova !== $senha_confirma) {
             $mensagem_erro = "As senhas não coincidem. Tente novamente.";
         } else {
-            // Criptografa a nova senha
             $senha_hash = password_hash($senha_nova, PASSWORD_DEFAULT);
-            
-            // No seu SQL, a senha fica na tabela 'login' e o primeiro acesso na 'usuario'
             $stmt_senha = $pdo_agenda->prepare("UPDATE login SET senha_hash = ? WHERE id_usuario = ?");
             $stmt_acesso = $pdo_agenda->prepare("UPDATE usuario SET primeiro_acesso = 0 WHERE id_usuario = ?");
             
             if ($stmt_senha->execute([$senha_hash, $id_aluno]) && $stmt_acesso->execute([$id_aluno])) {
-                // Redireciona para atualizar a sessão
                 header("Location: home_aluno.php");
                 exit;
             } else {
@@ -127,30 +119,84 @@ try {
             if (!empty($id_turma) && !empty($data_escolhida)) {
                 $data_formatada = $data_escolhida . ' ' . $hora_aula;
                 
-                // Validação de Capacidade (20 alunos)
-                $stmtCap = $pdo_agenda->prepare("SELECT capacidade FROM turma WHERE id_turma = ?");
-                $stmtCap->execute([$id_turma]);
-                $turmaInfo = $stmtCap->fetch(PDO::FETCH_ASSOC);
-                $capacidadeMax = (int)($turmaInfo['capacidade'] ?? 20);
-
-                $stmtCountTurma = $pdo_agenda->prepare("SELECT COUNT(*) as total FROM agendamento WHERE id_turma = ? AND DATE(data_agendamento) = DATE(?) AND status = 'CONFIRMADO'");
-                $stmtCountTurma->execute([$id_turma, $data_formatada]);
-                $vagasOcupadas = (int)$stmtCountTurma->fetch()['total'];
-
-                if ($vagasOcupadas >= $capacidadeMax) {
-                    $mensagem_erro = "Turma lotada! Limite de {$capacidadeMax} alunos atingido.";
+                // Evitar Agendamentos Duplicados
+                $stmtCheckDup = $pdo_agenda->prepare("SELECT COUNT(*) as total FROM agendamento WHERE id_usuario_aluno = ? AND id_turma = ? AND DATE(data_agendamento) = DATE(?) AND status = 'CONFIRMADO'");
+                $stmtCheckDup->execute([$id_aluno, $id_turma, $data_formatada]);
+                
+                if ($stmtCheckDup->fetch()['total'] > 0) {
+                    $mensagem_erro = "Você já está agendado nesta turma para este dia!";
                 } else {
-                    $stmtIns = $pdo_agenda->prepare("INSERT INTO agendamento (id_turma, id_usuario_aluno, data_agendamento, status) VALUES (?, ?, ?, 'CONFIRMADO')");
-                    if ($stmtIns->execute([$id_turma, $id_aluno, $data_formatada])) {
-                        $mensagem_sucesso = "Treino agendado com sucesso no tatame! 🥋";
+                    
+                    // Validação de Capacidade (20 alunos)
+                    $stmtCap = $pdo_agenda->prepare("SELECT capacidade FROM turma WHERE id_turma = ?");
+                    $stmtCap->execute([$id_turma]);
+                    $turmaInfo = $stmtCap->fetch(PDO::FETCH_ASSOC);
+                    $capacidadeMax = (int)($turmaInfo['capacidade'] ?? 20);
+
+                    $stmtCountTurma = $pdo_agenda->prepare("SELECT COUNT(*) as total FROM agendamento WHERE id_turma = ? AND DATE(data_agendamento) = DATE(?) AND status = 'CONFIRMADO'");
+                    $stmtCountTurma->execute([$id_turma, $data_formatada]);
+                    $vagasOcupadas = (int)$stmtCountTurma->fetch()['total'];
+
+                    if ($vagasOcupadas >= $capacidadeMax) {
+                        $mensagem_erro = "Turma lotada! Limite de {$capacidadeMax} alunos atingido.";
                     } else {
-                        $mensagem_erro = "Erro ao registar o agendamento.";
+                        
+                        // Validação de Limite Semanal
+                        $stmtPlano = $pdo_agenda->prepare("SELECT nome_plano FROM plano WHERE id_usuario_aluno = ? AND status = 'ATIVO' LIMIT 1");
+                        $stmtPlano->execute([$id_aluno]);
+                        $dadosPlano = $stmtPlano->fetch(PDO::FETCH_ASSOC);
+                        
+                        $limiteSemanal = 99;
+                        $nomeDoPlano = "Plano Livre";
+
+                        if ($dadosPlano && !empty($dadosPlano['nome_plano'])) {
+                            $nomeDoPlano = $dadosPlano['nome_plano'];
+                            if (preg_match('/(\d+)/', $nomeDoPlano, $matches)) {
+                                $limiteSemanal = (int)$matches[1];
+                            }
+                        }
+
+                        $data_obj = new DateTime($data_formatada);
+                        $inicioSemana = clone $data_obj;
+                        $inicioSemana->modify('monday this week');
+                        $inicioSemana->setTime(0, 0, 0);
+
+                        $fimSemana = clone $data_obj;
+                        $fimSemana->modify('sunday this week');
+                        $fimSemana->setTime(23, 59, 59);
+
+                        $stmtCountSemana = $pdo_agenda->prepare("
+                            SELECT COUNT(*) as total_semana 
+                            FROM agendamento 
+                            WHERE id_usuario_aluno = ? 
+                              AND status = 'CONFIRMADO' 
+                              AND data_agendamento BETWEEN ? AND ?
+                        ");
+                        $stmtCountSemana->execute([
+                            $id_aluno, 
+                            $inicioSemana->format('Y-m-d H:i:s'), 
+                            $fimSemana->format('Y-m-d H:i:s')
+                        ]);
+                        $totalSemana = (int)$stmtCountSemana->fetch()['total_semana'];
+
+                        if ($totalSemana >= $limiteSemanal) {
+                            $mensagem_erro = "Limite semanal atingido! O seu plano ({$nomeDoPlano}) permite apenas {$limiteSemanal} treino(s) por semana.";
+                        }
+
+                        if (empty($mensagem_erro)) {
+                            $stmtIns = $pdo_agenda->prepare("INSERT INTO agendamento (id_turma, id_usuario_aluno, data_agendamento, status) VALUES (?, ?, ?, 'CONFIRMADO')");
+                            if ($stmtIns->execute([$id_turma, $id_aluno, $data_formatada])) {
+                                $mensagem_sucesso = "Treino agendado com sucesso no tatame! 🥋";
+                            } else {
+                                $mensagem_erro = "Erro ao registar o agendamento.";
+                            }
+                        }
                     }
                 }
             }
         }
 
-        // Buscar turmas (Garante compatibilidade com seu LEFT JOIN em horario_turma)
+        // Buscar turmas
         $stmt_t = $pdo_agenda->query("SELECT t.id_turma, t.nome as nome_turma, t.capacidade, 
                                              h.dia_semana, h.hora_inicio 
                                       FROM turma t 
@@ -211,7 +257,6 @@ try {
 
 <body style="background-color: var(--bg-body, #f8f9fa);">
 
-    <!-- Header escondido na hora de imprimir (d-print-none) -->
     <div class="d-print-none">
         <?php include '../includes/header.php'; ?>
     </div>
@@ -224,7 +269,6 @@ try {
             <!-- ========================================================= -->
             <div class="row justify-content-center d-print-block">
                 <div class="col-lg-10">
-                    <!-- O border-0 e shadow-none na hora de imprimir ajudam o layout de papel -->
                     <div class="card shadow border-0 rounded-3">
                         <div class="card-header bg-danger text-white text-center py-3 d-print-none">
                             <h4 class="mb-0 fw-bold">🥋 Bem-vindo à Dojify! Acesso Inicial</h4>
@@ -237,7 +281,6 @@ try {
                             <?php endif; ?>
 
                             <!-- ================= ÁREA DO CONTRATO ================= -->
-                            <!-- CSS embutido no style para evitar a tag <style>. No print, o script remove o scroll -->
                             <div id="area-impressao" class="p-4 mb-4" style="border: 1px solid #dee2e6; border-radius: 0.375rem; background-color: #ffffff; max-height: 450px; overflow-y: auto; color: #333; font-size: 0.9rem; line-height: 1.6;">
                                 
                                 <div class="text-center mb-4">
@@ -335,7 +378,6 @@ try {
                             </div>
                             <!-- ================= FIM DA ÁREA DO CONTRATO ================= -->
 
-                            <!-- O form tem d-print-none para ocultar botões ao imprimir. O onsubmit tira o max-height antes de imprimir! -->
                             <form method="POST" action="" class="d-print-none" onsubmit="document.getElementById('area-impressao').style.maxHeight='none'; document.getElementById('area-impressao').style.overflow='visible'; window.print(); return true;">
                                 <input type="hidden" name="acao_aceite_contrato" value="1">
                                 
@@ -366,7 +408,7 @@ try {
 
         <?php else: ?>
             <!-- ========================================================= -->
-            <!-- PAINEL NORMAL DE AGENDAMENTOS (CALENDÁRIO HORIZONTAL LADO A LADO) -->
+            <!-- PAINEL NORMAL DE AGENDAMENTOS -->
             <!-- ========================================================= -->
             
             <h2 class="text-center mb-2">Painel do Aluno</h2>
@@ -400,13 +442,13 @@ try {
                 </div>
             </div>
 
-            <!-- CALENDÁRIO SEMANAL COMPACTO (Lado a Lado) -->
+            <!-- CALENDÁRIO SEMANAL COMPACTO (Lado a Lado e Centralizado) -->
             <div class="card shadow-sm border p-3 mb-4">
-                <h5 class="text-uppercase fw-bold text-danger mb-1" style="font-size: 1rem;">📅 Agenda Semanal de Treinos</h5>
-                <p class="text-muted small mb-3">Escolha a sua turma e clique em agendar no dia respetivo.</p>
+                <h5 class="text-uppercase fw-bold text-danger mb-1 text-center" style="font-size: 1rem;">📅 Agenda Semanal de Treinos</h5>
+                <p class="text-muted small mb-3 text-center">Escolha a sua turma e clique em agendar no dia respetivo.</p>
 
-                <!-- Scroll nativo do Bootstrap sem CSS injetado -->
-                <div class="d-flex overflow-auto pb-2" style="gap: 10px;">
+                <!-- Aqui está o truque (mx-auto e width: fit-content) para centralizar todo o bloco horizontal! -->
+                <div class="d-flex overflow-auto pb-2 mx-auto" style="gap: 10px; width: fit-content; max-width: 100%;">
                     <?php foreach ($calendarioSemanal as $dia): ?>
                         <div class="shadow-sm border border-secondary text-white rounded" style="flex: 0 0 135px; background-color: #1a1a1a;">
                             <div class="text-white fw-bold text-center p-1" style="background-color: #b30000; font-size: 0.8rem; border-radius: 5px 5px 0 0;">
@@ -422,7 +464,6 @@ try {
                                             <span class="text-warning d-block fw-bold" style="font-size: 0.75rem;"><?= htmlspecialchars($aula['nome_turma']); ?></span>
                                             <span class="text-white d-block mb-2" style="font-size: 0.7rem;">⏰ <?= date('H:i', strtotime($aula['hora_inicio'])); ?></span>
                                             
-                                            <!-- Form anulando os estilos usando classes nativas do Bootstrap -->
                                             <form method="POST" action="" class="d-block m-0 p-0 bg-transparent border-0 shadow-none">
                                                 <input type="hidden" name="acao_agendar_semana" value="1">
                                                 <input type="hidden" name="id_turma" value="<?= $aula['id_turma']; ?>">
@@ -477,7 +518,6 @@ try {
 
     </main>
 
-    <!-- Footer escondido na hora de imprimir -->
     <div class="d-print-none">
         <?php include '../includes/footer.php'; ?>
     </div>
@@ -485,4 +525,4 @@ try {
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="../../assets/js/main.js"></script>
 </body>
-</html>
+</html> 
