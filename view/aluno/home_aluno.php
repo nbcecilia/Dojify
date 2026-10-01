@@ -5,14 +5,19 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 if (!isset($_SESSION['usuario']) || (int)$_SESSION['usuario']['perfil_id'] !== 4) {
-    header('Location: ../login.php?erro=acesso_negado');
+    header('Location: ../../login.php?erro=acesso_negado');
     exit;
 }
 
-require_once __DIR__ . '/../../model/dao/conexao.php';
+$arquivoConexao = dirname(__DIR__, 2) . '/model/dao/Conexao.php';
+if (file_exists($arquivoConexao) && !class_exists('Conexao', false)) {
+    require_once $arquivoConexao;
+}
 
 $calendarioSemanal = [];
 $meus_agendamentos = [];
+$notificacoes = [];
+$total_notificacoes = 0;
 $mensagem_erro = "";
 $mensagem_sucesso = "";
 $is_primeiro_acesso = false;
@@ -26,6 +31,12 @@ $c_infoMedica = $c_especial = $c_obs = "---";
 $status_pagamento = 'PENDENTE';
 $data_vencimento = '---';
 $valor_pagamento = '---';
+$num_nivel = 1;
+$nome_nivel = 'Iniciante';
+$xp_atual = 0;
+$xp_min = 0;
+$xp_max = 150;
+$progresso_xp = 0;
 
 try {
     $pdo_agenda = \Conexao::getConexao();
@@ -58,7 +69,7 @@ try {
                 $cpf_limpo = $dados_contrato['cpf'];
                 $c_cpf = (strlen($cpf_limpo) == 11) ? preg_replace("/(\d{3})(\d{3})(\d{3})(\d{2})/", "\$1.\$2.\$3-\$4", $cpf_limpo) : "Não informado";
                 $c_data_nasc = $dados_contrato['data_nascimento'] ? date('d/m/Y', strtotime($dados_contrato['data_nascimento'])) : "Não informado";
-                $c_tel = $dados_contrato['telefone'] ?: "Não informado";
+                $c_tel = !empty($dados_contrato['telefone']) ? $dados_contrato['telefone'] : "Não informado";
                 $c_responsavel = $dados_contrato['responsavel'] ?: "O próprio";
                 $c_obs = $dados_contrato['observacao'] ?: "Nenhuma observação registrada";
                 $c_plano = $dados_contrato['nome_plano'] ?: "Plano Base";
@@ -149,7 +160,7 @@ try {
         $nome_plano_card = $dados_plano_card ? $dados_plano_card['nome_plano'] : 'Nenhum plano ativo';
         $id_plano_atual = $dados_plano_card ? $dados_plano_card['id_plano'] : null;
 
-        // --- PASSO 4: BUSCAR DADOS FINANCEIROS / PAGAMENTO ---
+        // BUSCAR DADOS FINANCEIROS / PAGAMENTO
         if ($id_plano_atual) {
             $stmt_pag = $pdo_agenda->prepare("SELECT status, data_vencimento, valor FROM pagamento WHERE id_plano_matricula = ? ORDER BY data_vencimento DESC LIMIT 1");
             $stmt_pag->execute([$id_plano_atual]);
@@ -159,6 +170,49 @@ try {
                 $status_pagamento = $dados_pag['status'] ?? 'PENDENTE';
                 $data_vencimento = $dados_pag['data_vencimento'] ? date('d/m/Y', strtotime($dados_pag['data_vencimento'])) : '---';
                 $valor_pagamento = $dados_pag['valor'] ? 'R$ ' . number_format($dados_pag['valor'], 2, ',', '.') : '---';
+            }
+        }
+
+        // Buscar agendamentos futuros
+        $stmt_meus = $pdo_agenda->prepare("SELECT a.id_agendamento, a.data_agendamento, t.nome as nome_turma FROM agendamento a JOIN turma t ON a.id_turma = t.id_turma WHERE a.id_usuario_aluno = ? AND a.status = 'CONFIRMADO' AND a.data_agendamento >= NOW() ORDER BY a.data_agendamento ASC");
+        $stmt_meus->execute([$id_aluno]);
+        $meus_agendamentos = $stmt_meus->fetchAll(PDO::FETCH_ASSOC);
+
+        // --- NOTIFICAÇÕES DINÂMICAS DO ALUNO ---
+        if (strtoupper($status_pagamento) === 'PENDENTE') {
+            $notificacoes[] = [
+                'tipo' => 'warning',
+                'icone' => '⚠️',
+                'titulo' => 'Mensalidade Pendente',
+                'mensagem' => 'A sua mensalidade está pendente. Efetue o pagamento.'
+            ];
+        }
+
+        if (!empty($meus_agendamentos)) {
+            $notificacoes[] = [
+                'tipo' => 'success',
+                'icone' => '🥋',
+                'titulo' => 'Treinos Agendados',
+                'mensagem' => 'Tem ' . count($meus_agendamentos) . ' treino(s) confirmado(s).'
+            ];
+        }
+
+        $total_notificacoes = count($notificacoes);
+
+        // Processar simulação de pagamento fictício
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['acao_simular_pagamento'])) {
+            $forma_pag = $_POST['acao_simular_pagamento']; 
+            
+            if ($id_plano_atual) {
+                $stmt_up_pag = $pdo_agenda->prepare("
+                    UPDATE pagamento 
+                    SET status = 'PAGO', data_pagamento = CURDATE(), forma_pagamento = ? 
+                    WHERE id_plano_matricula = ? AND status != 'PAGO'
+                ");
+                if ($stmt_up_pag->execute([$forma_pag, $id_plano_atual])) {
+                    header("Location: home_aluno.php?sucesso=pagamento");
+                    exit;
+                }
             }
         }
 
@@ -182,8 +236,10 @@ try {
                 
                 $stmtCheckDup = $pdo_agenda->prepare("SELECT COUNT(*) as total FROM agendamento WHERE id_usuario_aluno = ? AND id_turma = ? AND DATE(data_agendamento) = DATE(?) AND status = 'CONFIRMADO'");
                 $stmtCheckDup->execute([$id_aluno, $id_turma, $data_formatada]);
+                $dupRow = $stmtCheckDup->fetch(PDO::FETCH_ASSOC);
+                $jaAgendado = (int)($dupRow['total'] ?? 0);
                 
-                if ($stmtCheckDup->fetch()['total'] > 0) {
+                if ($jaAgendado > 0) {
                     $mensagem_erro = "Você já está agendado nesta turma para este dia!";
                 } else {
                     $stmtCap = $pdo_agenda->prepare("SELECT capacidade FROM turma WHERE id_turma = ?");
@@ -193,7 +249,8 @@ try {
 
                     $stmtCountTurma = $pdo_agenda->prepare("SELECT COUNT(*) as total FROM agendamento WHERE id_turma = ? AND DATE(data_agendamento) = DATE(?) AND status = 'CONFIRMADO'");
                     $stmtCountTurma->execute([$id_turma, $data_formatada]);
-                    $vagasOcupadas = (int)$stmtCountTurma->fetch()['total'];
+                    $turmaRow = $stmtCountTurma->fetch(PDO::FETCH_ASSOC);
+                    $vagasOcupadas = (int)($turmaRow['total'] ?? 0);
 
                     if ($vagasOcupadas >= $capacidadeMax) {
                         $mensagem_erro = "Turma lotada! Limite de {$capacidadeMax} alunos atingido.";
@@ -248,11 +305,6 @@ try {
                 }
             }
         }
-
-        // Buscar agendamentos futuros
-        $stmt_meus = $pdo_agenda->prepare("SELECT a.id_agendamento, a.data_agendamento, t.nome as nome_turma FROM agendamento a JOIN turma t ON a.id_turma = t.id_turma WHERE a.id_usuario_aluno = ? AND a.status = 'CONFIRMADO' AND a.data_agendamento >= NOW() ORDER BY a.data_agendamento ASC");
-        $stmt_meus->execute([$id_aluno]);
-        $meus_agendamentos = $stmt_meus->fetchAll(PDO::FETCH_ASSOC);
     }
 
 } catch (Exception $e) {
@@ -273,15 +325,13 @@ try {
 <body style="background-color: var(--bg-body, #f8f9fa);">
 
     <div class="d-print-none">
-        <?php include '../includes/header.php'; ?>
+        <?php include __DIR__ . '/../includes/header.php'; ?>
     </div>
 
     <main class="container py-4">
         
         <?php if ($is_primeiro_acesso): ?>
-            <!-- ========================================================= -->
-            <!-- TELA DE PRIMEIRO ACESSO (CONTRATO)                        -->
-            <!-- ========================================================= -->
+            <!-- TELA DE PRIMEIRO ACESSO (CONTRATO) -->
             <div class="row justify-content-center d-print-block">
                 <div class="col-lg-10">
                     <div class="card shadow border-0 rounded-3">
@@ -374,12 +424,10 @@ try {
             </div>
 
         <?php else: ?>
-            <!-- ========================================================= -->
-            <!-- PAINEL NORMAL COM CARTÕES, FINANCEIRO, CALENDÁRIO E BOTÃO -->
-            <!-- ========================================================= -->
-            
-            <h2 class="text-center mb-2">Painel do Aluno</h2>
-            <p class="text-muted text-center mb-4">Bem-vindo(a), <?= htmlspecialchars($_SESSION['usuario']['nome']) ?>! Acompanhe a sua evolução e treinos.</p>
+           <div class="mb-3">
+    <h2 class="mb-0">Painel do Aluno</h2>
+    <p class="text-muted mb-0">Bem-vindo(a), <?= htmlspecialchars($_SESSION['usuario']['nome']) ?>!</p>
+</div>
 
             <?php if (!empty($mensagem_sucesso)): ?>
                 <div class="alert alert-success text-center py-2"><?= $mensagem_sucesso; ?></div>
@@ -425,7 +473,7 @@ try {
                 </div>
             </div>
 
-            <!-- SEÇÃO FINANCEIRA / STATUS DA MENSALIDADE (PASSO 4) -->
+            <!-- SEÇÃO FINANCEIRA / STATUS DA MENSALIDADE -->
             <div class="card shadow-sm border p-3 mb-4">
                 <h5 class="text-uppercase fw-bold text-danger mb-1" style="font-size: 1rem;">💳 Estado Financeiro & Mensalidade</h5>
                 <p class="text-muted small mb-3">Acompanhe o estado do seu pagamento do mês atual.</p>
@@ -438,6 +486,9 @@ try {
                                 <span class="badge bg-success px-3 py-2 fs-6">🟢 PAGO</span>
                             <?php else: ?>
                                 <span class="badge bg-warning text-dark px-3 py-2 fs-6">🟡 PENDENTE</span>
+                                <div class="mt-2">
+                                    <button type="button" class="btn btn-danger btn-sm fw-bold" data-bs-toggle="modal" data-bs-target="#modalPagamento">Efetuar Pagamento</button>
+                                </div>
                             <?php endif; ?>
                         </div>
                     </div>
@@ -537,6 +588,69 @@ try {
         <?php endif; ?>
 
     </main>
+
+    <!-- MODAL DE CHECKOUT DE PAGAMENTO (PIX / CARTÃO) -->
+    <?php if (strtoupper($status_pagamento) !== 'PAGO'): ?>
+    <div class="modal fade" id="modalPagamento" tabindex="-1" aria-labelledby="modalPagamentoLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content shadow border-0">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title fw-bold" id="modalPagamentoLabel">💳 Checkout de Pagamento - Dojify</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <ul class="nav nav-pills mb-3 justify-content-center" id="pills-tab" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active fw-bold text-danger border border-danger me-2" id="pills-pix-tab" data-bs-toggle="pill" data-bs-target="#pills-pix" type="button" role="tab">🟢 PIX</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link fw-bold text-danger border border-danger" id="pills-cartao-tab" data-bs-toggle="pill" data-bs-target="#pills-cartao" type="button" role="tab">💳 Cartão</button>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content" id="pills-tabContent">
+                        <div class="tab-pane fade show active text-center py-3" id="pills-pix" role="tabpanel">
+                            <p class="text-muted small mb-2">Chave PIX (CNPJ):</p>
+                            <div class="bg-light p-2 border rounded mb-3 d-inline-block">
+                                <span class="fw-bold text-dark" style="font-size: 0.85rem;">66.790.246/0001-12</span>
+                            </div>
+                            <p class="text-success fw-bold small mb-3">Valor: <?= $valor_pagamento; ?></p>
+                            <form method="POST" action="">
+                                <input type="hidden" name="acao_simular_pagamento" value="PIX">
+                                <button type="submit" class="btn btn-success w-100 fw-bold py-2">Já paguei! Confirmar</button>
+                            </form>
+                        </div>
+
+                        <div class="tab-pane fade py-2" id="pills-cartao" role="tabpanel">
+                            <form method="POST" action="">
+                                <input type="hidden" name="acao_simular_pagamento" value="CARTAO">
+                                <div class="mb-2">
+                                    <label class="form-label small fw-bold">Número do Cartão</label>
+                                    <input type="text" class="form-control form-control-sm bg-light" placeholder="4242 4242 4242 4242" required>
+                                </div>
+                                <div class="mb-2">
+                                    <label class="form-label small fw-bold">Nome no Cartão</label>
+                                    <input type="text" class="form-control form-control-sm bg-light" placeholder="Nome impresso" required>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-6">
+                                        <label class="form-label small fw-bold">Validade</label>
+                                        <input type="text" class="form-control form-control-sm bg-light" placeholder="MM/AA" required>
+                                    </div>
+                                    <div class="col-6">
+                                        <label class="form-label small fw-bold">CVV</label>
+                                        <input type="password" class="form-control form-control-sm bg-light" placeholder="123" maxlength="4" required>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-danger w-100 fw-bold py-2">Pagar <?= $valor_pagamento; ?></button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <?php endif; ?>
 
     <div class="d-print-none">
         <?php include __DIR__ . '/../includes/footer.php'; ?>
