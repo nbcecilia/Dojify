@@ -39,13 +39,14 @@ class AcademiaDAO {
                        a.documento, 
                        a.email AS academia_email, 
                        a.telefone AS academia_telefone,
+                       a.status,
                        u.id_usuario AS id_gerente,
                        u.nome AS gerente_nome, 
                        u.email AS gerente_email, 
                        u.telefone AS gerente_telefone,
                        u.status AS gerente_status
                 FROM academia a
-                LEFT JOIN usuario u ON a.id_academia = u.id_academia AND u.perfil_id = 2
+                LEFT JOIN usuario u ON a.id_academia = u.id_academia AND u.perfil_id = 2 AND u.status = 'ATIVO'
                 ORDER BY a.id_academia DESC";
         
         return $this->conexao->query($sql)->fetchAll(PDO::FETCH_ASSOC);
@@ -81,13 +82,26 @@ class AcademiaDAO {
         }
     }
 
-    public function excluir(int $id): bool {
+    /* Desativa uma academia logicamente alterando o status para 'INATIVO' */
+    public function desativar(int $id): bool {
         try {
-            $sql = "DELETE FROM academia WHERE id_academia = :id";
+            $sql = "UPDATE academia SET status = 'INATIVO' WHERE id_academia = :id";
             $stmt = $this->conexao->prepare($sql);
             $stmt->bindValue(':id', $id, PDO::PARAM_INT);
             return $stmt->execute();
-        } catch (PDOException $e) {
+        } catch (Exception $e) {
+            return false;
+        }
+    }
+
+    /* Reativa uma academia alterando o status de volta para 'ATIVO' */
+    public function reativar(int $id): bool {
+        try {
+            $sql = "UPDATE academia SET status = 'ATIVO' WHERE id_academia = :id";
+            $stmt = $this->conexao->prepare($sql);
+            $stmt->bindValue(':id', $id, PDO::PARAM_INT);
+            return $stmt->execute();
+        } catch (Exception $e) {
             return false;
         }
     }
@@ -99,13 +113,14 @@ class AcademiaDAO {
                        a.documento, 
                        a.email AS academia_email, 
                        a.telefone AS academia_telefone,
+                       a.status,
                        u.id_usuario AS id_gerente,
                        u.nome AS gerente_nome, 
                        u.email AS gerente_email, 
                        u.telefone AS gerente_telefone,
                        u.status AS gerente_status
                 FROM academia a
-                LEFT JOIN usuario u ON a.id_academia = u.id_academia AND u.perfil_id = 2
+                LEFT JOIN usuario u ON a.id_academia = u.id_academia AND u.perfil_id = 2 AND u.status = 'ATIVO'
                 WHERE a.nome LIKE :termo 
                    OR a.documento LIKE :termo 
                    OR a.email LIKE :termo 

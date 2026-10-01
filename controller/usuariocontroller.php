@@ -18,7 +18,7 @@ class UsuarioController {
         $acao = $_REQUEST['acao'] ?? '';
 
         switch ($acao) {
-            // === AÇÕES DO GERENTE ===
+            // === ROTAS DO GERENTE (Perfil 2) ===
             case 'cadastrar_aluno':
                 $this->cadastrarAluno();
                 break;
@@ -32,7 +32,7 @@ class UsuarioController {
                 $this->alternarStatus();
                 break;
 
-            // === AÇÕES DO ADMINISTRADOR ===
+            // === ROTAS DO ADMINISTRADOR (Perfil 1) ===
             case 'cadastrar_gerente':
                 $this->cadastrarGerente();
                 break;
@@ -42,8 +42,11 @@ class UsuarioController {
             case 'atualizar_gerente':
                 $this->atualizarGerente();
                 break;
-            case 'excluir':
-                $this->excluir();
+            case 'desativar':
+                $this->desativar();
+                break;
+            case 'reativar':
+                $this->reativar();
                 break;
 
             default:
@@ -51,10 +54,16 @@ class UsuarioController {
                 exit;
         }
     }
+
     // ==========================================
     // MÉTODOS EXECUTADOS PELO GERENTE (Perfil 2)
+    // Gerem Alunos (Perfil 4) e Professores (Perfil 3) da respetiva academia
     // ==========================================
 
+    /**
+     * GERENTE: Cadastra um novo Aluno (Perfil 4) na sua academia,
+     * criando também o registo de login, o plano inicial e a respetiva fatura/pagamento.
+     */
     private function cadastrarAluno(): void {
         if (!isset($_SESSION['usuario']) || (int)$_SESSION['usuario']['perfil_id'] !== 2) {
             header('Location: ../view/login.php?erro=acesso_negado');
@@ -154,6 +163,10 @@ class UsuarioController {
         }
     }
 
+    /**
+     * GERENTE: Cadastra um novo Professor (Perfil 3) na sua academia,
+     * configurando os dados profissionais e as credenciais de acesso de login.
+     */
     private function cadastrarProfessor(): void {
         if (!isset($_SESSION['usuario']) || (int)$_SESSION['usuario']['perfil_id'] !== 2) {
             header('Location: ../view/login.php?erro=acesso_negado');
@@ -217,20 +230,22 @@ class UsuarioController {
 
         } catch (Exception $e) {
             if ($pdo instanceof PDO && $pdo->inTransaction()) {
-            $pdo->rollBack();
+                $pdo->rollBack();
             }
     
             if ($e->getCode() == '23000' || strpos($e->getMessage(), '1062') !== false) {
-            header('Location: ../view/gerente/cadastrar_professor.php?erro=cpf_duplicado');
-            exit;
+                header('Location: ../view/gerente/cadastrar_professor.php?erro=cpf_duplicado');
+                exit;
             }
 
-
             header('Location: ../view/gerente/cadastrar_professor.php?erro=falha_cadastro');
-    exit;
+            exit;
         }
     }
 
+    /**
+     * GERENTE: Atualiza os dados cadastrais e o plano de um Aluno (Perfil 4) existente.
+     */
     private function atualizarAluno(): void {
         if (!isset($_SESSION['usuario']) || (int)$_SESSION['usuario']['perfil_id'] !== 2) {
             header('Location: ../view/login.php?erro=acesso_negado');
@@ -307,6 +322,10 @@ class UsuarioController {
         }
     }
 
+    /**
+     * GERENTE: Altera de forma dinâmica o status (ATIVO, INATIVO, SUSPENSO)
+     * de utilizadores afetos à sua respetiva academia.
+     */
     private function alternarStatus(): void {
         if (!isset($_SESSION['usuario']) || (int)$_SESSION['usuario']['perfil_id'] !== 2) {
             header('Location: ../view/login.php');
@@ -341,8 +360,12 @@ class UsuarioController {
 
     // ==========================================
     // MÉTODOS EXECUTADOS PELO ADMINISTRADOR (Perfil 1)
+    // Gerem Academias e Gestores/Gerentes (Perfil 2) globalmente no sistema
     // ==========================================
 
+    /**
+     * ADMINISTRADOR: Cadastra um novo Gerente (Perfil 2) vinculado a uma academia específica.
+     */
     private function cadastrarGerente(): void {
         if (!isset($_SESSION['usuario']) || (int)$_SESSION['usuario']['perfil_id'] !== 1) {
             header('Location: ../view/login.php');
@@ -373,7 +396,7 @@ class UsuarioController {
             }
 
             if ($this->dao->cadastrar($u, $senha)) {
-                header('Location: ../view/admin/home_admin.php?sucesso=1');
+                header('Location: ../view/admin/listar_academias_gerentes.php?sucesso=1');
             } else {
                 header('Location: ../view/admin/cadastrar_gerente.php?erro=1');
             }
@@ -383,6 +406,9 @@ class UsuarioController {
         exit;
     }
 
+    /**
+     * ADMINISTRADOR: Atualiza dados gerais de qualquer perfil no sistema a partir do painel administrativo.
+     */
     private function atualizar(): void {
         if (!isset($_SESSION['usuario']) || (int)$_SESSION['usuario']['perfil_id'] !== 1) {
             header('Location: ../view/login.php');
@@ -390,7 +416,7 @@ class UsuarioController {
         }
 
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header('Location: ../view/admin/home_admin.php');
+            header('Location: ../view/admin/listar_academias_gerentes.php');
             exit;
         }
 
@@ -411,16 +437,19 @@ class UsuarioController {
             }
 
             if ($this->dao->atualizar($u)) {
-                header('Location: ../view/admin/home_admin.php?sucesso=atualizado');
+                header('Location: ../view/admin/listar_academias_gerentes.php?sucesso=atualizado');
             } else {
                 header('Location: ../view/admin/editar_gerente.php?id=' . $u->getIdUsuario() . '&erro=1'); 
             } 
         } catch (Exception $e) {
-            header('Location: ../view/admin/home_admin.php?erro=excecao');
+            header('Location: ../view/admin/listar_academias_gerentes.php?erro=excecao');
         }
         exit;
     }
 
+    /**
+     * ADMINISTRADOR: Atualiza especificamente os dados de um Gerente (Perfil 2) e a sua academia associada.
+     */
     private function atualizarGerente(): void {
         if (!isset($_SESSION['usuario']) || (int)$_SESSION['usuario']['perfil_id'] !== 1) {
             header('Location: ../view/login.php?erro=acesso_negado');
@@ -428,7 +457,7 @@ class UsuarioController {
         }
 
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header('Location: ../view/admin/home_admin.php');
+            header('Location: ../view/admin/listar_academias_gerentes.php');
             exit;
         }
 
@@ -447,7 +476,7 @@ class UsuarioController {
 
             $usuarioAtual = $this->dao->buscarPorId($idUsuario);
             if (!$usuarioAtual || (int)$usuarioAtual['perfil_id'] !== 2) {
-                header('Location: ../view/admin/home_admin.php?erro=nao_encontrado');
+                header('Location: ../view/admin/listar_academias_gerentes.php?erro=nao_encontrado');
                 exit;
             }
 
@@ -463,17 +492,20 @@ class UsuarioController {
             $uDTO->setStatus($status);
 
             if ($this->dao->atualizar($uDTO)) {
-                header('Location: ../view/admin/home_admin.php?sucesso=gerente_atualizado');
+                header('Location: ../view/admin/listar_academias_gerentes.php?sucesso=gerente_atualizado');
             } else {
                 header('Location: ../view/admin/editar_gerente.php?id=' . $idUsuario . '&erro=falha_atualizacao');
             }
         } catch (Exception $e) {
-            header('Location: ../view/admin/home_admin.php?erro=excecao');
+            header('Location: ../view/admin/listar_academias_gerentes.php?erro=excecao');
         }
         exit;
     }
 
-    private function excluir(): void {
+    /**
+     * ADMINISTRADOR: Desativa um utilizador ou gerente globalmente a partir da gestão de academias.
+     */
+    private function desativar(): void {
         if (!isset($_SESSION['usuario']) || (int)$_SESSION['usuario']['perfil_id'] !== 1) {
             header('Location: ../view/login.php');
             exit;
@@ -482,18 +514,62 @@ class UsuarioController {
         $id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
 
         if (!$id) {
-            header('Location: ../view/admin/home_admin.php?erro=id_invalido');
+            header('Location: ../view/admin/listar_academias_gerentes.php?erro=id_invalido');
             exit;
         }
 
         try {
-            if ($this->dao->excluir($id)) {
-                header('Location: ../view/admin/home_admin.php?sucesso=excluido');
+            if ($this->dao->desativar($id)) {
+                header('Location: ../view/admin/listar_academias_gerentes.php?sucesso=desativado');
             } else {
-                header('Location: ../view/admin/home_admin.php?erro=falha_exclusao');
+                header('Location: ../view/admin/listar_academias_gerentes.php?erro=falha_desativacao');
             }
         } catch (Exception $e) {
-            header('Location: ../view/admin/home_admin.php?erro=excecao');
+            header('Location: ../view/admin/listar_academias_gerentes.php?erro=excecao');
+        }
+        exit;
+    }
+
+    /**
+     * ADMINISTRADOR: Reativa um utilizador ou gerente previamente desativado no sistema.
+     */
+    private function reativar(): void {
+        if (!isset($_SESSION['usuario']) || (int)$_SESSION['usuario']['perfil_id'] !== 1) {
+            header('Location: ../view/login.php');
+            exit;
+        }
+
+        $id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
+
+        if (!$id) {
+            header('Location: ../view/admin/listar_academias_gerentes.php?erro=id_invalido');
+            exit;
+        }
+
+        try {
+            // Busca o utilizador para validar se é um gerente e qual é a sua academia
+            $usuario = $this->dao->buscarPorId($id);
+            if (!$usuario) {
+                header('Location: ../view/admin/listar_academias_gerentes.php?erro=nao_encontrado');
+                exit;
+            }
+
+            // Se for um gerente (perfil_id = 2) e pertencer a uma academia, valida se já existe um ativo
+            if ((int)$usuario['perfil_id'] === 2 && !empty($usuario['id_academia'])) {
+                $idAcademia = (int)$usuario['id_academia'];
+                if ($this->dao->existeGerenteAtivoNaAcademia($idAcademia)) {
+                    header('Location: ../view/admin/listar_academias_gerentes.php?erro=academia_ja_tem_gerente');
+                    exit;
+                }
+            }
+
+            if ($this->dao->reativar($id)) {
+                header('Location: ../view/admin/listar_academias_gerentes.php?sucesso=reativado');
+            } else {
+                header('Location: ../view/admin/listar_academias_gerentes.php?erro=falha_reativacao');
+            }
+        } catch (Exception $e) {
+            header('Location: ../view/admin/listar_academias_gerentes.php?erro=excecao');
         }
         exit;
     }
