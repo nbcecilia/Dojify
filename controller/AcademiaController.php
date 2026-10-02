@@ -26,8 +26,11 @@ class AcademiaController {
             case 'atualizar':
                 $this->atualizar();
                 break;
-            case 'excluir':
-                $this->excluir();
+            case 'desativar':
+                $this->desativar();
+                break;
+            case 'reativar':
+                $this->reativar();
                 break;
             default:
                 header('Location: ../view/admin/home_admin.php');
@@ -46,7 +49,7 @@ class AcademiaController {
         $a->setEmail(filter_input(INPUT_POST, 'email', FILTER_VALIDATE_EMAIL));
 
         if ($this->dao->cadastrar($a)) {
-            header('Location: ../view/admin/home_admin.php?sucesso=1');
+            header('Location: ../view/admin/listar_academias_gerentes.php?sucesso=1');
         } else {
             header('Location: ../view/admin/cadastrar_academia.php?erro=1');
         }
@@ -65,19 +68,29 @@ class AcademiaController {
         $a->setEmail(filter_input(INPUT_POST, 'email', FILTER_VALIDATE_EMAIL));
 
         if ($this->dao->atualizar($a)) {
-            header('Location: ../view/admin/home_admin.php?sucesso=1');
+            header('Location: ../view/admin/listar_academias_gerentes.php?sucesso=1');
         } else {
             header('Location: ../view/admin/editar_academia.php?id=' . $a->getIdAcademia() . '&erro=1');
         }
         exit;
     }
 
-    private function excluir(): void {
+    private function desativar(): void {
         $id = (int)($_GET['id'] ?? 0);
-        if ($id > 0 && $this->dao->excluir($id)) {
-            header('Location: ../view/admin/home_admin.php?sucesso=1');
+        if ($id > 0 && $this->dao->desativar($id)) {
+            header('Location: ../view/admin/listar_academias_gerentes.php?sucesso=1');
         } else {
-            header('Location: ../view/admin/home_admin.php?erro=1');
+            header('Location: ../view/admin/listar_academias_gerentes.php?erro=1');
+        }
+        exit;
+    }
+
+    private function reativar(): void {
+        $id = (int)($_GET['id'] ?? 0);
+        if ($id > 0 && $this->dao->reativar($id)) {
+            header('Location: ../view/admin/listar_academias_gerentes.php?sucesso=1');
+        } else {
+            header('Location: ../view/admin/listar_academias_gerentes.php?erro=1');
         }
         exit;
     }

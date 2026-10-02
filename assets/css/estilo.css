@@ -80,7 +80,6 @@ body {
     flex-direction: column;     
     min-height: 100vh;          
     padding: 0;
-    padding: 0;
     line-height: 1.5;
     transition: background-color 0.3s ease, color 0.3s ease;
 }
@@ -474,20 +473,6 @@ button[type="submit"]:hover {
     margin-bottom: 24px;
 }
 
-.form-row-inline {
-    display: flex;
-    gap: 16px;
-    align-items: flex-end;
-}
-
-.form-row-inline > div {
-    flex: 1;
-}
-
-.form-row-inline label {
-    margin-top: 0;
-}
-
 /* Suporte a inputs do tipo time no design system */
 input[type="time"] {
     width: 100%;
@@ -812,6 +797,7 @@ input[type="time"]:focus {
     filter: grayscale(100%);
 }
 
+<<<<<<< HEAD
 /* Paleta neutra das telas do aluno */
 .aluno-theme {
     --aluno-surface: #F0F2F4;
@@ -863,3 +849,21 @@ input[type="time"]:focus {
     color: var(--aluno-text) !important;
     border-bottom-color: var(--aluno-border) !important;
 }
+=======
+/* ----------------------------------------------------------
+   ALINHAMENTO VERTICAL DE BOTÕES NA TABELA DE AÇÕES ---ADMIN
+   ---------------------------------------------------------- */
+.table-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    max-width: 180px;
+    margin: 0 auto;
+}
+
+.table-actions .btn {
+    width: 100%;
+    justify-content: center;
+    text-align: center;
+}
+>>>>>>> 7de2a247f9ab9eb019f4dc2d9985784205f73eda

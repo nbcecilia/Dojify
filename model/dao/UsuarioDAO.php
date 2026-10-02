@@ -122,26 +122,51 @@ class UsuarioDAO {
         }
     }
 
-    /* Exclui o usuário e seu registro de login associado de forma segura */
-    public function excluir(int $id): bool {
+    // DELETE físico por desativação lógica (Soft Delete) */
+    public function desativar(int $id): bool {
         try {
-            $this->conexao->beginTransaction();
-
-            // Remove primeiro da tabela login por conta da chave estrangeira
-            $stmtLogin = $this->conexao->prepare("DELETE FROM login WHERE id_usuario = :id");
-            $stmtLogin->bindValue(':id', $id, PDO::PARAM_INT);
-            $stmtLogin->execute();
-
-            // Depois remove da tabela usuario
-            $stmtUsuario = $this->conexao->prepare("DELETE FROM usuario WHERE id_usuario = :id");
-            $stmtUsuario->bindValue(':id', $id, PDO::PARAM_INT);
-            $stmtUsuario->execute();
-
-            $this->conexao->commit();
-            return true;
+            $sql = "UPDATE usuario SET status = 'INATIVO' WHERE id_usuario = :id";
+            $stmt = $this->conexao->prepare($sql);
+            $stmt->bindValue(':id', $id, PDO::PARAM_INT);
+            return $stmt->execute();
         } catch (Exception $e) {
-            $this->conexao->rollBack();
             return false;
         }
+    }
+
+    /* Reativa um usuário alterando o seu status de volta para 'ATIVO' */
+    public function reativar(int $id): bool {
+        try {
+            $sql = "UPDATE usuario SET status = 'ATIVO' WHERE id_usuario = :id";
+            $stmt = $this->conexao->prepare($sql);
+            $stmt->bindValue(':id', $id, PDO::PARAM_INT);
+            return $stmt->execute();
+        } catch (Exception $e) {
+            return false;
+        }
+    }
+
+    /* Lista apenas os gerentes (perfil_id = 2) que estão inativos */
+    public function listarGerentesInativos(): array {
+        $sql = "SELECT u.*, a.nome AS academia_nome 
+                FROM usuario u 
+                LEFT JOIN academia a ON u.id_academia = a.id_academia
+                WHERE u.perfil_id = 2 AND u.status = 'INATIVO'
+                ORDER BY u.nome ASC";
+        return $this->conexao->query($sql)->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    /* Verifica se já existe algum gerente (perfil_id = 2) ATIVO na mesma academia */
+    public function existeGerenteAtivoNaAcademia(int $idAcademia): bool {
+        $sql = "SELECT COUNT(*) FROM usuario 
+                WHERE id_academia = :id_academia 
+                  AND perfil_id = 2 
+                  AND status = 'ATIVO'";
+        
+        $stmt = $this->conexao->prepare($sql);
+        $stmt->bindValue(':id_academia', $idAcademia, PDO::PARAM_INT);
+        $stmt->execute();
+        
+        return $stmt->fetchColumn() > 0;
     }
 }

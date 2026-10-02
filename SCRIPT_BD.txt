@@ -389,8 +389,8 @@ INSERT INTO horario_turma(id_horario, id_turma, dia_semana, hora_inicio, hora_fi
 -- 7. PLANO E PAGAMENTO
 -- ==========================================================
 INSERT INTO plano(id_plano, id_usuario_aluno, nome_plano, valor, data_inicio, data_fim, status) VALUES 
-(1, 3, 'Mensal 3x/semana', 140.00, '2026-03-01', '2026-04-01', 'ATIVO'),
-(2, 4, 'Mensal 2x/semana', 100.00, '2026-03-01', '2026-06-01', 'ATIVO');
+(1, 4, 'Mensal 3x/semana', 140.00, '2026-03-01', '2026-04-01', 'ATIVO'),
+(2, 5, 'Mensal 2x/semana', 100.00, '2026-03-01', '2026-06-01', 'ATIVO');
 
 INSERT INTO pagamento(id_pagamento, id_plano_matricula, valor, data_vencimento, data_pagamento, forma_pagamento, status) VALUES 
 (1, 1, 140.00, '2026-03-10', '2026-03-08', 'PIX', 'PAGO'),
@@ -408,4 +408,12 @@ INSERT INTO presenca(id_presenca, id_agendamento, data, status) VALUES
 INSERT INTO graduacao(id_graduacao, id_usuario_aluno, id_usuario_professor, id_modalidade, data_graduacao, faixa, grau) VALUES 
 (1, 3, 2, 1, '2026-01-15', 'Branca', '2º Grau');
 
+-- ===========================================================
+-- ALTERAÇÕES
+-- ===========================================================
 ALTER TABLE usuario ADD primeiro_acesso TINYINT(1) DEFAULT 1;
+<<<<<<< HEAD
+=======
+ALTER TABLE academia ADD COLUMN status VARCHAR(20) NOT NULL DEFAULT 'ATIVO';
+
+>>>>>>> 7de2a247f9ab9eb019f4dc2d9985784205f73eda
