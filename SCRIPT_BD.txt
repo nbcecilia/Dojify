@@ -280,8 +280,9 @@ CREATE TABLE IF NOT EXISTS `dojify_1`.`pagamento` (
   `data_vencimento` DATE NOT NULL COMMENT 'Data de vencimento do título.',
   `data_pagamento` DATE NULL DEFAULT NULL COMMENT 'Data em que a quitação foi efetuada.\n',
   `forma_pagamento` VARCHAR(50) NULL DEFAULT NULL COMMENT 'Método usado (PIX, CARTAO, DINHEIRO).',
-  `status` VARCHAR(20) NULL DEFAULT 'PENDENTE' COMMENT 'Estado do pagamento (PENDENTE, PAGO, ATRASADO).',
+  `status` VARCHAR(20) NULL DEFAULT 'PENDENTE' COMMENT 'Estado do pagamento (PENDENTE, EM_ANALISE, PAGO, ATRASADO).',
   `observacao` TEXT NULL DEFAULT NULL,
+  `comprovante_path` VARCHAR(255) NULL DEFAULT NULL COMMENT 'Nome interno do arquivo de comprovante enviado pelo aluno.',
   PRIMARY KEY (`id_pagamento`),
   INDEX `id_plano_matricula` (`id_plano_matricula` ASC) ,
   CONSTRAINT `pagamento_ibfk_1`
@@ -408,4 +409,3 @@ INSERT INTO graduacao(id_graduacao, id_usuario_aluno, id_usuario_professor, id_m
 (1, 3, 2, 1, '2026-01-15', 'Branca', '2º Grau');
 
 ALTER TABLE usuario ADD primeiro_acesso TINYINT(1) DEFAULT 1;
-

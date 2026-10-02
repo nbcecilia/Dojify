@@ -24,7 +24,9 @@ $totalValor = 0;
 if (isset($_GET['filtrar'])) {
     $dadosRelatorio = $dao->relatorioPagamentos($idAcademia, $dataInicio, $dataFim, $status);
     foreach ($dadosRelatorio as $pag) {
-        $totalValor += $pag['valor'];
+        if (strtoupper($pag['status']) === 'PAGO') {
+            $totalValor += $pag['valor'];
+        }
     }
 }
 ?>
@@ -78,6 +80,7 @@ if (isset($_GET['filtrar'])) {
                     <option value="TODOS" <?= $status === 'TODOS' ? 'selected' : '' ?>>Todos</option>
                     <option value="PAGO" <?= $status === 'PAGO' ? 'selected' : '' ?>>Pagos</option>
                     <option value="PENDENTE" <?= $status === 'PENDENTE' ? 'selected' : '' ?>>Pendentes</option>
+                    <option value="EM_ANALISE" <?= $status === 'EM_ANALISE' ? 'selected' : '' ?>>Comprovante em análise</option>
                     <option value="ATRASADO" <?= $status === 'ATRASADO' ? 'selected' : '' ?>>Atrasados</option>
                 </select>
             </div>
@@ -109,6 +112,7 @@ if (isset($_GET['filtrar'])) {
                             <th>Valor (R$)</th>
                             <th>Estado</th>
                             <th>Forma de Pag.</th>
+                            <th class="no-print">Comprovante</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -125,6 +129,9 @@ if (isset($_GET['filtrar'])) {
                                 } elseif ($statusUpper === 'ATRASADO') {
                                     $bgBadge = '#fee2e2';
                                     $txtBadge = '#991b1b';
+                                } elseif ($statusUpper === 'EM_ANALISE') {
+                                    $bgBadge = '#dbeafe';
+                                    $txtBadge = '#1e40af';
                                 } else {
                                     $bgBadge = '#e2e8f0';
                                     $txtBadge = '#475569';
@@ -141,13 +148,22 @@ if (isset($_GET['filtrar'])) {
                                     </span>
                                 </td>
                                 <td><?= $pag['forma_pagamento'] ? htmlspecialchars($pag['forma_pagamento']) : '-' ?></td>
+                                <td class="no-print">
+                                    <?php if (!empty($pag['comprovante_path'])): ?>
+                                        <a class="btn btn-sm btn-outline-primary" href="../../controller/ComprovantePagamentoController.php?acao=visualizar&amp;id_pagamento=<?= (int)$pag['id_pagamento']; ?>" target="_blank" rel="noopener">
+                                            Visualizar
+                                        </a>
+                                    <?php else: ?>
+                                        <span class="text-muted">Não enviado</span>
+                                    <?php endif; ?>
+                                </td>
                             </tr>
                         <?php endforeach; ?>
                     </tbody>
                 </table>
 
                 <div style="text-align: right; margin-top: 20px; padding-top: 16px; border-top: 2px solid var(--border-color);">
-                    <h3 style="margin: 0;">Total: R$ <?= number_format($totalValor, 2, ',', '.') ?></h3>
+                    <h3 style="margin: 0;">Total recebido: R$ <?= number_format($totalValor, 2, ',', '.') ?></h3>
                 </div>
 
                 <div class="no-print" style="text-align: center; margin-top: 32px;">

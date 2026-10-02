@@ -1,0 +1,7 @@
+
+
+ALTER TABLE dojify_1.pagamento
+    ADD COLUMN comprovante_path VARCHAR(255) NULL DEFAULT NULL
+    COMMENT 'Nome interno do arquivo de comprovante enviado pelo aluno.';
+
+ALTER TABLE usuario ADD primeiro_acesso TINYINT(1) DEFAULT 1;

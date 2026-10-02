@@ -811,3 +811,55 @@ input[type="time"]:focus {
     margin-bottom: 12px;
     filter: grayscale(100%);
 }
+
+/* Paleta neutra das telas do aluno */
+.aluno-theme {
+    --aluno-surface: #F0F2F4;
+    --aluno-border: #C8CCD1;
+    --aluno-muted: #8A9098;
+    --aluno-text: #434952;
+    --aluno-dark: #0F1216;
+}
+
+.aluno-theme .bg-dark {
+    background-color: var(--aluno-dark) !important;
+}
+
+.aluno-theme .bg-light,
+.aluno-theme .alert-secondary {
+    background-color: var(--aluno-surface) !important;
+}
+
+.aluno-theme .alert-secondary {
+    color: var(--aluno-text);
+    border-color: var(--aluno-border);
+}
+
+.aluno-theme .bg-secondary {
+    background-color: var(--aluno-border) !important;
+    color: var(--aluno-dark) !important;
+}
+
+.aluno-theme .text-secondary,
+.aluno-theme .text-muted {
+    color: var(--aluno-muted) !important;
+}
+
+.aluno-theme .text-dark {
+    color: var(--aluno-text) !important;
+}
+
+.aluno-theme .border,
+.aluno-theme .border-secondary {
+    border-color: var(--aluno-border) !important;
+}
+
+.aluno-theme .aluno-calendar-day-header {
+    background-color: var(--aluno-text) !important;
+}
+
+.aluno-theme #area-impressao h2,
+.aluno-theme #area-impressao h3 {
+    color: var(--aluno-text) !important;
+    border-bottom-color: var(--aluno-border) !important;
+}

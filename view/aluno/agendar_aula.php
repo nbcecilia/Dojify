@@ -73,7 +73,7 @@ try {
         .card-combate { background-color: #1e1e1e; border: 1px solid #333; }
     </style>
 </head>
-<body>
+<body class="aluno-theme">
 
     <?php include '../includes/header.php'; ?>
 
@@ -90,7 +90,7 @@ try {
                     <?php endif; ?>
 
                     <?php if (!empty($erro)): ?>
-                        <div class="alert alert-danger text-center fw-bold"><?= $erro; ?></div>
+                        <div class="alert alert-secondary text-center fw-bold"><?= $erro; ?></div>
                     <?php endif; ?>
 
                     <?php if (empty($turmasDisponiveis)): ?>

@@ -45,7 +45,7 @@ try {
     <link rel="stylesheet" href="../../assets/css/estilo.css">
 </head>
 
-<body style="background-color: var(--bg-body, #f8f9fa);">
+<body class="aluno-theme">
 
     <div class="d-print-none">
         <?php include '../includes/header.php'; ?>
@@ -64,7 +64,7 @@ try {
         </div>
 
         <?php if (!empty($mensagem_erro)): ?>
-            <div class="alert alert-danger text-center py-2"><?= $mensagem_erro; ?></div>
+            <div class="alert alert-secondary text-center py-2"><?= $mensagem_erro; ?></div>
         <?php endif; ?>
 
         <div class="card shadow-sm border p-3">
@@ -91,7 +91,7 @@ try {
                                         <?php elseif ((int)$hist['status_presenca'] === 1): ?>
                                             <span class="badge bg-success">🟢 Presente (+15 XP)</span>
                                         <?php else: ?>
-                                            <span class="badge bg-danger">🔴 Ausente / Falta</span>
+                                            <span class="badge bg-secondary">Ausente / Falta</span>
                                         <?php endif; ?>
                                     </td>
                                 </tr>

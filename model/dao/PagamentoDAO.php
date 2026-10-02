@@ -12,6 +12,7 @@ class PagamentoDAO {
 
     public function listarPagamentosDaAcademia(int $idAcademia): array {
         $sql = "SELECT p.id_pagamento, p.valor, p.data_vencimento, p.data_pagamento, p.status, p.forma_pagamento,
+                       p.comprovante_path,
                        pl.nome_plano, u.nome AS aluno_nome
                 FROM pagamento p
                 INNER JOIN plano pl ON p.id_plano_matricula = pl.id_plano
@@ -27,20 +28,68 @@ class PagamentoDAO {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function registarRecebimento(int $idPagamento, string $formaPagamento): bool {
+    public function registarRecebimento(int $idPagamento, string $formaPagamento, int $idAcademia): bool {
         try {
-            $sql = "UPDATE pagamento 
-                    SET status = 'PAGO', data_pagamento = CURDATE(), forma_pagamento = :forma 
-                    WHERE id_pagamento = :id";
+            $sql = "UPDATE pagamento p
+                    INNER JOIN plano pl ON pl.id_plano = p.id_plano_matricula
+                    INNER JOIN usuario u ON u.id_usuario = pl.id_usuario_aluno
+                    SET p.status = 'PAGO',
+                        p.data_pagamento = CURDATE(),
+                        p.forma_pagamento = :forma
+                    WHERE p.id_pagamento = :id
+                      AND u.id_academia = :id_academia
+                      AND UPPER(COALESCE(p.status, '')) <> 'PAGO'";
                     
             $stmt = $this->conexao->prepare($sql);
             $stmt->bindValue(':forma', $formaPagamento);
             $stmt->bindValue(':id', $idPagamento, PDO::PARAM_INT);
+            $stmt->bindValue(':id_academia', $idAcademia, PDO::PARAM_INT);
             
-            return $stmt->execute();
+            return $stmt->execute() && $stmt->rowCount() === 1;
         } catch (PDOException $e) {
             return false;
         }
+    }
+
+    public function registrarEnvioComprovante(int $idPagamento, int $idAluno, string $nomeArquivo): bool {
+        $sql = "UPDATE pagamento p
+                INNER JOIN plano pl ON pl.id_plano = p.id_plano_matricula
+                SET p.status = 'EM_ANALISE',
+                    p.forma_pagamento = 'PIX',
+                    p.data_pagamento = NULL,
+                    p.comprovante_path = :comprovante
+                WHERE p.id_pagamento = :id_pagamento
+                  AND pl.id_usuario_aluno = :id_aluno
+                  AND UPPER(COALESCE(p.status, '')) <> 'PAGO'
+                  AND p.comprovante_path IS NULL";
+
+        $stmt = $this->conexao->prepare($sql);
+        $stmt->bindValue(':comprovante', $nomeArquivo);
+        $stmt->bindValue(':id_pagamento', $idPagamento, PDO::PARAM_INT);
+        $stmt->bindValue(':id_aluno', $idAluno, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return $stmt->rowCount() === 1;
+    }
+
+    public function buscarComprovanteDaAcademia(int $idPagamento, int $idAcademia): ?string {
+        $sql = "SELECT p.comprovante_path
+                FROM pagamento p
+                INNER JOIN plano pl ON pl.id_plano = p.id_plano_matricula
+                INNER JOIN usuario u ON u.id_usuario = pl.id_usuario_aluno
+                WHERE p.id_pagamento = :id_pagamento
+                  AND u.id_academia = :id_academia
+                  AND u.perfil_id = 4
+                  AND p.comprovante_path IS NOT NULL
+                LIMIT 1";
+
+        $stmt = $this->conexao->prepare($sql);
+        $stmt->bindValue(':id_pagamento', $idPagamento, PDO::PARAM_INT);
+        $stmt->bindValue(':id_academia', $idAcademia, PDO::PARAM_INT);
+        $stmt->execute();
+        $nomeArquivo = $stmt->fetchColumn();
+
+        return $nomeArquivo === false ? null : (string)$nomeArquivo;
     }
 
     // ==========================================================
@@ -95,6 +144,7 @@ class PagamentoDAO {
     // ==========================================================
     public function relatorioPagamentos(int $idAcademia, string $dataInicio, string $dataFim, string $status): array {
         $sql = "SELECT p.id_pagamento, p.valor, p.data_vencimento, p.data_pagamento, p.status, p.forma_pagamento,
+                       p.comprovante_path,
                        pl.nome_plano, u.nome AS aluno_nome
                 FROM pagamento p
                 INNER JOIN plano pl ON p.id_plano_matricula = pl.id_plano

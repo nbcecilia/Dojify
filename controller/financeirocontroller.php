@@ -13,7 +13,11 @@ class FinanceiroController {
     }
 
     public function processarRequisicao(): void {
-        if (!isset($_SESSION['usuario']) || (int)$_SESSION['usuario']['perfil_id'] !== 2) {
+        if (
+            !isset($_SESSION['usuario']) ||
+            (int)$_SESSION['usuario']['perfil_id'] !== 2 ||
+            empty($_SESSION['id_academia'])
+        ) {
             header('Location: ../view/login.php?erro=acesso_negado');
             exit;
         }
@@ -35,8 +39,17 @@ class FinanceiroController {
 
         $idPagamento = filter_input(INPUT_POST, 'id_pagamento', FILTER_VALIDATE_INT);
         $formaPagamento = trim($_POST['forma_pagamento'] ?? 'DINHEIRO');
+        $formasPermitidas = ['PIX', 'CARTAO', 'DINHEIRO'];
 
-        if ($idPagamento && $this->dao->registarRecebimento($idPagamento, $formaPagamento)) {
+        if (
+            $idPagamento &&
+            in_array($formaPagamento, $formasPermitidas, true) &&
+            $this->dao->registarRecebimento(
+                $idPagamento,
+                $formaPagamento,
+                (int)$_SESSION['id_academia']
+            )
+        ) {
             header('Location: ../view/gerente/listar_pagamentos.php?sucesso=recebimento_registado');
         } else {
             header('Location: ../view/gerente/listar_pagamentos.php?erro=falha_recebimento');
