@@ -256,7 +256,7 @@ CREATE TABLE IF NOT EXISTS `dojify_1`.`plano` (
   `id_plano` INT(11) NOT NULL AUTO_INCREMENT COMMENT 'Identificador único do plano.',
   `id_usuario_aluno` INT(11) NOT NULL COMMENT 'Aluno titular do plano.\n',
   `id_modalidade` INT(11) NOT NULL COMMENT 'Modalidade incluída no plano.',
-  `nome_plano` VARCHAR(100) NOT NULL COMMENT 'Nome do plano (2x/semana, 3x/semana, 5x/semanal).',
+  `nome_plano` VARCHAR(100) NOT NULL COMMENT 'Nome do plano (2x/semana, 3x/semana, 5x/semana).',
   `valor` DECIMAL(10,2) NOT NULL COMMENT 'Valor recorrente cobrado pelo plano.',
   `data_inicio` DATE NOT NULL COMMENT 'Data de início de vigência do plano.',
   `data_fim` DATE NULL COMMENT 'Data do fim da vigência do plano.\n',
@@ -335,7 +335,7 @@ USE `dojify_1`;
 -- 1. PERFIL
 -- ==========================================================
 INSERT INTO perfil (id_perfil, nome) VALUES 
-(1, 'ADMINISTRADOR'),
+(1, 'SUPORTE'),
 (2, 'GERENTE'),
 (3, 'PROFESSOR'),
 (4, 'ALUNO');
@@ -347,19 +347,19 @@ INSERT INTO academia (id_academia, nome, documento, endereco, telefone, email) V
 (1, 'A TOKKA - Escola de Lutas', '66790246000112', 'Qnm 08 Conj. B lote 34 - Ceilândia, Brasília - DF', '61998693504', 'contato@atokka.com');
 
 -- ==========================================================
--- 3. USUARIOS (Admin, Gerente, Professor e Alunos)
+-- 3. USUARIOS (Suporte, Gerente, Professor e Alunos)
 -- ==========================================================
--- Admin
+-- 	Suporte
 INSERT INTO usuario (id_usuario, id_academia, perfil_id, nome, cpf, data_nascimento, telefone, email, status) VALUES 
-(1, NULL, 1, 'Admin(Suporte)', '00000000000', '1990-01-01', '11900000000', 'admin@dojify.com', 'ATIVO');
+(1, NULL, 1, 'Suporte Técnico', '00000000000', '1990-01-01', '11900000000', 'suporte@dojify.com', 'ATIVO');
 
 -- Gerente
 INSERT INTO usuario (id_usuario, id_academia, perfil_id, nome, cpf, data_nascimento, telefone, email, status) VALUES 
-(2, 1, 2, 'Carlos Silva (Gerente)', '11111111111', '1985-04-12', '11988887777', 'gerentecarlos@dojify.com', 'ATIVO');
+(2, 1, 2, 'Otávio Silva (Gerente)', '11111111111', '1985-04-12', '11988887777', 'otavio@email.com', 'ATIVO');
 
 -- Professor
 INSERT INTO usuario (id_usuario, id_academia, perfil_id, nome, cpf, data_nascimento, telefone, email, especialidade, data_admissao, status) VALUES 
-(3, 1, 3, 'Mestre Ratto', '22222222222', '1978-08-20', '11977776666', 'ratto@dojify.com', 'Jiu-Jitsu', '2020-01-15', 'ATIVO');
+(3, 1, 3, 'Mestre Ratto', '22222222222', '1978-08-20', '11977776666', 'ratto@email.com', 'Jiu-Jitsu', '2020-01-15', 'ATIVO');
 
 -- Alunos
 INSERT INTO usuario (id_usuario, id_academia, perfil_id, nome, cpf, data_nascimento, telefone, email, data_matricula, status) VALUES 
@@ -395,9 +395,9 @@ INSERT INTO horario_turma(id_horario, id_turma, dia_semana, hora_inicio, hora_fi
 -- ==========================================================
 -- 7. PLANO E PAGAMENTO
 -- ==========================================================
-INSERT INTO plano(id_plano, id_usuario_aluno, nome_plano, valor, data_inicio, data_fim, status) VALUES 
-(1, 4, 'Mensal 3x/semana', 140.00, '2026-03-01', '2026-04-01', 'ATIVO'),
-(2, 5, 'Mensal 2x/semana', 100.00, '2026-03-01', '2026-06-01', 'ATIVO');
+INSERT INTO plano(id_plano, id_usuario_aluno, id_modalidade, nome_plano, valor, data_inicio, data_fim, status) VALUES 
+(1, 4, 1, 'Mensal 3x/semana', 140.00, '2026-03-01', '2026-04-01', 'ATIVO'),
+(2, 5, 2,  'Mensal 2x/semana', 100.00, '2026-03-01', '2026-06-01', 'ATIVO');
 
 INSERT INTO pagamento(id_pagamento, id_plano_matricula, valor, data_vencimento, data_pagamento, forma_pagamento, status) VALUES 
 (1, 1, 140.00, '2026-03-10', '2026-03-08', 'PIX', 'PAGO'),
@@ -407,20 +407,16 @@ INSERT INTO pagamento(id_pagamento, id_plano_matricula, valor, data_vencimento, 
 -- 8. AGENDAMENTO, PRESENCA E GRADUACAO
 -- ==========================================================
 INSERT INTO agendamento(id_agendamento, id_turma, id_usuario_aluno, data_agendamento, status) VALUES 
-(1, 1, 3, '2026-03-16 19:00:00', 'CONFIRMADO');
+(1, 1, 4, '2026-03-16 19:00:00', 'CONFIRMADO');
 
 INSERT INTO presenca(id_presenca, id_agendamento, data, status) VALUES 
 (1, 1, '2026-03-16', 1);
 
 INSERT INTO graduacao(id_graduacao, id_usuario_aluno, id_usuario_professor, id_modalidade, data_graduacao, faixa, grau) VALUES 
-(1, 3, 2, 1, '2026-01-15', 'Branca', '2º Grau');
+(1, 4, 3, 1, '2026-01-15', 'Branca', '2º Grau');
 
 -- ===========================================================
 -- ALTERAÇÕES
 -- ===========================================================
 ALTER TABLE usuario ADD primeiro_acesso TINYINT(1) DEFAULT 1;
-<<<<<<< HEAD
-=======
 ALTER TABLE academia ADD COLUMN status VARCHAR(20) NOT NULL DEFAULT 'ATIVO';
-
->>>>>>> 7de2a247f9ab9eb019f4dc2d9985784205f73eda
