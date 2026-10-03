@@ -85,13 +85,13 @@ class TurmaController {
         if ($this->dao->inserir($turma, $idAcademia)) {
 
             header(
-                'Location: ../view/turmas/listar_turma.php?sucesso=1'
+                'Location: ../view/gerente/listar_turma.php?sucesso=1'
             );
 
         } else {
 
             header(
-                'Location: ../view/turmas/cadastrar_turma.php?erro=1'
+                'Location: ../view/gerente/cadastrar_turma.php?erro=1'
             );
         }
 
@@ -139,13 +139,13 @@ class TurmaController {
         if ($this->dao->atualizar($turma, $idAcademia)) {
 
             header(
-                'Location: ../view/turma/listar_turma.php?sucesso=1'
+                'Location: ../view/gerente/listar_turma.php?sucesso=1'
             );
 
         } else {
 
             header(
-                'Location: ../view/turmas/editar_turma.php?id='
+                'Location: ../view/gerente/editar_turma.php?id='
                 . $turma->getIdTurma()
                 . '&erro=1'
             );
@@ -166,13 +166,13 @@ class TurmaController {
         ) {
 
             header(
-                'Location: ../view/turmas/listar_turma.php?sucesso=1'
+                'Location: ../view/gerente/listar_turma.php?sucesso=1'
             );
 
         } else {
 
             header(
-                'Location: ../view/turmas/listar_turma.php?erro=1'
+                'Location: ../view/gerente/listar_turma.php?erro=1'
             );
         }
 
