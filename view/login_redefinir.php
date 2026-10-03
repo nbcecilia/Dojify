@@ -1,5 +1,5 @@
 <?php
-// view/login_recuperar.php
+// view/login_recuperar.php ou __login_redefinir.php
 
 // TEMOS QUE PENSAR NESSA PARTE AQUI AINDA, GEMINI SUGERIU Token-based Reset, PARA ISSO TEMOS QUE MUDAR O MySQL!
 //ALTER TABLE usuarios ADD COLUMN reset_token VARCHAR(255) DEFAULT NULL;
