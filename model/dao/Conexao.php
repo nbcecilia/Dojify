@@ -1,4 +1,3 @@
-
 <?php
 // model/dao/conexao.php
 class Conexao {
@@ -23,4 +22,3 @@ class Conexao {
         return self::$instancia;
     }
 }
-

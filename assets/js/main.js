@@ -5,6 +5,116 @@
 // NOTIFICAÇÕES (MENU DROPDOWN DO HEADER)
 // ==========================================
 document.addEventListener('DOMContentLoaded', function () {
+    const notificationMenu = document.querySelector('[data-notification-menu]');
+
+    if (notificationMenu) {
+        const storageKey = notificationMenu.dataset.storageKey;
+        const notifications = Array.from(notificationMenu.querySelectorAll('[data-notification-id]'));
+        let readIds = [];
+
+        try {
+            const storedIds = JSON.parse(window.localStorage.getItem(storageKey) || '[]');
+            if (Array.isArray(storedIds) && storedIds.every(function (id) { return typeof id === 'string'; })) {
+                readIds = storedIds;
+            } else {
+                console.error('O estado salvo das notificações do aluno tem um formato inválido.');
+            }
+        } catch (error) {
+            console.error('Não foi possível carregar o estado das notificações do aluno.', error);
+        }
+
+        function persistReadIds() {
+            try {
+                window.localStorage.setItem(storageKey, JSON.stringify(readIds));
+            } catch (error) {
+                console.error('Não foi possível salvar o estado das notificações do aluno.', error);
+            }
+        }
+
+        function renderNotifications() {
+            let unreadCount = 0;
+
+            notifications.forEach(function (notification) {
+                const isRead = readIds.includes(notification.dataset.notificationId);
+                const readButton = notification.querySelector('[data-notification-mark-read]');
+                notification.classList.toggle('opacity-75', isRead);
+
+                if (readButton) {
+                    const label = isRead ? 'Notificação lida' : 'Marcar como lida';
+                    const icon = readButton.querySelector('i');
+                    if (icon) {
+                        icon.classList.toggle('bi-envelope-check', !isRead);
+                        icon.classList.toggle('bi-check2-all', isRead);
+                    }
+                    readButton.setAttribute('title', label);
+                    readButton.setAttribute('aria-label', label);
+                    readButton.setAttribute('aria-pressed', isRead ? 'true' : 'false');
+
+                    const tooltip = window.bootstrap && window.bootstrap.Tooltip.getInstance(readButton);
+                    if (tooltip) {
+                        tooltip.setContent({ '.tooltip-inner': label });
+                    }
+                }
+
+                if (!isRead) {
+                    unreadCount++;
+                }
+            });
+
+            const badge = notificationMenu.querySelector('[data-notification-unread-badge]');
+            if (badge) {
+                badge.textContent = String(unreadCount);
+                badge.hidden = unreadCount === 0;
+            }
+
+            const count = notificationMenu.querySelector('[data-notification-unread-count]');
+            if (count) {
+                count.textContent = unreadCount + (unreadCount === 1 ? ' nova' : ' novas');
+            }
+        }
+
+        function markAsRead(notification) {
+            const id = notification.dataset.notificationId;
+            if (id && !readIds.includes(id)) {
+                readIds.push(id);
+                persistReadIds();
+                renderNotifications();
+            }
+        }
+
+        notificationMenu.addEventListener('click', function (event) {
+            const markButton = event.target.closest('[data-notification-mark-read]');
+            if (markButton) {
+                markAsRead(markButton.closest('[data-notification-id]'));
+                return;
+            }
+
+            if (event.target.closest('[data-notification-mark-all]')) {
+                notifications.forEach(function (notification) {
+                    if (!readIds.includes(notification.dataset.notificationId)) {
+                        readIds.push(notification.dataset.notificationId);
+                    }
+                });
+                persistReadIds();
+                renderNotifications();
+                return;
+            }
+
+            const action = event.target.closest('[data-notification-action]');
+            if (action) {
+                markAsRead(action.closest('[data-notification-id]'));
+            }
+        });
+
+        renderNotifications();
+
+        if (window.bootstrap && window.bootstrap.Tooltip) {
+            notificationMenu.querySelectorAll('[data-bs-toggle="tooltip"], [data-notification-tooltip]').forEach(function (element) {
+                new window.bootstrap.Tooltip(element);
+            });
+        }
+    }
+
     const btnNotificacao = document.getElementById('btnNotificacao');
     const dropdownNotificacoes = document.getElementById('dropdownNotificacoes');
 

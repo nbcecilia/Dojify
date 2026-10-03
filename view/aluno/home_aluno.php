@@ -45,6 +45,7 @@ $c_plano = "Não especificado";
 $c_infoMedica = $c_especial = $c_obs = "---";
 $status_pagamento = 'PENDENTE';
 $data_vencimento = '---';
+$data_vencimento_iso = null;
 $valor_pagamento = '---';
 $id_pagamento_atual = null;
 $comprovante_pagamento_enviado = false;
@@ -241,6 +242,7 @@ try {
             if ($dados_pag) {
                 $id_pagamento_atual = (int)$dados_pag['id_pagamento'];
                 $status_pagamento = $dados_pag['status'] ?? 'PENDENTE';
+                $data_vencimento_iso = $dados_pag['data_vencimento'] ?? null;
                 $data_vencimento = $dados_pag['data_vencimento'] ? date('d/m/Y', strtotime($dados_pag['data_vencimento'])) : '---';
                 $valor_pagamento = $dados_pag['valor'] ? 'R$ ' . number_format($dados_pag['valor'], 2, ',', '.') : '---';
                 $comprovante_pagamento_enviado = strtoupper((string)$status_pagamento) === 'EM_ANALISE';
@@ -263,17 +265,29 @@ try {
         $total_agendamentos_futuros = count($meus_agendamentos);
 
         // --- NOTIFICAÇÕES DINÂMICAS DO ALUNO ---
-        if (strtoupper($status_pagamento) === 'PENDENTE' || strtoupper($status_pagamento) === 'ATRASADO') {
+        if (
+            $id_pagamento_atual !== null &&
+            (strtoupper($status_pagamento) === 'PENDENTE' || strtoupper($status_pagamento) === 'ATRASADO')
+        ) {
+            $pagamentoAtrasado = strtoupper($status_pagamento) === 'ATRASADO'
+                || ($data_vencimento_iso !== null && $data_vencimento_iso < date('Y-m-d'));
+            $mensagemStatusPagamento = $pagamentoAtrasado
+                ? 'venceu em '
+                : 'vence em ';
             $notificacoes[] = [
+                'id' => 'pagamento-' . (int)$id_pagamento_atual,
+                'acao' => 'pagamento',
                 'tipo' => 'warning',
                 'icone' => '⚠️',
-                'titulo' => 'Mensalidade Pendente',
-                'mensagem' => 'A sua mensalidade está pendente. Efetue o pagamento.'
+                'titulo' => $pagamentoAtrasado ? 'Mensalidade em Atraso' : 'Mensalidade Pendente',
+                'mensagem' => 'A sua mensalidade de ' . $valor_pagamento . ' ' . $mensagemStatusPagamento . $data_vencimento . '. Efetue o pagamento e envie o comprovante.'
             ];
         }
 
         if ($total_agendamentos_futuros > 0) {
             $notificacoes[] = [
+                'id' => 'treinos-' . (int)$id_aluno,
+                'acao' => 'agenda',
                 'tipo' => 'success',
                 'icone' => '🥋',
                 'titulo' => 'Treinos Agendados',
@@ -335,6 +349,7 @@ try {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Painel do Aluno - Dojify</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../../assets/css/estilo.css?v=<?= filemtime(__DIR__ . '/../../assets/css/estilo.css'); ?>">
 </head>
 
@@ -611,7 +626,7 @@ try {
 
             <!-- CALENDÁRIO SEMANAL COMPACTO -->
             <div class="card shadow-sm border p-3 mb-4">
-                <h5 class="text-uppercase fw-bold text-dark mb-1 text-center" style="font-size: 1rem;">📅 Agenda Semanal de Treinos</h5>
+                <h5 id="agendaSemanalTitulo" class="text-uppercase fw-bold text-dark mb-1 text-center" style="font-size: 1rem;">📅 Agenda Semanal de Treinos</h5>
                 <p class="text-muted small mb-3 text-center">Escolha a sua turma e clique em agendar no dia respetivo.</p>
                 <?php if ($idModalidadePlano <= 0): ?>
                     <div class="alert alert-warning small text-center py-2" role="alert">
@@ -810,7 +825,6 @@ try {
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="../../assets/js/main.js"></script>
     <?php if ($mensagem_modal_agendamento !== ''): ?>
     <script>
         document.addEventListener('DOMContentLoaded', function () {

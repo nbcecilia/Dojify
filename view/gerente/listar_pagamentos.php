@@ -131,6 +131,8 @@ $pagamentos = $dao->listarPagamentosDaAcademia($idAcademia);
         <?php endif; ?>
     </main>
 
+
+    
     <?php include '../includes/footer.php'; ?>
 
 </body>
