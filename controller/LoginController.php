@@ -1,15 +1,15 @@
 <?php
 // controller/LoginController.php
 
-// Inclui as dependências necessárias
-require_once '../model/dao/Conexao.php';
-require_once '../model/dao/LoginDAO.php';
-
 // Inicia a sessão para gerir o login
 // Verifica se já não está iniciada para evitar warnings
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
+
+// Inclui as dependências necessárias
+require_once __DIR__ . '/../model/dao/Conexao.php';
+require_once __DIR__ . '/../model/dao/LoginDAO.php';
 
 $acao = $_POST['acao'] ?? $_GET['acao'] ?? '';
 

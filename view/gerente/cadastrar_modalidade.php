@@ -27,7 +27,7 @@ if (
 
 <body>
 
-    <?php include '../includes/sidebar.php'; ?>
+    <?php include '../includes/header.php'; ?>
 
     <main class="conteudo">
             <form action="../../controller/ModalidadeController.php" method="POST">
