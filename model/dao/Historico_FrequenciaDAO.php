@@ -1,4 +1,5 @@
 <?php
+// ESSE HISTÓRICO DE FREQUÊNCIA NÃO DEVERIA ESTAR NO PRESENCADAO???
 // model/dao/Historico_FrequenciaDAO.php
 
 require_once __DIR__ . '/Conexao.php';
