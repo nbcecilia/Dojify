@@ -12,6 +12,7 @@ if (
 }
 
 require_once __DIR__ . '/../../model/dao/PlanoDAO.php';
+require_once __DIR__ . '/../../model/dao/ModalidadeDAO.php';
 
 $idPlano = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
 $idAcademia = (int) $_SESSION['id_academia'];
@@ -30,6 +31,7 @@ if (!$plano) {
 }
 
 $alunos = $dao->listarAlunosPorAcademia($idAcademia);
+$modalidades = (new ModalidadeDAO())->listarPorAcademia($idAcademia);
 ?>
 <!DOCTYPE html>
 <html lang="pt-br">
@@ -67,6 +69,17 @@ $alunos = $dao->listarAlunosPorAcademia($idAcademia);
                 <?php foreach ($alunos as $aluno): ?>
                     <option value="<?= $aluno['id_usuario'] ?>" <?= $aluno['id_usuario'] == $plano['id_usuario_aluno'] ? 'selected' : '' ?>>
                         <?= htmlspecialchars($aluno['nome']) ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
+
+            <label for="id_modalidade">Modalidade:</label>
+            <select id="id_modalidade" name="id_modalidade" required>
+                <option value="">Selecione a modalidade...</option>
+                <?php foreach ($modalidades as $modalidade): ?>
+                    <option value="<?= (int)$modalidade['id_modalidade']; ?>"
+                        <?= (int)($plano['id_modalidade'] ?? 0) === (int)$modalidade['id_modalidade'] ? 'selected' : ''; ?>>
+                        <?= htmlspecialchars($modalidade['nome'], ENT_QUOTES, 'UTF-8'); ?>
                     </option>
                 <?php endforeach; ?>
             </select>

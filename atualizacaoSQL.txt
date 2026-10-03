@@ -5,3 +5,17 @@ ALTER TABLE dojify_1.pagamento
     COMMENT 'Nome interno do arquivo de comprovante enviado pelo aluno.';
 
 ALTER TABLE usuario ADD primeiro_acesso TINYINT(1) DEFAULT 1;
+
+-- Vincula cada plano a uma modalidade para restringir a agenda do aluno.
+-- A coluna fica NULL durante a migração para permitir associar os planos existentes.
+ALTER TABLE dojify_1.plano
+    ADD COLUMN id_modalidade INT(11) NULL AFTER id_usuario_aluno,
+    ADD INDEX id_modalidade (id_modalidade),
+    ADD CONSTRAINT plano_modalidade_ibfk_1
+        FOREIGN KEY (id_modalidade)
+        REFERENCES dojify_1.modalidade (id_modalidade)
+        ON DELETE NO ACTION
+        ON UPDATE CASCADE;
+
+-- Após aplicar a migração, edite os planos existentes e escolha a modalidade correta.
+-- Planos sem modalidade vinculada não terão aulas disponíveis para agendamento.

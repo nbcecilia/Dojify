@@ -8,10 +8,11 @@ class PlanoDAO {
     public function inserir(PlanoDTO $plano) {
         try {
             $pdo = Conexao::getConexao();
-            $sql = "INSERT INTO plano (id_usuario_aluno, nome_plano, valor, data_inicio, data_fim, status) 
-                    VALUES (:id_usuario_aluno, :nome_plano, :valor, :data_inicio, :data_fim, :status)";
+            $sql = "INSERT INTO plano (id_usuario_aluno, id_modalidade, nome_plano, valor, data_inicio, data_fim, status)
+                    VALUES (:id_usuario_aluno, :id_modalidade, :nome_plano, :valor, :data_inicio, :data_fim, :status)";
             $stmt = $pdo->prepare($sql);
             $stmt->bindValue(':id_usuario_aluno', $plano->getIdUsuarioAluno());
+            $stmt->bindValue(':id_modalidade', $plano->getIdModalidade(), PDO::PARAM_INT);
             $stmt->bindValue(':nome_plano', $plano->getNomePlano());
             $stmt->bindValue(':valor', $plano->getValor());
             $stmt->bindValue(':data_inicio', $plano->getDataInicio());
@@ -27,11 +28,12 @@ class PlanoDAO {
     public function atualizar(PlanoDTO $plano) {
         try {
             $pdo = Conexao::getConexao();
-            $sql = "UPDATE plano SET id_usuario_aluno = :id_usuario_aluno, nome_plano = :nome_plano, 
+            $sql = "UPDATE plano SET id_usuario_aluno = :id_usuario_aluno, id_modalidade = :id_modalidade, nome_plano = :nome_plano,
                     valor = :valor, data_inicio = :data_inicio, data_fim = :data_fim, status = :status 
                     WHERE id_plano = :id_plano";
             $stmt = $pdo->prepare($sql);
             $stmt->bindValue(':id_usuario_aluno', $plano->getIdUsuarioAluno());
+            $stmt->bindValue(':id_modalidade', $plano->getIdModalidade(), PDO::PARAM_INT);
             $stmt->bindValue(':nome_plano', $plano->getNomePlano());
             $stmt->bindValue(':valor', $plano->getValor());
             $stmt->bindValue(':data_inicio', $plano->getDataInicio());
@@ -40,6 +42,7 @@ class PlanoDAO {
             $stmt->bindValue(':id_plano', $plano->getIdPlano());
             return $stmt->execute();
         } catch (PDOException $e) {
+            error_log('Falha ao atualizar plano ' . $plano->getIdPlano() . ': ' . $e->getMessage());
             return false;
         }
     }

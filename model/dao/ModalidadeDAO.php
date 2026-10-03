@@ -71,6 +71,10 @@ class ModalidadeDAO {
 
             return $stmt->execute();
         } catch (PDOException $e) {
+            error_log(
+                'Falha ao atualizar modalidade ' . $modalidade->getIdModalidade()
+                . ': ' . $e->getMessage()
+            );
             return false;
         }
     }

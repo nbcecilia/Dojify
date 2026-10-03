@@ -12,10 +12,12 @@ if (
 }
 
 require_once __DIR__ . '/../../model/dao/PlanoDAO.php';
+require_once __DIR__ . '/../../model/dao/ModalidadeDAO.php';
 
 $dao = new PlanoDAO();
 $idAcademia = (int) $_SESSION['id_academia'];
 $alunos = $dao->listarAlunosPorAcademia($idAcademia);
+$modalidades = (new ModalidadeDAO())->listarPorAcademia($idAcademia);
 ?>
 <!DOCTYPE html>
 <html lang="pt-br">
@@ -50,6 +52,16 @@ $alunos = $dao->listarAlunosPorAcademia($idAcademia);
                 <option value="">Selecione o aluno...</option>
                 <?php foreach ($alunos as $aluno): ?>
                     <option value="<?= $aluno['id_usuario'] ?>"><?= htmlspecialchars($aluno['nome']) ?></option>
+                <?php endforeach; ?>
+            </select>
+
+            <label for="id_modalidade">Modalidade:</label>
+            <select id="id_modalidade" name="id_modalidade" required>
+                <option value="">Selecione a modalidade...</option>
+                <?php foreach ($modalidades as $modalidade): ?>
+                    <option value="<?= (int)$modalidade['id_modalidade']; ?>">
+                        <?= htmlspecialchars($modalidade['nome'], ENT_QUOTES, 'UTF-8'); ?>
+                    </option>
                 <?php endforeach; ?>
             </select>
 

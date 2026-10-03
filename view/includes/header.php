@@ -5,6 +5,9 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 $notifications = ['total_atrasados' => 0, 'valor_atrasados' => 0, 'lista' => []];
+$homeUrl = isset($_SESSION['usuario']) && (int) ($_SESSION['usuario']['perfil_id'] ?? 0) === 4
+    ? '../aluno/home_aluno.php'
+    : '../gerente/home_gerente.php';
 
 // Se for um Gerente logado, busca as notificações financeiras
 if (isset($_SESSION['usuario']) && (int)$_SESSION['usuario']['perfil_id'] === 2 && isset($_SESSION['id_academia'])) {
@@ -16,7 +19,7 @@ if (isset($_SESSION['usuario']) && (int)$_SESSION['usuario']['perfil_id'] === 2 
 
 <header class="navbar">
     <div class="navbar-brand">
-        <a href="../gerente/home_gerente.php" class="logo-link">
+        <a href="<?= htmlspecialchars($homeUrl, ENT_QUOTES, 'UTF-8') ?>" class="logo-link">
             <img src="../../assets/img/Dojify_original2.png" alt="Dojify Logo" class="navbar-logo">
             <div>
                 <h1>Dojify</h1>
@@ -124,7 +127,7 @@ if ($is_aluno) {
 <?php endif; ?>
         <!-- Dados do Utilizador -->
         <span class="user-greeting">Olá, <strong><?= htmlspecialchars($_SESSION['usuario']['nome'] ?? 'Usuário') ?></strong></span>
-        <a href="../gerente/home_gerente.php" class="btn btn-sm btn-outline">Início</a>
+        <a href="<?= htmlspecialchars($homeUrl, ENT_QUOTES, 'UTF-8') ?>" class="btn btn-sm btn-outline">Início</a>
         <a href="../../controller/UsuarioController.php?acao=logout" class="btn btn-sm btn-danger">Sair</a>
     </div>
 </header>

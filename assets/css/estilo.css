@@ -797,7 +797,6 @@ input[type="time"]:focus {
     filter: grayscale(100%);
 }
 
-<<<<<<< HEAD
 /* Paleta neutra das telas do aluno */
 .aluno-theme {
     --aluno-surface: #F0F2F4;
@@ -840,6 +839,105 @@ input[type="time"]:focus {
     border-color: var(--aluno-border) !important;
 }
 
+.aluno-theme .card-pagamento {
+    background-color: var(--aluno-surface);
+    border-color: var(--aluno-border) !important;
+    color: var(--aluno-text);
+    padding: 0;
+}
+
+.aluno-theme .card-pagamento .card-body {
+    background-color: var(--aluno-surface);
+}
+
+.aluno-theme .payment-current,
+.aluno-theme .payment-history {
+    background-color: #ffffff;
+    border: 1px solid var(--aluno-border);
+    border-color: var(--aluno-border) !important;
+}
+
+.aluno-theme .payment-current {
+    color: var(--aluno-text);
+}
+
+.payment-history-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    color: var(--aluno-muted);
+}
+
+.payment-history-legend span {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.payment-legend-dot {
+    display: inline-block;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+}
+
+.payment-history-chart {
+    display: flex;
+    align-items: stretch;
+    gap: 10px;
+    min-height: 132px;
+    border-bottom: 1px solid var(--aluno-border);
+}
+
+.payment-history-item {
+    position: relative;
+    display: flex;
+    flex: 1 1 0;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    min-width: 0;
+    height: 132px;
+    padding-top: 2px;
+}
+
+.payment-history-value,
+.payment-history-date {
+    z-index: 1;
+    color: var(--aluno-text);
+    font-size: 0.7rem;
+    line-height: 1rem;
+    white-space: nowrap;
+}
+
+.payment-history-date {
+    color: var(--aluno-muted);
+}
+
+.payment-history-bar {
+    position: absolute;
+    bottom: 20px;
+    width: min(32px, 65%);
+    min-height: 6px;
+    border-radius: 5px 5px 0 0;
+}
+
+.payment-bar--paid {
+    background-color: #6f9f83;
+}
+
+.payment-bar--pending {
+    background-color: #aeb5bd;
+}
+
+.payment-bar--late {
+    background-color: #c97d76;
+}
+
+.payment-bar--review {
+    background-color: #7296ad;
+}
+
 .aluno-theme .aluno-calendar-day-header {
     background-color: var(--aluno-text) !important;
 }
@@ -849,7 +947,7 @@ input[type="time"]:focus {
     color: var(--aluno-text) !important;
     border-bottom-color: var(--aluno-border) !important;
 }
-=======
+
 /* ----------------------------------------------------------
    ALINHAMENTO VERTICAL DE BOTÕES NA TABELA DE AÇÕES ---ADMIN
    ---------------------------------------------------------- */
@@ -866,4 +964,33 @@ input[type="time"]:focus {
     justify-content: center;
     text-align: center;
 }
->>>>>>> 7de2a247f9ab9eb019f4dc2d9985784205f73eda
+
+.aluno-theme form.agendamento-cancel-form {
+    all: unset !important;
+    display: inline !important;
+}
+
+.aluno-theme form.agendamento-cancel-form button.agendamento-cancel-button {
+    all: unset !important;
+    display: inline-block !important;
+    box-sizing: border-box !important;
+    margin: 0 !important;
+    padding: 0.35em 0.65em !important;
+    border: 0 !important;
+    border-radius: 0.375rem !important;
+    background: #dc3545 !important;
+    color: #fff !important;
+    font: inherit !important;
+    font-size: 0.75em !important;
+    font-weight: 700 !important;
+    line-height: 1 !important;
+    vertical-align: baseline !important;
+    text-align: center !important;
+    white-space: nowrap !important;
+    cursor: pointer !important;
+    appearance: none !important;
+}
+
+.aluno-theme form.agendamento-cancel-form button.agendamento-cancel-button:hover {
+    background: #bb2d3b !important;
+}

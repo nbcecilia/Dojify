@@ -7,6 +7,10 @@
 </head>
 <body>
     <?php include '../includes/header.php'; ?>
+    <?php
+    require_once __DIR__ . '/../../model/dao/ModalidadeDAO.php';
+    $modalidades = (new ModalidadeDAO())->listarPorAcademia((int)($_SESSION['usuario']['id_academia'] ?? 0));
+    ?>
 
     <div class="container">
         <form action="../../controller/UsuarioController.php?acao=cadastrar_aluno" method="POST">
@@ -59,7 +63,19 @@
                 <label for="observacao">Observações Médicas / Alergias:</label>
                 <textarea id="observacao" name="observacao" placeholder="Ex: Alérgico a dipirona, lesão antiga no joelho..."></textarea>
             </div> 
-            
+
+            <div>
+                <label for="id_modalidade">Modalidade do Plano:</label>
+                <select id="id_modalidade" name="id_modalidade" required>
+                    <option value="">Selecione a modalidade...</option>
+                    <?php foreach ($modalidades as $modalidade): ?>
+                        <option value="<?= (int)$modalidade['id_modalidade']; ?>">
+                            <?= htmlspecialchars($modalidade['nome'], ENT_QUOTES, 'UTF-8'); ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+
             <div>
                 <label for="nome_plano">Plano Contratado:</label>
                 <select id="nome_plano" name="nome_plano" required>

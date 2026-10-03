@@ -90,6 +90,7 @@ class UsuarioController {
             $senha          = $_POST['senha'] ?? '';
 
             $nomePlano      = trim($_POST['nome_plano'] ?? '');
+            $idModalidade   = filter_input(INPUT_POST, 'id_modalidade', FILTER_VALIDATE_INT);
             
             $valorPlanoStr  = $_POST['valor_plano'] ?? '0';
             $valorPlanoStr  = str_replace(',', '.', $valorPlanoStr);
@@ -99,8 +100,14 @@ class UsuarioController {
             $observacao     = !empty($_POST['observacao']) ? trim($_POST['observacao']) : null;
             $dataMatricula  = !empty($_POST['data_matricula']) ? $_POST['data_matricula'] : date('Y-m-d');
 
-            if (empty($idAcademia) || empty($nome) || empty($cpf) || empty($dataNascimento) || !$email || empty($senha) || empty($nomePlano)) {
+            if (empty($idAcademia) || empty($nome) || empty($cpf) || empty($dataNascimento) || !$email || empty($senha) || empty($nomePlano) || !$idModalidade) {
                 throw new Exception("Preencha todos os campos obrigatórios corretamente.");
+            }
+
+            $stmtModalidade = $pdo->prepare("SELECT 1 FROM modalidade WHERE id_modalidade = ? AND id_academia = ?");
+            $stmtModalidade->execute([$idModalidade, $idAcademia]);
+            if (!$stmtModalidade->fetchColumn()) {
+                throw new Exception("Selecione uma modalidade válida da sua academia.");
             }
 
             // Inserção do Aluno (Perfil 4)
@@ -130,12 +137,13 @@ class UsuarioController {
                 ':senha_hash' => $senhaHash
             ]);
 
-            $sqlPlano = "INSERT INTO plano (id_usuario_aluno, nome_plano, valor, data_inicio, data_fim, status) 
-                       VALUES (:id_usuario_aluno, :nome_plano, :valor, CURDATE(), DATE_ADD(CURDATE(), INTERVAL 1 MONTH), 'ATIVO')";
+            $sqlPlano = "INSERT INTO plano (id_usuario_aluno, id_modalidade, nome_plano, valor, data_inicio, data_fim, status)
+                       VALUES (:id_usuario_aluno, :id_modalidade, :nome_plano, :valor, CURDATE(), DATE_ADD(CURDATE(), INTERVAL 1 MONTH), 'ATIVO')";
             
             $stmtPlano = $pdo->prepare($sqlPlano);
             $stmtPlano->execute([
                 ':id_usuario_aluno' => $idUsuarioNovo,
+                ':id_modalidade'    => $idModalidade,
                 ':nome_plano'       => $nomePlano,
                 ':valor'            => $valorPlano
             ]);
@@ -273,12 +281,19 @@ class UsuarioController {
             $status        = $_POST['status'] ?? 'ATIVO';
 
             $nomePlano     = trim($_POST['nome_plano'] ?? '');
+            $idModalidade  = filter_input(INPUT_POST, 'id_modalidade', FILTER_VALIDATE_INT);
             $valorPlanoStr = $_POST['valor_plano'] ?? '0';
             $valorPlanoStr = str_replace(',', '.', $valorPlanoStr);
             $valorPlano    = (float)$valorPlanoStr;
 
-            if (!$idUsuario || empty($idAcademia) || empty($nome) || !$email || empty($nomePlano)) {
+            if (!$idUsuario || empty($idAcademia) || empty($nome) || !$email || empty($nomePlano) || !$idModalidade) {
                 throw new Exception("Preencha todos os campos obrigatórios corretamente.");
+            }
+
+            $stmtModalidade = $pdo->prepare("SELECT 1 FROM modalidade WHERE id_modalidade = ? AND id_academia = ?");
+            $stmtModalidade->execute([$idModalidade, $idAcademia]);
+            if (!$stmtModalidade->fetchColumn()) {
+                throw new Exception("Selecione uma modalidade válida da sua academia.");
             }
 
             $sqlUsuario = "UPDATE usuario 
@@ -299,12 +314,13 @@ class UsuarioController {
             ]);
 
             $sqlPlano = "UPDATE plano 
-                         SET nome_plano = :nome_plano, valor = :valor 
+                         SET id_modalidade = :id_modalidade, nome_plano = :nome_plano, valor = :valor
                          WHERE id_usuario_aluno = :id_usuario_aluno AND status = 'ATIVO'";
             
             $stmtPlano = $pdo->prepare($sqlPlano);
             $stmtPlano->execute([
                 ':nome_plano'       => $nomePlano,
+                ':id_modalidade'    => $idModalidade,
                 ':valor'            => $valorPlano,
                 ':id_usuario_aluno' => $idUsuario
             ]);
@@ -317,6 +333,7 @@ class UsuarioController {
             if ($pdo instanceof PDO && $pdo->inTransaction()) {
                 $pdo->rollBack();
             }
+            error_log('Falha ao atualizar aluno/plano: ' . $e->getMessage());
             header('Location: ../view/gerente/listar_usuarios.php?erro=falha_atualizacao');
             exit;
         }

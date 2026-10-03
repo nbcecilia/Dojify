@@ -1,0 +1,59 @@
+.historico-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 16px;
+	margin-bottom: 24px;
+}
+
+.historico-header h2 {
+	margin-bottom: 8px;
+	text-align: left;
+}
+
+.historico-header p {
+	color: var(--text-secondary);
+	margin-bottom: 0;
+}
+
+.historico-tabela {
+	overflow-x: auto;
+	border: 1px solid var(--border-color);
+	border-radius: 8px;
+	background: var(--bg-card);
+	box-shadow: var(--shadow-sm);
+}
+
+.historico-tabela table {
+	width: 100%;
+	border-collapse: collapse;
+	text-align: left;
+}
+
+.historico-tabela th,
+.historico-tabela td {
+	padding: 12px 16px;
+	border-bottom: 1px solid var(--border-color);
+	white-space: nowrap;
+}
+
+.historico-tabela th {
+	color: var(--text-secondary);
+	font-size: 0.8rem;
+	text-transform: uppercase;
+}
+
+.historico-tabela tbody tr:last-child td {
+	border-bottom: 0;
+}
+
+.graduacao-faixa {
+	font-weight: 600;
+}
+
+@media (max-width: 600px) {
+	.historico-header {
+		align-items: flex-start;
+		flex-direction: column;
+	}
+}

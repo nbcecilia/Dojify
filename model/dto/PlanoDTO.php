@@ -3,6 +3,7 @@
 class PlanoDTO {
     private $id_plano;
     private $id_usuario_aluno;
+    private $id_modalidade;
     private $nome_plano;
     private $valor;
     private $data_inicio;
@@ -15,6 +16,9 @@ class PlanoDTO {
 
     public function getIdUsuarioAluno() { return $this->id_usuario_aluno; }
     public function setIdUsuarioAluno($id_usuario_aluno) { $this->id_usuario_aluno = $id_usuario_aluno; }
+
+    public function getIdModalidade() { return $this->id_modalidade; }
+    public function setIdModalidade($id_modalidade) { $this->id_modalidade = $id_modalidade; }
 
     public function getNomePlano() { return $this->nome_plano; }
     public function setNomePlano($nome_plano) { $this->nome_plano = $nome_plano; }

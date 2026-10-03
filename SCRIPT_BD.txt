@@ -255,6 +255,7 @@ DEFAULT CHARACTER SET = utf8mb4;
 CREATE TABLE IF NOT EXISTS `dojify_1`.`plano` (
   `id_plano` INT(11) NOT NULL AUTO_INCREMENT COMMENT 'Identificador único do plano.',
   `id_usuario_aluno` INT(11) NOT NULL COMMENT 'Aluno titular do plano.\n',
+  `id_modalidade` INT(11) NOT NULL COMMENT 'Modalidade incluída no plano.',
   `nome_plano` VARCHAR(100) NOT NULL COMMENT 'Nome do plano (2x/semana, 3x/semana, 5x/semanal).',
   `valor` DECIMAL(10,2) NOT NULL COMMENT 'Valor recorrente cobrado pelo plano.',
   `data_inicio` DATE NOT NULL COMMENT 'Data de início de vigência do plano.',
@@ -262,9 +263,15 @@ CREATE TABLE IF NOT EXISTS `dojify_1`.`plano` (
   `status` VARCHAR(20) NOT NULL DEFAULT 'ATIVO' COMMENT 'Estado do plano (ATIVO, CANCELADO, SUSPENSO).',
   PRIMARY KEY (`id_plano`),
   INDEX `id_usuario_aluno` (`id_usuario_aluno` ASC) ,
+  INDEX `id_modalidade` (`id_modalidade` ASC) ,
   CONSTRAINT `plano_matricula_ibfk_1`
     FOREIGN KEY (`id_usuario_aluno`)
     REFERENCES `dojify_1`.`usuario` (`id_usuario`)
+    ON DELETE NO ACTION
+    ON UPDATE CASCADE,
+  CONSTRAINT `plano_modalidade_ibfk_1`
+    FOREIGN KEY (`id_modalidade`)
+    REFERENCES `dojify_1`.`modalidade` (`id_modalidade`)
     ON DELETE NO ACTION
     ON UPDATE CASCADE)
 ENGINE = InnoDB

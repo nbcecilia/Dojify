@@ -2,6 +2,7 @@
 // view/gerente/editar_aluno.php
 session_start();
 require_once __DIR__ . '/../../model/dao/Conexao.php';
+require_once __DIR__ . '/../../model/dao/ModalidadeDAO.php';
 
 // Valida se o usuário é gerente (perfil 2)
 if (!isset($_SESSION['usuario']) || (int)$_SESSION['usuario']['perfil_id'] !== 2) {
@@ -18,7 +19,7 @@ if (!$idUsuario) {
 $pdo = Conexao::getConexao();
 
 // Busca os dados do aluno e o seu plano ativo (usando id_usuario_aluno conforme o teu SQL)
-$sql = "SELECT u.*, p.id_plano, p.nome_plano, p.valor, p.status as status_plano 
+$sql = "SELECT u.*, p.id_plano, p.id_modalidade, p.nome_plano, p.valor, p.status as status_plano 
         FROM usuario u 
         LEFT JOIN plano p ON u.id_usuario = p.id_usuario_aluno AND p.status = 'ATIVO' 
         WHERE u.id_usuario = :id AND u.id_academia = :id_academia";
@@ -29,6 +30,7 @@ $stmt->execute([
     ':id_academia' => $_SESSION['usuario']['id_academia']
 ]);
 $aluno = $stmt->fetch(PDO::FETCH_ASSOC);
+$modalidades = (new ModalidadeDAO())->listarPorAcademia((int)$_SESSION['usuario']['id_academia']);
 
 if (!$aluno) {
     header('Location: listar_usuarios.php?erro=nao_encontrado');
@@ -94,6 +96,17 @@ if (!$aluno) {
 
             <hr style="margin: 24px 0; border: none; border-top: 1px solid var(--border-color);">
             <h3 style="font-size: 1rem; margin-bottom: 4px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em;">Informações do Plano</h3>
+
+            <label for="id_modalidade">Modalidade do Plano:</label>
+            <select id="id_modalidade" name="id_modalidade" required>
+                <option value="">Selecione a modalidade...</option>
+                <?php foreach ($modalidades as $modalidade): ?>
+                    <option value="<?= (int)$modalidade['id_modalidade']; ?>"
+                        <?= (int)($aluno['id_modalidade'] ?? 0) === (int)$modalidade['id_modalidade'] ? 'selected' : ''; ?>>
+                        <?= htmlspecialchars($modalidade['nome'], ENT_QUOTES, 'UTF-8'); ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
 
             <label for="nome_plano">Plano Contratado:</label>
             <select id="nome_plano" name="nome_plano" required>

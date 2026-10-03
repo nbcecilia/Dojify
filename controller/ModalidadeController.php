@@ -67,14 +67,21 @@ class ModalidadeController {
     private function atualizar(): void {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') return;
 
+        $idModalidade = filter_var($_POST['id_modalidade'] ?? null, FILTER_VALIDATE_INT);
+        $nome = trim((string)($_POST['nome'] ?? ''));
+        if (!$idModalidade || $idModalidade <= 0 || $nome === '') {
+            header('Location: ../view/gerente/editar_modalidade.php?id=' . (int)$idModalidade . '&erro=1');
+            exit;
+        }
+
         $m = new ModalidadeDTO();
 
-        $m->setIdModalidade((int)$_POST['id_modalidade']);
+        $m->setIdModalidade($idModalidade);
 
         // A academia continua vindo da sessão
         $m->setIdAcademia((int)$_SESSION['id_academia']);
 
-        $m->setNome(trim($_POST['nome']));
+        $m->setNome($nome);
         $m->setDescricao(trim($_POST['descricao'] ?? ''));
 
         if ($this->dao->atualizar($m)) {

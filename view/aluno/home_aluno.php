@@ -19,14 +19,22 @@ $arquivoConexao = dirname(__DIR__, 2) . '/model/dao/Conexao.php';
 if (file_exists($arquivoConexao) && !class_exists('Conexao', false)) {
     require_once $arquivoConexao;
 }
+require_once dirname(__DIR__, 2) . '/model/dao/AgendamentoDAO.php';
 
 $calendarioSemanal = [];
 $meus_agendamentos = [];
+$planoAtivoAgenda = null;
+$idModalidadePlano = 0;
+$limiteSemanalPlano = 0;
+$turmas_brutas = [];
+$agendamentosPorSemana = [];
 $total_agendamentos_futuros = 0;
 $notificacoes = [];
 $total_notificacoes = 0;
 $mensagem_erro = "";
 $mensagem_sucesso = "";
+$mensagem_modal_agendamento = "";
+$tipo_modal_agendamento = 'success';
 $is_primeiro_acesso = false;
 $id_aluno = $_SESSION['usuario']['id_usuario'];
 
@@ -40,6 +48,7 @@ $data_vencimento = '---';
 $valor_pagamento = '---';
 $id_pagamento_atual = null;
 $comprovante_pagamento_enviado = false;
+$historico_pagamentos = [];
 $num_nivel = 1;
 $nome_nivel = 'Iniciante';
 $xp_atual = 0;
@@ -49,18 +58,53 @@ $progresso_xp = 0;
 
 if (($_GET['sucesso'] ?? '') === 'comprovante') {
     $mensagem_sucesso = 'Comprovante enviado ao gerente. O pagamento ficará em análise até a conferência.';
+} elseif (($_GET['sucesso'] ?? '') === 'agendado') {
+    $mensagem_modal_agendamento = 'Treino agendado com sucesso no tatame! 🥋';
+} elseif (($_GET['sucesso'] ?? '') === 'cancelado') {
+    $mensagem_modal_agendamento = 'Agendamento cancelado com sucesso.';
 } elseif (isset($_GET['erro'])) {
-    $mensagensErroComprovante = [
+    $mensagensErro = [
         'acesso' => 'Você não tem permissão para enviar esse comprovante.',
         'token' => 'Sua sessão expirou. Atualize a página e tente novamente.',
         'comprovante' => 'Selecione um comprovante válido e tente novamente.',
         'tamanho' => 'O comprovante deve ter até 5 MB.',
         'formato' => 'Envie o comprovante em JPG, PNG ou PDF.',
         'servidor' => 'Não foi possível armazenar o comprovante. Tente novamente mais tarde.',
-        'pagamento' => 'Este pagamento não está disponível para envio de comprovante.'
+        'pagamento' => 'Este pagamento não está disponível para envio de comprovante.',
+        'token_agendamento' => 'Sua sessão expirou. Atualize a página e tente novamente.',
+        'acesso_negado' => 'Você não tem permissão para realizar esta ação.',
+        'metodo_invalido' => 'Não foi possível processar a solicitação. Atualize a página e tente novamente.',
+        'acao_invalida' => 'Ação de agendamento inválida.',
+        'dados_invalidos' => 'Os dados da aula são inválidos. Atualize a página e tente novamente.',
+        'data_passada' => 'Não é possível agendar uma aula que já começou ou já passou.',
+        'agendamento_duplicado' => 'Você já está agendado nesta turma para este dia!',
+        'turma_lotada' => 'Turma lotada! Não há vagas disponíveis para este horário.',
+        'limite_semanal' => 'Limite semanal do seu plano atingido.',
+        'plano_sem_modalidade' => 'Seu plano ainda não está vinculado a uma modalidade. Entre em contato com a academia para atualizar seu cadastro.',
+        'modalidade_incompativel' => 'Esta aula não pertence à modalidade do seu plano.',
+        'falha_sistema' => 'Não foi possível concluir a operação. Tente novamente mais tarde.'
     ];
     $codigoErro = (string)$_GET['erro'];
-    $mensagem_erro = $mensagensErroComprovante[$codigoErro] ?? 'Não foi possível enviar o comprovante. Verifique o arquivo e tente novamente.';
+    $errosAgendamento = [
+        'acesso_negado',
+        'metodo_invalido',
+        'token_agendamento',
+        'acao_invalida',
+        'dados_invalidos',
+        'data_passada',
+        'agendamento_duplicado',
+        'turma_lotada',
+        'limite_semanal',
+        'plano_sem_modalidade',
+        'modalidade_incompativel',
+        'falha_sistema'
+    ];
+    if (in_array($codigoErro, $errosAgendamento, true)) {
+        $mensagem_modal_agendamento = $mensagensErro[$codigoErro];
+        $tipo_modal_agendamento = 'danger';
+    } else {
+        $mensagem_erro = $mensagensErro[$codigoErro] ?? 'Não foi possível concluir a solicitação. Verifique os dados e tente novamente.';
+    }
 }
 
 try {
@@ -112,10 +156,13 @@ try {
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['acao_aceite_contrato'])) {
         $senha_nova = $_POST['senha_nova'] ?? '';
         $senha_confirma = $_POST['senha_confirma'] ?? '';
-        $aceite = isset($_POST['ciente2']) ? true : false;
+        $aceite_contrato = ($_POST['aceite_contrato'] ?? '') === '1';
+        $consentimento_saude = ($_POST['consentimento_saude'] ?? '') === '1';
 
-        if (!$aceite) {
-            $mensagem_erro = "Precisa de ler e aceitar o contrato da academia para continuar.";
+        if (!$aceite_contrato) {
+            $mensagem_erro = "É necessário aceitar o Contrato de Prestação de Serviços para continuar.";
+        } elseif (!$consentimento_saude) {
+            $mensagem_erro = "É necessário consentir com o tratamento dos dados de saúde informados para continuar.";
         } elseif (empty($senha_nova) || strlen($senha_nova) < 6) {
             $mensagem_erro = "A nova senha deve ter pelo menos 6 caracteres.";
         } elseif ($senha_nova !== $senha_confirma) {
@@ -200,101 +247,19 @@ try {
             }
         }
 
-        // Cancelamento
-        if (isset($_GET['cancelar'])) {
-            $id_agendamento = $_GET['cancelar'];
-            $stmtCancel = $pdo_agenda->prepare("UPDATE agendamento SET status = 'CANCELADO' WHERE id_agendamento = ? AND id_usuario_aluno = ?");
-            if ($stmtCancel->execute([$id_agendamento, $id_aluno])) {
-                $mensagem_sucesso = "Agendamento cancelado com sucesso.";
-            }
-        }
-
-        // Agendamento Rápido
-        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['acao_agendar_semana'])) {
-            $id_turma = $_POST['id_turma'] ?? null;
-            $data_escolhida = $_POST['data_escolhida'] ?? null; 
-            $hora_aula = trim((string)($_POST['hora_aula'] ?? '19:00:00'));
-            if (preg_match('/^\d{2}:\d{2}$/', $hora_aula)) {
-                $hora_aula .= ':00';
-            }
-            $data_formatada = (string)$data_escolhida . ' ' . (string)$hora_aula;
-            $data_obj = DateTime::createFromFormat('!Y-m-d H:i:s', $data_formatada);
-            $errosData = DateTime::getLastErrors();
-            $dataValida = $data_obj !== false
-                && preg_match('/^(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d$/', $hora_aula)
-                && ($errosData === false || ($errosData['warning_count'] === 0 && $errosData['error_count'] === 0));
-
-            if (!ctype_digit((string)$id_turma) || (int)$id_turma <= 0 || !$dataValida) {
-                $mensagem_erro = "Os dados da aula são inválidos. Atualize a página e tente novamente.";
-            } elseif ($data_obj <= new DateTime()) {
-                $mensagem_erro = "Não é possível agendar uma aula que já começou ou já passou.";
-            } else {
-                
-                $stmtCheckDup = $pdo_agenda->prepare("SELECT COUNT(*) as total FROM agendamento WHERE id_usuario_aluno = ? AND id_turma = ? AND DATE(data_agendamento) = DATE(?) AND status = 'CONFIRMADO'");
-                $stmtCheckDup->execute([$id_aluno, $id_turma, $data_formatada]);
-                $dupRow = $stmtCheckDup->fetch(PDO::FETCH_ASSOC);
-                $jaAgendado = (int)($dupRow['total'] ?? 0);
-                
-                if ($jaAgendado > 0) {
-                    $mensagem_erro = "Você já está agendado nesta turma para este dia!";
-                } else {
-                    $stmtCap = $pdo_agenda->prepare("SELECT capacidade FROM turma WHERE id_turma = ?");
-                    $stmtCap->execute([$id_turma]);
-                    $turmaInfo = $stmtCap->fetch(PDO::FETCH_ASSOC);
-                    $capacidadeMax = (int)($turmaInfo['capacidade'] ?? 20);
-
-                    $stmtCountTurma = $pdo_agenda->prepare("SELECT COUNT(*) as total FROM agendamento WHERE id_turma = ? AND DATE(data_agendamento) = DATE(?) AND status = 'CONFIRMADO'");
-                    $stmtCountTurma->execute([$id_turma, $data_formatada]);
-                    $turmaRow = $stmtCountTurma->fetch(PDO::FETCH_ASSOC);
-                    $vagasOcupadas = (int)($turmaRow['total'] ?? 0);
-
-                    if ($vagasOcupadas >= $capacidadeMax) {
-                        $mensagem_erro = "Turma lotada! Limite de {$capacidadeMax} alunos atingido.";
-                    } else {
-                        $stmtPlano = $pdo_agenda->prepare("SELECT nome_plano FROM plano WHERE id_usuario_aluno = ? AND status = 'ATIVO' LIMIT 1");
-                        $stmtPlano->execute([$id_aluno]);
-                        $dadosPlano = $stmtPlano->fetch(PDO::FETCH_ASSOC);
-                        
-                        $limiteSemanal = 99; $nomeDoPlano = "Plano Livre";
-                        if ($dadosPlano && !empty($dadosPlano['nome_plano'])) {
-                            $nomeDoPlano = $dadosPlano['nome_plano'];
-                            if (preg_match('/(\d+)/', $nomeDoPlano, $matches)) { $limiteSemanal = (int)$matches[1]; }
-                        }
-
-                        $inicioSemana = clone $data_obj; $inicioSemana->modify('monday this week')->setTime(0, 0, 0);
-                        $fimSemana = clone $data_obj; $fimSemana->modify('sunday this week')->setTime(23, 59, 59);
-
-                        $stmtCountSemana = $pdo_agenda->prepare("SELECT COUNT(*) as total_semana FROM agendamento WHERE id_usuario_aluno = ? AND status = 'CONFIRMADO' AND data_agendamento BETWEEN ? AND ?");
-                        $stmtCountSemana->execute([$id_aluno, $inicioSemana->format('Y-m-d H:i:s'), $fimSemana->format('Y-m-d H:i:s')]);
-                        $totalSemana = (int)$stmtCountSemana->fetch()['total_semana'];
-
-                        if ($totalSemana >= $limiteSemanal) {
-                            $mensagem_erro = "Limite semanal atingido! O seu plano ({$nomeDoPlano}) permite apenas {$limiteSemanal} treino(s) por semana.";
-                        } elseif (empty($mensagem_erro)) {
-                            $stmtIns = $pdo_agenda->prepare("INSERT INTO agendamento (id_turma, id_usuario_aluno, data_agendamento, status) VALUES (?, ?, ?, 'CONFIRMADO')");
-                            if ($stmtIns->execute([$id_turma, $id_aluno, $data_formatada])) {
-                                $mensagem_sucesso = "Treino agendado com sucesso no tatame! 🥋";
-                            } else {
-                                $mensagem_erro = "Erro ao registar o agendamento.";
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        // Atualiza os próximos treinos depois de processar inclusões e cancelamentos.
-        $stmt_agendamentos = $pdo_agenda->prepare("
-            SELECT a.id_agendamento, a.data_agendamento, t.nome AS nome_turma
-            FROM agendamento a
-            INNER JOIN turma t ON t.id_turma = a.id_turma
-            WHERE a.id_usuario_aluno = ?
-              AND a.status = 'CONFIRMADO'
-              AND a.data_agendamento >= ?
-            ORDER BY a.data_agendamento ASC
+        $stmt_historico_pagamentos = $pdo_agenda->prepare("
+            SELECT pag.valor, pag.data_vencimento, pag.data_pagamento, pag.status
+            FROM pagamento pag
+            INNER JOIN plano pl ON pl.id_plano = pag.id_plano_matricula
+            WHERE pl.id_usuario_aluno = ?
+            ORDER BY pag.data_vencimento DESC, pag.id_pagamento DESC
+            LIMIT 6
         ");
-        $stmt_agendamentos->execute([$id_aluno, date('Y-m-d H:i:s')]);
-        $meus_agendamentos = $stmt_agendamentos->fetchAll(PDO::FETCH_ASSOC);
+        $stmt_historico_pagamentos->execute([$id_aluno]);
+        $historico_pagamentos = array_reverse($stmt_historico_pagamentos->fetchAll(PDO::FETCH_ASSOC));
+
+        $agendamentoDAO = new AgendamentoDAO();
+        $meus_agendamentos = $agendamentoDAO->listarAgendamentosFuturosPorAluno((int)$id_aluno);
         $total_agendamentos_futuros = count($meus_agendamentos);
 
         // --- NOTIFICAÇÕES DINÂMICAS DO ALUNO ---
@@ -318,15 +283,35 @@ try {
 
         $total_notificacoes = count($notificacoes);
 
-        // Buscar turmas
-        $stmt_t = $pdo_agenda->query("SELECT t.id_turma, t.nome as nome_turma, t.capacidade, h.dia_semana, h.hora_inicio FROM turma t LEFT JOIN horario_turma h ON t.id_turma = h.id_turma WHERE t.status = 'ATIVA'");
-        $turmas_brutas = $stmt_t->fetchAll(PDO::FETCH_ASSOC);
+        $planoAtivoAgenda = $agendamentoDAO->obterDadosPlanoAtivo((int)$id_aluno);
+        $idModalidadePlano = (int)($planoAtivoAgenda['id_modalidade'] ?? 0);
+        $turmas_brutas = $agendamentoDAO->listarTurmasAtivasComHorario(
+            $idModalidadePlano > 0 ? $idModalidadePlano : null
+        );
+        $limiteSemanalPlano = $agendamentoDAO->obterLimiteSemanalPlano((int)$id_aluno);
+        $agendamentosPorSemana = [];
 
         $hoje = new DateTime();
         for ($i = 1; $i <= 14; $i++) {
             $diaLoop = clone $hoje; $diaLoop->modify('monday this week')->modify('+' . ($i - 1) . ' days');
+            $inicioSemana = (clone $diaLoop)->modify('monday this week')->setTime(0, 0, 0);
+            $fimSemana = (clone $inicioSemana)->modify('sunday this week')->setTime(23, 59, 59);
+            $chaveSemana = $inicioSemana->format('Y-m-d');
+            if (!array_key_exists($chaveSemana, $agendamentosPorSemana)) {
+                $agendamentosPorSemana[$chaveSemana] = $agendamentoDAO->contarAgendamentosSemana(
+                    (int)$id_aluno,
+                    $inicioSemana->format('Y-m-d H:i:s'),
+                    $fimSemana->format('Y-m-d H:i:s')
+                );
+            }
             $nomeDiaPt = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'][(int)$diaLoop->format('w')];
-            $calendarioSemanal[$i] = ['nome_dia' => $nomeDiaPt, 'data_iso' => $diaLoop->format('Y-m-d'), 'data_exibicao' => $diaLoop->format('d/m'), 'aulas' => []];
+            $calendarioSemanal[$i] = [
+                'nome_dia' => $nomeDiaPt,
+                'data_iso' => $diaLoop->format('Y-m-d'),
+                'data_exibicao' => $diaLoop->format('d/m'),
+                'limite_atingido' => $agendamentosPorSemana[$chaveSemana] >= $limiteSemanalPlano,
+                'aulas' => []
+            ];
             foreach ($turmas_brutas as $turma) {
                 $diaTurma = trim(ucfirst(strtolower($turma['dia_semana'] ?? '')));
                 if (empty($diaTurma) || $diaTurma === 'Geral' || stripos($diaTurma, $nomeDiaPt) !== false) {
@@ -337,8 +322,9 @@ try {
         }
     }
 
-} catch (Exception $e) {
-    $mensagem_erro = "Erro no sistema: " . $e->getMessage();
+} catch (Throwable $e) {
+    error_log('Falha ao carregar o painel do aluno: ' . $e->getMessage());
+    $mensagem_erro = 'Não foi possível carregar todos os dados do painel. Atualize a página ou tente novamente mais tarde.';
 }
 ?>
 
@@ -349,7 +335,7 @@ try {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Painel do Aluno - Dojify</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="../../assets/css/estilo.css">
+    <link rel="stylesheet" href="../../assets/css/estilo.css?v=<?= filemtime(__DIR__ . '/../../assets/css/estilo.css'); ?>">
 </head>
 
 <body class="aluno-theme">
@@ -420,7 +406,7 @@ try {
                                 <p><strong>CLÁUSULA 4 — DAS FALTAS E REPOSIÇÕES</strong><br>4.1 O não comparecimento do CONTRATANTE às aulas não gera direito à reposição, desconto, compensação ou reembolso de valores.</p>
                                 <p><strong>CLÁUSULA 5 — DA DURAÇÃO DO CONTRATO</strong><br>5.1 O presente contrato terá duração mínima de 3 (três) meses, contados a partir da data de sua assinatura.</p>
                                 <p><strong>CLÁUSULA 6 — DA RESCISÃO</strong><br>O presente contrato poderá ser rescindido:<br>6.1 Por qualquer das partes, mediante aviso prévio de 30 (trinta) dias.<br>6.2 Em caso de inadimplemento ou descumprimento de cláusulas contratuais.<br>6.3 O CONTRATADO poderá rescindir imediatamente o presente contrato em caso de conduta agressiva, desrespeito às normas internas, comportamento inadequado ou atitudes que coloquem em risco os demais alunos, professores ou colaboradores.<br>6.4 O CONTRATADO não está obrigado à devolução dos valores pagos.</p>
-                                <p><strong>CLÁUSULA 7 — DO USO DE IMAGEM</strong><br>7.1 O CONTRATANTE ou o RESPONSÁVEL LEGAL (no caso de aluno menor de 18 anos) autoriza, de forma gratuita e por prazo indeterminado, o uso de sua imagem e/ou do menor, capturados em fotos e vídeos durante as atividades da TOKKA – Escola de Lutas.<br>7.2 A autorização é concedida para fins de divulgação e publicidade da academia, em todos os meios de comunicação, digitais ou impressos, incluindo redes sociais, sem que disso resulte qualquer obrigação de indenização ou compensação financeira.</p>
+                                <p><strong>CLÁUSULA 7 — DO USO DE IMAGEM</strong><br>7.1 A utilização da imagem do CONTRATANTE ou do RESPONSÁVEL LEGAL (no caso de aluno menor de 18 anos) em fotos ou vídeos para divulgação da academia depende de autorização específica, separada e facultativa, que pode ser concedida ou retirada sem afetar a prestação dos serviços contratados.</p>
                                 <p><strong>CLÁUSULA 8 — DAS DISPOSIÇÕES FINAIS</strong><br>8.1 Este contrato é firmado em duas vias de igual teor e forma, assinadas pelas partes para que produza seus efeitos legais.</p>
                                 <br>
                                 <p class="text-center"><strong>Brasília - DF, <?= date("d/m/Y"); ?>.</strong></p>
@@ -432,9 +418,19 @@ try {
                             </div>
                             <form method="POST" action="" class="d-print-none" onsubmit="document.getElementById('area-impressao').style.maxHeight='none'; document.getElementById('area-impressao').style.overflow='visible'; window.print(); return true;">
                                 <input type="hidden" name="acao_aceite_contrato" value="1">
-                                <div class="form-check mb-4 bg-light p-3 border rounded">
-                                    <input class="form-check-input ms-1 me-2 border-secondary" type="checkbox" name="ciente2" id="ciente2" required>
-                                    <label class="form-check-label fw-bold text-dark" for="ciente2" style="font-size: 0.95rem;">Declaro que li, compreendi e aceito integralmente todos os termos e condições do contrato acima.</label>
+                                <div class="bg-light p-3 border rounded mb-4">
+                                    <div class="form-check mb-3">
+                                        <input class="form-check-input ms-1 me-2 border-secondary" type="checkbox" name="aceite_contrato" id="aceite_contrato" value="1" required <?= (($_POST['aceite_contrato'] ?? '') === '1') ? 'checked' : ''; ?>>
+                                        <label class="form-check-label fw-bold text-dark" for="aceite_contrato">Li e aceito o Contrato de Prestação de Serviços.</label>
+                                    </div>
+                                    <div class="form-check mb-3">
+                                        <input class="form-check-input ms-1 me-2 border-secondary" type="checkbox" name="consentimento_saude" id="consentimento_saude" value="1" required <?= (($_POST['consentimento_saude'] ?? '') === '1') ? 'checked' : ''; ?>>
+                                        <label class="form-check-label fw-bold text-dark" for="consentimento_saude">Consinto com o tratamento dos meus dados de saúde informados na matrícula para fins de segurança durante as aulas.</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input ms-1 me-2 border-secondary" type="checkbox" name="autorizacao_imagem" id="autorizacao_imagem" value="1" <?= (($_POST['autorizacao_imagem'] ?? '') === '1') ? 'checked' : ''; ?>>
+                                        <label class="form-check-label fw-bold text-dark" for="autorizacao_imagem">Autorizo o uso da minha imagem em fotos/vídeos para divulgação da academia. (Opcional)</label>
+                                    </div>
                                 </div>
                                 <div class="row g-3 mb-4">
                                     <div class="col-md-6">
@@ -473,6 +469,9 @@ try {
                         <h6 class="text-dark fw-bold mb-1">🥋 Graduação</h6>
                         <p class="text-dark fw-bold fs-5 mb-0"><?= htmlspecialchars($faixa_aluno) ?></p>
                         <span class="badge bg-secondary mt-1 mx-auto" style="width: fit-content;"><?= htmlspecialchars($grau_aluno) ?></span>
+                        <a href="historico_graduacao.php" class="btn btn-outline-dark btn-sm fw-bold mt-2">
+                            Ver histórico
+                        </a>
                     </div>
                 </div>
 
@@ -505,12 +504,17 @@ try {
 
             <!-- SEÇÃO FINANCEIRA / STATUS DA MENSALIDADE -->
             <?php $statusPagamentoUpper = strtoupper((string)$status_pagamento); ?>
-            <section class="card border-0 shadow-sm mb-4 overflow-hidden" aria-labelledby="estadoFinanceiroTitulo">
-                <div class="card-header bg-dark text-white border-0 p-3 p-md-4">
+            <?php
+                $maiorValorHistorico = 0.0;
+                foreach ($historico_pagamentos as $pagamentoHistorico) {
+                    $maiorValorHistorico = max($maiorValorHistorico, (float)$pagamentoHistorico['valor']);
+                }
+            ?>
+            <section class="card card-pagamento border-0 shadow-sm mb-4 overflow-hidden" aria-labelledby="estadoFinanceiroTitulo">
+                <div class="card-header bg-dark text-white border-0 px-3 py-2">
                     <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2">
                         <div>
-                            <h5 class="fw-bold mb-1" id="estadoFinanceiroTitulo">💳 Mensalidade</h5>
-                            <p class="text-white-50 small mb-0">Confira o vencimento e o estado do seu pagamento.</p>
+                            <h5 class="fw-bold mb-0" id="estadoFinanceiroTitulo">💳 Mensalidade</h5>
                         </div>
                         <?php if ($statusPagamentoUpper === 'PAGO'): ?>
                             <span class="badge rounded-pill bg-success px-3 py-2">Pagamento confirmado</span>
@@ -525,43 +529,80 @@ try {
                         <?php endif; ?>
                     </div>
                 </div>
-                <div class="card-body p-3 p-md-4">
-                    <div class="row g-3 align-items-stretch">
-                        <div class="col-lg-5">
-                            <div class="h-100 rounded-3 bg-light p-3 p-md-4">
-                                <span class="text-muted small text-uppercase fw-bold">Valor da mensalidade</span>
-                                <p class="display-6 fw-bold text-dark mb-3"><?= htmlspecialchars($valor_pagamento, ENT_QUOTES, 'UTF-8'); ?></p>
+                <div class="card-body p-2 p-md-3">
+                    <div class="row g-2 align-items-stretch">
+                        <div class="col-lg-4">
+                            <div class="payment-current h-100 rounded-3 p-3">
+                                <div class="d-flex justify-content-between gap-2">
+                                    <div>
+                                        <span class="text-muted small text-uppercase fw-bold">Valor</span>
+                                        <p class="fs-3 fw-bold text-dark mb-1"><?= htmlspecialchars($valor_pagamento, ENT_QUOTES, 'UTF-8'); ?></p>
+                                    </div>
+                                    <div class="text-end">
+                                        <span class="text-muted small text-uppercase fw-bold">Vencimento</span>
+                                        <p class="fw-semibold text-dark mb-1"><?= htmlspecialchars($data_vencimento, ENT_QUOTES, 'UTF-8'); ?></p>
+                                    </div>
+                                </div>
                                 <?php if ($statusPagamentoUpper !== 'PAGO' && $statusPagamentoUpper !== 'EM_ANALISE' && $id_pagamento_atual !== null && !$comprovante_pagamento_enviado): ?>
-                                    <button type="button" class="btn btn-danger fw-bold px-4" data-bs-toggle="modal" data-bs-target="#modalPagamento">
+                                    <button type="button" class="btn btn-danger btn-sm fw-bold px-3" data-bs-toggle="modal" data-bs-target="#modalPagamento">
                                         Pagar com PIX
                                     </button>
                                 <?php elseif ($statusPagamentoUpper === 'EM_ANALISE' || $comprovante_pagamento_enviado): ?>
                                     <p class="small text-info-emphasis mb-0">
-                                        Seu comprovante foi enviado. Aguarde a conferência do gerente.
+                                        Comprovante enviado; aguardando conferência.
                                     </p>
+                                <?php elseif ($statusPagamentoUpper === 'PAGO'): ?>
+                                    <p class="small text-success mb-0">Pagamento confirmado.</p>
+                                <?php elseif ($id_pagamento_atual === null): ?>
+                                    <p class="small text-muted mb-0">Nenhuma cobrança disponível.</p>
                                 <?php endif; ?>
                             </div>
                         </div>
-                        <div class="col-sm-6 col-lg-3">
-                            <div class="h-100 rounded-3 border p-3">
-                                <span class="text-muted small text-uppercase fw-bold">Vencimento</span>
-                                <p class="fs-5 fw-semibold text-dark mb-0 mt-2"><?= htmlspecialchars($data_vencimento, ENT_QUOTES, 'UTF-8'); ?></p>
-                            </div>
-                        </div>
-                        <div class="col-sm-6 col-lg-4">
-                            <div class="h-100 rounded-3 border p-3">
-                                <span class="text-muted small text-uppercase fw-bold">Próxima ação</span>
-                                <p class="fw-semibold text-dark mb-0 mt-2">
-                                    <?php if ($statusPagamentoUpper === 'PAGO'): ?>
-                                        Nenhuma ação necessária.
-                                    <?php elseif ($statusPagamentoUpper === 'EM_ANALISE' || $comprovante_pagamento_enviado): ?>
-                                        Aguardando aprovação do gerente.
-                                    <?php elseif ($id_pagamento_atual !== null): ?>
-                                        Pague via PIX e envie o comprovante.
-                                    <?php else: ?>
-                                        Consulte o gerente da academia.
-                                    <?php endif; ?>
-                                </p>
+                        <div class="col-lg-8">
+                            <div class="payment-history h-100 rounded-3 p-3">
+                                <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
+                                    <h6 class="fw-bold mb-0">Histórico de pagamentos</h6>
+                                    <div class="payment-history-legend small" aria-hidden="true">
+                                        <span><i class="payment-legend-dot payment-bar--paid"></i>Pago</span>
+                                        <span><i class="payment-legend-dot payment-bar--pending"></i>Pendente</span>
+                                        <span><i class="payment-legend-dot payment-bar--late"></i>Atrasado</span>
+                                        <span><i class="payment-legend-dot payment-bar--review"></i>Em análise</span>
+                                    </div>
+                                </div>
+                                <?php if (empty($historico_pagamentos)): ?>
+                                    <p class="small text-muted mb-0 py-3">Ainda não há pagamentos registrados.</p>
+                                <?php else: ?>
+                                    <ul class="payment-history-chart list-unstyled mb-0" aria-label="Gráfico dos seis pagamentos mais recentes">
+                                        <?php foreach ($historico_pagamentos as $pagamentoHistorico): ?>
+                                            <?php
+                                                $statusHistorico = strtoupper((string)($pagamentoHistorico['status'] ?? 'PENDENTE'));
+                                                if ($statusHistorico === 'PAGO') {
+                                                    $classeBarra = 'payment-bar--paid';
+                                                    $rotuloStatus = 'Pago';
+                                                } elseif ($statusHistorico === 'ATRASADO') {
+                                                    $classeBarra = 'payment-bar--late';
+                                                    $rotuloStatus = 'Atrasado';
+                                                } elseif ($statusHistorico === 'EM_ANALISE') {
+                                                    $classeBarra = 'payment-bar--review';
+                                                    $rotuloStatus = 'Em análise';
+                                                } else {
+                                                    $classeBarra = 'payment-bar--pending';
+                                                    $rotuloStatus = 'Pendente';
+                                                }
+                                                $valorHistorico = (float)$pagamentoHistorico['valor'];
+                                                $alturaBarra = $maiorValorHistorico > 0
+                                                    ? max(8, ($valorHistorico / $maiorValorHistorico) * 72)
+                                                    : 8;
+                                                $dataHistorico = $pagamentoHistorico['data_pagamento'] ?: $pagamentoHistorico['data_vencimento'];
+                                            ?>
+                                            <li class="payment-history-item" aria-label="<?= htmlspecialchars(date('d/m/Y', strtotime($dataHistorico)) . ', ' . $rotuloStatus . ', R$ ' . number_format($valorHistorico, 2, ',', '.'), ENT_QUOTES, 'UTF-8'); ?>">
+                                                <span class="payment-history-value" aria-hidden="true">R$ <?= number_format($valorHistorico, 0, ',', '.'); ?></span>
+                                                <span class="payment-history-bar <?= $classeBarra ?>" style="height: <?= number_format($alturaBarra, 2, '.', ''); ?>%" aria-hidden="true"></span>
+                                                <span class="payment-history-date" aria-hidden="true"><?= date('m/y', strtotime($pagamentoHistorico['data_vencimento'])); ?></span>
+                                            </li>
+                                        <?php endforeach; ?>
+                                    </ul>
+                                <?php endif; ?>
                             </div>
                         </div>
                     </div>
@@ -572,6 +613,15 @@ try {
             <div class="card shadow-sm border p-3 mb-4">
                 <h5 class="text-uppercase fw-bold text-dark mb-1 text-center" style="font-size: 1rem;">📅 Agenda Semanal de Treinos</h5>
                 <p class="text-muted small mb-3 text-center">Escolha a sua turma e clique em agendar no dia respetivo.</p>
+                <?php if ($idModalidadePlano <= 0): ?>
+                    <div class="alert alert-warning small text-center py-2" role="alert">
+                        O seu plano ainda não está vinculado a uma modalidade. Peça à academia para atualizar o cadastro para liberar as aulas.
+                    </div>
+                <?php else: ?>
+                    <p class="text-muted small mb-3 text-center">
+                        Modalidade do seu plano: <strong><?= htmlspecialchars((string)$planoAtivoAgenda['modalidade_nome'], ENT_QUOTES, 'UTF-8'); ?></strong>
+                    </p>
+                <?php endif; ?>
 
                 <div class="d-flex overflow-auto pb-2 mx-auto" style="gap: 10px; width: fit-content; max-width: 100%;">
                     <?php foreach ($calendarioSemanal as $dia): ?>
@@ -606,9 +656,13 @@ try {
                                                 <span class="badge bg-secondary w-100">Horário indisponível</span>
                                             <?php elseif ($dataHoraAula <= new DateTime()): ?>
                                                 <span class="badge bg-secondary w-100">Horário encerrado</span>
+                                            <?php elseif ($dia['limite_atingido']): ?>
+                                                <span class="badge bg-secondary w-100" title="O limite semanal do seu plano foi atingido.">
+                                                    Limite semanal atingido
+                                                </span>
                                             <?php else: ?>
-                                                <form method="POST" action="" class="d-block m-0 p-0 bg-transparent border-0 shadow-none">
-                                                    <input type="hidden" name="acao_agendar_semana" value="1">
+                                                <form method="POST" action="../../controller/AgendamentoController.php?acao=agendar_semana" class="d-block m-0 p-0 bg-transparent border-0 shadow-none">
+                                                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'], ENT_QUOTES, 'UTF-8'); ?>">
                                                     <input type="hidden" name="id_turma" value="<?= (int)$aula['id_turma']; ?>">
                                                     <input type="hidden" name="data_escolhida" value="<?= htmlspecialchars($dia['data_iso'], ENT_QUOTES, 'UTF-8'); ?>">
                                                     <input type="hidden" name="hora_aula" value="<?= htmlspecialchars($aula['hora_inicio'], ENT_QUOTES, 'UTF-8'); ?>">
@@ -644,15 +698,19 @@ try {
                             <tbody>
                                 <?php foreach ($meus_agendamentos as $ag): ?>
                                     <tr>
-                                        <td class="fw-bold"><?= htmlspecialchars($ag['nome_turma'], ENT_QUOTES, 'UTF-8'); ?></td>
-                                        <td><?= date('d/m/Y H:i', strtotime($ag['data_agendamento'])); ?></td>
-                                        <td><span class="badge bg-success">Confirmado</span></td>
+                                        <td class="fw-bold"><?= htmlspecialchars($ag->getNomeTurma(), ENT_QUOTES, 'UTF-8'); ?></td>
+                                        <td><?= date('d/m/Y H:i', strtotime($ag->getDataAgendamento())); ?></td>
+                                        <td><span class="badge bg-success"><?= htmlspecialchars($ag->getStatus(), ENT_QUOTES, 'UTF-8'); ?></span></td>
                                         <td class="text-end">
-                                            <a href="home_aluno.php?cancelar=<?= (int)$ag['id_agendamento']; ?>"
-                                               class="btn btn-outline-danger btn-sm py-0 px-2"
-                                               onclick="return confirm('Deseja cancelar este agendamento?')">
-                                                Cancelar
-                                            </a>
+                                            <form method="POST" action="../../controller/AgendamentoController.php?acao=cancelar" class="d-inline agendamento-cancel-form">
+                                                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'], ENT_QUOTES, 'UTF-8'); ?>">
+                                                <input type="hidden" name="id_agendamento" value="<?= $ag->getIdAgendamento(); ?>">
+                                                <button type="submit"
+                                                        class="agendamento-cancel-button"
+                                                        onclick="return confirm('Deseja cancelar este agendamento?')">
+                                                    Cancelar
+                                                </button>
+                                            </form>
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>
@@ -662,8 +720,8 @@ try {
                 </div>
             </div>
 
-            <!-- BOTÃO PARA ACEDER À PÁGINA DE HISTÓRICO -->
-            <div class="text-center mb-4">
+            <!-- Acesso aos históricos do aluno -->
+            <div class="d-flex flex-wrap justify-content-center gap-2 mb-4">
                 <a href="historico_frequencia.php" class="btn btn-outline-dark btn-sm fw-bold px-4 py-2">
                     📜 Ver Histórico Completo de Frequência
                 </a>
@@ -672,6 +730,27 @@ try {
         <?php endif; ?>
 
     </main>
+
+    <?php if ($mensagem_modal_agendamento !== ''): ?>
+    <div class="modal fade" id="modalFeedbackAgendamento" tabindex="-1" aria-labelledby="modalFeedbackAgendamentoLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content shadow border-0">
+                <div class="modal-header bg-<?= htmlspecialchars($tipo_modal_agendamento, ENT_QUOTES, 'UTF-8'); ?> text-white">
+                    <h5 class="modal-title fw-bold" id="modalFeedbackAgendamentoLabel">
+                        <?= $tipo_modal_agendamento === 'success' ? 'Tudo certo!' : 'Atenção'; ?>
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <?= htmlspecialchars($mensagem_modal_agendamento, ENT_QUOTES, 'UTF-8'); ?>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <?php endif; ?>
 
     <!-- MODAL DE DEMONSTRAÇÃO DO PIX E ENVIO DO COMPROVANTE -->
     <?php if ($id_pagamento_atual !== null && strtoupper((string)$status_pagamento) !== 'PAGO' && !$comprovante_pagamento_enviado): ?>
@@ -732,6 +811,16 @@ try {
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="../../assets/js/main.js"></script>
+    <?php if ($mensagem_modal_agendamento !== ''): ?>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const modal = document.getElementById('modalFeedbackAgendamento');
+            if (modal) {
+                bootstrap.Modal.getOrCreateInstance(modal).show();
+            }
+        });
+    </script>
+    <?php endif; ?>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const canvas = document.getElementById('qrCodeDemonstracao');

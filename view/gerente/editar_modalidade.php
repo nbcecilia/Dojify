@@ -46,11 +46,17 @@ if (!$modalidade) {
 
 <body>
 
-    <?php include '../includes/sidebar.php'; ?>
+    <?php include '../includes/header.php'; ?>
 
     <main class="conteudo">
 
         <h1>Editar Modalidade</h1>
+
+        <?php if (isset($_GET['erro'])): ?>
+            <p class="alert-erro" role="alert">
+                Não foi possível salvar as alterações. Verifique o nome informado e tente novamente.
+            </p>
+        <?php endif; ?>
 
         <form action="../../controller/ModalidadeController.php" method="POST">
 
