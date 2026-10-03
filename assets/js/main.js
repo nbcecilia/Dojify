@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const notificationMenu = document.querySelector('[data-notification-menu]');
 
     if (notificationMenu) {
+        const notificationContainer = notificationMenu.closest('.dropdown') || notificationMenu;
         const storageKey = notificationMenu.dataset.storageKey;
         const notifications = Array.from(notificationMenu.querySelectorAll('[data-notification-id]'));
         let readIds = [];
@@ -32,7 +33,22 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         function renderNotifications() {
-            let unreadCount = 0;
+            const unreadCount = notifications.filter(function (notification) {
+                return !readIds.includes(notification.dataset.notificationId);
+            }).length;
+
+            const badge = notificationContainer.querySelector('[data-notification-unread-badge]');
+            if (badge) {
+                badge.textContent = String(unreadCount);
+                badge.hidden = unreadCount === 0;
+                badge.style.display = unreadCount === 0 ? 'none' : '';
+                badge.classList.toggle('d-none', unreadCount === 0);
+            }
+
+            const count = notificationMenu.querySelector('[data-notification-unread-count]');
+            if (count) {
+                count.textContent = unreadCount + (unreadCount === 1 ? ' nova' : ' novas');
+            }
 
             notifications.forEach(function (notification) {
                 const isRead = readIds.includes(notification.dataset.notificationId);
@@ -55,25 +71,14 @@ document.addEventListener('DOMContentLoaded', function () {
                         tooltip.setContent({ '.tooltip-inner': label });
                     }
                 }
-
-                if (!isRead) {
-                    unreadCount++;
-                }
             });
-
-            const badge = notificationMenu.querySelector('[data-notification-unread-badge]');
-            if (badge) {
-                badge.textContent = String(unreadCount);
-                badge.hidden = unreadCount === 0;
-            }
-
-            const count = notificationMenu.querySelector('[data-notification-unread-count]');
-            if (count) {
-                count.textContent = unreadCount + (unreadCount === 1 ? ' nova' : ' novas');
-            }
         }
 
         function markAsRead(notification) {
+            if (!notification) {
+                return;
+            }
+
             const id = notification.dataset.notificationId;
             if (id && !readIds.includes(id)) {
                 readIds.push(id);
@@ -83,6 +88,10 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         notificationMenu.addEventListener('click', function (event) {
+            if (!(event.target instanceof Element)) {
+                return;
+            }
+
             const markButton = event.target.closest('[data-notification-mark-read]');
             if (markButton) {
                 markAsRead(markButton.closest('[data-notification-id]'));

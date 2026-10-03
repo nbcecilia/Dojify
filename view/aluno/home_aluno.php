@@ -518,6 +518,7 @@ try {
             </div>
 
             <!-- SEÇÃO FINANCEIRA / STATUS DA MENSALIDADE -->
+            <?php ob_start(); ?>
             <?php $statusPagamentoUpper = strtoupper((string)$status_pagamento); ?>
             <?php
                 $maiorValorHistorico = 0.0;
@@ -623,6 +624,7 @@ try {
                     </div>
                 </div>
             </section>
+            <?php $cardPagamentoHtml = ob_get_clean(); ?>
 
             <!-- CALENDÁRIO SEMANAL COMPACTO -->
             <div class="card shadow-sm border p-3 mb-4">
@@ -734,6 +736,8 @@ try {
                     <?php endif; ?>
                 </div>
             </div>
+
+            <?= $cardPagamentoHtml; ?>
 
             <!-- Acesso aos históricos do aluno -->
             <div class="d-flex flex-wrap justify-content-center gap-2 mb-4">

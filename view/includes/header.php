@@ -109,7 +109,7 @@ $total_notif_header = count($notificacoes_aluno);
             <span style="font-size: 1rem;">🔔</span>
             <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
                   data-notification-unread-badge
-                  <?= $total_notif_header === 0 ? 'hidden' : ''; ?>>
+                  style="<?= $total_notif_header === 0 ? 'display: none;' : ''; ?>">
                 <?= $total_notif_header; ?>
             </span>
         </button>
@@ -198,4 +198,4 @@ $total_notif_header = count($notificacoes_aluno);
 
 <!-- SCRIPT PARA ABRIR/FECHAR O DROPDOWN -->
 
-<script src="../../assets/js/main.js"></script>
+<script src="../../assets/js/main.js?v=<?= filemtime(__DIR__ . '/../../assets/js/main.js'); ?>"></script>
