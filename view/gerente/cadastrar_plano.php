@@ -83,6 +83,11 @@ $modalidades = (new ModalidadeDAO())->listarPorAcademia($idAcademia);
                     <option value="Anual 3x/semana">Anual (3x/semana)</option>
                     <option value="Anual Ilimitado">Anual (Ilimitado)</option>
                 </optgroup>
+                <optgroup label="Planos All Inclusive">
+                    <option value="All Inclusive 2x/semana">All Inclusive (2x/semana)</option>
+                    <option value="All Inclusive 4x/semana">All Inclusive(4x/semana)</option>
+                    <option value="All Inclusive Ilimitado">All Inclusive (Ilimitado)</option>
+                </optgroup>
             </select>
 
             <label for="valor">Valor do Plano (R$):</label>
