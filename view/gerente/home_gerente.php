@@ -27,38 +27,25 @@ if (!isset($_SESSION['usuario']) || (int)$_SESSION['usuario']['perfil_id'] !== 2
     <main class="container py-4">
         
         <h2 class="text-center mb-2">Painel do Gerente</h2>
-        <p class="text-muted text-center mb-5">Painel de controlo e gestão da sua academia.</p>
+        <p class="text-muted text-center mb-5">Painel de controle e gestão da sua academia.</p>
 
       
         <div class="row g-4 justify-content-center mb-4">
             
-            <!-- Cartão 1: Cadastrar Aluno -->
+            <!-- Cartão 1: Cadastrar Aluno & Professor -->
             <div class="col-md-6 col-lg-3">
                 <div class="card h-100 shadow-sm border p-3 text-center">
                     <div class="card-body d-flex flex-column justify-content-between">
                         <div>
-                            <h3 class="h5 card-title mb-2">Cadastrar Aluno</h3>
-                            <p class="text-muted small mb-4">Registe um novo aluno no sistema.</p>
+                            <h3 class="h5 card-title mb-2">Cadastrar Aluno & Professor</h3>
+                            <p class="text-muted small mb-4">Registe um novo aluno ou professor no sistema.</p>
                         </div>
-                        <a href="cadastrar_aluno.php" class="btn btn-success w-100">+ Cadastrar Aluno</a>
+                        <a href="cadastrar_aluno_prof.php" class="btn btn-success w-100">Cadastrar Aluno & Professor</a>
                     </div>
                 </div>
             </div>
 
-            <!-- Cartão 2: Cadastrar Professor -->
-            <div class="col-md-6 col-lg-3">
-                <div class="card h-100 shadow-sm border p-3 text-center">
-                    <div class="card-body d-flex flex-column justify-content-between">
-                        <div>
-                            <h3 class="h5 card-title mb-2">Cadastrar Professor</h3>
-                            <p class="text-muted small mb-4">Registe um novo professor na academia.</p>
-                        </div>
-                        <a href="cadastrar_professor.php" class="btn btn-info w-100 text-white">+ Cadastrar Professor</a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Cartão 3: Gerir Utilizadores -->
+            <!-- Cartão 2: Gerir Utilizadores -->
             <div class="col-md-6 col-lg-3">
                 <div class="card h-100 shadow-sm border p-3 text-center">
                     <div class="card-body d-flex flex-column justify-content-between">
@@ -71,7 +58,7 @@ if (!isset($_SESSION['usuario']) || (int)$_SESSION['usuario']['perfil_id'] !== 2
                 </div>
             </div>
 
-            <!-- Cartão 4: Planos e Mensalidades -->
+            <!-- Cartão 3: Planos e Mensalidades -->
             <div class="col-md-6 col-lg-3">
                 <div class="card h-100 shadow-sm border p-3 text-center">
                     <div class="card-body d-flex flex-column justify-content-between">
@@ -88,7 +75,7 @@ if (!isset($_SESSION['usuario']) || (int)$_SESSION['usuario']['perfil_id'] !== 2
         <!-- SEGUNDA LINHA -->
         <div class="row g-4 justify-content-center mb-4">
             
-            <!-- Cartão 5: Modalidades -->
+            <!-- Cartão 4: Modalidades -->
             <div class="col-md-6 col-lg-4">
                 <div class="card h-100 shadow-sm border p-3 text-center">
                     <div class="card-body d-flex flex-column justify-content-between">
@@ -101,7 +88,7 @@ if (!isset($_SESSION['usuario']) || (int)$_SESSION['usuario']['perfil_id'] !== 2
                 </div>
             </div>
 
-            <!-- Cartão 6: Turmas -->
+            <!-- Cartão 5: Turmas -->
             <div class="col-md-6 col-lg-4">
                 <div class="card h-100 shadow-sm border p-3 text-center">
                     <div class="card-body d-flex flex-column justify-content-between">
@@ -114,7 +101,7 @@ if (!isset($_SESSION['usuario']) || (int)$_SESSION['usuario']['perfil_id'] !== 2
                 </div>
             </div>
 
-            <!-- Cartão 7: Financeiro -->
+            <!-- Cartão 6: Financeiro -->
             <div class="col-md-6 col-lg-4">
                 <div class="card h-100 shadow-sm border p-3 text-center">
                     <div class="card-body d-flex flex-column justify-content-between">
