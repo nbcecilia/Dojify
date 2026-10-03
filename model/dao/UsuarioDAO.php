@@ -169,4 +169,51 @@ class UsuarioDAO {
         
         return $stmt->fetchColumn() > 0;
     }
+    
+    /* Retorna os indicadores (KPIs) para o PAINEL GERENTE */
+    public function buscarIndicadoresGerente(int $idAcademia): array {
+        $indicadores = [
+            'alunos_ativos' => 0,
+            'professores' => 0,
+            'pagamentos_pendentes' => 0,
+            'turmas' => 0
+        ];
+
+        try {
+            // 1. Alunos ativos (perfil_id = 4)
+            $sqlAlunos = "SELECT COUNT(*) FROM usuario WHERE id_academia = ? AND perfil_id = 4 AND status = 'ATIVO'";
+            $stmt = $this->conexao->prepare($sqlAlunos);
+            $stmt->execute([$idAcademia]);
+            $indicadores['alunos_ativos'] = (int)$stmt->fetchColumn();
+
+            // 2. Professores (perfil_id = 3)
+            $stmt = $this->conexao->prepare("SELECT COUNT(*) FROM usuario WHERE id_academia = ? AND perfil_id = 3 AND status = 'ATIVO'");
+            $stmt->execute([$idAcademia]);
+            $indicadores['professores'] = (int)$stmt->fetchColumn();
+
+            // 3. Pagamentos pendentes
+            $sqlPagamento = "SELECT COUNT(p.id_pagamento) 
+                             FROM pagamento p
+                             JOIN plano pl ON p.id_plano_matricula = pl.id_plano
+                             JOIN usuario u ON pl.id_usuario_aluno = u.id_usuario
+                             WHERE u.id_academia = ? AND p.status = 'PENDENTE'";
+            $stmt = $this->conexao->prepare($sqlPagamento);
+            $stmt->execute([$idAcademia]);
+            $indicadores['pagamentos_pendentes'] = (int)$stmt->fetchColumn();
+
+            // 4. Turmas ativas
+            $sqlTurma = "SELECT COUNT(t.id_turma) 
+                         FROM turma t
+                         JOIN modalidade m ON t.id_modalidade = m.id_modalidade
+                         WHERE m.id_academia = ? AND t.status = 'ATIVA'";
+            $stmt = $this->conexao->prepare($sqlTurma);
+            $stmt->execute([$idAcademia]);
+            $indicadores['turmas'] = (int)$stmt->fetchColumn();
+
+        } catch (Exception $e) {
+            // Em caso de erro, retorna os valores zerados
+        }
+
+        return $indicadores;
+    }
 }

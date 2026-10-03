@@ -110,7 +110,7 @@ $modalidadeDAO = new ModalidadeDAO();$modalidades = $modalidadeDAO->listarPorAca
                 </div> 
 
                 <div>
-                    <label for="id_modalidade">Modalidade do Plano:</label>
+                    <label for="id_modalidade">Modalidade:</label>
                     <select id="id_modalidade" name="id_modalidade">
                         <option value="">Selecione a modalidade...</option>
                         <?php foreach ($modalidades as$modalidade): ?>

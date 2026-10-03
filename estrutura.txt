@@ -1,0 +1,133 @@
+Listagem de caminhos de pasta
+O n�mero de s�rie do volume � 50F6-8B76
+C:.
+�   atualizacaoSQL.txt
+�   estruturaexplicativa.txt
+�   estrutura_completa.txt
+�   index.php
+�   README.md
+�   SCRIPT_BD.txt
+�
++---assets
+�   +---css
+�   �       estilo.css
+�   �       gerente.css
+�   �       historico-graduacao.css
+�   �       landing.css
+�   �
+�   +---img
+�   �       dojify_logo.png
+�   �       dojify_logo1.png
+�   �       Dojify_original.png
+�   �       Dojify_original2.png
+�   �
+�   +---js
+�           main.js
+�           usuario.js
+�
++---controller
+�       AcademiaController.php
+�       AgendamentoController.php
+�       ComprovantePagamentoController.php
+�       financeirocontroller.php
+�       GraduacaoController.php
+�       Historico_FrequenciaController.php
+�       HorarioTurmaController.php
+�       LoginController.php
+�       ModalidadeController.php
+�       PlanoController.php
+�       TurmaController.php
+�       usuariocontroller.php
+�       __AvaliacaoController.php
+�       __PresencaController.php
+�
++---model
+�   +---dao
+�   �       AcademiaDAO.php
+�   �       AgendamentoDAO.php
+�   �       Conexao.php
+�   �       GraduacaoDAO.php
+�   �       Historico_FrequenciaDAO.php
+�   �       HorarioTurmaDAO.php
+�   �       LoginDAO.php
+�   �       ModalidadeDAO.php
+�   �       PagamentoDAO.php
+�   �       PlanoDAO.php
+�   �       TurmaDAO.php
+�   �       UsuarioDAO.php
+�   �       __AvaliacaoDAO.php
+�   �       __PresencaDAO.php
+�   �       __RecuperacaoDAO.php
+�   �
+�   +---dto
+�           AcademiaDTO.php
+�           AgendamentoDTO.php
+�           GraduacaoDTO.php
+�           Historico_FrequenciaDTO.php
+�           HorarioTurmaDTO.php
+�           ModalidadeDTO.php
+�           PagamentoDTO.php
+�           PlanoDTO.php
+�           TurmaDTO.php
+�           UsuarioDTO.php
+�           __AvaliacaoDTO.php
+�           __PresencaDTO.php
+�
++---storage
+�   +---comprovantes
+�           .htaccess
+�
++---view
+    �   login.php
+    �   login_recuperar.php
+    �   __login_redefinir.php
+    �
+    +---admin
+    �       cadastrar_academia.php
+    �       cadastrar_gerente.php
+    �       editar_academia.php
+    �       editar_gerente.php
+    �       home_admin.php
+    �       listar_academias_gerentes.php
+    �
+    +---aluno
+    �       agendar_aula.php
+    �       historico_aluno.php
+    �       historico_frequencia.php
+    �       historico_graduacao.php
+    �       home_aluno.php
+    �
+    +---gerente
+    �       cadastrar_aluno_prof.php
+    �       cadastrar_modalidade.php
+    �       cadastrar_plano.php
+    �       cadastrar_turma.php
+    �       editar_aluno.php
+    �       editar_modalidade.php
+    �       editar_plano.php
+    �       editar_professor.php
+    �       editar_turma.php
+    �       gerenciar_horarios_turma.php
+    �       home_gerente.php
+    �       listar_modalidade.php
+    �       listar_pagamentos.php
+    �       listar_plano.php
+    �       listar_turma.php
+    �       listar_usuarios.php
+    �       relatorio_financeiro.php
+    �
+    +---includes
+    �       footer.php
+    �       header.php
+    �       sidebar.php
+    �
+    +---professor
+    �       __cadastrar_avaliacao.php
+    �       __cadastrar_graduacao.php
+    �       __listar_frequencia.php
+    �       __listar_graduacoes.php
+    �       __registrar_frequencia.php
+    �
+    +---usuarios
+            home_usuario.php
+            listarcadastrados.php

@@ -1,0 +1,361 @@
+
+/* ==========================================================
+   DOJIFY - DASHBOARD DO GERENTE
+   Complementa assets/css/estilo.css
+   Paleta exclusiva: preto, cinza e branco
+   ========================================================== */
+
+:root {
+    --gerente-bg: #f4f4f5;
+    --gerente-surface: #ffffff;
+    --gerente-surface-soft: #fafafa;
+    --gerente-border: #dedede;
+    --gerente-border-dark: #c7c7c7;
+    --gerente-text: #171717;
+    --gerente-text-secondary: #525252;
+    --gerente-text-muted: #737373;
+    --gerente-dark: #111111;
+    --gerente-dark-hover: #262626;
+    --gerente-gray: #e5e5e5;
+    --gerente-gray-dark: #a3a3a3;
+    --gerente-shadow: 0 2px 10px rgba(0, 0, 0, .06);
+    --gerente-shadow-hover: 0 8px 22px rgba(0, 0, 0, .10);
+}
+
+body.gerente-page {
+    background: var(--gerente-bg);
+    color: var(--gerente-text);
+}
+
+/* Cabeçalho da dashboard */
+.gerente-dashboard {
+    width: min(1400px, 94%);
+    margin: 0 auto;
+    padding: 34px 0 48px;
+}
+
+.gerente-welcome {
+    display: flex;
+    justify-content: space-between;
+    align-items: end;
+    gap: 24px;
+    margin-bottom: 28px;
+}
+
+.gerente-welcome h2 {
+    margin: 0 0 6px;
+    font-size: clamp(1.6rem, 2.5vw, 2.1rem);
+    font-weight: 700;
+    letter-spacing: -.03em;
+}
+
+.gerente-welcome p {
+    margin: 0;
+    color: var(--gerente-text-secondary);
+}
+
+.gerente-role {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border: 1px solid var(--gerente-border);
+    border-radius: 999px;
+    background: var(--gerente-surface);
+    color: var(--gerente-text-secondary);
+    font-size: .82rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+/* Indicadores */
+.gerente-kpis {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 34px;
+}
+
+.gerente-kpi {
+    background: var(--gerente-surface);
+    border: 1px solid var(--gerente-border);
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: var(--gerente-shadow);
+}
+
+.gerente-kpi-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+}
+
+.gerente-kpi-label {
+    color: var(--gerente-text-secondary);
+    font-size: .82rem;
+    font-weight: 600;
+}
+
+.gerente-kpi-icon {
+    width: 38px;
+    height: 38px;
+    display: grid;
+    place-items: center;
+    border-radius: 9px;
+    background: var(--gerente-gray);
+    color: var(--gerente-dark);
+    font-size: 1rem;
+}
+
+.gerente-kpi-value {
+    display: block;
+    margin-top: 12px;
+    font-size: 1.7rem;
+    line-height: 1;
+    font-weight: 700;
+}
+
+.gerente-kpi-note {
+    display: block;
+    margin-top: 8px;
+    color: var(--gerente-text-muted);
+    font-size: .75rem;
+}
+
+/* Seções */
+.gerente-section {
+    margin-bottom: 32px;
+}
+
+.gerente-section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 14px;
+}
+
+.gerente-section-title {
+    margin: 0;
+    font-size: 1.05rem;
+    font-weight: 700;
+}
+
+.gerente-section-subtitle {
+    margin: 3px 0 0;
+    color: var(--gerente-text-muted);
+    font-size: .82rem;
+}
+
+/* Grade de módulos */
+.gerente-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+}
+
+.gerente-card {
+    display: flex;
+    flex-direction: column;
+    min-height: 190px;
+    background: var(--gerente-surface);
+    border: 1px solid var(--gerente-border);
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: var(--gerente-shadow);
+    transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+}
+
+.gerente-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--gerente-border-dark);
+    box-shadow: var(--gerente-shadow-hover);
+}
+
+.gerente-card-icon {
+    width: 42px;
+    height: 42px;
+    display: grid;
+    place-items: center;
+    border-radius: 9px;
+    background: var(--gerente-dark);
+    color: #fff;
+    font-size: 1.05rem;
+    margin-bottom: 16px;
+}
+
+.gerente-card h3 {
+    margin: 0 0 7px;
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+.gerente-card p {
+    margin: 0;
+    color: var(--gerente-text-secondary);
+    font-size: .82rem;
+    line-height: 1.55;
+}
+
+.gerente-card-action {
+    margin-top: auto;
+    padding-top: 18px;
+}
+
+.gerente-card-action .btn {
+    width: 100%;
+}
+
+/* Ações rápidas */
+.gerente-quick-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+}
+
+.gerente-quick-action {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 70px;
+    padding: 14px 16px;
+    border: 1px solid var(--gerente-border);
+    border-radius: 9px;
+    background: var(--gerente-surface);
+    color: var(--gerente-text) !important;
+    text-decoration: none !important;
+    transition: background-color .18s ease, border-color .18s ease;
+}
+
+.gerente-quick-action:hover {
+    background: var(--gerente-surface-soft);
+    border-color: var(--gerente-border-dark);
+}
+
+.gerente-quick-action i {
+    width: 34px;
+    height: 34px;
+    display: grid;
+    place-items: center;
+    border-radius: 8px;
+    background: var(--gerente-gray);
+}
+
+.gerente-quick-action strong {
+    display: block;
+    font-size: .86rem;
+}
+
+.gerente-quick-action span {
+    display: block;
+    margin-top: 2px;
+    color: var(--gerente-text-muted);
+    font-size: .74rem;
+}
+
+/* Botão da dashboard */
+.gerente-page .gerente-btn {
+    background: var(--gerente-dark);
+    border: 1px solid var(--gerente-dark);
+    color: #fff !important;
+}
+
+.gerente-page .gerente-btn:hover {
+    background: var(--gerente-dark-hover);
+    border-color: var(--gerente-dark-hover);
+}
+
+.gerente-page .gerente-btn-outline {
+    background: transparent;
+    border: 1px solid var(--gerente-border-dark);
+    color: var(--gerente-text) !important;
+}
+
+.gerente-page .gerente-btn-outline:hover {
+    background: var(--gerente-gray);
+}
+
+/* Bloco financeiro */
+.gerente-finance-box {
+    display: grid;
+    grid-template-columns: 1.2fr .8fr;
+    gap: 16px;
+}
+
+.gerente-panel {
+    background: var(--gerente-surface);
+    border: 1px solid var(--gerente-border);
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: var(--gerente-shadow);
+}
+
+.gerente-panel-title {
+    margin: 0 0 14px;
+    font-size: .95rem;
+    font-weight: 700;
+}
+
+.gerente-status-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 12px 0;
+    border-bottom: 1px solid #ededed;
+    font-size: .82rem;
+}
+
+.gerente-status-row:last-child {
+    border-bottom: 0;
+}
+
+.gerente-status-value {
+    font-weight: 700;
+}
+
+/* Responsividade */
+@media (max-width: 1100px) {
+    .gerente-kpis {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .gerente-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .gerente-quick-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .gerente-dashboard {
+        width: min(94%, 620px);
+        padding-top: 24px;
+    }
+
+    .gerente-welcome {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .gerente-kpis,
+    .gerente-grid,
+    .gerente-quick-grid,
+    .gerente-finance-box {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    .gerente-dashboard {
+        width: 92%;
+    }
+
+    .gerente-kpi,
+    .gerente-card,
+    .gerente-panel {
+        padding: 16px;
+    }
+}
