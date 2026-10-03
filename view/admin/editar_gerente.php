@@ -68,7 +68,7 @@ if (!$gerente || $gerente['perfil_id'] != 2) {
             <input type="date" name="data_nascimento" value="<?= htmlspecialchars($gerente['data_nascimento']) ?>" required>
 
             <label>Telefone:</label>
-            <input type="text" name="telefone" value="<?= htmlspecialchars($gerente['telefone']) ?>" required>
+            <input type="tel" name="telefone" value="<?= htmlspecialchars($gerente['telefone']) ?>" pattern="\([0-9]{2}\) [0-9]{4,5}-[0-9]{4}" required>
 
             <label>E-mail de Acesso:</label>
             <input type="email" name="email" value="<?= htmlspecialchars($gerente['email']) ?>" required>

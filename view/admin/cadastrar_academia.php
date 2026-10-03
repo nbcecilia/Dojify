@@ -55,7 +55,7 @@ if (!isset($_SESSION['usuario']) || $_SESSION['usuario']['perfil_id'] != 1) {
             <input type="text" name="endereco" required>
 
             <label>Telefone:</label>
-            <input type="text" name="telefone" required>
+            <input type="tel" name="telefone" pattern="\([0-9]{2}\) [0-9]{4,5}-[0-9]{4}" required>
 
             <label>E-mail de Contato:</label>
             <input type="email" name="email" required>

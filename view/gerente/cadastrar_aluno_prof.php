@@ -74,8 +74,7 @@ $modalidadeDAO = new ModalidadeDAO();$modalidades = $modalidadeDAO->listarPorAca
 
             <div>
                 <label for="telefone">Telefone:</label>
-                <input type="text" id="telefone" name="telefone"  pattern="\([0-9]{2}\) [0-9]{5}-[0-9]{4}" 
-        maxlength="15 placeholder="Ex: (61) 98888-7777" required>
+                <input type="tel" id="telefone" name="telefone" pattern="\([0-9]{2}\) [0-9]{4,5}-[0-9]{4}" placeholder="Ex: (61) 98888-7777" required>
             </div>
 
             <div>

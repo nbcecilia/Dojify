@@ -66,9 +66,9 @@ if (!$academia) {
             <input type="text" name="endereco" value="<?= htmlspecialchars($academia['endereco']) ?>" required>
 
             <label>Telefone Principal:</label>
-            <input type="text" name="telefone" value="<?= htmlspecialchars($academia['telefone']) ?>" required>
+            <input type="tel" name="telefone" value="<?= htmlspecialchars($academia['telefone']) ?>" pattern="\([0-9]{2}\) [0-9]{4,5}-[0-9]{4}" required>
 
-            <label>E-mail Institucional:</label>
+            <label>E-mail de Contato:</label>
             <input type="email" name="email" value="<?= htmlspecialchars($academia['email']) ?>" required>
 
             <button type="submit">Salvar Alterações</button>

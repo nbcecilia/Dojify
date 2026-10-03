@@ -67,10 +67,10 @@ $academias = $academiaDAO->listarTodas();
             <label>Data de Nascimento:</label>
             <input type="date" name="data_nascimento" required>
 
-            <label>Telefone / WhatsApp:</label>
-            <input type="text" name="telefone" required>
+            <label>Telefone:</label>
+            <input type="tel" name="telefone" pattern="\([0-9]{2}\) [0-9]{4,5}-[0-9]{4}" required>
 
-            <label>E-mail (Será o login de acesso):</label>
+            <label>E-mail de Acesso:</label>
             <input type="email" name="email" required>
 
             <label>Senha de Acesso:</label>
