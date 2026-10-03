@@ -5,3 +5,5 @@ ALTER TABLE dojify_1.pagamento
     COMMENT 'Nome interno do arquivo de comprovante enviado pelo aluno.';
 
 ALTER TABLE usuario ADD primeiro_acesso TINYINT(1) DEFAULT 1;
+
+ALTER TABLE academia ADD COLUMN status VARCHAR(20) NOT NULL DEFAULT 'ATIVO';
