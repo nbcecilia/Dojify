@@ -6,6 +6,7 @@ ALTER TABLE dojify_1.pagamento
 
 ALTER TABLE usuario ADD primeiro_acesso TINYINT(1) DEFAULT 1;
 
+<<<<<<< HEAD
 -- Vincula cada plano a uma modalidade para restringir a agenda do aluno.
 -- A coluna fica NULL durante a migração para permitir associar os planos existentes.
 ALTER TABLE dojify_1.plano
@@ -19,3 +20,6 @@ ALTER TABLE dojify_1.plano
 
 -- Após aplicar a migração, edite os planos existentes e escolha a modalidade correta.
 -- Planos sem modalidade vinculada não terão aulas disponíveis para agendamento.
+=======
+ALTER TABLE academia ADD COLUMN status VARCHAR(20) NOT NULL DEFAULT 'ATIVO';
+>>>>>>> 7f8e266ebd578604c57b7cd45f4465d2c383512b
