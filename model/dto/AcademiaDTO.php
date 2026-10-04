@@ -1,4 +1,5 @@
 <?php
+// model/dto/AcademiaDTO.php
 class AcademiaDTO {
     private ?int $idAcademia = null;
     private string $nome;
