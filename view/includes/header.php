@@ -11,6 +11,37 @@ $notifications = [
     'avaliacoes' => ['total' => 0, 'lista' => []],
 ];
 $perfilUsuario = (int)($_SESSION['usuario']['perfil_id'] ?? 0);
+$is_aluno = isset($_SESSION['usuario']) && (int)$_SESSION['usuario']['perfil_id'] === 4;
+$idUsuarioHeader = (int)($_SESSION['usuario']['id_usuario'] ?? 0);
+$nomeUsuarioHeader = (string)($_SESSION['usuario']['nome'] ?? 'Usuário');
+$iniciaisUsuarioHeader = '';
+$quantidadeIniciaisHeader = 0;
+foreach (preg_split('/\s+/u', trim($nomeUsuarioHeader), -1, PREG_SPLIT_NO_EMPTY) ?: [] as $parteNome) {
+    preg_match('/^./u', $parteNome, $letraInicial);
+    $letraInicial = $letraInicial[0] ?? substr($parteNome, 0, 1);
+    $iniciaisUsuarioHeader .= function_exists('mb_strtoupper')
+        ? mb_strtoupper($letraInicial, 'UTF-8')
+        : strtoupper($letraInicial);
+    $quantidadeIniciaisHeader++;
+    if ($quantidadeIniciaisHeader >= 2) {
+        break;
+    }
+}
+$iniciaisUsuarioHeader = $iniciaisUsuarioHeader !== '' ? $iniciaisUsuarioHeader : 'U';
+$avatarUsuarioUrl = null;
+foreach (['webp', 'png', 'jpg', 'jpeg'] as $extensaoAvatar) {
+    $arquivoAvatar = __DIR__ . '/../../assets/uploads/avatars/user-' . $idUsuarioHeader . '.' . $extensaoAvatar;
+    if ($idUsuarioHeader > 0 && is_file($arquivoAvatar)) {
+        $avatarUsuarioUrl = '../../assets/uploads/avatars/user-' . $idUsuarioHeader . '.' . $extensaoAvatar
+            . '?v=' . filemtime($arquivoAvatar);
+        break;
+    }
+}
+if (isset($_SESSION['usuario']) && !isset($_SESSION['avatar_csrf_token'])) {
+    $_SESSION['avatar_csrf_token'] = bin2hex(random_bytes(32));
+}
+$avatarFeedback = $_SESSION['avatar_feedback'] ?? null;
+unset($_SESSION['avatar_feedback']);
 $homeUrl = isset($_SESSION['usuario']) && (int) ($_SESSION['usuario']['perfil_id'] ?? 0) === 4
     ? '../aluno/home_aluno.php'
     : ($perfilUsuario === 3 ? '../professor/home_professor.php' : '../gerente/home_gerente.php');
@@ -41,7 +72,7 @@ if (isset($_SESSION['usuario']) && in_array($perfilUsuario, [2, 3], true)) {
         </a>
     </div>
 
-    <div class="navbar-user">
+    <div class="navbar-user<?= $is_aluno ? ' navbar-user-aluno' : ''; ?>">
 
         <!-- ÍCONE DE NOTIFICAÇÕES -->
         <?php if (isset($_SESSION['usuario']) && in_array($perfilUsuario, [2, 3], true)): ?>
@@ -120,7 +151,6 @@ if (isset($_SESSION['usuario']) && in_array($perfilUsuario, [2, 3], true)) {
         <?php endif; ?>
 <?php 
 // Verifica se o utilizador logado é Aluno (perfil_id 4)
-$is_aluno = isset($_SESSION['usuario']) && (int)$_SESSION['usuario']['perfil_id'] === 4;
 $notificacoes_aluno = $is_aluno && isset($notificacoes) && is_array($notificacoes)
     ? $notificacoes
     : [];
@@ -148,16 +178,15 @@ $total_notif_header = count($notificacoes_aluno);
 ?>
 
 <?php if ($is_aluno): ?>
-    <div class="dropdown me-3 d-inline-block">
-        <button class="btn btn-dark position-relative rounded-circle p-2 shadow-sm d-flex align-items-center justify-content-center"
+    <div class="dropdown aluno-header-notifications">
+        <button class="btn aluno-notification-button"
                 type="button"
                 id="dropdownNotifAlunoHeader"
                 data-bs-toggle="dropdown"
                 data-bs-auto-close="outside"
                 aria-expanded="false"
-                aria-label="Abrir notificações"
-                style="width: 40px; height: 40px; background-color: #212529; border: 1px solid #495057;">
-            <span style="font-size: 1rem;">🔔</span>
+                aria-label="Abrir notificações">
+            <i class="bi bi-bell-fill" aria-hidden="true"></i>
             <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
                   data-notification-unread-badge
                   style="<?= $total_notif_header === 0 ? 'display: none;' : ''; ?>">
@@ -250,8 +279,63 @@ $total_notif_header = count($notificacoes_aluno);
         </ul>
     </div>
 <?php endif; ?>
-        <!-- Dados do Utilizador -->
-        <span class="user-greeting">Olá, <strong><?= htmlspecialchars($_SESSION['usuario']['nome'] ?? 'Usuário') ?></strong></span>
+        <!-- Perfil do utilizador -->
+        <?php if (isset($_SESSION['usuario'])): ?>
+            <details class="profile-avatar-picker" data-profile-avatar data-user-id="<?= $idUsuarioHeader; ?>">
+                <summary class="profile-avatar-summary" aria-label="Perfil de <?= htmlspecialchars($nomeUsuarioHeader, ENT_QUOTES, 'UTF-8'); ?>">
+                    <span class="profile-avatar" data-profile-avatar-display aria-hidden="true">
+                        <?php if ($avatarUsuarioUrl !== null): ?>
+                            <img src="<?= htmlspecialchars($avatarUsuarioUrl, ENT_QUOTES, 'UTF-8'); ?>" alt="">
+                        <?php else: ?>
+                            <span><?= htmlspecialchars($iniciaisUsuarioHeader, ENT_QUOTES, 'UTF-8'); ?></span>
+                        <?php endif; ?>
+                    </span>
+                    <span class="user-greeting">Olá, <strong><?= htmlspecialchars($nomeUsuarioHeader, ENT_QUOTES, 'UTF-8'); ?></strong></span>
+                    <i class="bi bi-chevron-down profile-avatar-chevron" aria-hidden="true"></i>
+                </summary>
+                <div class="profile-avatar-menu">
+                    <strong class="profile-avatar-menu-title">Personalizar perfil</strong>
+                    <?php if ($avatarFeedback !== null): ?>
+                        <p class="profile-avatar-feedback" role="status">
+                            <?= $avatarFeedback === 'sucesso'
+                                ? 'Foto de perfil atualizada.'
+                                : ($avatarFeedback === 'sucesso_remocao'
+                                    ? 'Foto removida. Sua inicial voltou a ser exibida.'
+                                    : 'Não foi possível atualizar. Envie JPG, PNG ou WebP de até 2 MB.'); ?>
+                        </p>
+                    <?php endif; ?>
+                    <form action="../../controller/ProfileAvatarController.php" method="POST" enctype="multipart/form-data" class="profile-avatar-upload">
+                        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars((string)$_SESSION['avatar_csrf_token'], ENT_QUOTES, 'UTF-8'); ?>">
+                        <input type="hidden" name="return_to" value="<?= htmlspecialchars((string)($_SERVER['REQUEST_URI'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>">
+                        <label for="profileAvatarFile">Escolher foto</label>
+                        <input id="profileAvatarFile" type="file" name="avatar" accept="image/jpeg,image/png,image/webp" required>
+                        <small>JPG, PNG ou WebP · até 2 MB</small>
+                        <button type="submit" class="btn btn-sm btn-dark">Enviar foto</button>
+                    </form>
+                    <?php if ($avatarUsuarioUrl !== null): ?>
+                        <form action="../../controller/ProfileAvatarController.php" method="POST" class="profile-avatar-remove">
+                            <input type="hidden" name="acao" value="remover">
+                            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars((string)$_SESSION['avatar_csrf_token'], ENT_QUOTES, 'UTF-8'); ?>">
+                            <input type="hidden" name="return_to" value="<?= htmlspecialchars((string)($_SERVER['REQUEST_URI'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>">
+                            <button type="submit" class="btn btn-sm btn-outline-secondary">Remover foto e usar inicial</button>
+                        </form>
+                    <?php endif; ?>
+                    <div class="profile-avatar-colors">
+                        <span>Ou escolha uma cor para a inicial</span>
+                        <div role="group" aria-label="Cor do avatar">
+                            <button type="button" data-avatar-color="#2563eb" aria-label="Azul"></button>
+                            <button type="button" data-avatar-color="#7c3aed" aria-label="Roxo"></button>
+                            <button type="button" data-avatar-color="#059669" aria-label="Verde"></button>
+                            <button type="button" data-avatar-color="#ea580c" aria-label="Laranja"></button>
+                            <button type="button" data-avatar-color="#db2777" aria-label="Rosa"></button>
+                            <button type="button" data-avatar-color="#475569" aria-label="Cinza"></button>
+                        </div>
+                    </div>
+                </div>
+            </details>
+        <?php else: ?>
+            <span class="user-greeting">Olá, <strong><?= htmlspecialchars($nomeUsuarioHeader, ENT_QUOTES, 'UTF-8'); ?></strong></span>
+        <?php endif; ?>
         <a href="<?= htmlspecialchars($homeUrl, ENT_QUOTES, 'UTF-8') ?>" class="btn btn-sm btn-outline">Início</a>
         <a href="../../controller/UsuarioController.php?acao=logout" class="btn btn-sm btn-danger">Sair</a>
     </div>
@@ -260,3 +344,40 @@ $total_notif_header = count($notificacoes_aluno);
 <!-- SCRIPT PARA ABRIR/FECHAR O DROPDOWN -->
 
 <script src="../../assets/js/main.js?v=<?= filemtime(__DIR__ . '/../../assets/js/main.js'); ?>"></script>
+<script>
+    document.querySelectorAll('[data-profile-avatar]').forEach((avatarPicker) => {
+        const userId = avatarPicker.dataset.userId;
+        const avatar = avatarPicker.querySelector('[data-profile-avatar-display]');
+        const colorKey = `dojify-avatar-color-${userId}`;
+        const defaultColors = ['#2563eb', '#7c3aed', '#059669', '#ea580c', '#db2777', '#475569'];
+        let savedColor = null;
+        try {
+            savedColor = localStorage.getItem(colorKey);
+        } catch (error) {
+            savedColor = null;
+        }
+        const selectedColor = defaultColors.includes(savedColor)
+            ? savedColor
+            : defaultColors[Number(userId) % defaultColors.length];
+        avatar.style.setProperty('--profile-avatar-color', selectedColor);
+
+        avatarPicker.querySelectorAll('[data-avatar-color]').forEach((colorButton) => {
+            colorButton.addEventListener('click', () => {
+                const color = colorButton.dataset.avatarColor;
+                avatar.style.setProperty('--profile-avatar-color', color);
+                try {
+                    localStorage.setItem(colorKey, color);
+                } catch (error) {
+                    // Keep the selected color visible for the current page.
+                }
+                avatarPicker.querySelectorAll('[data-avatar-color]').forEach((button) => {
+                    button.setAttribute('aria-pressed', String(button === colorButton));
+                });
+            });
+            colorButton.setAttribute(
+                'aria-pressed',
+                String(colorButton.dataset.avatarColor === selectedColor)
+            );
+        });
+    });
+</script>

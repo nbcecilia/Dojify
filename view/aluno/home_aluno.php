@@ -412,7 +412,7 @@ try {
         <?php include __DIR__ . '/../includes/header.php'; ?>
     </div>
 
-    <main class="container py-4">
+    <main class="container py-4 aluno-dashboard">
         
         <?php if ($is_primeiro_acesso): ?>
             <!-- TELA DE PRIMEIRO ACESSO (CONTRATO) -->
@@ -537,10 +537,16 @@ try {
             </div>
 
         <?php else: ?>
-           <div class="mb-3">
-    <h2 class="mb-0">Painel do Aluno</h2>
-    <p class="text-muted mb-0">Bem-vindo(a), <?= htmlspecialchars($_SESSION['usuario']['nome']) ?>!</p>
-</div>
+            <header class="aluno-dashboard-welcome">
+                <div>
+                    <h2>Painel do Aluno</h2>
+                    <p>Bem-vindo(a), <?= htmlspecialchars($_SESSION['usuario']['nome']) ?>!</p>
+                </div>
+                <span class="aluno-dashboard-role">
+                    <i class="bi bi-person"></i>
+                    Aluno
+                </span>
+            </header>
 
             <?php if (!empty($mensagem_sucesso)): ?>
                 <div class="alert alert-success text-center py-2"><?= $mensagem_sucesso; ?></div>
@@ -550,9 +556,9 @@ try {
             <?php endif; ?>
 
             <!-- CARTÕES DO TOPO (Graduação, XP e Matrícula) -->
-            <div class="row g-3 justify-content-center mb-4">
-                <div class="col-md-4">
-                    <div class="card h-100 shadow-sm border p-2 text-center">
+            <div class="row g-3 justify-content-center mb-4 aluno-dashboard-kpis">
+                <div class="col-md-4 aluno-dashboard-kpi-column">
+                    <div class="card h-100 shadow-sm border p-2 text-center aluno-dashboard-kpi">
                         <h6 class="text-dark fw-bold mb-1">🥋 Graduação</h6>
                         <p class="text-dark fw-bold fs-5 mb-0"><?= htmlspecialchars($faixa_aluno) ?></p>
                         <span class="badge bg-secondary mt-1 mx-auto" style="width: fit-content;"><?= htmlspecialchars($grau_aluno) ?></span>
@@ -574,8 +580,8 @@ try {
                     </div>
                 </div>
 
-                <div class="col-md-4">
-                    <div class="card h-100 shadow-sm border p-2 text-center">
+                <div class="col-md-4 aluno-dashboard-kpi-column">
+                    <div class="card h-100 shadow-sm border p-2 text-center aluno-dashboard-kpi">
                         <h6 class="text-dark fw-bold mb-1">⭐ Nível <?= $num_nivel ?> - <?= htmlspecialchars($nome_nivel) ?></h6>
                         <p class="text-muted small mb-1"><?= $xp_atual ?> / <?= $xp_max ?> XP</p>
                         <div class="progress mx-auto" style="height: 10px; width: 85%; border-radius: 10px;">
@@ -584,8 +590,8 @@ try {
                     </div>
                 </div>
 
-                <div class="col-md-4">
-                    <div class="card h-100 shadow-sm border p-2 text-center">
+                <div class="col-md-4 aluno-dashboard-kpi-column">
+                    <div class="card h-100 shadow-sm border p-2 text-center aluno-dashboard-kpi">
                         <h6 class="text-dark fw-bold mb-1">📋 Matrícula</h6>
                         <p class="mb-0 mt-1">
                             <?php if ($status_plano === 'ATIVO'): ?>
@@ -610,7 +616,7 @@ try {
                     $maiorValorHistorico = max($maiorValorHistorico, (float)$pagamentoHistorico['valor']);
                 }
             ?>
-            <section class="card card-pagamento border-0 shadow-sm mb-4 overflow-hidden" aria-labelledby="estadoFinanceiroTitulo">
+            <section class="card card-pagamento aluno-dashboard-panel border-0 shadow-sm mb-4 overflow-hidden" aria-labelledby="estadoFinanceiroTitulo">
                 <div class="card-header bg-dark text-white border-0 px-3 py-2">
                     <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2">
                         <div>
@@ -712,35 +718,35 @@ try {
 
             <?php $modaisAgendamento = []; ?>
             <!-- CALENDÁRIO SEMANAL COMPACTO -->
-            <div class="card shadow-sm border p-3 mb-4">
-                <h5 id="agendaSemanalTitulo" class="text-uppercase fw-bold text-dark mb-1 text-center" style="font-size: 1rem;">📅 Agenda Semanal de Treinos</h5>
-                <p class="text-muted small mb-3 text-center">Escolha uma aula e confirme o agendamento no popup.</p>
+            <section class="card shadow-sm border p-3 mb-4 aluno-dashboard-panel aluno-agenda-panel" aria-labelledby="agendaSemanalTitulo">
+                <h5 id="agendaSemanalTitulo" class="aluno-dashboard-section-title">Agenda semanal de treinos</h5>
+                <p class="aluno-dashboard-section-subtitle">Escolha uma aula e confirme o agendamento no popup.</p>
                 <?php if ($idsModalidadesAluno === []): ?>
                     <div class="alert alert-warning small text-center py-2" role="alert">
                         O seu plano ainda não está vinculado a uma modalidade. Peça à academia para atualizar o cadastro para liberar as aulas.
                     </div>
                 <?php else: ?>
-                    <p class="text-muted small mb-3 text-center">
+                    <p class="text-muted small mb-3 aluno-agenda-modalidades">
                         Modalidades cadastradas:
                         <strong><?= htmlspecialchars(implode(', ', array_column($modalidadesAluno, 'modalidade_nome')), ENT_QUOTES, 'UTF-8'); ?></strong>
                     </p>
                 <?php endif; ?>
 
-                <div class="d-flex overflow-auto pb-2 mx-auto" style="gap: 10px; width: fit-content; max-width: 100%;">
+                <div class="d-flex overflow-auto pb-2 mx-auto aluno-calendar">
                     <?php foreach ($calendarioSemanal as $dia): ?>
-                        <div class="shadow-sm border border-secondary text-white rounded" style="flex: 0 0 135px; background-color: #1a1a1a;">
-                            <div class="aluno-calendar-day-header text-white fw-bold text-center p-1" style="font-size: 0.8rem; border-radius: 5px 5px 0 0;">
+                        <div class="shadow-sm border rounded aluno-calendar-day">
+                            <div class="aluno-calendar-day-header fw-bold text-center p-1">
                                 <?= $dia['nome_dia']; ?><br>
-                                <span class="fw-normal" style="font-size: 0.7rem;"><?= $dia['data_exibicao']; ?></span>
+                                <span class="fw-normal"><?= $dia['data_exibicao']; ?></span>
                             </div>
                             <div class="p-2">
                                 <?php if (empty($dia['aulas'])): ?>
                                     <p class="text-muted text-center small fst-italic my-3" style="font-size: 0.75rem;">Sem aulas</p>
                                 <?php else: ?>
                                     <?php foreach ($dia['aulas'] as $aula): ?>
-                                        <div class="bg-black p-2 rounded mb-2 border border-secondary text-center">
-                                            <span class="text-warning d-block fw-bold" style="font-size: 0.75rem;"><?= htmlspecialchars($aula['nome_turma']); ?></span>
-                                            <span class="text-white d-block mb-2" style="font-size: 0.7rem;">⏰ <?= date('H:i', strtotime($aula['hora_inicio'])); ?></span>
+                                        <div class="p-2 rounded mb-2 border text-center aluno-calendar-class">
+                                            <span class="d-block fw-bold aluno-calendar-class-name"><?= htmlspecialchars($aula['nome_turma']); ?></span>
+                                            <span class="d-block mb-2 aluno-calendar-class-time">⏰ <?= date('H:i', strtotime($aula['hora_inicio'])); ?></span>
                                             <?php
                                             $horaAulaExibicao = trim((string)($aula['hora_inicio'] ?? ''));
                                             if (preg_match('/^\d{2}:\d{2}$/', $horaAulaExibicao)) {
@@ -840,9 +846,12 @@ try {
             <?php endforeach; ?>
 
             <!-- PRÓXIMOS TREINOS AGENDADOS -->
-            <div class="card shadow-sm border p-3 mb-3">
-                <div class="d-flex justify-content-between align-items-center gap-2 mb-2">
-                    <h6 class="fw-bold text-muted text-uppercase small mb-0">📌 Os Seus Próximos Treinos Marcados</h6>
+            <section class="card shadow-sm border p-3 mb-3 aluno-dashboard-panel aluno-upcoming-panel">
+                <div class="d-flex justify-content-between align-items-center gap-2 mb-3 aluno-dashboard-section-heading">
+                    <div>
+                        <h3 class="aluno-dashboard-section-title">Próximos treinos</h3>
+                        <p class="aluno-dashboard-section-subtitle">Acompanhe as aulas que já estão agendadas.</p>
+                    </div>
                     <a href="historico_frequencia.php" class="btn btn-outline-dark btn-sm fw-bold text-nowrap">
                         📜   Visualizar Histórico de Frequência
                     </a>
@@ -883,7 +892,7 @@ try {
                         </table>
                     <?php endif; ?>
                 </div>
-            </div>
+            </section>
 
             <?= $cardPagamentoHtml; ?>
 
