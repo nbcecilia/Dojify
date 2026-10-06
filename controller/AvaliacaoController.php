@@ -1,5 +1,4 @@
 <?php
-<<<<<<< HEAD
 /**
  * Processa comentários dos alunos, previsões de graduação cadastradas pela
  * equipe e a leitura das notificações. A criação/edição da avaliação técnica
@@ -11,6 +10,7 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 require_once __DIR__ . '/../model/dao/AvaliacaoDAO.php';
+require_once __DIR__ . '/../model/dto/AvaliacaoDTO.php';
 
 class AvaliacaoController
 {
@@ -135,49 +135,38 @@ class AvaliacaoController
         header('Location: ' . $destino . '?' . $query);
         exit;
     }
-}
 
-(new AvaliacaoController())->processar();
-=======
-// controller/AvaliacaoController.php
-
-require_once __DIR__ . '/../model/dao/AvaliacaoDAO.php';
-require_once __DIR__ . '/../model/dto/AvaliacaoDTO.php';
-
-class AvaliacaoController {
-    private $avaliacaoDAO;
-
-    public function __construct() {
-        $this->avaliacaoDAO = new AvaliacaoDAO();
-    }
-
-    public function cadastrar($id_professor, $id_aluno, $data, $habilidades, $observacoes) {
-        if (empty($id_aluno) || empty($data) || empty($habilidades)) {
+    public function cadastrar($idProfessor, $idAluno, $data, $habilidades, $observacoes): array
+    {
+        if (empty($idAluno) || empty($data) || empty($habilidades)) {
             return ['status' => false, 'mensagem' => 'Por favor, preencha todos os campos obrigatórios.'];
         }
 
         $avaliacao = new AvaliacaoDTO();
-        $avaliacao->setIdUsuarioProfessor($id_professor);
-        $avaliacao->setIdUsuarioAluno($id_aluno);
+        $avaliacao->setIdUsuarioProfessor($idProfessor);
+        $avaliacao->setIdUsuarioAluno($idAluno);
         $avaliacao->setDataAvaliacao($data);
         $avaliacao->setHabilidadesMelhorar(trim($habilidades));
         $avaliacao->setObservacoes(trim($observacoes));
 
-        $resultado = $this->avaliacaoDAO->cadastrar($avaliacao);
-
-        if ($resultado) {
-            return ['status' => true, 'mensagem' => 'Avaliação registada com sucesso!'];
-        } else {
-            return ['status' => false, 'mensagem' => 'Erro ao registar a avaliação no banco de dados.'];
-        }
+        $this->dao->cadastrar($avaliacao);
+        return ['status' => true, 'mensagem' => 'Avaliação registada com sucesso!'];
     }
 
-    public function listarPorAcademia($id_academia) {
-        return $this->avaliacaoDAO->listarPorAcademia($id_academia);
+    public function listarPorAcademia(int $idAcademia): array
+    {
+        return $this->dao->listarPorAcademia($idAcademia);
     }
 
-    public function listarAlunosPorAcademia($id_academia) {
-        return $this->avaliacaoDAO->listarAlunosPorAcademia($id_academia);
+    public function listarAlunosPorAcademia(int $idAcademia): array
+    {
+        return $this->dao->listarAlunosPorAcademia($idAcademia);
     }
 }
->>>>>>> d02eb76914f0c532e28f1b30bc91c65006bf1ac4
+
+if (
+    isset($_SERVER['SCRIPT_FILENAME']) &&
+    realpath($_SERVER['SCRIPT_FILENAME']) === __FILE__
+) {
+    (new AvaliacaoController())->processar();
+}
