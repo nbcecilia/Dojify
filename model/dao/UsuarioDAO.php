@@ -1,11 +1,16 @@
 <?php
 // model/dao/UsuarioDAO.php
-
 require_once __DIR__ . '/Conexao.php';
 require_once __DIR__ . '/../dto/UsuarioDTO.php';
 
 class UsuarioDAO {
     private PDO $conexao;
+
+    // Constantes de perfil:
+    public const PERFIL_SUPORTE = 1;
+    public const PERFIL_GERENTE = 2;
+    public const PERFIL_PROFESSOR = 3;
+    public const PERFIL_ALUNO = 4;
 
     public function __construct() {
         $this->conexao = Conexao::getConexao();
@@ -15,6 +20,7 @@ class UsuarioDAO {
     public function cadastrar(UsuarioDTO $u, string $senha): bool {
         try {
             $this->conexao->beginTransaction();
+
 
             $sql = "INSERT INTO usuario (
                         id_academia, perfil_id, nome, cpf, data_nascimento, telefone, email, 
@@ -59,7 +65,7 @@ class UsuarioDAO {
         }
     }
 
-    /* Lista todos os usuários (Visão Admin) */
+    /* Lista todos os usuários (Visão Suporte) */
     public function listarTodos(): array {
         $sql = "SELECT u.*, p.nome AS perfil_nome 
                 FROM usuario u 

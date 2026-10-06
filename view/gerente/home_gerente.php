@@ -110,7 +110,7 @@ $kpis = $usuarioDAO->buscarIndicadoresGerente($idAcademia);
 
 
         <!-- FUNÇÕES QUE O GERENTE HERDA DO PROFESSOR -->
-        <section class="gerente-section">
+        <section href="../professor/listar_frequencia.php" class="gerente-section">
 
             <div class="gerente-section-header">
                 <div>
@@ -136,10 +136,7 @@ $kpis = $usuarioDAO->buscarIndicadoresGerente($idAcademia);
                     </p>
 
                     <div class="gerente-card-action">
-                        <a href="listar_frequencia.php"
-                           class="btn gerente-btn">
-                            Acessar frequência
-                        </a>
+                        <a href="../professor/listar_frequencia.php" class="btn gerente-btn"> Acessar frequência </a>
                     </div>
                 </article>
 
@@ -157,10 +154,7 @@ $kpis = $usuarioDAO->buscarIndicadoresGerente($idAcademia);
                     </p>
 
                     <div class="gerente-card-action">
-                        <a href="listar_avaliacao.php"
-                           class="btn gerente-btn">
-                            Acessar avaliações
-                        </a>
+                        <a href="../professor/listar_avaliacao.php" class="btn gerente-btn">Acessar avaliações</a>
                     </div>
                 </article>
 
@@ -348,7 +342,7 @@ $kpis = $usuarioDAO->buscarIndicadoresGerente($idAcademia);
                     </div>
                 </a>
 
-                <a href="listar_frequencia.php" class="gerente-quick-action">
+                <a href="../professor/registrar_frequencia.php" class="gerente-quick-action">
                     <i class="bi bi-check2-square"></i>
                     <div>
                         <strong>Registrar frequência</strong>

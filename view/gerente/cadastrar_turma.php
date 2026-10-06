@@ -123,7 +123,7 @@ $modalidades = $dao->listarModalidadesPorAcademia($idAcademia);
                 <select
                     id="nivel"
                     name="nivel"
-                    required
+        
                 >
                     <option value="">
                         Selecione o nível
@@ -148,7 +148,7 @@ $modalidades = $dao->listarModalidadesPorAcademia($idAcademia);
                 </select>
             </div>
 
-            <button type="submit">
+            <button type="submit"  href="listar_turma.php">
                 Cadastrar
             </button>
 
