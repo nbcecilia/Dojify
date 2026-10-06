@@ -69,7 +69,7 @@ class LoginController {
                     header('Location: ../view/gerente/home_gerente.php');
                     break;
                 case 3: // Professor
-                    header('Location: ../view/professor/avaliacoes.php');
+                    header('Location: ../view/professor/home_professor.php');
                     break;
                 case 4: // Aluno
                     header('Location: ../view/aluno/home_aluno.php');

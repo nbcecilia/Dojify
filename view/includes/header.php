@@ -13,7 +13,7 @@ $notifications = [
 $perfilUsuario = (int)($_SESSION['usuario']['perfil_id'] ?? 0);
 $homeUrl = isset($_SESSION['usuario']) && (int) ($_SESSION['usuario']['perfil_id'] ?? 0) === 4
     ? '../aluno/home_aluno.php'
-    : ($perfilUsuario === 3 ? '../professor/avaliacoes.php' : '../gerente/home_gerente.php');
+    : ($perfilUsuario === 3 ? '../professor/home_professor.php' : '../gerente/home_gerente.php');
 
 // Se for um Gerente logado, busca as notificações financeiras
 if (isset($_SESSION['usuario']) && $perfilUsuario === 2 && isset($_SESSION['id_academia'])) {
