@@ -112,7 +112,8 @@ $pagamentos = $dao->listarPagamentosDaAcademia($idAcademia);
                                         
                                         <select name="forma_pagamento" style="padding: 4px; width: 110px; font-size: 0.8rem; margin: 0;" required>
                                             <option value="PIX">PIX</option>
-                                            <option value="CARTAO">Cartão</option>
+                                            <option value="CARTAO_DEBITO">Cartão débito</option>
+                                            <option value="CARTAO_CREDITO">Cartão crédito</option>
                                             <option value="DINHEIRO">Dinheiro</option>
                                         </select>
                                         

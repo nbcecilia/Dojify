@@ -108,17 +108,25 @@ $modalidadeDAO = new ModalidadeDAO();$modalidades = $modalidadeDAO->listarPorAca
                     <textarea id="observacao" name="observacao" placeholder="Ex: Alérgico a dipirona, lesão antiga no joelho..."></textarea>
                 </div> 
 
-                <div>
-                    <label for="id_modalidade">Modalidade:</label>
-                    <select id="id_modalidade" name="id_modalidade">
-                        <option value="">Selecione a modalidade...</option>
-                        <?php foreach ($modalidades as$modalidade): ?>
-                            <option value="<?= (int)$modalidade['id_modalidade']; ?>">
-                                <?= htmlspecialchars($modalidade['nome'], ENT_QUOTES, 'UTF-8'); ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
+                <?php for ($numeroModalidade = 1; $numeroModalidade <= 3; $numeroModalidade++): ?>
+                    <div>
+                        <label for="id_modalidade_<?= $numeroModalidade; ?>">
+                            Modalidade <?= $numeroModalidade; ?><?= $numeroModalidade === 1 ? ' (obrigatória)' : ' (opcional)'; ?>:
+                        </label>
+                        <select
+                            id="id_modalidade_<?= $numeroModalidade; ?>"
+                            name="id_modalidades[]"
+                            <?= $numeroModalidade === 1 ? 'required' : ''; ?>
+                        >
+                            <option value="">Selecione a modalidade...</option>
+                            <?php foreach ($modalidades as $modalidade): ?>
+                                <option value="<?= (int)$modalidade['id_modalidade']; ?>">
+                                    <?= htmlspecialchars($modalidade['nome'], ENT_QUOTES, 'UTF-8'); ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                <?php endfor; ?>
 
                 <div>
                     <label for="nome_plano">Plano Contratado:</label>
@@ -196,7 +204,7 @@ $modalidadeDAO = new ModalidadeDAO();$modalidades = $modalidadeDAO->listarPorAca
             const btnSubmit = document.getElementById('btn-submit');
 
             const camposAluno = [
-                document.getElementById('id_modalidade'),
+                ...document.querySelectorAll('[name="id_modalidades[]"]'),
                 document.getElementById('nome_plano'),
                 document.getElementById('valor_plano')
             ];
@@ -214,7 +222,10 @@ $modalidadeDAO = new ModalidadeDAO();$modalidades = $modalidadeDAO->listarPorAca
                     form.action = '../../controller/UsuarioController.php?acao=cadastrar_aluno';
                     btnSubmit.textContent = 'Concluir Matrícula';
 
-                    camposAluno.forEach(campo => campo.setAttribute('required', 'required'));
+                    camposAluno.forEach(campo => campo.removeAttribute('required'));
+                    document.getElementById('id_modalidade_1').setAttribute('required', 'required');
+                    document.getElementById('nome_plano').setAttribute('required', 'required');
+                    document.getElementById('valor_plano').setAttribute('required', 'required');
                     camposProfessor.forEach(campo => campo.removeAttribute('required'));
 
                 } else if (tipo === 'professor') {
@@ -240,6 +251,8 @@ $modalidadeDAO = new ModalidadeDAO();$modalidades = $modalidadeDAO->listarPorAca
                 let mensagem = "Ocorreu um erro ao processar o cadastro.";
                 if (erro === 'cpf_duplicado') {
                     mensagem = "⚠️ Atenção: Este CPF já se encontra registado no sistema para outro utilizador!";
+                } else if (erro === 'modalidade_invalida') {
+                    mensagem = "⚠️ Selecione até três modalidades diferentes e escolha ao menos uma.";
                 } else if (erro === 'falha_cadastro') {
                     mensagem = "❌ Erro: Falha técnica ao salvar os dados na base de dados. Tente novamente.";
                 }

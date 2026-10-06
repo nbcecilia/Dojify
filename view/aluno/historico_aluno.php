@@ -43,6 +43,7 @@ try {
     <title>Histórico de Presenças - Dojify</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../../assets/css/estilo.css">
+    <link rel="stylesheet" href="../../assets/css/aluno.css?v=<?= filemtime(__DIR__ . '/../../assets/css/aluno.css'); ?>">
 </head>
 
 <body class="aluno-theme">

@@ -39,7 +39,7 @@ class FinanceiroController {
 
         $idPagamento = filter_input(INPUT_POST, 'id_pagamento', FILTER_VALIDATE_INT);
         $formaPagamento = trim($_POST['forma_pagamento'] ?? 'DINHEIRO');
-        $formasPermitidas = ['PIX', 'CARTAO', 'DINHEIRO'];
+        $formasPermitidas = ['PIX', 'CARTAO', 'CARTAO_DEBITO', 'CARTAO_CREDITO', 'DINHEIRO'];
 
         if (
             $idPagamento &&

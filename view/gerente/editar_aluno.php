@@ -31,6 +31,18 @@ $stmt->execute([
 ]);
 $aluno = $stmt->fetch(PDO::FETCH_ASSOC);
 $modalidades = (new ModalidadeDAO())->listarPorAcademia((int)$_SESSION['usuario']['id_academia']);
+$stmtModalidadesAluno = $pdo->prepare("
+    SELECT id_modalidade
+    FROM aluno_modalidade
+    WHERE id_usuario_aluno = :id_usuario_aluno
+");
+$stmtModalidadesAluno->execute([':id_usuario_aluno' => $idUsuario]);
+$idsModalidadesAluno = array_map('intval', $stmtModalidadesAluno->fetchAll(PDO::FETCH_COLUMN));
+$idModalidadePlano = (int)($aluno['id_modalidade'] ?? 0);
+$idsModalidadesAluno = array_values(array_unique(array_merge(
+    $idModalidadePlano > 0 ? [$idModalidadePlano] : [],
+    $idsModalidadesAluno
+)));
 
 if (!$aluno) {
     header('Location: listar_usuarios.php?erro=nao_encontrado');
@@ -97,16 +109,26 @@ if (!$aluno) {
             <hr style="margin: 24px 0; border: none; border-top: 1px solid var(--border-color);">
             <h3 style="font-size: 1rem; margin-bottom: 4px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em;">Informações do Plano</h3>
 
-            <label for="id_modalidade">Modalidade do Plano:</label>
-            <select id="id_modalidade" name="id_modalidade" required>
-                <option value="">Selecione a modalidade...</option>
-                <?php foreach ($modalidades as $modalidade): ?>
-                    <option value="<?= (int)$modalidade['id_modalidade']; ?>"
-                        <?= (int)($aluno['id_modalidade'] ?? 0) === (int)$modalidade['id_modalidade'] ? 'selected' : ''; ?>>
-                        <?= htmlspecialchars($modalidade['nome'], ENT_QUOTES, 'UTF-8'); ?>
-                    </option>
-                <?php endforeach; ?>
-            </select>
+            <?php for ($numeroModalidade = 1; $numeroModalidade <= 3; $numeroModalidade++): ?>
+                <label for="id_modalidade_<?= $numeroModalidade; ?>">
+                    Modalidade <?= $numeroModalidade; ?><?= $numeroModalidade === 1 ? ' (obrigatória)' : ' (opcional)'; ?>:
+                </label>
+                <select
+                    id="id_modalidade_<?= $numeroModalidade; ?>"
+                    name="id_modalidades[]"
+                    <?= $numeroModalidade === 1 ? 'required' : ''; ?>
+                >
+                    <option value="">Selecione a modalidade...</option>
+                    <?php foreach ($modalidades as $modalidade): ?>
+                        <option
+                            value="<?= (int)$modalidade['id_modalidade']; ?>"
+                            <?= (int)$modalidade['id_modalidade'] === ($idsModalidadesAluno[$numeroModalidade - 1] ?? 0) ? 'selected' : ''; ?>
+                        >
+                            <?= htmlspecialchars($modalidade['nome'], ENT_QUOTES, 'UTF-8'); ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            <?php endfor; ?>
 
             <label for="nome_plano">Plano Contratado:</label>
             <select id="nome_plano" name="nome_plano" required>

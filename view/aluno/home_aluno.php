@@ -20,11 +20,14 @@ if (file_exists($arquivoConexao) && !class_exists('Conexao', false)) {
     require_once $arquivoConexao;
 }
 require_once dirname(__DIR__, 2) . '/model/dao/AgendamentoDAO.php';
+require_once dirname(__DIR__, 2) . '/model/dao/AvaliacaoDAO.php';
 
 $calendarioSemanal = [];
 $meus_agendamentos = [];
+$graduacoesPrevistasPainel = [];
 $planoAtivoAgenda = null;
-$idModalidadePlano = 0;
+$modalidadesAluno = [];
+$idsModalidadesAluno = [];
 $limiteSemanalPlano = 0;
 $turmas_brutas = [];
 $agendamentosPorSemana = [];
@@ -42,6 +45,7 @@ $id_aluno = $_SESSION['usuario']['id_usuario'];
 $c_nome = $c_cpf = $c_data_nasc = $c_sexo = $c_responsavel = $c_cpf_resp = $c_email = $c_tel = $c_endereco = $c_cidade = $c_estado = "---";
 $c_luta = "Artes Marciais / Ver agenda"; 
 $c_plano = "Não especificado";
+$c_academia_nome = "A TOKKA - Escola de Lutas";
 $c_infoMedica = $c_especial = $c_obs = "---";
 $status_pagamento = 'PENDENTE';
 $data_vencimento = '---';
@@ -123,12 +127,22 @@ try {
             $is_primeiro_acesso = true;
             
             $stmt_aluno = $pdo_agenda->prepare("
-                SELECT u.nome, u.email, u.cpf, u.data_nascimento, u.telefone, 
-                       u.responsavel, u.observacao, p.nome_plano
+                SELECT u.nome, u.email, u.cpf, u.data_nascimento, u.telefone,
+                       u.responsavel, u.observacao, a.nome AS academia_nome,
+                       p.nome_plano, p.valor AS valor_plano,
+                       mp.nome AS modalidade_plano
                 FROM usuario u
-                LEFT JOIN plano p ON u.id_usuario = p.id_usuario_aluno AND p.status = 'ATIVO'
+                LEFT JOIN academia a ON a.id_academia = u.id_academia
+                LEFT JOIN plano p ON p.id_plano = (
+                    SELECT p2.id_plano
+                    FROM plano p2
+                    WHERE p2.id_usuario_aluno = u.id_usuario
+                      AND p2.status = 'ATIVO'
+                    ORDER BY p2.data_inicio DESC, p2.id_plano DESC
+                    LIMIT 1
+                )
+                LEFT JOIN modalidade mp ON mp.id_modalidade = p.id_modalidade
                 WHERE u.id_usuario = ?
-                LIMIT 1
             ");
             $stmt_aluno->execute([$id_aluno]);
             $dados_contrato = $stmt_aluno->fetch(PDO::FETCH_ASSOC);
@@ -142,7 +156,28 @@ try {
                 $c_tel = !empty($dados_contrato['telefone']) ? $dados_contrato['telefone'] : "Não informado";
                 $c_responsavel = $dados_contrato['responsavel'] ?: "O próprio";
                 $c_obs = $dados_contrato['observacao'] ?: "Nenhuma observação registrada";
+                $c_academia_nome = $dados_contrato['academia_nome'] ?: $c_academia_nome;
                 $c_plano = $dados_contrato['nome_plano'] ?: "Plano Base";
+                if ($dados_contrato['valor_plano'] !== null) {
+                    $c_plano .= ' - R$ ' . number_format((float)$dados_contrato['valor_plano'], 2, ',', '.');
+                }
+
+                $stmt_modalidades_contrato = $pdo_agenda->prepare("
+                    SELECT m.nome
+                    FROM aluno_modalidade am
+                    INNER JOIN modalidade m ON m.id_modalidade = am.id_modalidade
+                    WHERE am.id_usuario_aluno = ?
+                    ORDER BY am.id_modalidade
+                ");
+                $stmt_modalidades_contrato->execute([$id_aluno]);
+                $nomesModalidadesContrato = $stmt_modalidades_contrato->fetchAll(PDO::FETCH_COLUMN);
+                if ($nomesModalidadesContrato === [] && !empty($dados_contrato['modalidade_plano'])) {
+                    $nomesModalidadesContrato[] = $dados_contrato['modalidade_plano'];
+                }
+                if ($nomesModalidadesContrato !== []) {
+                    $c_luta = implode(', ', array_unique($nomesModalidadesContrato));
+                }
+
                 $c_infoMedica = "Vide observações gerais: " . $c_obs;
                 $c_especial = "Não";
             }
@@ -193,6 +228,7 @@ try {
         $dados_grad = $stmt_grad->fetch(PDO::FETCH_ASSOC);
         $faixa_aluno = $dados_grad ? $dados_grad['faixa'] : 'Sem Faixa';
         $grau_aluno = $dados_grad && !empty($dados_grad['grau']) ? $dados_grad['grau'] : 'Iniciante';
+        $graduacoesPrevistasPainel = (new AvaliacaoDAO())->listarGraduacoesPrevistasAluno((int)$id_aluno);
 
         // Gamificação (XP baseado em presenças)
         $stmt_xp = $pdo_agenda->prepare("
@@ -280,7 +316,7 @@ try {
                 'tipo' => 'warning',
                 'icone' => '⚠️',
                 'titulo' => $pagamentoAtrasado ? 'Mensalidade em Atraso' : 'Mensalidade Pendente',
-                'mensagem' => 'A sua mensalidade de ' . $valor_pagamento . ' ' . $mensagemStatusPagamento . $data_vencimento . '. Efetue o pagamento e envie o comprovante.'
+                'mensagem' => 'A sua mensalidade de ' . $valor_pagamento . ' ' . $mensagemStatusPagamento . $data_vencimento . '. Consulte a academia para realizar o pagamento.'
             ];
         }
 
@@ -298,15 +334,31 @@ try {
         $total_notificacoes = count($notificacoes);
 
         $planoAtivoAgenda = $agendamentoDAO->obterDadosPlanoAtivo((int)$id_aluno);
-        $idModalidadePlano = (int)($planoAtivoAgenda['id_modalidade'] ?? 0);
+        $modalidadesAluno = $agendamentoDAO->obterModalidadesAluno((int)$id_aluno);
+        $idsModalidadesAluno = array_map(
+            static fn (array $modalidade): int => (int)$modalidade['id_modalidade'],
+            $modalidadesAluno
+        );
         $turmas_brutas = $agendamentoDAO->listarTurmasAtivasComHorario(
-            $idModalidadePlano > 0 ? $idModalidadePlano : null
+            $idsModalidadesAluno
         );
         $limiteSemanalPlano = $agendamentoDAO->obterLimiteSemanalPlano((int)$id_aluno);
         $agendamentosPorSemana = [];
 
         $hoje = new DateTime();
-        for ($i = 1; $i <= 14; $i++) {
+        $fimCalendario = (clone $hoje)->modify('monday this week')->modify('+6 days')->setTime(23, 59, 59);
+        $reservasConfirmadas = $agendamentoDAO->listarReservasConfirmadasNoPeriodo(
+            (int)$id_aluno,
+            $hoje->format('Y-m-d 00:00:00'),
+            $fimCalendario->format('Y-m-d H:i:s')
+        );
+        $reservasPorAula = [];
+        foreach ($reservasConfirmadas as $reservaConfirmada) {
+            $chaveReserva = (int)$reservaConfirmada['id_turma'] . '|' . $reservaConfirmada['data_agendamento'];
+            $reservasPorAula[$chaveReserva] = true;
+        }
+
+        for ($i = 1; $i <= 7; $i++) {
             $diaLoop = clone $hoje; $diaLoop->modify('monday this week')->modify('+' . ($i - 1) . ' days');
             $inicioSemana = (clone $diaLoop)->modify('monday this week')->setTime(0, 0, 0);
             $fimSemana = (clone $inicioSemana)->modify('sunday this week')->setTime(23, 59, 59);
@@ -351,9 +403,10 @@ try {
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../../assets/css/estilo.css?v=<?= filemtime(__DIR__ . '/../../assets/css/estilo.css'); ?>">
+    <link rel="stylesheet" href="../../assets/css/aluno.css?v=<?= filemtime(__DIR__ . '/../../assets/css/aluno.css'); ?>">
 </head>
 
-<body class="aluno-theme">
+<body class="aluno-theme<?= $is_primeiro_acesso ? ' aluno-contract-page' : ''; ?>">
 
     <div class="d-print-none">
         <?php include __DIR__ . '/../includes/header.php'; ?>
@@ -377,6 +430,19 @@ try {
 
                             <div id="area-impressao" class="p-4 mb-4" style="border: 1px solid #dee2e6; border-radius: 0.375rem; background-color: #ffffff; max-height: 450px; overflow-y: auto; color: #333; font-size: 0.9rem; line-height: 1.6;">
                                 <div class="text-center mb-4">
+                                    <div class="d-flex flex-column flex-sm-row align-items-center justify-content-center gap-3 mb-3">
+                                        <div class="p-2 rounded bg-white border">
+                                            <img
+                                                src="../../assets/img/logo_tokka.png"
+                                                alt="Logo da academia"
+                                                style="width: 96px; height: 96px; object-fit: contain;"
+                                            >
+                                        </div>
+                                        <div>
+                                            <p class="fw-bold text-uppercase mb-1"><?= htmlspecialchars($c_academia_nome, ENT_QUOTES, 'UTF-8'); ?></p>
+                                            <p class="small text-muted mb-0">Contrato de prestação de serviços</p>
+                                        </div>
+                                    </div>
                                     <h2 class="fw-bold" style="color: #212529; font-size: 1.5rem; border-bottom: 2px solid #eee; padding-bottom: 10px;">Contrato de Prestação de Serviços de Aulas de Artes Marciais</h2>
                                 </div>
                                 <h3 class="fw-bold mt-4 mb-2" style="color: #212529; font-size: 1.1rem; border-bottom: 1px solid #eee;">Dados Aluno / Contratante</h3>
@@ -408,7 +474,7 @@ try {
                                 <p class="mb-1"><strong>O aluno necessita de alguma adaptação especial?</strong> <?= htmlspecialchars($c_especial) ?></p>
                                 <p><strong>Observações gerais:</strong> <?= htmlspecialchars($c_obs) ?></p>
                                 <h3 class="fw-bold mt-4 mb-2" style="color: #212529; font-size: 1.1rem; border-bottom: 1px solid #eee;">Dados do Contratado</h3>
-                                <p class="mb-1"><strong>Contratado:</strong> A TOKKA – Escola de Lutas</p>
+                                <p class="mb-1"><strong>Contratado:</strong> <?= htmlspecialchars($c_academia_nome, ENT_QUOTES, 'UTF-8'); ?></p>
                                 <p class="mb-1"><strong>CNPJ:</strong> 66.790.246/0001-12</p>
                                 <p class="mb-1"><strong>Endereço:</strong> QNM 08 Conjunto B Lote 34</p>
                                 <p class="mb-1"><strong>Telefone:</strong> (61) 99869-3504</p>
@@ -431,7 +497,13 @@ try {
                                     <div style="width: 45%;"><hr style="border: 1px solid #000;">ASSINATURA CONTRATADO</div>
                                 </div>
                             </div>
-                            <form method="POST" action="" class="d-print-none" onsubmit="document.getElementById('area-impressao').style.maxHeight='none'; document.getElementById('area-impressao').style.overflow='visible'; window.print(); return true;">
+                            <div class="d-flex flex-column flex-sm-row justify-content-between gap-2 mb-3 d-print-none">
+                                <button type="button" class="btn btn-outline-dark fw-bold" onclick="window.print()">
+                                    Imprimir contrato
+                                </button>
+                                <span class="small text-muted align-self-sm-center">A impressão é opcional. Para continuar, aceite o contrato e defina sua senha.</span>
+                            </div>
+                            <form method="POST" action="" class="d-print-none">
                                 <input type="hidden" name="acao_aceite_contrato" value="1">
                                 <div class="bg-light p-3 border rounded mb-4">
                                     <div class="form-check mb-3">
@@ -457,7 +529,7 @@ try {
                                         <input type="password" name="senha_confirma" class="form-control border-secondary" required placeholder="Repita a senha">
                                     </div>
                                 </div>
-                                <button type="submit" class="btn btn-danger w-100 fw-bold py-3 fs-5 shadow-sm">Assinar Contrato e Entrar no Painel</button>
+                                <button type="submit" class="btn btn-success w-100 fw-bold py-3 fs-5 shadow-sm">Avançar para o painel</button>
                             </form>
                         </div>
                     </div>
@@ -484,8 +556,20 @@ try {
                         <h6 class="text-dark fw-bold mb-1">🥋 Graduação</h6>
                         <p class="text-dark fw-bold fs-5 mb-0"><?= htmlspecialchars($faixa_aluno) ?></p>
                         <span class="badge bg-secondary mt-1 mx-auto" style="width: fit-content;"><?= htmlspecialchars($grau_aluno) ?></span>
+                        <?php if (!empty($graduacoesPrevistasPainel)): ?>
+                            <div class="small text-muted mt-2">
+                                <?php foreach ($graduacoesPrevistasPainel as $prevista): ?>
+                                    <div>
+                                        <?= htmlspecialchars((string)$prevista['nome_modalidade'], ENT_QUOTES, 'UTF-8') ?>:
+                                        <?= date('d/m/Y', strtotime((string)$prevista['data_prevista'])) ?>
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
+                        <?php else: ?>
+                            <p class="small text-muted mt-2 mb-0">Sem previsão de próxima graduação.</p>
+                        <?php endif; ?>
                         <a href="historico_graduacao.php" class="btn btn-outline-dark btn-sm fw-bold mt-2">
-                            Ver histórico
+                            Ver graduação e avaliação
                         </a>
                     </div>
                 </div>
@@ -561,7 +645,7 @@ try {
                                 </div>
                                 <?php if ($statusPagamentoUpper !== 'PAGO' && $statusPagamentoUpper !== 'EM_ANALISE' && $id_pagamento_atual !== null && !$comprovante_pagamento_enviado): ?>
                                     <button type="button" class="btn btn-danger btn-sm fw-bold px-3" data-bs-toggle="modal" data-bs-target="#modalPagamento">
-                                        Pagar com PIX
+                                        Escolher forma de pagamento
                                     </button>
                                 <?php elseif ($statusPagamentoUpper === 'EM_ANALISE' || $comprovante_pagamento_enviado): ?>
                                     <p class="small text-info-emphasis mb-0">
@@ -626,17 +710,19 @@ try {
             </section>
             <?php $cardPagamentoHtml = ob_get_clean(); ?>
 
+            <?php $modaisAgendamento = []; ?>
             <!-- CALENDÁRIO SEMANAL COMPACTO -->
             <div class="card shadow-sm border p-3 mb-4">
                 <h5 id="agendaSemanalTitulo" class="text-uppercase fw-bold text-dark mb-1 text-center" style="font-size: 1rem;">📅 Agenda Semanal de Treinos</h5>
-                <p class="text-muted small mb-3 text-center">Escolha a sua turma e clique em agendar no dia respetivo.</p>
-                <?php if ($idModalidadePlano <= 0): ?>
+                <p class="text-muted small mb-3 text-center">Escolha uma aula e confirme o agendamento no popup.</p>
+                <?php if ($idsModalidadesAluno === []): ?>
                     <div class="alert alert-warning small text-center py-2" role="alert">
                         O seu plano ainda não está vinculado a uma modalidade. Peça à academia para atualizar o cadastro para liberar as aulas.
                     </div>
                 <?php else: ?>
                     <p class="text-muted small mb-3 text-center">
-                        Modalidade do seu plano: <strong><?= htmlspecialchars((string)$planoAtivoAgenda['modalidade_nome'], ENT_QUOTES, 'UTF-8'); ?></strong>
+                        Modalidades cadastradas:
+                        <strong><?= htmlspecialchars(implode(', ', array_column($modalidadesAluno, 'modalidade_nome')), ENT_QUOTES, 'UTF-8'); ?></strong>
                     </p>
                 <?php endif; ?>
 
@@ -673,19 +759,34 @@ try {
                                                 <span class="badge bg-secondary w-100">Horário indisponível</span>
                                             <?php elseif ($dataHoraAula <= new DateTime()): ?>
                                                 <span class="badge bg-secondary w-100">Horário encerrado</span>
+                                            <?php elseif (isset($reservasPorAula[(int)$aula['id_turma'] . '|' . $dia['data_iso']])): ?>
+                                                <button type="button" class="btn btn-success btn-sm w-100 fw-bold border-0" style="font-size: 0.75rem; padding: 4px 0;" disabled aria-pressed="true">
+                                                    Agendado
+                                                </button>
                                             <?php elseif ($dia['limite_atingido']): ?>
                                                 <span class="badge bg-secondary w-100" title="O limite semanal do seu plano foi atingido.">
                                                     Limite semanal atingido
                                                 </span>
                                             <?php else: ?>
-                                                <form method="POST" action="../../controller/AgendamentoController.php?acao=agendar_semana" class="d-block m-0 p-0 bg-transparent border-0 shadow-none">
-                                                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'], ENT_QUOTES, 'UTF-8'); ?>">
-                                                    <input type="hidden" name="id_turma" value="<?= (int)$aula['id_turma']; ?>">
-                                                    <input type="hidden" name="data_escolhida" value="<?= htmlspecialchars($dia['data_iso'], ENT_QUOTES, 'UTF-8'); ?>">
-                                                    <input type="hidden" name="hora_aula" value="<?= htmlspecialchars($aula['hora_inicio'], ENT_QUOTES, 'UTF-8'); ?>">
-
-                                                    <button type="submit" class="btn btn-danger btn-sm w-100 fw-bold border-0" style="font-size: 0.75rem; padding: 4px 0;">Agendar</button>
-                                                </form>
+                                                <?php
+                                                    $modalAgendamentoId = 'modalAgendar-' . $dia['data_iso'] . '-' . (int)$aula['id_turma'];
+                                                    $modaisAgendamento[] = [
+                                                        'id' => $modalAgendamentoId,
+                                                        'id_turma' => (int)$aula['id_turma'],
+                                                        'data_iso' => $dia['data_iso'],
+                                                        'hora' => $horaAulaExibicao,
+                                                        'turma' => (string)$aula['nome_turma']
+                                                    ];
+                                                ?>
+                                                <button
+                                                    type="button"
+                                                    class="btn btn-success btn-sm w-100 fw-bold border-0"
+                                                    style="font-size: 0.75rem; padding: 4px 0;"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#<?= htmlspecialchars($modalAgendamentoId, ENT_QUOTES, 'UTF-8'); ?>"
+                                                >
+                                                    Agendar
+                                                </button>
                                             <?php endif; ?>
                                         </div>
                                     <?php endforeach; ?>
@@ -696,9 +797,56 @@ try {
                 </div>
             </div>
 
+            <?php foreach ($modaisAgendamento as $modalAgendamento): ?>
+                <div
+                    class="modal fade"
+                    id="<?= htmlspecialchars($modalAgendamento['id'], ENT_QUOTES, 'UTF-8'); ?>"
+                    tabindex="-1"
+                    aria-labelledby="<?= htmlspecialchars($modalAgendamento['id'], ENT_QUOTES, 'UTF-8'); ?>Label"
+                    aria-hidden="true"
+                >
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content shadow border-0">
+                            <div class="modal-header bg-dark text-white">
+                                <h5 class="modal-title fw-bold" id="<?= htmlspecialchars($modalAgendamento['id'], ENT_QUOTES, 'UTF-8'); ?>Label">
+                                    Confirmar agendamento
+                                </h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                            </div>
+                            <div class="modal-body">
+                                <p class="mb-2">Deseja agendar esta aula?</p>
+                                <dl class="row mb-0">
+                                    <dt class="col-4">Turma</dt>
+                                    <dd class="col-8"><?= htmlspecialchars($modalAgendamento['turma'], ENT_QUOTES, 'UTF-8'); ?></dd>
+                                    <dt class="col-4">Data</dt>
+                                    <dd class="col-8"><?= date('d/m/Y', strtotime($modalAgendamento['data_iso'])); ?></dd>
+                                    <dt class="col-4">Horário</dt>
+                                    <dd class="col-8"><?= date('H:i', strtotime($modalAgendamento['hora'])); ?></dd>
+                                </dl>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Voltar</button>
+                                <form method="POST" action="../../controller/AgendamentoController.php?acao=agendar_semana" class="m-0 p-0 bg-transparent border-0 shadow-none">
+                                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'], ENT_QUOTES, 'UTF-8'); ?>">
+                                    <input type="hidden" name="id_turma" value="<?= $modalAgendamento['id_turma']; ?>">
+                                    <input type="hidden" name="data_escolhida" value="<?= htmlspecialchars($modalAgendamento['data_iso'], ENT_QUOTES, 'UTF-8'); ?>">
+                                    <input type="hidden" name="hora_aula" value="<?= htmlspecialchars($modalAgendamento['hora'], ENT_QUOTES, 'UTF-8'); ?>">
+                                    <button type="submit" class="btn btn-success fw-bold">Confirmar agendamento</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+
             <!-- PRÓXIMOS TREINOS AGENDADOS -->
             <div class="card shadow-sm border p-3 mb-3">
-                <h6 class="fw-bold text-muted text-uppercase small mb-2">📌 Os Seus Próximos Treinos Marcados</h6>
+                <div class="d-flex justify-content-between align-items-center gap-2 mb-2">
+                    <h6 class="fw-bold text-muted text-uppercase small mb-0">📌 Os Seus Próximos Treinos Marcados</h6>
+                    <a href="historico_frequencia.php" class="btn btn-outline-dark btn-sm fw-bold text-nowrap">
+                        📜   Visualizar Histórico de Frequência
+                    </a>
+                </div>
                 <div class="table-responsive">
                     <?php if (empty($meus_agendamentos)): ?>
                         <p class="text-muted small fst-italic mb-0">Ainda não tem nenhum treino agendado para os próximos dias.</p>
@@ -739,13 +887,6 @@ try {
 
             <?= $cardPagamentoHtml; ?>
 
-            <!-- Acesso aos históricos do aluno -->
-            <div class="d-flex flex-wrap justify-content-center gap-2 mb-4">
-                <a href="historico_frequencia.php" class="btn btn-outline-dark btn-sm fw-bold px-4 py-2">
-                    📜 Ver Histórico Completo de Frequência
-                </a>
-            </div>
-
         <?php endif; ?>
 
     </main>
@@ -771,7 +912,7 @@ try {
     </div>
     <?php endif; ?>
 
-    <!-- MODAL DE DEMONSTRAÇÃO DO PIX E ENVIO DO COMPROVANTE -->
+    <!-- MODAL DE OPÇÕES DE PAGAMENTO -->
     <?php if ($id_pagamento_atual !== null && strtoupper((string)$status_pagamento) !== 'PAGO' && !$comprovante_pagamento_enviado): ?>
     <div class="modal fade" id="modalPagamento" tabindex="-1" aria-labelledby="modalPagamentoLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
@@ -781,12 +922,15 @@ try {
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body p-4">
-                    <ul class="nav nav-tabs nav-fill mb-4" id="pagamento-tab" role="tablist">
+                    <ul class="nav nav-tabs nav-fill mb-4 flex-wrap" id="pagamento-tab" role="tablist">
                         <li class="nav-item" role="presentation">
                             <button class="nav-link active fw-bold" id="pagamento-pix-tab" data-bs-toggle="tab" data-bs-target="#pagamento-pix" type="button" role="tab" aria-controls="pagamento-pix" aria-selected="true">1. PIX</button>
                         </li>
                         <li class="nav-item" role="presentation">
-                            <button class="nav-link fw-bold" id="pagamento-comprovante-tab" data-bs-toggle="tab" data-bs-target="#pagamento-comprovante" type="button" role="tab" aria-controls="pagamento-comprovante" aria-selected="false">2. Comprovante</button>
+                            <button class="nav-link fw-bold" id="pagamento-debito-tab" data-bs-toggle="tab" data-bs-target="#pagamento-debito" type="button" role="tab" aria-controls="pagamento-debito" aria-selected="false">2. Débito</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link fw-bold" id="pagamento-credito-tab" data-bs-toggle="tab" data-bs-target="#pagamento-credito" type="button" role="tab" aria-controls="pagamento-credito" aria-selected="false">3. Crédito</button>
                         </li>
                     </ul>
 
@@ -796,26 +940,23 @@ try {
                             <p class="fs-4 fw-bold text-dark mb-3"><?= htmlspecialchars($valor_pagamento, ENT_QUOTES, 'UTF-8'); ?></p>
                             <canvas id="qrCodeDemonstracao" class="img-fluid border rounded p-2 mb-2" width="232" height="232" role="img" aria-label="QR code visual fictício, não utilizável para pagamento"></canvas>
                             <p class="small fw-bold text-warning-emphasis mb-1">QR code fictício para demonstração</p>
-                            <p class="small text-muted mb-3">Este código não processa pagamentos. Realize o PIX pelos canais da academia e depois envie o comprovante.</p>
-                            <button class="btn btn-danger w-100 fw-bold" type="button" data-bs-toggle="tab" data-bs-target="#pagamento-comprovante" role="tab">
-                                Já realizei o PIX — enviar comprovante
-                            </button>
+                            <p class="small text-muted mb-0">Este código não processa pagamentos. Para pagar por PIX, consulte a secretaria da academia.</p>
                         </div>
 
-                        <div class="tab-pane fade" id="pagamento-comprovante" role="tabpanel" aria-labelledby="pagamento-comprovante-tab" tabindex="0">
-                            <div class="alert alert-info small" role="alert">
-                                O pagamento só será confirmado após a conferência do comprovante pelo gerente.
+                        <div class="tab-pane fade text-center" id="pagamento-debito" role="tabpanel" aria-labelledby="pagamento-debito-tab" tabindex="0">
+                            <p class="text-muted mb-1">Valor da mensalidade</p>
+                            <p class="fs-4 fw-bold text-dark mb-3"><?= htmlspecialchars($valor_pagamento, ENT_QUOTES, 'UTF-8'); ?></p>
+                            <div class="alert alert-info small text-start" role="alert">
+                                O pagamento com cartão de débito é feito presencialmente na academia. Este portal não coleta dados do cartão nem processa transações.
                             </div>
-                            <form method="POST" action="../../controller/ComprovantePagamentoController.php" enctype="multipart/form-data">
-                                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'], ENT_QUOTES, 'UTF-8'); ?>">
-                                <input type="hidden" name="id_pagamento" value="<?= (int)$id_pagamento_atual; ?>">
-                                <div class="mb-3">
-                                    <label for="comprovantePagamento" class="form-label fw-bold">Selecione o comprovante</label>
-                                    <input type="file" class="form-control" id="comprovantePagamento" name="comprovante" accept=".jpg,.jpeg,.png,.pdf" required>
-                                    <div class="form-text">Formatos permitidos: JPG, PNG ou PDF. Tamanho máximo: 5 MB.</div>
-                                </div>
-                                <button type="submit" class="btn btn-success w-100 fw-bold">Enviar para o gerente</button>
-                            </form>
+                        </div>
+
+                        <div class="tab-pane fade text-center" id="pagamento-credito" role="tabpanel" aria-labelledby="pagamento-credito-tab" tabindex="0">
+                            <p class="text-muted mb-1">Valor da mensalidade</p>
+                            <p class="fs-4 fw-bold text-dark mb-3"><?= htmlspecialchars($valor_pagamento, ENT_QUOTES, 'UTF-8'); ?></p>
+                            <div class="alert alert-info small text-start" role="alert">
+                                O pagamento com cartão de crédito é feito presencialmente na academia. Este portal não coleta dados do cartão nem processa transações.
+                            </div>
                         </div>
                     </div>
                 </div>

@@ -1,0 +1,435 @@
+/* ==========================================================
+   DOJIFY - ÁREA DO ALUNO
+   Mantém a linguagem visual neutra do painel do gerente.
+   ========================================================== */
+
+.aluno-theme {
+    --aluno-bg: #f4f4f5;
+    --aluno-surface: #ffffff;
+    --aluno-surface-soft: #fafafa;
+    --aluno-border: #dedede;
+    --aluno-border-dark: #c7c7c7;
+    --aluno-text: #171717;
+    --aluno-text-secondary: #525252;
+    --aluno-text-muted: #737373;
+    --aluno-dark: #111111;
+    --aluno-dark-hover: #262626;
+    --aluno-gray: #e5e5e5;
+
+    background: var(--aluno-bg);
+    color: var(--aluno-text);
+}
+
+.aluno-theme main.container {
+    width: min(1400px, 94%);
+    max-width: none;
+    padding: 34px 0 48px;
+}
+
+.aluno-theme .bg-dark {
+    background-color: var(--aluno-dark) !important;
+}
+
+.aluno-theme .bg-light,
+.aluno-theme .alert-secondary {
+    background-color: var(--aluno-bg) !important;
+}
+
+.aluno-theme .alert-secondary {
+    color: var(--aluno-text-secondary);
+    border-color: var(--aluno-border);
+}
+
+.aluno-theme .bg-secondary {
+    background-color: var(--aluno-gray) !important;
+    color: var(--aluno-text) !important;
+}
+
+.aluno-theme .text-secondary,
+.aluno-theme .text-muted {
+    color: var(--aluno-text-muted) !important;
+}
+
+.aluno-theme .text-dark {
+    color: var(--aluno-text) !important;
+}
+
+.aluno-theme .border,
+.aluno-theme .border-secondary {
+    border-color: var(--aluno-border) !important;
+}
+
+.aluno-theme .card {
+    background-color: var(--aluno-surface);
+    border-color: var(--aluno-border) !important;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, .06);
+}
+
+.aluno-theme .card-combate {
+    background-color: var(--aluno-surface);
+    border: 1px solid var(--aluno-border);
+}
+
+.aluno-theme .card-pagamento {
+    padding: 0;
+    color: var(--aluno-text);
+}
+
+.aluno-theme .card-pagamento .card-body {
+    background-color: var(--aluno-bg);
+}
+
+.aluno-theme .payment-current,
+.aluno-theme .payment-history {
+    background-color: var(--aluno-surface);
+    border: 1px solid var(--aluno-border) !important;
+    border-radius: 10px;
+}
+
+.aluno-theme .payment-current {
+    color: var(--aluno-text-secondary);
+}
+
+.aluno-theme .payment-history-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    color: var(--aluno-text-muted);
+}
+
+.aluno-theme .payment-history-legend span {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.aluno-theme .payment-legend-dot {
+    display: inline-block;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+}
+
+.aluno-theme .payment-history-chart {
+    display: flex;
+    align-items: stretch;
+    gap: 10px;
+    min-height: 132px;
+    border-bottom: 1px solid var(--aluno-border);
+}
+
+.aluno-theme .payment-history-item {
+    position: relative;
+    display: flex;
+    flex: 1 1 0;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    min-width: 0;
+    height: 132px;
+    padding-top: 2px;
+}
+
+.aluno-theme .payment-history-value,
+.aluno-theme .payment-history-date {
+    z-index: 1;
+    color: var(--aluno-text);
+    font-size: .7rem;
+    line-height: 1rem;
+    white-space: nowrap;
+}
+
+.aluno-theme .payment-history-date {
+    color: var(--aluno-text-muted);
+}
+
+.aluno-theme .payment-history-bar {
+    position: absolute;
+    bottom: 20px;
+    width: min(32px, 65%);
+    min-height: 6px;
+    border-radius: 5px 5px 0 0;
+}
+
+.aluno-theme .payment-bar--paid {
+    background-color: #6f9f83;
+}
+
+.aluno-theme .payment-bar--pending {
+    background-color: #aeb5bd;
+}
+
+.aluno-theme .payment-bar--late {
+    background-color: #c97d76;
+}
+
+.aluno-theme .payment-bar--review {
+    background-color: #7296ad;
+}
+
+.aluno-theme .aluno-calendar-day-header {
+    background-color: var(--aluno-dark) !important;
+}
+
+.aluno-theme #area-impressao h2,
+.aluno-theme #area-impressao h3 {
+    color: var(--aluno-text) !important;
+    border-bottom-color: var(--aluno-border) !important;
+}
+
+.aluno-theme .table {
+    --bs-table-color: var(--aluno-text-secondary);
+    --bs-table-border-color: var(--aluno-border);
+}
+
+.aluno-theme .table thead th {
+    color: var(--aluno-text-muted);
+    font-size: .78rem;
+    letter-spacing: .03em;
+    text-transform: uppercase;
+}
+
+.aluno-theme .table-hover > tbody > tr:hover > * {
+    --bs-table-bg-state: var(--aluno-surface-soft);
+}
+
+.aluno-page main.container {
+    width: min(1400px, 94%);
+    max-width: none;
+    padding: 34px 0 48px;
+}
+
+.historico-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.historico-header h2 {
+    margin-bottom: 8px;
+    text-align: left;
+}
+
+.historico-header p {
+    color: var(--aluno-text-secondary);
+    margin-bottom: 0;
+}
+
+.historico-tabela {
+    overflow-x: auto;
+    border: 1px solid var(--aluno-border);
+    border-radius: 10px;
+    background: var(--aluno-surface);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, .06);
+}
+
+.historico-tabela table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+.historico-tabela th,
+.historico-tabela td {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--aluno-border);
+    white-space: nowrap;
+}
+
+.historico-tabela th {
+    color: var(--aluno-text-muted);
+    font-size: .8rem;
+    text-transform: uppercase;
+}
+
+.historico-tabela tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+.graduacao-faixa {
+    font-weight: 600;
+}
+
+.evolucao-icon {
+    display: inline-flex;
+    flex: 0 0 42px;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    background: #f1f3f5;
+    font-size: 1.25rem;
+}
+
+.graduacao-prevista-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 12px 14px;
+    border: 1px solid var(--aluno-border);
+    border-radius: 10px;
+    background: var(--aluno-surface-soft);
+}
+
+.graduacao-prevista-item strong {
+    color: var(--aluno-text);
+    white-space: nowrap;
+}
+
+.avaliacao-card {
+    border-left: 4px solid #343a40 !important;
+}
+
+.avaliacao-conteudo {
+    padding: 14px 16px;
+    border-radius: 9px;
+    background: var(--aluno-surface-soft);
+}
+
+.avaliacao-conteudo h5 {
+    color: var(--aluno-text-muted);
+    letter-spacing: .04em;
+}
+
+.avaliacao-conteudo p,
+.comentario-aluno p {
+    color: var(--aluno-text-secondary);
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+}
+
+.comentario-aluno {
+    padding: 12px 14px;
+    border: 1px solid var(--aluno-border);
+    border-radius: 9px;
+    background: #f8f9fa;
+}
+
+.evolucao-page .card {
+    padding: 0;
+}
+
+.evolucao-page form {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+}
+
+.evolucao-page .graduacao-prevista-date {
+    width: 190px;
+    max-width: 100%;
+}
+
+.evolucao-page button.btn[type="submit"] {
+    width: auto;
+    margin: 0;
+    padding: var(--bs-btn-padding-y) var(--bs-btn-padding-x);
+    border: var(--bs-btn-border-width) solid var(--bs-btn-border-color);
+    border-radius: var(--bs-btn-border-radius);
+    background-color: var(--bs-btn-bg);
+    color: var(--bs-btn-color);
+    font-size: var(--bs-btn-font-size);
+    font-weight: var(--bs-btn-font-weight);
+    line-height: var(--bs-btn-line-height);
+}
+
+.evolucao-page button.btn[type="submit"]:hover {
+    border-color: var(--bs-btn-hover-border-color);
+    background-color: var(--bs-btn-hover-bg);
+    color: var(--bs-btn-hover-color);
+}
+
+.aluno-theme form.agendamento-cancel-form {
+    all: unset !important;
+    display: inline !important;
+}
+
+.aluno-theme form.agendamento-cancel-form button.agendamento-cancel-button {
+    all: unset !important;
+    display: inline-block !important;
+    box-sizing: border-box !important;
+    margin: 0 !important;
+    padding: .35em .65em !important;
+    border: 0 !important;
+    border-radius: .375rem !important;
+    background: #dc3545 !important;
+    color: #fff !important;
+    font: inherit !important;
+    font-size: .75em !important;
+    font-weight: 700 !important;
+    line-height: 1 !important;
+    vertical-align: baseline !important;
+    text-align: center !important;
+    white-space: nowrap !important;
+    cursor: pointer !important;
+    appearance: none !important;
+}
+
+.aluno-theme form.agendamento-cancel-form button.agendamento-cancel-button:hover {
+    background: #bb2d3b !important;
+}
+
+@media (max-width: 768px) {
+    .aluno-theme main.container {
+        width: min(94%, 620px);
+        padding-top: 24px;
+    }
+
+    .aluno-page main.container {
+        width: min(94%, 620px);
+        padding-top: 24px;
+    }
+}
+
+@media (max-width: 480px) {
+    .aluno-theme main.container {
+        width: 92%;
+    }
+}
+
+@media (max-width: 600px) {
+    .historico-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+}
+
+@media print {
+    @page {
+        margin: 16mm;
+    }
+
+    body.aluno-contract-page,
+    body.aluno-contract-page * {
+        visibility: hidden !important;
+    }
+
+    body.aluno-contract-page #area-impressao,
+    body.aluno-contract-page #area-impressao * {
+        visibility: visible !important;
+    }
+
+    body.aluno-contract-page #area-impressao {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        max-height: none !important;
+        overflow: visible !important;
+        margin: 0 !important;
+        border: 0 !important;
+        color: #212529 !important;
+        background: #fff !important;
+        font-size: 11pt !important;
+    }
+}

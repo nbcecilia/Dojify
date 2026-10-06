@@ -28,21 +28,53 @@ class AgendamentoDAO
         return $result ?: null;
     }
 
-    public function listarTurmasAtivasComHorario(?int $id_modalidade): array
+    public function listarTurmasAtivasComHorario(array $ids_modalidades): array
     {
-        if ($id_modalidade === null || $id_modalidade <= 0) {
+        $ids_modalidades = array_values(array_unique(array_filter(
+            array_map('intval', $ids_modalidades),
+            static fn (int $id): bool => $id > 0
+        )));
+        if ($ids_modalidades === []) {
             return [];
         }
 
+        $placeholders = implode(',', array_fill(0, count($ids_modalidades), '?'));
         $stmt = $this->conexao->prepare("
             SELECT t.id_turma, t.nome AS nome_turma, t.capacidade, h.dia_semana, h.hora_inicio
             FROM turma t
             LEFT JOIN horario_turma h ON t.id_turma = h.id_turma
-            WHERE t.status = 'ATIVA' AND t.id_modalidade = ?
+            WHERE t.status = 'ATIVA' AND t.id_modalidade IN ($placeholders)
         ");
-        $stmt->execute([$id_modalidade]);
+        $stmt->execute($ids_modalidades);
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function obterModalidadesAluno(int $id_aluno): array
+    {
+        $stmt = $this->conexao->prepare("
+            SELECT am.id_modalidade, m.nome AS modalidade_nome
+            FROM aluno_modalidade am
+            INNER JOIN modalidade m ON m.id_modalidade = am.id_modalidade
+            WHERE am.id_usuario_aluno = ?
+            ORDER BY am.id_modalidade
+        ");
+        $stmt->execute([$id_aluno]);
+        $modalidades = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        if ($modalidades !== []) {
+            return $modalidades;
+        }
+
+        $planoAtivo = $this->obterDadosPlanoAtivo($id_aluno);
+        if (!$planoAtivo || (int)($planoAtivo['id_modalidade'] ?? 0) <= 0) {
+            return [];
+        }
+
+        return [[
+            'id_modalidade' => (int)$planoAtivo['id_modalidade'],
+            'modalidade_nome' => (string)($planoAtivo['modalidade_nome'] ?? '')
+        ]];
     }
 
     public function obterDadosPlanoAtivo(int $id_aluno): ?array
@@ -88,6 +120,20 @@ class AgendamentoDAO
         }
 
         return $agendamentos;
+    }
+
+    public function listarReservasConfirmadasNoPeriodo(int $id_aluno, string $inicio, string $fim): array
+    {
+        $stmt = $this->conexao->prepare("
+            SELECT id_turma, DATE(data_agendamento) AS data_agendamento
+            FROM agendamento
+            WHERE id_usuario_aluno = ?
+              AND status = 'CONFIRMADO'
+              AND data_agendamento BETWEEN ? AND ?
+        ");
+        $stmt->execute([$id_aluno, $inicio, $fim]);
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     /**

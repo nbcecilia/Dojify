@@ -101,6 +101,27 @@ ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb4;
 
 -- -----------------------------------------------------
+-- Table `dojify_1`.`aluno_modalidade`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `dojify_1`.`aluno_modalidade` (
+  `id_usuario_aluno` INT(11) NOT NULL,
+  `id_modalidade` INT(11) NOT NULL,
+  PRIMARY KEY (`id_usuario_aluno`, `id_modalidade`),
+  INDEX `id_modalidade` (`id_modalidade` ASC),
+  CONSTRAINT `aluno_modalidade_ibfk_1`
+    FOREIGN KEY (`id_usuario_aluno`)
+    REFERENCES `dojify_1`.`usuario` (`id_usuario`)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE,
+  CONSTRAINT `aluno_modalidade_ibfk_2`
+    FOREIGN KEY (`id_modalidade`)
+    REFERENCES `dojify_1`.`modalidade` (`id_modalidade`)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb4;
+
+-- -----------------------------------------------------
 -- Table `dojify_1`.`turma`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `dojify_1`.`turma` (
@@ -207,6 +228,86 @@ CREATE TABLE IF NOT EXISTS `dojify_1`.`graduacao` (
     FOREIGN KEY (`id_modalidade`)
     REFERENCES `dojify_1`.`modalidade` (`id_modalidade`)
     ON DELETE NO ACTION
+    ON UPDATE CASCADE)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb4;
+
+-- -----------------------------------------------------
+-- Table `dojify_1`.`graduacao_prevista`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `dojify_1`.`graduacao_prevista` (
+  `id_usuario_aluno` INT(11) NOT NULL,
+  `id_modalidade` INT(11) NOT NULL,
+  `id_usuario_atualizou` INT(11) NOT NULL,
+  `data_prevista` DATE NOT NULL,
+  `data_atualizada` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id_usuario_aluno`, `id_modalidade`),
+  INDEX `id_modalidade` (`id_modalidade` ASC),
+  INDEX `id_usuario_atualizou` (`id_usuario_atualizou` ASC),
+  CONSTRAINT `graduacao_prevista_ibfk_1`
+    FOREIGN KEY (`id_usuario_aluno`)
+    REFERENCES `dojify_1`.`usuario` (`id_usuario`)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE,
+  CONSTRAINT `graduacao_prevista_ibfk_2`
+    FOREIGN KEY (`id_modalidade`)
+    REFERENCES `dojify_1`.`modalidade` (`id_modalidade`)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE,
+  CONSTRAINT `graduacao_prevista_ibfk_3`
+    FOREIGN KEY (`id_usuario_atualizou`)
+    REFERENCES `dojify_1`.`usuario` (`id_usuario`)
+    ON DELETE NO ACTION
+    ON UPDATE CASCADE)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb4;
+
+-- -----------------------------------------------------
+-- Table `dojify_1`.`avaliacao_comentario`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `dojify_1`.`avaliacao_comentario` (
+  `id_comentario` INT(11) NOT NULL AUTO_INCREMENT,
+  `id_avaliacao` INT(11) NOT NULL,
+  `id_usuario_aluno` INT(11) NOT NULL,
+  `comentario` TEXT NOT NULL,
+  `data_comentario` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id_comentario`),
+  INDEX `id_avaliacao` (`id_avaliacao` ASC),
+  INDEX `id_usuario_aluno` (`id_usuario_aluno` ASC),
+  CONSTRAINT `avaliacao_comentario_ibfk_1`
+    FOREIGN KEY (`id_avaliacao`)
+    REFERENCES `dojify_1`.`avaliacao` (`id_avaliacao`)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE,
+  CONSTRAINT `avaliacao_comentario_ibfk_2`
+    FOREIGN KEY (`id_usuario_aluno`)
+    REFERENCES `dojify_1`.`usuario` (`id_usuario`)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb4;
+
+-- -----------------------------------------------------
+-- Table `dojify_1`.`notificacao_avaliacao`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `dojify_1`.`notificacao_avaliacao` (
+  `id_notificacao` INT(11) NOT NULL AUTO_INCREMENT,
+  `id_avaliacao_comentario` INT(11) NOT NULL,
+  `id_usuario_destinatario` INT(11) NOT NULL,
+  `data_criacao` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `data_leitura` TIMESTAMP NULL DEFAULT NULL,
+  PRIMARY KEY (`id_notificacao`),
+  UNIQUE INDEX `notificacao_avaliacao_destinatario` (`id_avaliacao_comentario` ASC, `id_usuario_destinatario` ASC),
+  INDEX `notificacao_avaliacao_usuario_lida` (`id_usuario_destinatario` ASC, `data_leitura` ASC),
+  CONSTRAINT `notificacao_avaliacao_ibfk_1`
+    FOREIGN KEY (`id_avaliacao_comentario`)
+    REFERENCES `dojify_1`.`avaliacao_comentario` (`id_comentario`)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE,
+  CONSTRAINT `notificacao_avaliacao_ibfk_2`
+    FOREIGN KEY (`id_usuario_destinatario`)
+    REFERENCES `dojify_1`.`usuario` (`id_usuario`)
+    ON DELETE CASCADE
     ON UPDATE CASCADE)
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb4;
@@ -381,6 +482,11 @@ INSERT INTO `login` (`id_login`, `id_usuario`, `senha_hash`) VALUES
 INSERT INTO modalidade (id_modalidade, id_academia, nome, descricao) VALUES 
 (1, 1, 'Jiu-Jítsu', 'Arte suave focada em luta no chão e finalizações'),
 (2, 1, 'Muay Thai', 'Arte com socos, chutes, joelhadas e cotoveladas');
+
+INSERT INTO aluno_modalidade (id_usuario_aluno, id_modalidade) VALUES
+(4, 1),
+(4, 2),
+(5, 2);
 
 -- ==========================================================
 -- 6. TURMA E HORARIO_TURMA

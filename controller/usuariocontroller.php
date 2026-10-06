@@ -90,7 +90,14 @@ class UsuarioController {
             $senha          = $_POST['senha'] ?? '';
 
             $nomePlano      = trim($_POST['nome_plano'] ?? '');
-            $idModalidade   = filter_input(INPUT_POST, 'id_modalidade', FILTER_VALIDATE_INT);
+            $idsModalidades = $_POST['id_modalidades'] ?? [];
+            $idsModalidades = is_array($idsModalidades)
+                ? array_values(array_unique(array_filter(array_map(
+                    static fn ($id): int => filter_var($id, FILTER_VALIDATE_INT) ?: 0,
+                    $idsModalidades
+                ), static fn (int $id): bool => $id > 0)))
+                : [];
+            $idModalidade = $idsModalidades[0] ?? 0;
             
             $valorPlanoStr  = $_POST['valor_plano'] ?? '0';
             $valorPlanoStr  = str_replace(',', '.', $valorPlanoStr);
@@ -100,14 +107,23 @@ class UsuarioController {
             $observacao     = !empty($_POST['observacao']) ? trim($_POST['observacao']) : null;
             $dataMatricula  = !empty($_POST['data_matricula']) ? $_POST['data_matricula'] : date('Y-m-d');
 
-            if (empty($idAcademia) || empty($nome) || empty($cpf) || empty($dataNascimento) || !$email || empty($senha) || empty($nomePlano) || !$idModalidade) {
+            if (
+                empty($idAcademia) || empty($nome) || empty($cpf) || empty($dataNascimento)
+                || !$email || empty($senha) || empty($nomePlano) || count($idsModalidades) < 1
+                || count($idsModalidades) > 3
+            ) {
+                if (count($idsModalidades) < 1 || count($idsModalidades) > 3) {
+                    throw new InvalidArgumentException("Selecione de uma a três modalidades.");
+                }
                 throw new Exception("Preencha todos os campos obrigatórios corretamente.");
             }
 
             $stmtModalidade = $pdo->prepare("SELECT 1 FROM modalidade WHERE id_modalidade = ? AND id_academia = ?");
-            $stmtModalidade->execute([$idModalidade, $idAcademia]);
-            if (!$stmtModalidade->fetchColumn()) {
-                throw new Exception("Selecione uma modalidade válida da sua academia.");
+            foreach ($idsModalidades as $idModalidadeSelecionada) {
+                $stmtModalidade->execute([$idModalidadeSelecionada, $idAcademia]);
+                if (!$stmtModalidade->fetchColumn()) {
+                    throw new InvalidArgumentException("Selecione modalidades válidas da sua academia.");
+                }
             }
 
             // Inserção do Aluno (Perfil 4)
@@ -127,6 +143,17 @@ class UsuarioController {
                 ':data_matricula'  => $dataMatricula
             ]);
             $idUsuarioNovo = $pdo->lastInsertId();
+
+            $stmtAlunoModalidade = $pdo->prepare("
+                INSERT INTO aluno_modalidade (id_usuario_aluno, id_modalidade)
+                VALUES (:id_usuario_aluno, :id_modalidade)
+            ");
+            foreach ($idsModalidades as $idModalidadeSelecionada) {
+                $stmtAlunoModalidade->execute([
+                    ':id_usuario_aluno' => $idUsuarioNovo,
+                    ':id_modalidade' => $idModalidadeSelecionada
+                ]);
+            }
 
             $senhaHash = password_hash($senha, PASSWORD_DEFAULT);
             $sqlLogin = "INSERT INTO login (id_usuario, senha_hash) VALUES (:id_usuario, :senha_hash)";
@@ -166,7 +193,9 @@ class UsuarioController {
             if ($pdo instanceof PDO && $pdo->inTransaction()) {
                 $pdo->rollBack();
             }
-            header('Location: ../view/gerente/cadastrar_aluno.php?erro=falha_cadastro');
+            error_log('Falha ao cadastrar aluno: ' . $e->getMessage());
+            $erro = $e instanceof InvalidArgumentException ? 'modalidade_invalida' : 'falha_cadastro';
+            header('Location: ../view/gerente/cadastrar_aluno_prof.php?erro=' . $erro);
             exit;
         }
     }
@@ -281,19 +310,31 @@ class UsuarioController {
             $status        = $_POST['status'] ?? 'ATIVO';
 
             $nomePlano     = trim($_POST['nome_plano'] ?? '');
-            $idModalidade  = filter_input(INPUT_POST, 'id_modalidade', FILTER_VALIDATE_INT);
+            $idsModalidades = $_POST['id_modalidades'] ?? [];
+            $idsModalidades = is_array($idsModalidades)
+                ? array_values(array_unique(array_filter(array_map(
+                    static fn ($id): int => filter_var($id, FILTER_VALIDATE_INT) ?: 0,
+                    $idsModalidades
+                ), static fn (int $id): bool => $id > 0)))
+                : [];
+            $idModalidade = $idsModalidades[0] ?? 0;
             $valorPlanoStr = $_POST['valor_plano'] ?? '0';
             $valorPlanoStr = str_replace(',', '.', $valorPlanoStr);
             $valorPlano    = (float)$valorPlanoStr;
 
-            if (!$idUsuario || empty($idAcademia) || empty($nome) || !$email || empty($nomePlano) || !$idModalidade) {
+            if (
+                !$idUsuario || empty($idAcademia) || empty($nome) || !$email || empty($nomePlano)
+                || count($idsModalidades) < 1 || count($idsModalidades) > 3
+            ) {
                 throw new Exception("Preencha todos os campos obrigatórios corretamente.");
             }
 
             $stmtModalidade = $pdo->prepare("SELECT 1 FROM modalidade WHERE id_modalidade = ? AND id_academia = ?");
-            $stmtModalidade->execute([$idModalidade, $idAcademia]);
-            if (!$stmtModalidade->fetchColumn()) {
-                throw new Exception("Selecione uma modalidade válida da sua academia.");
+            foreach ($idsModalidades as $idModalidadeSelecionada) {
+                $stmtModalidade->execute([$idModalidadeSelecionada, $idAcademia]);
+                if (!$stmtModalidade->fetchColumn()) {
+                    throw new Exception("Selecione modalidades válidas da sua academia.");
+                }
             }
 
             $sqlUsuario = "UPDATE usuario 
@@ -324,6 +365,19 @@ class UsuarioController {
                 ':valor'            => $valorPlano,
                 ':id_usuario_aluno' => $idUsuario
             ]);
+
+            $stmtExcluirModalidades = $pdo->prepare("DELETE FROM aluno_modalidade WHERE id_usuario_aluno = ?");
+            $stmtExcluirModalidades->execute([$idUsuario]);
+            $stmtAlunoModalidade = $pdo->prepare("
+                INSERT INTO aluno_modalidade (id_usuario_aluno, id_modalidade)
+                VALUES (:id_usuario_aluno, :id_modalidade)
+            ");
+            foreach ($idsModalidades as $idModalidadeSelecionada) {
+                $stmtAlunoModalidade->execute([
+                    ':id_usuario_aluno' => $idUsuario,
+                    ':id_modalidade' => $idModalidadeSelecionada
+                ]);
+            }
 
             $pdo->commit();
             header('Location: ../view/gerente/listar_usuarios.php?sucesso=atualizado');

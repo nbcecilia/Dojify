@@ -75,14 +75,17 @@ class AgendamentoController
         }
 
         $turmaInfo = $this->dao->obterInfoTurma($id_turma);
-        $planoAtivo = $this->dao->obterDadosPlanoAtivo($id_aluno);
-        $idModalidadePlano = (int)($planoAtivo['id_modalidade'] ?? 0);
-        if ($idModalidadePlano <= 0) {
+        $modalidadesAluno = $this->dao->obterModalidadesAluno($id_aluno);
+        if ($modalidadesAluno === []) {
             $this->redirecionarParaHome('erro=plano_sem_modalidade');
         }
+        $idsModalidadesAluno = array_map(
+            static fn (array $modalidade): int => (int)$modalidade['id_modalidade'],
+            $modalidadesAluno
+        );
         if (
             $turmaInfo === null ||
-            (int)$turmaInfo['id_modalidade'] !== $idModalidadePlano
+            !in_array((int)$turmaInfo['id_modalidade'], $idsModalidadesAluno, true)
         ) {
             $this->redirecionarParaHome('erro=modalidade_incompativel');
         }

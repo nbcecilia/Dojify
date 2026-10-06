@@ -51,11 +51,11 @@ class PagamentoDAO {
         }
     }
 
-    public function registrarEnvioComprovante(int $idPagamento, int $idAluno, string $nomeArquivo): bool {
+    public function registrarEnvioComprovante(int $idPagamento, int $idAluno, string $nomeArquivo, string $formaPagamento): bool {
         $sql = "UPDATE pagamento p
                 INNER JOIN plano pl ON pl.id_plano = p.id_plano_matricula
                 SET p.status = 'EM_ANALISE',
-                    p.forma_pagamento = 'PIX',
+                    p.forma_pagamento = :forma_pagamento,
                     p.data_pagamento = NULL,
                     p.comprovante_path = :comprovante
                 WHERE p.id_pagamento = :id_pagamento
@@ -64,6 +64,7 @@ class PagamentoDAO {
                   AND p.comprovante_path IS NULL";
 
         $stmt = $this->conexao->prepare($sql);
+        $stmt->bindValue(':forma_pagamento', $formaPagamento);
         $stmt->bindValue(':comprovante', $nomeArquivo);
         $stmt->bindValue(':id_pagamento', $idPagamento, PDO::PARAM_INT);
         $stmt->bindValue(':id_aluno', $idAluno, PDO::PARAM_INT);

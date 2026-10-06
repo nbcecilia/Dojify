@@ -4,16 +4,30 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-$notifications = ['total_atrasados' => 0, 'valor_atrasados' => 0, 'lista' => []];
+$notifications = [
+    'total_atrasados' => 0,
+    'valor_atrasados' => 0,
+    'lista' => [],
+    'avaliacoes' => ['total' => 0, 'lista' => []],
+];
+$perfilUsuario = (int)($_SESSION['usuario']['perfil_id'] ?? 0);
 $homeUrl = isset($_SESSION['usuario']) && (int) ($_SESSION['usuario']['perfil_id'] ?? 0) === 4
     ? '../aluno/home_aluno.php'
-    : '../gerente/home_gerente.php';
+    : ($perfilUsuario === 3 ? '../professor/avaliacoes.php' : '../gerente/home_gerente.php');
 
 // Se for um Gerente logado, busca as notificações financeiras
-if (isset($_SESSION['usuario']) && (int)$_SESSION['usuario']['perfil_id'] === 2 && isset($_SESSION['id_academia'])) {
+if (isset($_SESSION['usuario']) && $perfilUsuario === 2 && isset($_SESSION['id_academia'])) {
     require_once __DIR__ . '/../../model/dao/PagamentoDAO.php';
     $pagamentoDAO = new \PagamentoDAO();
     $notifications = $pagamentoDAO->obterNotificacoesFinanceiras((int)$_SESSION['id_academia']);
+}
+
+if (isset($_SESSION['usuario']) && in_array($perfilUsuario, [2, 3], true)) {
+    require_once __DIR__ . '/../../model/dao/AvaliacaoDAO.php';
+    $avaliacaoDAOHeader = new AvaliacaoDAO();
+    $notifications['avaliacoes'] = $avaliacaoDAOHeader->listarNotificacoesEquipe(
+        (int)$_SESSION['usuario']['id_usuario']
+    );
 }
 ?>
 
@@ -30,13 +44,17 @@ if (isset($_SESSION['usuario']) && (int)$_SESSION['usuario']['perfil_id'] === 2 
     <div class="navbar-user">
 
         <!-- ÍCONE DE NOTIFICAÇÕES -->
-        <?php if (isset($_SESSION['usuario']) && (int)$_SESSION['usuario']['perfil_id'] === 2): ?>
+        <?php if (isset($_SESSION['usuario']) && in_array($perfilUsuario, [2, 3], true)): ?>
             <div class="notificacao-container">
                 <button type="button" id="btnNotificacao" class="btn-notificacao">
                     🔔
-                    <?php if ($notifications['total_atrasados'] > 0): ?>
+                    <?php
+                    $totalNotificacoesEquipe = (int)($notifications['avaliacoes']['total'] ?? 0)
+                        + ($perfilUsuario === 2 ? (int)($notifications['total_atrasados'] ?? 0) : 0);
+                    ?>
+                    <?php if ($totalNotificacoesEquipe > 0): ?>
                         <span class="notificacao-badge">
-                            <?= $notifications['total_atrasados'] ?>
+                            <?= $totalNotificacoesEquipe ?>
                         </span>
                     <?php endif; ?>
                 </button>
@@ -49,15 +67,15 @@ if (isset($_SESSION['usuario']) && (int)$_SESSION['usuario']['perfil_id'] === 2 
                     <div class="notificacao-dropdown-header">
                         <strong>Notificações</strong>
                         <span class="notificacao-count-badge">
-                            <?= $notifications['total_atrasados'] ?> pendências
+                            <?= $totalNotificacoesEquipe ?> pendência(s)
                         </span>
                     </div>
 
                     <!-- Lista de Atrasados -->
                     <div class="notificacao-lista">
-                        <?php if (empty($notifications['lista'])): ?>
+                        <?php if (empty($notifications['lista']) && empty($notifications['avaliacoes']['lista'])): ?>
                             <p class="notificacao-vazio">
-                                Tudo em dia! Nenhuma pendência. 🎉
+                                Você não tem notificações no momento.
                             </p>
                         <?php else: ?>
                             <ul>
@@ -69,6 +87,19 @@ if (isset($_SESSION['usuario']) && (int)$_SESSION['usuario']['perfil_id'] === 2 
                                         <div class="notificacao-item-info">
                                             <span>Venceu: <?= date('d/m/Y', strtotime($item['data_vencimento'])) ?></span>
                                             <strong>R$ <?= number_format($item['valor'], 2, ',', '.') ?></strong>
+                                        </div>
+                                    </li>
+                                <?php endforeach; ?>
+                                <?php foreach (array_slice($notifications['avaliacoes']['lista'] ?? [], 0, 10) as $item): ?>
+                                    <li>
+                                        <div class="notificacao-item-nome">
+                                            Novo comentário de <?= htmlspecialchars((string)$item['nome_aluno'], ENT_QUOTES, 'UTF-8') ?>
+                                        </div>
+                                        <div class="notificacao-item-info">
+                                            <span><?= date('d/m/Y H:i', strtotime((string)$item['data_comentario'])) ?></span>
+                                            <a href="../professor/avaliacoes.php?comentario=<?= (int)$item['id_avaliacao_comentario'] ?>#avaliacao-<?= (int)$item['id_avaliacao'] ?>">
+                                                Abrir avaliação
+                                            </a>
                                         </div>
                                     </li>
                                 <?php endforeach; ?>
@@ -93,6 +124,26 @@ $is_aluno = isset($_SESSION['usuario']) && (int)$_SESSION['usuario']['perfil_id'
 $notificacoes_aluno = $is_aluno && isset($notificacoes) && is_array($notificacoes)
     ? $notificacoes
     : [];
+if ($is_aluno) {
+    require_once __DIR__ . '/../../model/dao/AvaliacaoDAO.php';
+    $graduacoesPrevistasHeader = (new AvaliacaoDAO())->listarGraduacoesPrevistasAluno(
+        (int)$_SESSION['usuario']['id_usuario']
+    );
+    $idsNotificacoesExistentes = array_column($notificacoes_aluno, 'id');
+    foreach ($graduacoesPrevistasHeader as $prevista) {
+        $idNotificacaoGraduacao = 'graduacao-' . (int)$prevista['id_modalidade'] . '-' . $prevista['data_prevista'];
+        if (in_array($idNotificacaoGraduacao, $idsNotificacoesExistentes, true)) {
+            continue;
+        }
+        $notificacoes_aluno[] = [
+            'id' => $idNotificacaoGraduacao,
+            'acao' => 'graduacao',
+            'icone' => '🥋',
+            'titulo' => 'Graduação prevista',
+            'mensagem' => 'Sua graduação em ' . $prevista['nome_modalidade'] . ' está prevista para ' . date('d/m/Y', strtotime((string)$prevista['data_prevista'])) . '.',
+        ];
+    }
+}
 $total_notif_header = count($notificacoes_aluno);
 ?>
 
@@ -165,6 +216,16 @@ $total_notif_header = count($notificacoes_aluno);
                                        title="Ver agenda"
                                        aria-label="Ver agenda">
                                         <i class="bi bi-calendar-week" aria-hidden="true"></i>
+                                    </a>
+                                <?php elseif ($tipoNotificacao === 'graduacao'): ?>
+                                    <a class="btn btn-sm btn-dark py-0 px-2"
+                                       href="historico_graduacao.php#graduacoes-previstas"
+                                       data-notification-action
+                                       data-bs-toggle="tooltip"
+                                       data-bs-placement="top"
+                                       title="Ver previsão de graduação"
+                                       aria-label="Ver previsão de graduação">
+                                        <i class="bi bi-award" aria-hidden="true"></i>
                                     </a>
                                 <?php endif; ?>
                                 <button type="button"
