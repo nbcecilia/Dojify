@@ -262,12 +262,9 @@ try {
         $progresso_xp = min(100, max(0, $progresso_xp)); 
 
         // Matrícula / Plano
-        $stmt_plano_card = $pdo_agenda->prepare("SELECT id_plano, nome_plano, status FROM plano WHERE id_usuario_aluno = ? ORDER BY data_inicio DESC LIMIT 1");
-        $stmt_plano_card->execute([$id_aluno]);
-        $dados_plano_card = $stmt_plano_card->fetch(PDO::FETCH_ASSOC);
-        $status_plano = $dados_plano_card ? $dados_plano_card['status'] : 'INATIVO';
-        $nome_plano_card = $dados_plano_card ? $dados_plano_card['nome_plano'] : 'Nenhum plano ativo';
-        $id_plano_atual = $dados_plano_card ? $dados_plano_card['id_plano'] : null;
+        $stmt_plano_atual = $pdo_agenda->prepare("SELECT id_plano FROM plano WHERE id_usuario_aluno = ? ORDER BY data_inicio DESC, id_plano DESC LIMIT 1");
+        $stmt_plano_atual->execute([$id_aluno]);
+        $id_plano_atual = $stmt_plano_atual->fetchColumn() ?: null;
 
         // BUSCAR DADOS FINANCEIROS / PAGAMENTO
         if ($id_plano_atual) {
@@ -555,7 +552,7 @@ try {
                 <div class="alert alert-secondary text-center py-2"><?= $mensagem_erro; ?></div>
             <?php endif; ?>
 
-            <!-- CARTÕES DO TOPO (Graduação, XP e Matrícula) -->
+            <!-- CARTÕES DO TOPO (Graduação e XP) -->
             <div class="row g-3 justify-content-center mb-4 aluno-dashboard-kpis">
                 <div class="col-md-4 aluno-dashboard-kpi-column">
                     <div class="card h-100 shadow-sm border p-2 text-center aluno-dashboard-kpi">
@@ -590,21 +587,6 @@ try {
                     </div>
                 </div>
 
-                <div class="col-md-4 aluno-dashboard-kpi-column">
-                    <div class="card h-100 shadow-sm border p-2 text-center aluno-dashboard-kpi">
-                        <h6 class="text-dark fw-bold mb-1">📋 Matrícula</h6>
-                        <p class="mb-0 mt-1">
-                            <?php if ($status_plano === 'ATIVO'): ?>
-                                <span class="badge bg-success px-3 py-2">ATIVO</span>
-                            <?php elseif ($status_plano === 'SUSPENSO'): ?>
-                                <span class="badge bg-warning text-dark px-3 py-2">SUSPENSO</span>
-                            <?php else: ?>
-                                <span class="badge bg-secondary px-3 py-2"><?= htmlspecialchars($status_plano) ?></span>
-                            <?php endif; ?>
-                        </p>
-                        <span class="text-muted small mt-1 fw-bold d-block"><?= htmlspecialchars($nome_plano_card) ?></span>
-                    </div>
-                </div>
             </div>
 
             <!-- SEÇÃO FINANCEIRA / STATUS DA MENSALIDADE -->

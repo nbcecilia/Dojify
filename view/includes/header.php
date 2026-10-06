@@ -295,6 +295,12 @@ $total_notif_header = count($notificacoes_aluno);
                 </summary>
                 <div class="profile-avatar-menu">
                     <strong class="profile-avatar-menu-title">Personalizar perfil</strong>
+                    <?php if ($perfilUsuario === 4): ?>
+                        <a class="profile-avatar-profile-link" href="../aluno/perfil.php">
+                            <i class="bi bi-person-vcard" aria-hidden="true"></i>
+                            Meu perfil
+                        </a>
+                    <?php endif; ?>
                     <?php if ($avatarFeedback !== null): ?>
                         <p class="profile-avatar-feedback" role="status">
                             <?= $avatarFeedback === 'sucesso'

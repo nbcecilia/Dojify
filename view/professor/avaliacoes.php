@@ -1,5 +1,5 @@
 <?php
-/**
+/** ESTOU EM DUVIDA QUANTO A ESSE ARQUIVO, SE QUISER ACHO Q ELE CABE DENTRO DE OUTRO
  * Quadro da equipe: permite definir previsões de graduação e acompanhar,
  * dentro de cada avaliação já existente, os comentários enviados pelos alunos.
  * O cadastro/edição da avaliação técnica pelo professor ou gerente ainda será

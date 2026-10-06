@@ -245,6 +245,26 @@ a:hover {
     font-size: .92rem;
 }
 
+.profile-avatar-profile-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 -4px 12px;
+    padding: 9px 10px;
+    border-radius: 7px;
+    background: #f4f4f5;
+    color: #171717;
+    font-size: .82rem;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.profile-avatar-profile-link:hover,
+.profile-avatar-profile-link:focus-visible {
+    background: #e5e5e5;
+    color: #171717;
+}
+
 .profile-avatar-feedback {
     margin: 0 0 10px;
     color: #525252;
