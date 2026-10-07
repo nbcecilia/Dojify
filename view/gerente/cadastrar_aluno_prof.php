@@ -211,6 +211,22 @@ $modalidadeDAO = new ModalidadeDAO();$modalidades = $modalidadeDAO->listarPorAca
             const camposProfessor = [
                 document.getElementById('especialidade')
             ];
+            const selectsModalidade = [...document.querySelectorAll('[name="id_modalidades[]"]')];
+
+            function atualizarModalidadesDisponiveis() {
+                selectsModalidade.forEach(select => {
+                    const selecionadasEmOutros = new Set(
+                        selectsModalidade
+                            .filter(outroSelect => outroSelect !== select)
+                            .map(outroSelect => outroSelect.value)
+                            .filter(Boolean)
+                    );
+
+                    Array.from(select.options).forEach(opcao => {
+                        opcao.hidden = opcao.value !== '' && selecionadasEmOutros.has(opcao.value);
+                    });
+                });
+            }
 
             function alternarFormulario() {
                 const tipo = selectTipo.value;
@@ -239,6 +255,11 @@ $modalidadeDAO = new ModalidadeDAO();$modalidades = $modalidadeDAO->listarPorAca
                     camposAluno.forEach(campo => campo.removeAttribute('required'));
                 }
             }
+
+            selectsModalidade.forEach(select => {
+                select.addEventListener('change', atualizarModalidadesDisponiveis);
+            });
+            atualizarModalidadesDisponiveis();
 
             selectTipo.addEventListener('change', alternarFormulario);
             alternarFormulario();
