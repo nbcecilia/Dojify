@@ -326,24 +326,21 @@ $total_notif_header = count($notificacoes_aluno);
                             <button type="submit" class="btn btn-sm btn-outline-secondary">Remover foto e usar inicial</button>
                         </form>
                     <?php endif; ?>
-                    <div class="profile-avatar-colors">
-                        <span>Ou escolha uma cor para a inicial</span>
-                        <div role="group" aria-label="Cor do avatar">
-                            <button type="button" data-avatar-color="#2563eb" aria-label="Azul"></button>
-                            <button type="button" data-avatar-color="#7c3aed" aria-label="Roxo"></button>
-                            <button type="button" data-avatar-color="#059669" aria-label="Verde"></button>
-                            <button type="button" data-avatar-color="#ea580c" aria-label="Laranja"></button>
-                            <button type="button" data-avatar-color="#db2777" aria-label="Rosa"></button>
-                            <button type="button" data-avatar-color="#475569" aria-label="Cinza"></button>
-                        </div>
-                    </div>
+                    
                 </div>
             </details>
         <?php else: ?>
             <span class="user-greeting">Olá, <strong><?= htmlspecialchars($nomeUsuarioHeader, ENT_QUOTES, 'UTF-8'); ?></strong></span>
         <?php endif; ?>
-        <a href="<?= htmlspecialchars($homeUrl, ENT_QUOTES, 'UTF-8') ?>" class="btn btn-sm btn-outline">Início</a>
-        <a href="../../controller/UsuarioController.php?acao=logout" class="btn btn-sm btn-danger">Sair</a>
+        <a href="../../controller/UsuarioController.php?acao=logout"
+           class="btn btn-sm btn-danger header-logout-button"
+           aria-label="Sair"
+           title="Sair">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M10 17l5-5-5-5M15 12H3"/>
+                <path d="M12 3h6a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-6"/>
+            </svg>
+        </a>
     </div>
 </header>
 

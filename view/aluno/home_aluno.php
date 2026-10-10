@@ -25,6 +25,7 @@ require_once dirname(__DIR__, 2) . '/model/dao/AvaliacaoDAO.php';
 $calendarioSemanal = [];
 $meus_agendamentos = [];
 $graduacoesPrevistasPainel = [];
+$avaliacoesAlunoPainel = [];
 $planoAtivoAgenda = null;
 $modalidadesAluno = [];
 $idsModalidadesAluno = [];
@@ -60,6 +61,15 @@ $xp_atual = 0;
 $xp_min = 0;
 $xp_max = 150;
 $progresso_xp = 0;
+$faixaImagem = null;
+$diasSemanaPt = ['domingo', 'segunda-feira', 'terça-feira', 'quarta-feira', 'quinta-feira', 'sexta-feira', 'sábado'];
+$mesesPt = [
+    1 => 'janeiro', 2 => 'fevereiro', 3 => 'março', 4 => 'abril',
+    5 => 'maio', 6 => 'junho', 7 => 'julho', 8 => 'agosto',
+    9 => 'setembro', 10 => 'outubro', 11 => 'novembro', 12 => 'dezembro',
+];
+$dataAtualAluno = $diasSemanaPt[(int)date('w')] . ', ' . date('d') . ' de '
+    . $mesesPt[(int)date('n')] . ' de ' . date('Y');
 
 if (($_GET['sucesso'] ?? '') === 'comprovante') {
     $mensagem_sucesso = 'Comprovante enviado ao gerente. O pagamento ficará em análise até a conferência.';
@@ -228,7 +238,52 @@ try {
         $dados_grad = $stmt_grad->fetch(PDO::FETCH_ASSOC);
         $faixa_aluno = $dados_grad ? $dados_grad['faixa'] : 'Sem Faixa';
         $grau_aluno = $dados_grad && !empty($dados_grad['grau']) ? $dados_grad['grau'] : 'Iniciante';
-        $graduacoesPrevistasPainel = (new AvaliacaoDAO())->listarGraduacoesPrevistasAluno((int)$id_aluno);
+        $avaliacaoDAOPainel = new AvaliacaoDAO();
+        $graduacoesPrevistasPainel = $avaliacaoDAOPainel->listarGraduacoesPrevistasAluno((int)$id_aluno);
+        $avaliacoesAlunoPainel = $avaliacaoDAOPainel->listarEvolucaoAluno((int)$id_aluno);
+
+        $faixaNormalizada = strtolower(trim((string)$faixa_aluno));
+        $faixaNormalizada = strtr($faixaNormalizada, [
+            'á' => 'a', 'ã' => 'a', 'â' => 'a',
+            'é' => 'e', 'ê' => 'e',
+            'í' => 'i',
+            'ó' => 'o', 'ô' => 'o',
+            'ú' => 'u',
+            'Á' => 'a', 'Ã' => 'a', 'Â' => 'a',
+            'É' => 'e', 'Ê' => 'e',
+            'Í' => 'i',
+            'Ó' => 'o', 'Ô' => 'o',
+            'Ú' => 'u',
+        ]);
+        if (strpos($faixaNormalizada, 'preta') !== false) {
+            if (strpos($faixaNormalizada, 'tres faixas vermelhas') !== false) {
+                $faixaImagem = 'faixa_preta_tres_faixas_vermelhas.svg';
+            } elseif (strpos($faixaNormalizada, 'duas faixas vermelhas') !== false) {
+                $faixaImagem = 'faixa_preta_duas_faixas_vermelhas.svg';
+            } elseif (strpos($faixaNormalizada, 'faixa vermelha') !== false) {
+                $faixaImagem = 'faixa_preta_faixa_vermelha.svg';
+            } elseif (strpos($faixaNormalizada, 'faixa branca') !== false) {
+                $faixaImagem = 'faixa_preta_faixa_branca.svg';
+            } else {
+                $faixaImagem = 'faixa_preta.svg';
+            }
+        } else {
+            $coresFaixa = [
+                'branca' => 'faixa_branca.svg',
+                'amarela' => 'faixa_amarela.svg',
+                'azul' => 'faixa_azul.svg',
+                'laranja' => 'faixa_laranja.svg',
+                'verde' => 'faixa_verde.svg',
+                'roxa' => 'faixa_roxa.svg',
+                'marrom' => 'faixa_marrom.svg',
+            ];
+            foreach ($coresFaixa as $corFaixa => $arquivoFaixa) {
+                if (strpos($faixaNormalizada, $corFaixa) !== false) {
+                    $faixaImagem = $arquivoFaixa;
+                    break;
+                }
+            }
+        }
 
         // Gamificação (XP baseado em presenças)
         $stmt_xp = $pdo_agenda->prepare("
@@ -552,42 +607,89 @@ try {
                 <div class="alert alert-secondary text-center py-2"><?= $mensagem_erro; ?></div>
             <?php endif; ?>
 
-            <!-- CARTÕES DO TOPO (Graduação e XP) -->
+            <?php ob_start(); ?>
+            <section aria-labelledby="progressoAlunoTitulo">
+            
             <div class="row g-3 justify-content-center mb-4 aluno-dashboard-kpis">
-                <div class="col-md-4 aluno-dashboard-kpi-column">
-                    <div class="card h-100 shadow-sm border p-2 text-center aluno-dashboard-kpi">
-                        <h6 class="text-dark fw-bold mb-1">🥋 Graduação</h6>
-                        <p class="text-dark fw-bold fs-5 mb-0"><?= htmlspecialchars($faixa_aluno) ?></p>
-                        <span class="badge bg-secondary mt-1 mx-auto" style="width: fit-content;"><?= htmlspecialchars($grau_aluno) ?></span>
-                        <?php if (!empty($graduacoesPrevistasPainel)): ?>
-                            <div class="small text-muted mt-2">
-                                <?php foreach ($graduacoesPrevistasPainel as $prevista): ?>
-                                    <div>
-                                        <?= htmlspecialchars((string)$prevista['nome_modalidade'], ENT_QUOTES, 'UTF-8') ?>:
-                                        <?= date('d/m/Y', strtotime((string)$prevista['data_prevista'])) ?>
-                                    </div>
-                                <?php endforeach; ?>
+                <div class="col-12 col-md-4 aluno-dashboard-kpi-column aluno-dashboard-progress-column">
+                    <div class="card h-100 shadow-sm border p-2 aluno-dashboard-kpi aluno-dashboard-progress-card">
+                        <section class="aluno-dashboard-progress-item" aria-labelledby="graduacaoAlunoTitulo">
+                            <h6 id="graduacaoAlunoTitulo" class="text-dark fw-bold mb-1">Graduação</h6>
+                            <div class="d-flex align-items-center gap-3 mb-2">
+                                <?php if ($faixaImagem !== null): ?>
+                                    <img
+                                        src="../../assets/img/<?= htmlspecialchars($faixaImagem, ENT_QUOTES, 'UTF-8') ?>"
+                                        alt="Imagem da faixa <?= htmlspecialchars($faixa_aluno, ENT_QUOTES, 'UTF-8') ?>"
+                                        width="76"
+                                        height="66"
+                                        style="object-fit: contain;"
+                                    >
+                                <?php endif; ?>
+                                <p class="text-dark fw-bold fs-5 mb-0"><?= htmlspecialchars($faixa_aluno, ENT_QUOTES, 'UTF-8') ?></p>
                             </div>
-                        <?php else: ?>
-                            <p class="small text-muted mt-2 mb-0">Sem previsão de próxima graduação.</p>
-                        <?php endif; ?>
-                        <a href="historico_graduacao.php" class="btn btn-outline-dark btn-sm fw-bold mt-2">
-                            Ver graduação e avaliação
-                        </a>
+                            <span class="badge bg-secondary mt-1 mx-auto" style="width: fit-content;"><?= htmlspecialchars($grau_aluno) ?></span>
+                            <?php if (!empty($graduacoesPrevistasPainel)): ?>
+                                <div class="small text-muted mt-2">
+                                    <?php foreach ($graduacoesPrevistasPainel as $prevista): ?>
+                                        <div>
+                                            <?= htmlspecialchars((string)$prevista['nome_modalidade'], ENT_QUOTES, 'UTF-8') ?>:
+                                            <?= date('d/m/Y', strtotime((string)$prevista['data_prevista'])) ?>
+                                        </div>
+                                    <?php endforeach; ?>
+                                </div>
+                            <?php else: ?>
+                                <p class="small text-muted mt-2 mb-0">Sem previsão de próxima graduação.</p>
+                            <?php endif; ?>
+                            <div class="aluno-dashboard-assessment-note mt-3">
+                                <?php if (!empty($avaliacoesAlunoPainel)): ?>
+                                    <?php $ultimaAvaliacaoPainel = $avaliacoesAlunoPainel[0]; ?>
+                                    <p class="small mb-0">
+                                        <i class="bi bi-clipboard-check me-1" aria-hidden="true"></i>
+                                        <?= count($avaliacoesAlunoPainel) ?>
+                                        <?= count($avaliacoesAlunoPainel) === 1 ? 'avaliação registrada' : 'avaliações registradas' ?>
+                                        · última em <?= date('d/m/Y', strtotime((string)$ultimaAvaliacaoPainel['data_avaliacao'])) ?>
+                                    </p>
+                                <?php else: ?>
+                                    <p class="small text-muted mb-0">
+                                        <i class="bi bi-clipboard-check me-1" aria-hidden="true"></i>
+                                        Ainda não há avaliações registradas.
+                                    </p>
+                                <?php endif; ?>
+                            </div>
+                            <a
+                                href="historico_graduacao.php#graduacoes-previstas"
+                                class="aluno-dashboard-card-arrow"
+                                aria-label="Ver detalhes da graduação"
+                                title="Ver graduação"
+                            >
+                                <i class="bi bi-arrow-right" aria-hidden="true"></i>
+                            </a>
+                        </section>
                     </div>
                 </div>
 
-                <div class="col-md-4 aluno-dashboard-kpi-column">
-                    <div class="card h-100 shadow-sm border p-2 text-center aluno-dashboard-kpi">
-                        <h6 class="text-dark fw-bold mb-1">⭐ Nível <?= $num_nivel ?> - <?= htmlspecialchars($nome_nivel) ?></h6>
-                        <p class="text-muted small mb-1"><?= $xp_atual ?> / <?= $xp_max ?> XP</p>
-                        <div class="progress mx-auto" style="height: 10px; width: 85%; border-radius: 10px;">
-                            <div class="progress-bar bg-warning text-dark fw-bold progress-bar-striped progress-bar-animated" role="progressbar" style="width: <?= $progresso_xp ?>%;"></div>
+                <div class="col-12 col-md-3 aluno-dashboard-kpi-column aluno-dashboard-sidecards-column">
+                    <article class="card aluno-dashboard-sidecard aluno-dashboard-date-card">
+                        <i class="bi bi-calendar-event" aria-hidden="true"></i>
+                        <h6 class="fw-bold mb-1">Hoje</h6>
+                        <p class="mb-0"><?= htmlspecialchars($dataAtualAluno, ENT_QUOTES, 'UTF-8') ?></p>
+                    </article>
+                    <article class="card aluno-dashboard-sidecard aluno-dashboard-level-card">
+                        <i class="bi bi-stars" aria-hidden="true"></i>
+                        <h6 class="fw-bold mb-1">Nível <?= $num_nivel ?> · <?= htmlspecialchars($nome_nivel, ENT_QUOTES, 'UTF-8') ?></h6>
+                        <p class="mb-2">Sua jornada continua!</p>
+                        <span class="small"><?= $xp_atual ?> / <?= $xp_max ?> XP</span>
+                        <div class="progress mx-auto" role="progressbar" aria-label="Progresso de XP" aria-valuenow="<?= (int)round($progresso_xp) ?>" aria-valuemin="0" aria-valuemax="100">
+                            <div class="progress-bar bg-warning" style="width: <?= $progresso_xp ?>%;"></div>
                         </div>
-                    </div>
+                    </article>
                 </div>
-
+                <div class="col-12 col-md-5 aluno-dashboard-kpi-column aluno-dashboard-payment-column">
+                    <!-- ALUNO-PAYMENT-CARD -->
+                </div>
             </div>
+            </section>
+            <?php $progressoAlunoHtml = ob_get_clean(); ?>
 
             <!-- SEÇÃO FINANCEIRA / STATUS DA MENSALIDADE -->
             <?php ob_start(); ?>
@@ -621,14 +723,10 @@ try {
                     <div class="row g-2 align-items-stretch">
                         <div class="col-lg-4">
                             <div class="payment-current h-100 rounded-3 p-3">
-                                <div class="d-flex justify-content-between gap-2">
+                                <div class="payment-current-value">
                                     <div>
                                         <span class="text-muted small text-uppercase fw-bold">Valor</span>
                                         <p class="fs-3 fw-bold text-dark mb-1"><?= htmlspecialchars($valor_pagamento, ENT_QUOTES, 'UTF-8'); ?></p>
-                                    </div>
-                                    <div class="text-end">
-                                        <span class="text-muted small text-uppercase fw-bold">Vencimento</span>
-                                        <p class="fw-semibold text-dark mb-1"><?= htmlspecialchars($data_vencimento, ENT_QUOTES, 'UTF-8'); ?></p>
                                     </div>
                                 </div>
                                 <?php if ($statusPagamentoUpper !== 'PAGO' && $statusPagamentoUpper !== 'EM_ANALISE' && $id_pagamento_atual !== null && !$comprovante_pagamento_enviado): ?>
@@ -644,6 +742,10 @@ try {
                                 <?php elseif ($id_pagamento_atual === null): ?>
                                     <p class="small text-muted mb-0">Nenhuma cobrança disponível.</p>
                                 <?php endif; ?>
+                                <div class="payment-current-due">
+                                    <span class="text-muted small text-uppercase fw-bold">Vencimento</span>
+                                    <p class="fw-semibold text-dark mb-0"><?= htmlspecialchars($data_vencimento, ENT_QUOTES, 'UTF-8'); ?></p>
+                                </div>
                             </div>
                         </div>
                         <div class="col-lg-8">
@@ -697,12 +799,13 @@ try {
                 </div>
             </section>
             <?php $cardPagamentoHtml = ob_get_clean(); ?>
+            <?= str_replace('<!-- ALUNO-PAYMENT-CARD -->', $cardPagamentoHtml, $progressoAlunoHtml); ?>
 
             <?php $modaisAgendamento = []; ?>
             <!-- CALENDÁRIO SEMANAL COMPACTO -->
             <section class="card shadow-sm border p-3 mb-4 aluno-dashboard-panel aluno-agenda-panel" aria-labelledby="agendaSemanalTitulo">
                 <h5 id="agendaSemanalTitulo" class="aluno-dashboard-section-title">Agenda semanal de treinos</h5>
-                <p class="aluno-dashboard-section-subtitle">Escolha uma aula e confirme o agendamento no popup.</p>
+                <p class="aluno-dashboard-section-subtitle">Escolha uma aula e confirme seu agendamento.</p>
                 <?php if ($idsModalidadesAluno === []): ?>
                     <div class="alert alert-warning small text-center py-2" role="alert">
                         O seu plano ainda não está vinculado a uma modalidade. Peça à academia para atualizar o cadastro para liberar as aulas.
@@ -875,8 +978,6 @@ try {
                     <?php endif; ?>
                 </div>
             </section>
-
-            <?= $cardPagamentoHtml; ?>
 
         <?php endif; ?>
 

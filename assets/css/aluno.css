@@ -1,6 +1,5 @@
 /* ==========================================================
-   DOJIFY - ÁREA DO ALUNO
-   Mantém a linguagem visual neutra do painel do gerente.
+   DOJIFY - ÁREA DO ALUNO (CORREÇÃO PROPORCIONAL DE LAYOUT)
    ========================================================== */
 
 .aluno-theme {
@@ -236,15 +235,6 @@
     font-size: 1rem;
 }
 
-.aluno-theme .aluno-notification-button [data-notification-unread-badge] {
-    top: 1px !important;
-    left: calc(100% - 2px) !important;
-    min-width: 18px;
-    padding: .25em .42em;
-    font-size: .65rem;
-    line-height: 1;
-}
-
 .aluno-theme .profile-avatar-picker {
     display: inline-flex;
     align-items: center;
@@ -255,10 +245,13 @@
     gap: 8px;
 }
 
-/* Dashboard do aluno: mantém a estrutura visual do painel do gerente. */
+/* ==========================================================
+   ESTRUTURA DOS CARDS DO PAINEL (PROPORÇÃO EXATA DA IMAGEM)
+   ========================================================== */
+
 body.aluno-theme:not(.aluno-contract-page) .aluno-dashboard-welcome {
     display: flex;
-    align-items: end;
+    align-items: flex-end;
     justify-content: space-between;
     gap: 24px;
     margin-bottom: 28px;
@@ -285,7 +278,8 @@ body.aluno-theme:not(.aluno-contract-page) .aluno-dashboard-role {
     border-radius: 999px;
     background: var(--aluno-surface);
     color: var(--aluno-text-secondary);
-    font-size: .82rem;
+    padding: 10px !important;
+    font-size: .9rem;
     font-weight: 600;
     white-space: nowrap;
 }
@@ -296,56 +290,160 @@ body.aluno-theme:not(.aluno-contract-page) .aluno-dashboard > .alert {
     text-align: left !important;
 }
 
+/* Mantém o comportamento de grid em linha original do Bootstrap no PHP */
 body.aluno-theme:not(.aluno-contract-page) .aluno-dashboard-kpis {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 16px;
-    margin: 0 0 34px;
-    --bs-gutter-x: 0;
-    --bs-gutter-y: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0;
+    margin: 0 0 16px;
+    --bs-gutter-x: 1rem;
+    --bs-gutter-y: .75rem;
 }
 
 body.aluno-theme:not(.aluno-contract-page) .aluno-dashboard-kpi-column {
-    width: auto;
-    padding: 0;
+    display: flex;
+    flex-direction: column;
 }
 
-body.aluno-theme:not(.aluno-contract-page) .aluno-dashboard-kpi {
-    min-height: 160px;
-    padding: 20px !important;
-    border: 1px solid var(--aluno-border) !important;
+/* Card Principal de Progresso (Graduação e Avaliações) */
+body.aluno-theme:not(.aluno-contract-page) .aluno-dashboard-progress-card {
+    display: block !important;
+    padding: 0 !important;
+    height: 100%;
+}
+
+body.aluno-theme:not(.aluno-contract-page) .aluno-dashboard-progress-item {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 12px 18px;
+}
+
+body.aluno-theme:not(.aluno-contract-page) .aluno-dashboard-assessment-note {
+    border-top: 1px solid var(--aluno-border);
+    padding-top: 10px;
+}
+
+/* Cards Laterais Superiores (Data e Nível / XP) */
+body.aluno-theme:not(.aluno-contract-page) .aluno-dashboard-sidecards-column {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+}
+
+body.aluno-theme:not(.aluno-contract-page) .aluno-dashboard-payment-column .card-pagamento {
+    height: 100%;
+}
+
+body.aluno-theme:not(.aluno-contract-page) .aluno-dashboard-payment-column .payment-current {
+    padding: 12px !important;
+}
+
+body.aluno-theme:not(.aluno-contract-page) .aluno-dashboard-payment-column .payment-current-value {
+    text-align: center;
+}
+
+body.aluno-theme:not(.aluno-contract-page) .aluno-dashboard-payment-column .payment-current-due {
+    margin-top: 8px;
+    text-align: center;
+}
+
+body.aluno-theme:not(.aluno-contract-page) .aluno-dashboard-payment-column .payment-current p.fs-3 {
+    font-size: clamp(1rem, 1.3vw, 1.35rem) !important;
+    line-height: 1.2;
+    white-space: nowrap;
+}
+
+body.aluno-theme:not(.aluno-contract-page) .aluno-dashboard-payment-column .payment-current .text-muted.small {
+    font-size: .65rem;
+    letter-spacing: .02em;
+}
+
+body.aluno-theme:not(.aluno-contract-page) .aluno-dashboard-payment-column .payment-current > p {
+    font-size: .78rem;
+}
+
+body.aluno-theme:not(.aluno-contract-page) .aluno-dashboard-sidecard {
+    display: flex;
+    min-height: 82px;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 10px 14px;
+    border: 1px solid var(--aluno-border);
     border-radius: 10px;
     background: var(--aluno-surface);
-    box-shadow: 0 2px 10px rgba(0, 0, 0, .06) !important;
-    text-align: left !important;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, .06);
+    color: var(--aluno-text);
+    text-align: left;
 }
 
-body.aluno-theme:not(.aluno-contract-page) .aluno-dashboard-kpi h6 {
-    margin-bottom: 12px !important;
+body.aluno-theme:not(.aluno-contract-page) .aluno-dashboard-sidecard > i {
+    margin-bottom: 3px;
+    color: var(--aluno-text-secondary);
+    font-size: 1.05rem;
+}
+
+body.aluno-theme:not(.aluno-contract-page) .aluno-dashboard-level-card {
+    background: #fff7df;
+    border-color: #f2dfaa;
+}
+
+body.aluno-theme:not(.aluno-contract-page) .aluno-dashboard-level-card > i {
+    color: #a97800;
+}
+
+body.aluno-theme:not(.aluno-contract-page) .aluno-dashboard-level-card .progress {
+    width: 100%;
+    height: 8px;
+    background: rgba(104, 77, 0, .15);
+    margin-top: 6px;
+}
+
+body.aluno-theme:not(.aluno-contract-page) .aluno-dashboard-kpi h6,
+body.aluno-theme:not(.aluno-contract-page) .aluno-dashboard-sidecard h6 {
+    margin-bottom: 4px !important;
     color: var(--aluno-text-secondary) !important;
     font-size: .82rem;
     font-weight: 600 !important;
 }
 
 body.aluno-theme:not(.aluno-contract-page) .aluno-dashboard-kpi p.fs-5 {
-    font-size: 1.7rem !important;
-    line-height: 1;
+    font-size: 1.5rem !important;
+    font-weight: 700;
+    line-height: 1.2;
 }
 
-body.aluno-theme:not(.aluno-contract-page) .aluno-dashboard-kpi .progress {
-    width: 100% !important;
-    margin: 8px 0 0 !important;
-    background: var(--aluno-gray);
+body.aluno-theme:not(.aluno-contract-page) .aluno-dashboard-kpi .aluno-dashboard-card-arrow {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    display: inline-flex;
+    width: 28px;
+    height: 28px;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--aluno-border);
+    border-radius: 50%;
+    background: var(--aluno-surface);
+    color: var(--aluno-text-secondary);
+    font-size: .8rem;
+    text-decoration: none;
+    transition: background-color .2s ease, color .2s ease, border-color .2s ease;
 }
 
-body.aluno-theme:not(.aluno-contract-page) .aluno-dashboard-kpi .btn {
-    width: 100%;
-    margin-top: auto !important;
+body.aluno-theme:not(.aluno-contract-page) .aluno-dashboard-kpi .aluno-dashboard-card-arrow:hover {
+    border-color: var(--aluno-dark);
+    background: var(--aluno-dark);
+    color: #fff;
 }
 
+/* Painéis de Conteúdo (Agenda e Históricos) */
 body.aluno-theme:not(.aluno-contract-page) .aluno-dashboard-panel {
     margin-bottom: 32px !important;
-    padding: 20px !important;
+    padding: 24px !important;
     border: 1px solid var(--aluno-border) !important;
     border-radius: 10px;
     background: var(--aluno-surface);
@@ -354,6 +452,8 @@ body.aluno-theme:not(.aluno-contract-page) .aluno-dashboard-panel {
 
 body.aluno-theme:not(.aluno-contract-page) .aluno-dashboard-panel.card-pagamento {
     padding: 0 !important;
+    margin: 0 0 32px 0 !important;
+    text-align: left;
 }
 
 body.aluno-theme:not(.aluno-contract-page) .aluno-dashboard-section-title {
@@ -369,33 +469,34 @@ body.aluno-theme:not(.aluno-contract-page) .aluno-dashboard-section-subtitle {
     font-size: .82rem;
 }
 
-body.aluno-theme:not(.aluno-contract-page) .aluno-agenda-panel > .aluno-dashboard-section-title,
-body.aluno-theme:not(.aluno-contract-page) .aluno-agenda-panel > .aluno-dashboard-section-subtitle,
-body.aluno-theme:not(.aluno-contract-page) .aluno-agenda-panel > .aluno-agenda-modalidades {
-    text-align: center;
-}
-
-body.aluno-theme:not(.aluno-contract-page) .aluno-agenda-modalidades {
-    color: var(--aluno-text-secondary) !important;
-}
-
+/* Agenda semanal com os sete dias visíveis em telas amplas */
 body.aluno-theme:not(.aluno-contract-page) .aluno-calendar {
     width: 100%;
     max-width: 100%;
-    justify-content: safe center;
-    gap: 12px !important;
-    margin: 0 !important;
+    justify-content: flex-start;
+    gap: 8px !important;
+    margin: 0 auto !important;
     scrollbar-color: var(--aluno-border-dark) var(--aluno-surface-soft);
 }
 
 body.aluno-theme:not(.aluno-contract-page) .aluno-calendar-day {
-    flex: 0 0 150px;
+    flex: 1 1 0;
+    min-width: 0;
     overflow: hidden;
     border-color: var(--aluno-border) !important;
     border-radius: 10px !important;
     background: var(--aluno-surface);
     box-shadow: 0 2px 10px rgba(0, 0, 0, .06) !important;
     color: var(--aluno-text);
+}
+
+body.aluno-theme:not(.aluno-contract-page) .aluno-agenda-panel {
+    width: 100%;
+    min-height: 0;
+    margin-bottom: 36px !important;
+    margin-right: auto !important;
+    margin-left: auto !important;
+    padding: 22px !important;
 }
 
 body.aluno-theme:not(.aluno-contract-page) .aluno-calendar-day-header {
@@ -409,23 +510,28 @@ body.aluno-theme:not(.aluno-contract-page) .aluno-calendar-day-header span {
     font-size: .72rem;
 }
 
-body.aluno-theme:not(.aluno-contract-page) .aluno-calendar-day > .p-2 > .text-muted {
-    color: var(--aluno-text-muted) !important;
-}
-
 body.aluno-theme:not(.aluno-contract-page) .aluno-calendar-class {
     border-color: var(--aluno-border) !important;
     background: var(--aluno-surface-soft);
 }
 
+body.aluno-theme:not(.aluno-contract-page) .aluno-calendar-day > .p-2 {
+    padding: 8px !important;
+}
+
+body.aluno-theme:not(.aluno-contract-page) .aluno-calendar-class {
+    padding: 8px !important;
+}
+
 body.aluno-theme:not(.aluno-contract-page) .aluno-calendar-class-name {
     color: var(--aluno-text);
-    font-size: .76rem;
+    font-size: .78rem;
+    overflow-wrap: anywhere;
 }
 
 body.aluno-theme:not(.aluno-contract-page) .aluno-calendar-class-time {
     color: var(--aluno-text-secondary);
-    font-size: .72rem;
+    font-size: .8rem;
 }
 
 body.aluno-theme:not(.aluno-contract-page) .aluno-calendar-class .btn-success {
@@ -439,344 +545,51 @@ body.aluno-theme:not(.aluno-contract-page) .aluno-calendar-class .btn-success:ho
     background: var(--aluno-dark-hover) !important;
 }
 
-body.aluno-theme:not(.aluno-contract-page) .aluno-upcoming-panel .table-responsive {
-    overflow-x: auto;
-}
-
-body.aluno-theme:not(.aluno-contract-page) .aluno-dashboard .table {
-    margin-bottom: 0;
-}
-
-body.aluno-profile-page main.aluno-profile-dashboard {
-    width: min(1400px, 94%);
-    max-width: none;
-    padding: 34px 0 48px;
-}
-
-body.aluno-profile-page .aluno-profile-section {
-    margin-bottom: 24px;
-    padding: 20px;
-    border: 1px solid var(--aluno-border);
-    border-radius: 10px;
-    background: var(--aluno-surface);
-    box-shadow: 0 2px 10px rgba(0, 0, 0, .06);
-}
-
-body.aluno-profile-page .aluno-profile-section-heading {
-    margin-bottom: 16px;
-}
-
-body.aluno-profile-page .aluno-profile-section-heading h3 {
-    margin: 0;
-    color: var(--aluno-text);
-    font-size: 1.05rem;
-    font-weight: 700;
-}
-
-body.aluno-profile-page .aluno-profile-section-heading p {
-    margin: 3px 0 0;
-    color: var(--aluno-text-muted);
-    font-size: .82rem;
-}
-
-body.aluno-profile-page .aluno-profile-grid {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 12px;
-}
-
-body.aluno-profile-page .aluno-profile-item {
-    display: grid;
-    gap: 5px;
-    min-width: 0;
-    padding: 14px;
-    border: 1px solid var(--aluno-border);
-    border-radius: 9px;
-    background: var(--aluno-surface-soft);
-}
-
-body.aluno-profile-page .aluno-profile-item span {
-    color: var(--aluno-text-muted);
-    font-size: .76rem;
-}
-
-body.aluno-profile-page .aluno-profile-item strong {
-    overflow-wrap: anywhere;
-    color: var(--aluno-text);
-    font-size: .9rem;
-}
-
-body.aluno-profile-page .aluno-profile-empty {
-    margin: 0;
-    color: var(--aluno-text-secondary);
-    font-size: .88rem;
-}
-
-@media (max-width: 1100px) {
-    body.aluno-theme:not(.aluno-contract-page) .aluno-dashboard-kpis {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-}
-
-.aluno-page main.container {
-    width: min(1400px, 94%);
-    max-width: none;
-    padding: 34px 0 48px;
-}
-
-.historico-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-    margin-bottom: 24px;
-}
-
-.historico-header h2 {
-    margin-bottom: 8px;
-    text-align: left;
-}
-
-.historico-header p {
-    color: var(--aluno-text-secondary);
-    margin-bottom: 0;
-}
-
-.historico-tabela {
-    overflow-x: auto;
-    border: 1px solid var(--aluno-border);
-    border-radius: 10px;
-    background: var(--aluno-surface);
-    box-shadow: 0 2px 10px rgba(0, 0, 0, .06);
-}
-
-.historico-tabela table {
-    width: 100%;
-    border-collapse: collapse;
-    text-align: left;
-}
-
-.historico-tabela th,
-.historico-tabela td {
-    padding: 12px 16px;
-    border-bottom: 1px solid var(--aluno-border);
-    white-space: nowrap;
-}
-
-.historico-tabela th {
-    color: var(--aluno-text-muted);
-    font-size: .8rem;
-    text-transform: uppercase;
-}
-
-.historico-tabela tbody tr:last-child td {
-    border-bottom: 0;
-}
-
-.graduacao-faixa {
-    font-weight: 600;
-}
-
-.evolucao-icon {
-    display: inline-flex;
-    flex: 0 0 42px;
-    align-items: center;
-    justify-content: center;
-    width: 42px;
-    height: 42px;
-    border-radius: 12px;
-    background: #f1f3f5;
-    font-size: 1.25rem;
-}
-
-.graduacao-prevista-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-    padding: 12px 14px;
-    border: 1px solid var(--aluno-border);
-    border-radius: 10px;
-    background: var(--aluno-surface-soft);
-}
-
-.graduacao-prevista-item strong {
-    color: var(--aluno-text);
-    white-space: nowrap;
-}
-
-.avaliacao-card {
-    border-left: 4px solid #343a40 !important;
-}
-
-.avaliacao-conteudo {
-    padding: 14px 16px;
-    border-radius: 9px;
-    background: var(--aluno-surface-soft);
-}
-
-.avaliacao-conteudo h5 {
-    color: var(--aluno-text-muted);
-    letter-spacing: .04em;
-}
-
-.avaliacao-conteudo p,
-.comentario-aluno p {
-    color: var(--aluno-text-secondary);
-    line-height: 1.6;
-    overflow-wrap: anywhere;
-}
-
-.comentario-aluno {
-    padding: 12px 14px;
-    border: 1px solid var(--aluno-border);
-    border-radius: 9px;
-    background: #f8f9fa;
-}
-
-.evolucao-page .card {
-    padding: 0;
-}
-
-.evolucao-page form {
-    width: 100%;
-    max-width: none;
-    margin: 0;
-    padding: 0;
-    border: 0;
-    border-radius: 0;
-    background: transparent;
-    box-shadow: none;
-}
-
-.evolucao-page .graduacao-prevista-date {
-    width: 190px;
-    max-width: 100%;
-}
-
-.evolucao-page button.btn[type="submit"] {
-    width: auto;
-    margin: 0;
-    padding: var(--bs-btn-padding-y) var(--bs-btn-padding-x);
-    border: var(--bs-btn-border-width) solid var(--bs-btn-border-color);
-    border-radius: var(--bs-btn-border-radius);
-    background-color: var(--bs-btn-bg);
-    color: var(--bs-btn-color);
-    font-size: var(--bs-btn-font-size);
-    font-weight: var(--bs-btn-font-weight);
-    line-height: var(--bs-btn-line-height);
-}
-
-.evolucao-page button.btn[type="submit"]:hover {
-    border-color: var(--bs-btn-hover-border-color);
-    background-color: var(--bs-btn-hover-bg);
-    color: var(--bs-btn-hover-color);
-}
-
-.aluno-theme form.agendamento-cancel-form {
-    all: unset !important;
-    display: inline !important;
-}
-
-.aluno-theme form.agendamento-cancel-form button.agendamento-cancel-button {
-    all: unset !important;
-    display: inline-block !important;
-    box-sizing: border-box !important;
-    margin: 0 !important;
-    padding: .35em .65em !important;
-    border: 0 !important;
-    border-radius: .375rem !important;
-    background: #dc3545 !important;
-    color: #fff !important;
-    font: inherit !important;
-    font-size: .75em !important;
-    font-weight: 700 !important;
-    line-height: 1 !important;
-    vertical-align: baseline !important;
-    text-align: center !important;
-    white-space: nowrap !important;
-    cursor: pointer !important;
-    appearance: none !important;
-}
-
-.aluno-theme form.agendamento-cancel-form button.agendamento-cancel-button:hover {
-    background: #bb2d3b !important;
-}
-
-@media (max-width: 768px) {
-    .aluno-theme main.container {
-        width: min(94%, 620px);
-        padding-top: 24px;
+/* Responsividade para telas menores */
+@media (max-width: 992px) {
+    body.aluno-theme:not(.aluno-contract-page) .aluno-dashboard-progress-column {
+        width: 33.333333%;
     }
 
-    .aluno-page main.container {
-        width: min(94%, 620px);
-        padding-top: 24px;
-    }
-
-    body.aluno-theme:not(.aluno-contract-page) .aluno-dashboard-welcome {
-        align-items: flex-start;
-        flex-direction: column;
-    }
-
-    body.aluno-theme:not(.aluno-contract-page) .aluno-dashboard-kpis {
+    body.aluno-theme:not(.aluno-contract-page) .aluno-dashboard-sidecards-column {
+        width: 25%;
         grid-template-columns: 1fr;
     }
 
-    body.aluno-theme:not(.aluno-contract-page) .aluno-dashboard-section-heading {
-        align-items: flex-start !important;
-        flex-direction: column;
+    body.aluno-theme:not(.aluno-contract-page) .aluno-dashboard-payment-column {
+        width: 41.666667%;
     }
 
-    body.aluno-profile-page main.aluno-profile-dashboard {
-        width: min(94%, 620px);
-        padding-top: 24px;
-    }
-
-    body.aluno-profile-page .aluno-profile-grid {
-        grid-template-columns: 1fr;
-    }
-}
-
-@media (max-width: 480px) {
-    .aluno-theme main.container {
-        width: 92%;
-    }
-}
-
-@media (max-width: 600px) {
-    .historico-header {
-        align-items: flex-start;
-        flex-direction: column;
-    }
-}
-
-@media print {
-    @page {
-        margin: 16mm;
-    }
-
-    body.aluno-contract-page,
-    body.aluno-contract-page * {
-        visibility: hidden !important;
-    }
-
-    body.aluno-contract-page #area-impressao,
-    body.aluno-contract-page #area-impressao * {
-        visibility: visible !important;
-    }
-
-    body.aluno-contract-page #area-impressao {
-        position: absolute;
-        top: 0;
-        left: 0;
+    body.aluno-theme:not(.aluno-contract-page) .aluno-agenda-panel {
         width: 100%;
-        max-height: none !important;
-        overflow: visible !important;
-        margin: 0 !important;
-        border: 0 !important;
-        color: #212529 !important;
-        background: #fff !important;
-        font-size: 11pt !important;
+        padding: 20px !important;
+    }
+
+    body.aluno-theme:not(.aluno-contract-page) .aluno-calendar-day-header {
+        font-size: .72rem;
+    }
+
+    body.aluno-theme:not(.aluno-contract-page) .aluno-calendar-day-header span {
+        font-size: .66rem;
+    }
+}
+
+@media (max-width: 767.98px) {
+    body.aluno-theme:not(.aluno-contract-page) .aluno-dashboard-progress-column,
+    body.aluno-theme:not(.aluno-contract-page) .aluno-dashboard-sidecards-column,
+    body.aluno-theme:not(.aluno-contract-page) .aluno-dashboard-payment-column {
+        width: 100%;
+    }
+
+    body.aluno-theme:not(.aluno-contract-page) .aluno-dashboard-sidecards-column {
+        grid-template-rows: auto;
+    }
+
+    body.aluno-theme:not(.aluno-contract-page) .aluno-agenda-panel {
+        padding: 16px !important;
+    }
+
+    body.aluno-theme:not(.aluno-contract-page) .aluno-calendar-day {
+        flex: 0 0 150px;
     }
 }

@@ -52,12 +52,12 @@ function formatarDataGraduacao(string $data): string
 	<?php include '../includes/header.php'; ?>
 
 	<main class="container">
-		<div class="historico-header">
+		<div class="historico-header d-flex flex-wrap align-items-start justify-content-between gap-3">
 			<div>
 				<h2>Graduação e avaliação</h2>
 				<p>Acompanhe suas conquistas, previsões e orientações dos professores.</p>
 			</div>
-			<a href="home_aluno.php" class="btn btn-sm">Voltar ao início</a>
+			<a href="home_aluno.php" class="btn btn-sm ms-auto">Voltar ao início</a>
 		</div>
 
 		<?php

@@ -23,7 +23,7 @@ require_once __DIR__ . '/../../model/dao/AvaliacaoDAO.php';
 
 $idStaff = (int)$_SESSION['usuario']['id_usuario'];
 $idAcademia = (int)($_SESSION['id_academia'] ?? $_SESSION['usuario']['id_academia'] ?? 0);
-$avaliacaoDAO = new AvaliacaoDAO();
+$avaliacaoDAO = new \AvaliacaoDAO();
 $notificacoes = [];
 $comentarios = [];
 $alunosModalidades = [];
