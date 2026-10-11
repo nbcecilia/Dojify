@@ -4,7 +4,10 @@ class AcademiaDTO {
     private ?int $idAcademia = null;
     private string $nome;
     private string $documento;
+    private string $cep;
     private string $endereco;
+    private string $cidade;
+    private string $estado;
     private string $telefone;
     private string $email;
     private ?string $dataCadastro = null;
@@ -18,8 +21,17 @@ class AcademiaDTO {
     public function getDocumento(): string { return $this->documento; }
     public function setDocumento(string $documento): void { $this->documento = $documento; }
 
+    public function getCep(): string { return $this->cep; }
+    public function setCep(string $cep): void { $this->cep = $cep; }
+
     public function getEndereco(): string { return $this->endereco; }
     public function setEndereco(string $endereco): void { $this->endereco = $endereco; }
+
+    public function getCidade(): string { return $this->cidade; }
+    public function setCidade(string $cidade): void { $this->cidade = $cidade; }
+
+    public function getEstado(): string { return $this->estado; }
+    public function setEstado(string $estado): void { $this->estado = $estado; }
 
     public function getTelefone(): string { return $this->telefone; }
     public function setTelefone(string $telefone): void { $this->telefone = $telefone; }

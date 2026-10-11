@@ -61,8 +61,8 @@ if (!$gerente || $gerente['perfil_id'] != 2) {
             <label>Nome Completo:</label>
             <input type="text" name="nome" value="<?= htmlspecialchars($gerente['nome']) ?>" required>
 
-            <label>CPF (somente números):</label>
-            <input type="text" name="cpf" value="<?= htmlspecialchars($gerente['cpf']) ?>" maxlength="11" required>
+            <label>CPF:</label>
+            <input type="text" name="cpf" value="<?= htmlspecialchars($gerente['cpf']) ?>" placeholder="000.000.000-00" maxlength="14" required>
 
             <label>Data de Nascimento:</label>
             <input type="date" name="data_nascimento" value="<?= htmlspecialchars($gerente['data_nascimento']) ?>" required>
@@ -86,5 +86,6 @@ if (!$gerente || $gerente['perfil_id'] != 2) {
     <footer class="footer">
             <p>&copy; <?php echo date('Y'); ?> Dojify. Todos os direitos reservados.</p>
     </footer>
+    <script src="../../assets/js/cpf.js?v=<?= filemtime(__DIR__ . '/../../assets/js/cpf.js'); ?>"></script>
 </body>
 </html>

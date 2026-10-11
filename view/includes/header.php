@@ -8,7 +8,6 @@ $notifications = [
     'total_atrasados' => 0,
     'valor_atrasados' => 0,
     'lista' => [],
-    'avaliacoes' => ['total' => 0, 'lista' => []],
 ];
 $perfilUsuario = (int)($_SESSION['usuario']['perfil_id'] ?? 0);
 $is_aluno = isset($_SESSION['usuario']) && (int)$_SESSION['usuario']['perfil_id'] === 4;
@@ -53,13 +52,6 @@ if (isset($_SESSION['usuario']) && $perfilUsuario === 2 && isset($_SESSION['id_a
     $notifications = $pagamentoDAO->obterNotificacoesFinanceiras((int)$_SESSION['id_academia']);
 }
 
-if (isset($_SESSION['usuario']) && in_array($perfilUsuario, [2, 3], true)) {
-    require_once __DIR__ . '/../../model/dao/AvaliacaoDAO.php';
-    $avaliacaoDAOHeader = new AvaliacaoDAO();
-    $notifications['avaliacoes'] = $avaliacaoDAOHeader->listarNotificacoesEquipe(
-        (int)$_SESSION['usuario']['id_usuario']
-    );
-}
 ?>
 
 <header class="navbar">
@@ -80,8 +72,9 @@ if (isset($_SESSION['usuario']) && in_array($perfilUsuario, [2, 3], true)) {
                 <button type="button" id="btnNotificacao" class="btn-notificacao">
                     🔔
                     <?php
-                    $totalNotificacoesEquipe = (int)($notifications['avaliacoes']['total'] ?? 0)
-                        + ($perfilUsuario === 2 ? (int)($notifications['total_atrasados'] ?? 0) : 0);
+                    $totalNotificacoesEquipe = $perfilUsuario === 2
+                        ? (int)($notifications['total_atrasados'] ?? 0)
+                        : 0;
                     ?>
                     <?php if ($totalNotificacoesEquipe > 0): ?>
                         <span class="notificacao-badge">
@@ -104,7 +97,7 @@ if (isset($_SESSION['usuario']) && in_array($perfilUsuario, [2, 3], true)) {
 
                     <!-- Lista de Atrasados -->
                     <div class="notificacao-lista">
-                        <?php if (empty($notifications['lista']) && empty($notifications['avaliacoes']['lista'])): ?>
+                        <?php if (empty($notifications['lista'])): ?>
                             <p class="notificacao-vazio">
                                 Você não tem notificações no momento.
                             </p>
@@ -118,19 +111,6 @@ if (isset($_SESSION['usuario']) && in_array($perfilUsuario, [2, 3], true)) {
                                         <div class="notificacao-item-info">
                                             <span>Venceu: <?= date('d/m/Y', strtotime($item['data_vencimento'])) ?></span>
                                             <strong>R$ <?= number_format($item['valor'], 2, ',', '.') ?></strong>
-                                        </div>
-                                    </li>
-                                <?php endforeach; ?>
-                                <?php foreach (array_slice($notifications['avaliacoes']['lista'] ?? [], 0, 10) as $item): ?>
-                                    <li>
-                                        <div class="notificacao-item-nome">
-                                            Novo comentário de <?= htmlspecialchars((string)$item['nome_aluno'], ENT_QUOTES, 'UTF-8') ?>
-                                        </div>
-                                        <div class="notificacao-item-info">
-                                            <span><?= date('d/m/Y H:i', strtotime((string)$item['data_comentario'])) ?></span>
-                                            <a href="../professor/avaliacoes.php?comentario=<?= (int)$item['id_avaliacao_comentario'] ?>#avaliacao-<?= (int)$item['id_avaliacao'] ?>">
-                                                Abrir avaliação
-                                            </a>
                                         </div>
                                     </li>
                                 <?php endforeach; ?>

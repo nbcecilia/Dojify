@@ -5,13 +5,16 @@ class AvaliacaoDTO {
     private $id_avaliacao;
     private $id_usuario_professor;
     private $id_usuario_aluno;
+    private $id_modalidade;
     private $data_avaliacao;
+    private $data_prevista;
     private $habilidades_melhorar;
     private $observacoes;
     
     // Campos auxiliares para joins
     private $nome_aluno;
     private $nome_professor;
+    private $nome_modalidade;
 
     // Getters e Setters
     public function getIdAvaliacao() { return $this->id_avaliacao; }
@@ -23,8 +26,14 @@ class AvaliacaoDTO {
     public function getIdUsuarioAluno() { return $this->id_usuario_aluno; }
     public function setIdUsuarioAluno($id_usuario_aluno) { $this->id_usuario_aluno = $id_usuario_aluno; }
 
+    public function getIdModalidade() { return $this->id_modalidade; }
+    public function setIdModalidade($id_modalidade) { $this->id_modalidade = $id_modalidade; }
+
     public function getDataAvaliacao() { return $this->data_avaliacao; }
     public function setDataAvaliacao($data_avaliacao) { $this->data_avaliacao = $data_avaliacao; }
+
+    public function getDataPrevista() { return $this->data_prevista; }
+    public function setDataPrevista($data_prevista) { $this->data_prevista = $data_prevista; }
 
     public function getHabilidadesMelhorar() { return $this->habilidades_melhorar; }
     public function setHabilidadesMelhorar($habilidades_melhorar) { $this->habilidades_melhorar = $habilidades_melhorar; }
@@ -37,4 +46,7 @@ class AvaliacaoDTO {
 
     public function getNomeProfessor() { return $this->nome_professor; }
     public function setNomeProfessor($nome_professor) { $this->nome_professor = $nome_professor; }
+
+    public function getNomeModalidade() { return $this->nome_modalidade; }
+    public function setNomeModalidade($nome_modalidade) { $this->nome_modalidade = $nome_modalidade; }
 }

@@ -23,6 +23,7 @@ require_once dirname(__DIR__, 2) . '/model/dao/AgendamentoDAO.php';
 require_once dirname(__DIR__, 2) . '/model/dao/AvaliacaoDAO.php';
 
 $calendarioSemanal = [];
+$agendaExibeProximaSemana = false;
 $meus_agendamentos = [];
 $graduacoesPrevistasPainel = [];
 $avaliacoesAlunoPainel = [];
@@ -137,7 +138,7 @@ try {
             $is_primeiro_acesso = true;
             
             $stmt_aluno = $pdo_agenda->prepare("
-                SELECT u.nome, u.email, u.cpf, u.data_nascimento, u.telefone,
+                SELECT u.nome, u.email, u.cpf, u.data_nascimento, u.sexo, u.telefone,
                        u.responsavel, u.observacao, a.nome AS academia_nome,
                        p.nome_plano, p.valor AS valor_plano,
                        mp.nome AS modalidade_plano
@@ -163,6 +164,7 @@ try {
                 $cpf_limpo = $dados_contrato['cpf'];
                 $c_cpf = (strlen($cpf_limpo) == 11) ? preg_replace("/(\d{3})(\d{3})(\d{3})(\d{2})/", "\$1.\$2.\$3-\$4", $cpf_limpo) : "Não informado";
                 $c_data_nasc = $dados_contrato['data_nascimento'] ? date('d/m/Y', strtotime($dados_contrato['data_nascimento'])) : "Não informado";
+                $c_sexo = $dados_contrato['sexo'] ?: "Não informado";
                 $c_tel = !empty($dados_contrato['telefone']) ? $dados_contrato['telefone'] : "Não informado";
                 $c_responsavel = $dados_contrato['responsavel'] ?: "O próprio";
                 $c_obs = $dados_contrato['observacao'] ?: "Nenhuma observação registrada";
@@ -173,11 +175,13 @@ try {
                 }
 
                 $stmt_modalidades_contrato = $pdo_agenda->prepare("
-                    SELECT m.nome
-                    FROM aluno_modalidade am
-                    INNER JOIN modalidade m ON m.id_modalidade = am.id_modalidade
-                    WHERE am.id_usuario_aluno = ?
-                    ORDER BY am.id_modalidade
+                    SELECT DISTINCT m.nome
+                    FROM plano p
+                    INNER JOIN modalidade m ON m.id_modalidade = p.id_modalidade
+                    WHERE p.id_usuario_aluno = ?
+                      AND p.status = 'ATIVO'
+                      AND p.id_modalidade IS NOT NULL
+                    ORDER BY m.nome
                 ");
                 $stmt_modalidades_contrato->execute([$id_aluno]);
                 $nomesModalidadesContrato = $stmt_modalidades_contrato->fetchAll(PDO::FETCH_COLUMN);
@@ -238,7 +242,7 @@ try {
         $dados_grad = $stmt_grad->fetch(PDO::FETCH_ASSOC);
         $faixa_aluno = $dados_grad ? $dados_grad['faixa'] : 'Sem Faixa';
         $grau_aluno = $dados_grad && !empty($dados_grad['grau']) ? $dados_grad['grau'] : 'Iniciante';
-        $avaliacaoDAOPainel = new AvaliacaoDAO();
+        $avaliacaoDAOPainel = new \AvaliacaoDAO();
         $graduacoesPrevistasPainel = $avaliacaoDAOPainel->listarGraduacoesPrevistasAluno((int)$id_aluno);
         $avaliacoesAlunoPainel = $avaliacaoDAOPainel->listarEvolucaoAluno((int)$id_aluno);
 
@@ -348,7 +352,7 @@ try {
         $stmt_historico_pagamentos->execute([$id_aluno]);
         $historico_pagamentos = array_reverse($stmt_historico_pagamentos->fetchAll(PDO::FETCH_ASSOC));
 
-        $agendamentoDAO = new AgendamentoDAO();
+        $agendamentoDAO = new \AgendamentoDAO();
         $meus_agendamentos = $agendamentoDAO->listarAgendamentosFuturosPorAluno((int)$id_aluno);
         $total_agendamentos_futuros = count($meus_agendamentos);
 
@@ -377,7 +381,6 @@ try {
                 'id' => 'treinos-' . (int)$id_aluno,
                 'acao' => 'agenda',
                 'tipo' => 'success',
-                'icone' => '🥋',
                 'titulo' => 'Treinos Agendados',
                 'mensagem' => 'Tem ' . $total_agendamentos_futuros . ' treino(s) confirmado(s).'
             ];
@@ -398,10 +401,14 @@ try {
         $agendamentosPorSemana = [];
 
         $hoje = new DateTime();
-        $fimCalendario = (clone $hoje)->modify('monday this week')->modify('+6 days')->setTime(23, 59, 59);
+        $inicioCalendario = clone $hoje;
+        $agendaExibeProximaSemana = (int)$hoje->format('N') >= 5;
+        $inicioCalendario->modify($agendaExibeProximaSemana ? 'monday next week' : 'monday this week');
+        $inicioCalendario->setTime(0, 0, 0);
+        $fimCalendario = (clone $inicioCalendario)->modify('+6 days')->setTime(23, 59, 59);
         $reservasConfirmadas = $agendamentoDAO->listarReservasConfirmadasNoPeriodo(
             (int)$id_aluno,
-            $hoje->format('Y-m-d 00:00:00'),
+            $inicioCalendario->format('Y-m-d H:i:s'),
             $fimCalendario->format('Y-m-d H:i:s')
         );
         $reservasPorAula = [];
@@ -411,7 +418,8 @@ try {
         }
 
         for ($i = 1; $i <= 7; $i++) {
-            $diaLoop = clone $hoje; $diaLoop->modify('monday this week')->modify('+' . ($i - 1) . ' days');
+            $diaLoop = clone $inicioCalendario;
+            $diaLoop->modify('+' . ($i - 1) . ' days');
             $inicioSemana = (clone $diaLoop)->modify('monday this week')->setTime(0, 0, 0);
             $fimSemana = (clone $inicioSemana)->modify('sunday this week')->setTime(23, 59, 59);
             $chaveSemana = $inicioSemana->format('Y-m-d');
@@ -472,7 +480,7 @@ try {
                 <div class="col-lg-10">
                     <div class="card shadow border-0 rounded-3">
                         <div class="card-header bg-dark text-white text-center py-3 d-print-none">
-                            <h4 class="mb-0 fw-bold">🥋 Bem-vindo à Dojify! Acesso Inicial</h4>
+                            <h4 class="mb-0 fw-bold"> Bem-vindo ao seu Acesso Inicial</h4>
                         </div>
                         <div class="card-body p-4">
                             <p class="text-center text-muted mb-4 d-print-none">Para libertar o seu painel de agendamentos, confirme os seus dados no contrato abaixo, assinale a caixa de aceite e defina a sua nova senha pessoal.</p>
@@ -594,10 +602,10 @@ try {
                     <h2>Painel do Aluno</h2>
                     <p>Bem-vindo(a), <?= htmlspecialchars($_SESSION['usuario']['nome']) ?>!</p>
                 </div>
-                <span class="aluno-dashboard-role">
+                <a href="perfil.php" class="aluno-dashboard-role">
                     <i class="bi bi-person"></i>
                     Aluno
-                </span>
+                </a>
             </header>
 
             <?php if (!empty($mensagem_sucesso)): ?>
@@ -614,8 +622,8 @@ try {
                 <div class="col-12 col-md-4 aluno-dashboard-kpi-column aluno-dashboard-progress-column">
                     <div class="card h-100 shadow-sm border p-2 aluno-dashboard-kpi aluno-dashboard-progress-card">
                         <section class="aluno-dashboard-progress-item" aria-labelledby="graduacaoAlunoTitulo">
-                            <h6 id="graduacaoAlunoTitulo" class="text-dark fw-bold mb-1">Graduação</h6>
-                            <div class="d-flex align-items-center gap-3 mb-2">
+                            <h5 id="graduacaoAlunoTitulo" class="text-dark fw-bold mb-1">Graduação</h5>
+                            <div class="d-flex align-items-center justify-content-center gap-3 mb-2">
                                 <?php if ($faixaImagem !== null): ?>
                                     <img
                                         src="../../assets/img/<?= htmlspecialchars($faixaImagem, ENT_QUOTES, 'UTF-8') ?>"
@@ -638,7 +646,7 @@ try {
                                     <?php endforeach; ?>
                                 </div>
                             <?php else: ?>
-                                <p class="small text-muted mt-2 mb-0">Sem previsão de próxima graduação.</p>
+                                <p class="small text-muted text-center mt-2 mb-0">Sem previsão de próxima graduação.</p>
                             <?php endif; ?>
                             <div class="aluno-dashboard-assessment-note mt-3">
                                 <?php if (!empty($avaliacoesAlunoPainel)): ?>
@@ -704,7 +712,7 @@ try {
                 <div class="card-header bg-dark text-white border-0 px-3 py-2">
                     <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2">
                         <div>
-                            <h5 class="fw-bold mb-0" id="estadoFinanceiroTitulo">💳 Mensalidade</h5>
+                            <h5 class="fw-bold mb-0" id="estadoFinanceiroTitulo"> Mensalidade</h5>
                         </div>
                         <?php if ($statusPagamentoUpper === 'PAGO'): ?>
                             <span class="badge rounded-pill bg-success px-3 py-2">Pagamento confirmado</span>
@@ -804,8 +812,12 @@ try {
             <?php $modaisAgendamento = []; ?>
             <!-- CALENDÁRIO SEMANAL COMPACTO -->
             <section class="card shadow-sm border p-3 mb-4 aluno-dashboard-panel aluno-agenda-panel" aria-labelledby="agendaSemanalTitulo">
-                <h5 id="agendaSemanalTitulo" class="aluno-dashboard-section-title">Agenda semanal de treinos</h5>
-                <p class="aluno-dashboard-section-subtitle">Escolha uma aula e confirme seu agendamento.</p>
+                <h2 id="agendaSemanalTitulo" class="aluno-dashboard-section-title">AGENDA SEMANAL DE TREINOS</h2>
+                <p class="aluno-dashboard-section-subtitle">
+                    <?php if (!$agendaExibeProximaSemana): ?>
+                        Escolha uma aula e confirme seu agendamento.
+                    <?php endif; ?>
+                </p>
                 <?php if ($idsModalidadesAluno === []): ?>
                     <div class="alert alert-warning small text-center py-2" role="alert">
                         O seu plano ainda não está vinculado a uma modalidade. Peça à academia para atualizar o cadastro para liberar as aulas.
@@ -831,7 +843,7 @@ try {
                                     <?php foreach ($dia['aulas'] as $aula): ?>
                                         <div class="p-2 rounded mb-2 border text-center aluno-calendar-class">
                                             <span class="d-block fw-bold aluno-calendar-class-name"><?= htmlspecialchars($aula['nome_turma']); ?></span>
-                                            <span class="d-block mb-2 aluno-calendar-class-time">⏰ <?= date('H:i', strtotime($aula['hora_inicio'])); ?></span>
+                                            <span class="d-block mb-2 aluno-calendar-class-time"> <?= date('H:i', strtotime($aula['hora_inicio'])); ?></span>
                                             <?php
                                             $horaAulaExibicao = trim((string)($aula['hora_inicio'] ?? ''));
                                             if (preg_match('/^\d{2}:\d{2}$/', $horaAulaExibicao)) {
@@ -938,7 +950,7 @@ try {
                         <p class="aluno-dashboard-section-subtitle">Acompanhe as aulas que já estão agendadas.</p>
                     </div>
                     <a href="historico_frequencia.php" class="btn btn-outline-dark btn-sm fw-bold text-nowrap">
-                        📜   Visualizar Histórico de Frequência
+                           Visualizar Histórico de Frequência
                     </a>
                 </div>
                 <div class="table-responsive">
@@ -966,6 +978,7 @@ try {
                                                 <input type="hidden" name="id_agendamento" value="<?= $ag->getIdAgendamento(); ?>">
                                                 <button type="submit"
                                                         class="agendamento-cancel-button"
+                                                        style="border: 0 !important; outline: 0 !important; box-shadow: none !important; appearance: none; -webkit-appearance: none;"
                                                         onclick="return confirm('Deseja cancelar este agendamento?')">
                                                     Cancelar
                                                 </button>

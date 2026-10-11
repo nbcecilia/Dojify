@@ -114,7 +114,7 @@
     display: flex;
     align-items: stretch;
     gap: 10px;
-    min-height: 132px;
+    min-height: 104px;
     border-bottom: 1px solid var(--aluno-border);
 }
 
@@ -126,7 +126,7 @@
     align-items: center;
     justify-content: space-between;
     min-width: 0;
-    height: 132px;
+    height: 104px;
     padding-top: 2px;
 }
 
@@ -145,7 +145,7 @@
 
 .aluno-theme .payment-history-bar {
     position: absolute;
-    bottom: 20px;
+    bottom: 18px;
     width: min(32px, 65%);
     min-height: 6px;
     border-radius: 5px 5px 0 0;
@@ -284,6 +284,18 @@ body.aluno-theme:not(.aluno-contract-page) .aluno-dashboard-role {
     white-space: nowrap;
 }
 
+body.aluno-theme:not(.aluno-contract-page) a.aluno-dashboard-role {
+    color: var(--aluno-text-secondary);
+    text-decoration: none;
+    transition: border-color .2s ease, color .2s ease;
+}
+
+body.aluno-theme:not(.aluno-contract-page) a.aluno-dashboard-role:hover,
+body.aluno-theme:not(.aluno-contract-page) a.aluno-dashboard-role:focus-visible {
+    border-color: var(--aluno-dark);
+    color: var(--aluno-text);
+}
+
 body.aluno-theme:not(.aluno-contract-page) .aluno-dashboard > .alert {
     border: 1px solid var(--aluno-border);
     border-radius: 10px;
@@ -295,7 +307,7 @@ body.aluno-theme:not(.aluno-contract-page) .aluno-dashboard-kpis {
     display: flex;
     flex-wrap: wrap;
     gap: 0;
-    margin: 0 0 16px;
+    margin: 0 0 4px !important;
     --bs-gutter-x: 1rem;
     --bs-gutter-y: .75rem;
 }
@@ -317,20 +329,22 @@ body.aluno-theme:not(.aluno-contract-page) .aluno-dashboard-progress-item {
     display: flex;
     flex-direction: column;
     justify-content: center;
-    padding: 12px 18px;
+    padding: 8px 12px;
 }
 
 body.aluno-theme:not(.aluno-contract-page) .aluno-dashboard-assessment-note {
     border-top: 1px solid var(--aluno-border);
-    padding-top: 10px;
+    padding-top: 6px;
+    margin-top: 8px !important;
 }
 
 /* Cards Laterais Superiores (Data e Nível / XP) */
 body.aluno-theme:not(.aluno-contract-page) .aluno-dashboard-sidecards-column {
     display: grid !important;
     grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: repeat(2, minmax(0, 1fr));
-    gap: 10px;
+    grid-template-rows: auto auto;
+    align-content: start;
+    gap: 4px;
 }
 
 body.aluno-theme:not(.aluno-contract-page) .aluno-dashboard-payment-column .card-pagamento {
@@ -338,7 +352,7 @@ body.aluno-theme:not(.aluno-contract-page) .aluno-dashboard-payment-column .card
 }
 
 body.aluno-theme:not(.aluno-contract-page) .aluno-dashboard-payment-column .payment-current {
-    padding: 12px !important;
+    padding: 8px !important;
 }
 
 body.aluno-theme:not(.aluno-contract-page) .aluno-dashboard-payment-column .payment-current-value {
@@ -346,7 +360,7 @@ body.aluno-theme:not(.aluno-contract-page) .aluno-dashboard-payment-column .paym
 }
 
 body.aluno-theme:not(.aluno-contract-page) .aluno-dashboard-payment-column .payment-current-due {
-    margin-top: 8px;
+    margin-top: 5px;
     text-align: center;
 }
 
@@ -367,11 +381,11 @@ body.aluno-theme:not(.aluno-contract-page) .aluno-dashboard-payment-column .paym
 
 body.aluno-theme:not(.aluno-contract-page) .aluno-dashboard-sidecard {
     display: flex;
-    min-height: 82px;
+    min-height: 68px;
     flex-direction: column;
     align-items: flex-start;
     justify-content: center;
-    padding: 10px 14px;
+    padding: 7px 10px;
     border: 1px solid var(--aluno-border);
     border-radius: 10px;
     background: var(--aluno-surface);
@@ -384,6 +398,11 @@ body.aluno-theme:not(.aluno-contract-page) .aluno-dashboard-sidecard > i {
     margin-bottom: 3px;
     color: var(--aluno-text-secondary);
     font-size: 1.05rem;
+}
+
+body.aluno-theme:not(.aluno-contract-page) .aluno-dashboard-date-card {
+    align-items: center;
+    text-align: center;
 }
 
 body.aluno-theme:not(.aluno-contract-page) .aluno-dashboard-level-card {
@@ -469,6 +488,56 @@ body.aluno-theme:not(.aluno-contract-page) .aluno-dashboard-section-subtitle {
     font-size: .82rem;
 }
 
+body.aluno-theme:not(.aluno-contract-page) .aluno-upcoming-panel .agendamento-cancel-form {
+    width: auto;
+    max-width: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+}
+
+body.aluno-theme:not(.aluno-contract-page) .aluno-upcoming-panel .agendamento-cancel-button {
+    all: unset;
+    appearance: none;
+    -webkit-appearance: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: .35em .65em;
+    border: 0;
+    border-radius: 4px;
+    outline: 0;
+    box-shadow: none;
+    background: var(--action-danger);
+    color: #fff;
+    font-family: inherit;
+    font-size: .75rem;
+    font-weight: 600;
+    text-align: center;
+    cursor: pointer;
+}
+
+body.aluno-theme:not(.aluno-contract-page) .aluno-upcoming-panel .agendamento-cancel-button:hover,
+body.aluno-theme:not(.aluno-contract-page) .aluno-upcoming-panel .agendamento-cancel-button:active,
+body.aluno-theme:not(.aluno-contract-page) .aluno-upcoming-panel .agendamento-cancel-button:focus {
+    border: 0;
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+body.aluno-theme:not(.aluno-contract-page) .aluno-upcoming-panel .agendamento-cancel-button:hover {
+    color: var(--action-danger-hover);
+    background: var(--action-danger-hover);
+}
+
+body.aluno-theme:not(.aluno-contract-page) .aluno-upcoming-panel .agendamento-cancel-button:focus-visible {
+    outline: 2px solid var(--aluno-dark);
+    outline-offset: 2px;
+}
+
 /* Agenda semanal com os sete dias visíveis em telas amplas */
 body.aluno-theme:not(.aluno-contract-page) .aluno-calendar {
     width: 100%;
@@ -497,6 +566,12 @@ body.aluno-theme:not(.aluno-contract-page) .aluno-agenda-panel {
     margin-right: auto !important;
     margin-left: auto !important;
     padding: 22px !important;
+}
+
+body.aluno-theme:not(.aluno-contract-page) .aluno-agenda-panel > .aluno-dashboard-section-title,
+body.aluno-theme:not(.aluno-contract-page) .aluno-agenda-panel > .aluno-dashboard-section-subtitle,
+body.aluno-theme:not(.aluno-contract-page) .aluno-agenda-panel > .aluno-agenda-modalidades {
+    text-align: center;
 }
 
 body.aluno-theme:not(.aluno-contract-page) .aluno-calendar-day-header {
@@ -591,5 +666,133 @@ body.aluno-theme:not(.aluno-contract-page) .aluno-calendar-class .btn-success:ho
 
     body.aluno-theme:not(.aluno-contract-page) .aluno-calendar-day {
         flex: 0 0 150px;
+    }
+}
+
+body.aluno-theme.aluno-profile-page .aluno-profile-dashboard {
+    min-height: calc(100vh - 180px);
+}
+
+body.aluno-theme.aluno-profile-page .aluno-dashboard-welcome {
+    align-items: center;
+}
+
+body.aluno-theme.aluno-profile-page .aluno-profile-welcome-copy {
+    flex: 1;
+    text-align: center;
+}
+
+body.aluno-theme.aluno-profile-page .aluno-profile-welcome-copy h2 {
+    margin-bottom: 6px;
+}
+
+body.aluno-theme.aluno-profile-page .aluno-profile-back-button {
+    flex: 0 0 auto;
+    gap: 6px;
+    padding: 6px 10px;
+    border: 0;
+    background: #111;
+    color: #fff !important;
+    font-size: .78rem;
+}
+
+body.aluno-theme.aluno-profile-page .aluno-profile-back-button:hover,
+body.aluno-theme.aluno-profile-page .aluno-profile-back-button:focus-visible {
+    background: #333;
+    color: #fff !important;
+}
+
+body.aluno-theme.aluno-profile-page .aluno-profile-matricula-heading {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+body.aluno-theme.aluno-profile-page .aluno-profile-contract-button {
+    flex: 0 0 auto;
+    gap: 6px;
+    padding: 6px 10px;
+    border: 0;
+    background: #111;
+    color: #fff !important;
+    font-size: .78rem;
+}
+
+body.aluno-theme.aluno-profile-page .aluno-profile-contract-button:hover,
+body.aluno-theme.aluno-profile-page .aluno-profile-contract-button:focus-visible {
+    background: #333;
+    color: #fff !important;
+}
+
+body.aluno-theme.aluno-profile-page .aluno-profile-section {
+    margin-bottom: 24px;
+    padding: 24px;
+    border: 1px solid var(--aluno-border);
+    border-radius: 12px;
+    background: var(--aluno-surface);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, .06);
+}
+
+body.aluno-theme.aluno-profile-page .aluno-profile-section-heading {
+    margin-bottom: 20px;
+}
+
+body.aluno-theme.aluno-profile-page .aluno-profile-section-heading h3 {
+    margin: 0 0 6px;
+    font-size: 1.15rem;
+    font-weight: 700;
+}
+
+body.aluno-theme.aluno-profile-page .aluno-profile-section-heading p {
+    margin: 0;
+    color: var(--aluno-text-secondary);
+}
+
+body.aluno-theme.aluno-profile-page .aluno-profile-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+    gap: 14px;
+}
+
+body.aluno-theme.aluno-profile-page .aluno-profile-item {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    gap: 6px;
+    padding: 14px 16px;
+    border: 1px solid var(--aluno-border);
+    border-radius: 9px;
+    background: var(--aluno-surface-soft);
+}
+
+body.aluno-theme.aluno-profile-page .aluno-profile-item > span {
+    color: var(--aluno-text-muted);
+    font-size: .82rem;
+}
+
+body.aluno-theme.aluno-profile-page .aluno-profile-item > strong {
+    overflow-wrap: anywhere;
+    color: var(--aluno-text);
+    font-size: .98rem;
+    font-weight: 600;
+}
+
+body.aluno-theme.aluno-profile-page .aluno-profile-empty {
+    margin: 0;
+    color: var(--aluno-text-secondary);
+}
+
+@media (max-width: 767.98px) {
+    body.aluno-theme.aluno-profile-page .aluno-profile-section {
+        padding: 18px;
+    }
+
+    body.aluno-theme.aluno-profile-page .aluno-dashboard-welcome {
+        align-items: flex-start;
+    }
+
+    body.aluno-theme.aluno-profile-page .aluno-profile-matricula-heading {
+        flex-direction: column;
     }
 }

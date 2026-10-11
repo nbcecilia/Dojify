@@ -85,7 +85,12 @@ class UsuarioController {
             $nome           = trim($_POST['nome'] ?? '');
             $cpf            = preg_replace('/[^0-9]/', '', $_POST['cpf'] ?? '');
             $dataNascimento = $_POST['data_nascimento'] ?? '';
+            $sexo           = trim($_POST['sexo'] ?? '');
             $telefone       = trim($_POST['telefone'] ?? '');
+            $cep            = preg_replace('/\D/', '', $_POST['cep'] ?? '');
+            $endereco       = trim($_POST['endereco'] ?? '');
+            $cidade         = trim($_POST['cidade'] ?? '');
+            $estado         = strtoupper(trim($_POST['estado'] ?? ''));
             $email          = filter_input(INPUT_POST, 'email', FILTER_VALIDATE_EMAIL);
             $senha          = $_POST['senha'] ?? '';
 
@@ -97,8 +102,6 @@ class UsuarioController {
                     $idsModalidades
                 ), static fn (int $id): bool => $id > 0)))
                 : [];
-            $idModalidade = $idsModalidades[0] ?? 0;
-            
             $valorPlanoStr  = $_POST['valor_plano'] ?? '0';
             $valorPlanoStr  = str_replace(',', '.', $valorPlanoStr);
             $valorPlano     = (float)$valorPlanoStr;
@@ -109,8 +112,10 @@ class UsuarioController {
 
             if (
                 empty($idAcademia) || empty($nome) || empty($cpf) || empty($dataNascimento)
+                || !in_array($sexo, ['Feminino', 'Masculino', 'Outro', 'Prefiro não informar'], true)
                 || !$email || empty($senha) || empty($nomePlano) || count($idsModalidades) < 1
-                || count($idsModalidades) > 3
+                || count($idsModalidades) > 3 || strlen($cep) !== 8 || $endereco === ''
+                || $cidade === '' || !preg_match('/^[A-Z]{2}$/', $estado)
             ) {
                 if (count($idsModalidades) < 1 || count($idsModalidades) > 3) {
                     throw new InvalidArgumentException("Selecione de uma a três modalidades.");
@@ -127,8 +132,8 @@ class UsuarioController {
             }
 
             // Inserção do Aluno (Perfil 4)
-            $sqlUsuario = "INSERT INTO usuario (id_academia, perfil_id, nome, cpf, data_nascimento, telefone, email, responsavel, observacao, data_matricula, status) 
-                            VALUES (:id_academia, 4, :nome, :cpf, :data_nascimento, :telefone, :email, :responsavel, :observacao, :data_matricula, 'ATIVO')";
+            $sqlUsuario = "INSERT INTO usuario (id_academia, perfil_id, nome, cpf, data_nascimento, sexo, telefone, email, cep, endereco, cidade, estado, responsavel, observacao, data_matricula, status)
+                            VALUES (:id_academia, 4, :nome, :cpf, :data_nascimento, :sexo, :telefone, :email, :cep, :endereco, :cidade, :estado, :responsavel, :observacao, :data_matricula, 'ATIVO')";
             
             $stmt = $pdo->prepare($sqlUsuario);
             $stmt->execute([
@@ -136,24 +141,18 @@ class UsuarioController {
                 ':nome'            => $nome,
                 ':cpf'             => $cpf,
                 ':data_nascimento' => $dataNascimento,
+                ':sexo'            => $sexo,
                 ':telefone'        => $telefone,
                 ':email'           => $email,
+                ':cep'             => substr($cep, 0, 5) . '-' . substr($cep, 5),
+                ':endereco'        => $endereco,
+                ':cidade'          => $cidade,
+                ':estado'          => $estado,
                 ':responsavel'     => $responsavel,
                 ':observacao'      => $observacao,
                 ':data_matricula'  => $dataMatricula
             ]);
             $idUsuarioNovo = $pdo->lastInsertId();
-
-            $stmtAlunoModalidade = $pdo->prepare("
-                INSERT INTO aluno_modalidade (id_usuario_aluno, id_modalidade)
-                VALUES (:id_usuario_aluno, :id_modalidade)
-            ");
-            foreach ($idsModalidades as $idModalidadeSelecionada) {
-                $stmtAlunoModalidade->execute([
-                    ':id_usuario_aluno' => $idUsuarioNovo,
-                    ':id_modalidade' => $idModalidadeSelecionada
-                ]);
-            }
 
             $senhaHash = password_hash($senha, PASSWORD_DEFAULT);
             $sqlLogin = "INSERT INTO login (id_usuario, senha_hash) VALUES (:id_usuario, :senha_hash)";
@@ -166,15 +165,19 @@ class UsuarioController {
 
             $sqlPlano = "INSERT INTO plano (id_usuario_aluno, id_modalidade, nome_plano, valor, data_inicio, data_fim, status)
                        VALUES (:id_usuario_aluno, :id_modalidade, :nome_plano, :valor, CURDATE(), DATE_ADD(CURDATE(), INTERVAL 1 MONTH), 'ATIVO')";
-            
             $stmtPlano = $pdo->prepare($sqlPlano);
-            $stmtPlano->execute([
-                ':id_usuario_aluno' => $idUsuarioNovo,
-                ':id_modalidade'    => $idModalidade,
-                ':nome_plano'       => $nomePlano,
-                ':valor'            => $valorPlano
-            ]);
-            $idPlanoNovo = $pdo->lastInsertId();
+            $idPlanoNovo = null;
+            foreach ($idsModalidades as $idModalidadeSelecionada) {
+                $stmtPlano->execute([
+                    ':id_usuario_aluno' => $idUsuarioNovo,
+                    ':id_modalidade'    => $idModalidadeSelecionada,
+                    ':nome_plano'       => $nomePlano,
+                    ':valor'            => $valorPlano
+                ]);
+                if ($idPlanoNovo === null) {
+                    $idPlanoNovo = (int)$pdo->lastInsertId();
+                }
+            }
 
             $sqlPagamento = "INSERT INTO pagamento (id_plano_matricula, valor, data_vencimento, status) 
                              VALUES (:id_plano_matricula, :valor, DATE_ADD(CURDATE(), INTERVAL 10 DAY), 'PENDENTE')";
@@ -225,19 +228,29 @@ class UsuarioController {
             $nome           = trim($_POST['nome'] ?? '');
             $cpf            = preg_replace('/[^0-9]/', '', $_POST['cpf'] ?? '');
             $dataNascimento = $_POST['data_nascimento'] ?? '';
+            $sexo           = trim($_POST['sexo'] ?? '');
             $telefone       = trim($_POST['telefone'] ?? '');
+            $cep            = preg_replace('/\D/', '', $_POST['cep'] ?? '');
+            $endereco       = trim($_POST['endereco'] ?? '');
+            $cidade         = trim($_POST['cidade'] ?? '');
+            $estado         = strtoupper(trim($_POST['estado'] ?? ''));
             $email          = filter_input(INPUT_POST, 'email', FILTER_VALIDATE_EMAIL);
             $senha          = $_POST['senha'] ?? '';
             $especialidade  = trim($_POST['especialidade'] ?? '');
             $dataAdmissao   = !empty($_POST['data_admissao']) ? $_POST['data_admissao'] : date('Y-m-d');
 
-            if (empty($idAcademia) || empty($nome) || empty($cpf) || empty($dataNascimento) || !$email || empty($senha)) {
+            if (
+                empty($idAcademia) || empty($nome) || empty($cpf) || empty($dataNascimento) || !$email
+                || !in_array($sexo, ['Feminino', 'Masculino', 'Outro', 'Prefiro não informar'], true)
+                || empty($senha) || strlen($cep) !== 8 || $endereco === '' || $cidade === ''
+                || !preg_match('/^[A-Z]{2}$/', $estado)
+            ) {
                 throw new Exception("Preencha todos os campos obrigatórios corretamente.");
             }
 
             // Inserção do Professor (perfil_id = 3)
-            $sqlUsuario = "INSERT INTO usuario (id_academia, perfil_id, nome, cpf, data_nascimento, telefone, email, especialidade, data_admissao, status) 
-                            VALUES (:id_academia, 3, :nome, :cpf, :data_nascimento, :telefone, :email, :especialidade, :data_admissao, 'ATIVO')";
+            $sqlUsuario = "INSERT INTO usuario (id_academia, perfil_id, nome, cpf, data_nascimento, sexo, telefone, email, cep, endereco, cidade, estado, especialidade, data_admissao, status)
+                            VALUES (:id_academia, 3, :nome, :cpf, :data_nascimento, :sexo, :telefone, :email, :cep, :endereco, :cidade, :estado, :especialidade, :data_admissao, 'ATIVO')";
             
             $stmt = $pdo->prepare($sqlUsuario);
             $stmt->execute([
@@ -245,8 +258,13 @@ class UsuarioController {
                 ':nome'            => $nome,
                 ':cpf'             => $cpf,
                 ':data_nascimento' => $dataNascimento,
+                ':sexo'            => $sexo,
                 ':telefone'        => $telefone,
                 ':email'           => $email,
+                ':cep'             => substr($cep, 0, 5) . '-' . substr($cep, 5),
+                ':endereco'        => $endereco,
+                ':cidade'          => $cidade,
+                ':estado'          => $estado,
                 ':especialidade'   => $especialidade,
                 ':data_admissao'   => $dataAdmissao
             ]);
@@ -317,7 +335,6 @@ class UsuarioController {
                     $idsModalidades
                 ), static fn (int $id): bool => $id > 0)))
                 : [];
-            $idModalidade = $idsModalidades[0] ?? 0;
             $valorPlanoStr = $_POST['valor_plano'] ?? '0';
             $valorPlanoStr = str_replace(',', '.', $valorPlanoStr);
             $valorPlano    = (float)$valorPlanoStr;
@@ -354,29 +371,52 @@ class UsuarioController {
                 ':id_academia' => $idAcademia
             ]);
 
-            $sqlPlano = "UPDATE plano 
-                         SET id_modalidade = :id_modalidade, nome_plano = :nome_plano, valor = :valor
-                         WHERE id_usuario_aluno = :id_usuario_aluno AND status = 'ATIVO'";
-            
-            $stmtPlano = $pdo->prepare($sqlPlano);
-            $stmtPlano->execute([
-                ':nome_plano'       => $nomePlano,
-                ':id_modalidade'    => $idModalidade,
-                ':valor'            => $valorPlano,
-                ':id_usuario_aluno' => $idUsuario
-            ]);
+            $stmtPlanos = $pdo->prepare("
+                SELECT id_plano, id_modalidade
+                FROM plano
+                WHERE id_usuario_aluno = :id_usuario_aluno AND status = 'ATIVO'
+                ORDER BY id_plano ASC
+            ");
+            $stmtPlanos->execute([':id_usuario_aluno' => $idUsuario]);
+            $planosPorModalidade = [];
+            foreach ($stmtPlanos->fetchAll(PDO::FETCH_ASSOC) as $planoAtivo) {
+                $planosPorModalidade[(int)$planoAtivo['id_modalidade']] = (int)$planoAtivo['id_plano'];
+            }
 
-            $stmtExcluirModalidades = $pdo->prepare("DELETE FROM aluno_modalidade WHERE id_usuario_aluno = ?");
-            $stmtExcluirModalidades->execute([$idUsuario]);
-            $stmtAlunoModalidade = $pdo->prepare("
-                INSERT INTO aluno_modalidade (id_usuario_aluno, id_modalidade)
-                VALUES (:id_usuario_aluno, :id_modalidade)
+            $stmtAtualizarPlano = $pdo->prepare("
+                UPDATE plano SET nome_plano = :nome_plano, valor = :valor
+                WHERE id_plano = :id_plano
+            ");
+            $stmtNovoPlano = $pdo->prepare("
+                INSERT INTO plano (id_usuario_aluno, id_modalidade, nome_plano, valor, data_inicio, data_fim, status)
+                VALUES (:id_usuario_aluno, :id_modalidade, :nome_plano, :valor, CURDATE(), DATE_ADD(CURDATE(), INTERVAL 1 MONTH), 'ATIVO')
             ");
             foreach ($idsModalidades as $idModalidadeSelecionada) {
-                $stmtAlunoModalidade->execute([
+                if (isset($planosPorModalidade[$idModalidadeSelecionada])) {
+                    $stmtAtualizarPlano->execute([
+                        ':nome_plano' => $nomePlano,
+                        ':valor' => $valorPlano,
+                        ':id_plano' => $planosPorModalidade[$idModalidadeSelecionada],
+                    ]);
+                    unset($planosPorModalidade[$idModalidadeSelecionada]);
+                    continue;
+                }
+
+                $stmtNovoPlano->execute([
                     ':id_usuario_aluno' => $idUsuario,
-                    ':id_modalidade' => $idModalidadeSelecionada
+                    ':id_modalidade' => $idModalidadeSelecionada,
+                    ':nome_plano' => $nomePlano,
+                    ':valor' => $valorPlano,
                 ]);
+            }
+
+            if ($planosPorModalidade !== []) {
+                $placeholders = implode(',', array_fill(0, count($planosPorModalidade), '?'));
+                $stmtCancelarPlanos = $pdo->prepare("
+                    UPDATE plano SET status = 'CANCELADO', data_fim = CURDATE()
+                    WHERE id_plano IN ($placeholders)
+                ");
+                $stmtCancelarPlanos->execute(array_values($planosPorModalidade));
             }
 
             $pdo->commit();
@@ -455,16 +495,21 @@ class UsuarioController {
             $u->setNome(trim($_POST['nome'] ?? ''));
             $u->setCpf(preg_replace('/[^0-9]/', '', $_POST['cpf'] ?? ''));
             $u->setDataNascimento($_POST['data_nascimento'] ?? '');
+            $sexo = trim($_POST['sexo'] ?? '');
             $u->setTelefone(trim($_POST['telefone'] ?? ''));
             $u->setEmail(filter_input(INPUT_POST, 'email', FILTER_VALIDATE_EMAIL));
             $u->setStatus('ATIVO');
 
             $senha = $_POST['senha'] ?? '';
 
-            if (empty($senha) || !$u->getEmail() || !$u->getIdAcademia()) {
+            if (
+                empty($senha) || !$u->getEmail() || !$u->getIdAcademia()
+                || !in_array($sexo, ['Feminino', 'Masculino', 'Outro', 'Prefiro não informar'], true)
+            ) {
                 header('Location: ../view/admin/cadastrar_gerente.php?erro=dados_incompletos');
                 exit;
             }
+            $u->setSexo($sexo);
 
             if ($this->dao->cadastrar($u, $senha)) {
                 header('Location: ../view/admin/listar_academias_gerentes.php?sucesso=1');

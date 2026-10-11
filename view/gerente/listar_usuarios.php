@@ -186,16 +186,18 @@ foreach ($usuarios as $u) {
                     <th>E-mail</th>
                     <th>Telefone</th>
                     <th>Estado</th>
+                    <th>Contrato</th>
                     <th>Ações</th>
                 </tr>
             </thead>
             <tbody>
                 <?php if (empty($alunos)): ?>
                     <tr>
-                        <td colspan="6" class="text-center text-muted">Nenhum aluno registado nesta academia.</td>
+                        <td colspan="7" class="text-center text-muted">Nenhum aluno registado nesta academia.</td>
                     </tr>
                 <?php else: ?>
                     <?php foreach ($alunos as $u): ?>
+                        <?php $contratoAceito = (int)($u['primeiro_acesso'] ?? 1) === 0; ?>
                         <tr>
                             <td>
                                 <strong><?php echo htmlspecialchars($u['nome']); ?></strong>
@@ -213,6 +215,14 @@ foreach ($usuarios as $u) {
                                     <span>Suspenso</span>
                                 <?php else: ?>
                                     <span>Inativo</span>
+                                <?php endif; ?>
+                            </td>
+                            <td>
+                                <?php if ($contratoAceito): ?>
+                                    <span class="status-badge status-badge--pago">Aceito</span>
+                                    <a href="visualizar_contrato_aluno.php?id=<?php echo (int)$u['id_usuario']; ?>" class="btn btn-sm btn-info">Ver contrato</a>
+                                <?php else: ?>
+                                    <span class="status-badge status-badge--pendente">Pendente</span>
                                 <?php endif; ?>
                             </td>
                             <td>

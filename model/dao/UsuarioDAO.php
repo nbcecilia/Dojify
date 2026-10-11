@@ -23,10 +23,10 @@ class UsuarioDAO {
 
 
             $sql = "INSERT INTO usuario (
-                        id_academia, perfil_id, nome, cpf, data_nascimento, telefone, email, 
+                        id_academia, perfil_id, nome, cpf, data_nascimento, sexo, telefone, email,
                         especialidade, data_admissao, responsavel, observacao, data_matricula, status
                     ) VALUES (
-                        :id_academia, :perfil_id, :nome, :cpf, :data_nascimento, :telefone, :email, 
+                        :id_academia, :perfil_id, :nome, :cpf, :data_nascimento, :sexo, :telefone, :email,
                         :especialidade, :data_admissao, :responsavel, :observacao, :data_matricula, :status
                     )";
 
@@ -37,6 +37,7 @@ class UsuarioDAO {
             $stmt->bindValue(':nome', $u->getNome());
             $stmt->bindValue(':cpf', $u->getCpf());
             $stmt->bindValue(':data_nascimento', $u->getDataNascimento());
+            $stmt->bindValue(':sexo', $u->getSexo());
             $stmt->bindValue(':telefone', $u->getTelefone());
             $stmt->bindValue(':email', $u->getEmail());
             

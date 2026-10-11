@@ -28,7 +28,7 @@ $modalidadeDAO = new ModalidadeDAO();$modalidades = $modalidadeDAO->listarPorAca
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cadastrar Utilizador - Dojify</title>
-    <link rel="stylesheet" href="../../assets/css/estilo.css">
+    <link rel="stylesheet" href="../../assets/css/estilo.css?v=<?= filemtime(__DIR__ . '/../../assets/css/estilo.css'); ?>">
 </head>
 <body>
     <?php include '../includes/header.php'; ?>
@@ -38,7 +38,7 @@ $modalidadeDAO = new ModalidadeDAO();$modalidades = $modalidadeDAO->listarPorAca
         <div id="alerta-container"></div>
 
         <!-- O action inicial aponta para aluno como padrão, mas o JS vai alterar dinamicamente -->
-        <form id="form-cadastro" action="../../controller/UsuarioController.php?acao=cadastrar_aluno" method="POST">
+        <form id="form-cadastro" action="../../controller/UsuarioController.php?acao=cadastrar_aluno" method="POST" data-cep-form autocomplete="off">
             
             <div class="text-center" style="margin-bottom: 20px;">
                 <img src="../../assets/img/dojify_logo1.png" alt="Dojify Logo" style="width: 100px; height: auto; margin-bottom: 12px; filter: grayscale(100%);">
@@ -62,19 +62,32 @@ $modalidadeDAO = new ModalidadeDAO();$modalidades = $modalidadeDAO->listarPorAca
                 <input type="text" id="nome" name="nome" placeholder="Ex: João da Silva" required>
             </div>
 
-            <div>
-                <label for="cpf">CPF:</label>
-                <input type="text" id="cpf" name="cpf" placeholder="Apenas números" maxlength="11" required>
+            <div class="form-row-inline">
+                <div>
+                    <label for="cpf">CPF:</label>
+                    <input type="text" id="cpf" name="cpf" placeholder="000.000.000-00" maxlength="14" required>
+                </div>
+                <div>
+                    <label for="telefone">Telefone:</label>
+                    <input type="tel" id="telefone" name="telefone" pattern="\([0-9]{2}\) [0-9]{4,5}-[0-9]{4}" placeholder="Ex: (61) 98888-7777" required>
+                </div>
             </div>
 
-            <div>
-                <label for="data_nascimento">Data de Nascimento:</label>
-                <input type="date" id="data_nascimento" name="data_nascimento" required>
-            </div>
-
-            <div>
-                <label for="telefone">Telefone:</label>
-                <input type="tel" id="telefone" name="telefone" pattern="\([0-9]{2}\) [0-9]{4,5}-[0-9]{4}" placeholder="Ex: (61) 98888-7777" required>
+            <div class="form-row-inline">
+                <div>
+                    <label for="data_nascimento">Data de Nascimento:</label>
+                    <input type="date" id="data_nascimento" name="data_nascimento" required>
+                </div>
+                <div>
+                    <label for="sexo">Sexo:</label>
+                    <select id="sexo" name="sexo" required>
+                        <option value="">Selecione...</option>
+                        <option value="Feminino">Feminino</option>
+                        <option value="Masculino">Masculino</option>
+                        <option value="Outro">Outro</option>
+                        <option value="Prefiro não informar">Prefiro não informar</option>
+                    </select>
+                </div>
             </div>
 
             <div>
@@ -83,8 +96,49 @@ $modalidadeDAO = new ModalidadeDAO();$modalidades = $modalidadeDAO->listarPorAca
             </div>
 
             <div>
+                <label for="cep">CEP:</label>
+                <div class="cep-lookup">
+                    <input type="text" id="cep" name="cep" inputmode="numeric" autocomplete="postal-code" maxlength="9" pattern="[0-9]{5}-?[0-9]{3}" placeholder="00000-000" required>
+                    <button type="button" class="btn btn-sm btn-info" data-cep-lookup>Buscar CEP</button>
+                </div>
+                <p id="cep-status" class="text-muted" aria-live="polite"></p>
+            </div>
+
+            <div>
+                <label for="endereco">Endereço:</label>
+                <input type="text" id="endereco" name="endereco" autocomplete="street-address" maxlength="100" required>
+            </div>
+
+            <div class="form-row-inline">
+                <div>
+                    <label for="cidade">Cidade:</label>
+                    <input type="text" id="cidade" name="cidade" autocomplete="address-level2" maxlength="45" required>
+                </div>
+                <div>
+                    <label for="estado">Estado (UF):</label>
+                    <select id="estado" name="estado" autocomplete="off" required>
+                    <option value="" selected>Selecione o estado...</option>
+                    <option value="AC">AC</option><option value="AL">AL</option>
+                    <option value="AP">AP</option><option value="AM">AM</option>
+                    <option value="BA">BA</option><option value="CE">CE</option>
+                    <option value="DF">DF</option><option value="ES">ES</option>
+                    <option value="GO">GO</option><option value="MA">MA</option>
+                    <option value="MT">MT</option><option value="MS">MS</option>
+                    <option value="MG">MG</option><option value="PA">PA</option>
+                    <option value="PB">PB</option><option value="PR">PR</option>
+                    <option value="PE">PE</option><option value="PI">PI</option>
+                    <option value="RJ">RJ</option><option value="RN">RN</option>
+                    <option value="RS">RS</option><option value="RO">RO</option>
+                    <option value="RR">RR</option><option value="SC">SC</option>
+                    <option value="SP">SP</option><option value="SE">SE</option>
+                    <option value="TO">TO</option>
+                    </select>
+                </div>
+            </div>
+
+            <div>
                 <label for="senha">Senha temporária de Acesso:</label>
-                <input type="password" id="senha" name="senha" placeholder="Mínimo de 6 caracteres" required>
+                <input type="password" id="senha" name="senha" placeholder="Mínimo de 6 caracteres" autocomplete="new-password" required>
             </div>
 
 
@@ -108,27 +162,30 @@ $modalidadeDAO = new ModalidadeDAO();$modalidades = $modalidadeDAO->listarPorAca
                     <textarea id="observacao" name="observacao" placeholder="Ex: Alérgico a dipirona, lesão antiga no joelho..."></textarea>
                 </div> 
 
-                <?php for ($numeroModalidade = 1; $numeroModalidade <= 3; $numeroModalidade++): ?>
-                    <div>
-                        <label for="id_modalidade_<?= $numeroModalidade; ?>">
-                            Modalidade <?= $numeroModalidade; ?><?= $numeroModalidade === 1 ? ' (obrigatória)' : ' (opcional)'; ?>:
-                        </label>
-                        <select
-                            id="id_modalidade_<?= $numeroModalidade; ?>"
-                            name="id_modalidades[]"
-                            <?= $numeroModalidade === 1 ? 'required' : ''; ?>
-                        >
-                            <option value="">Selecione a modalidade...</option>
-                            <?php foreach ($modalidades as $modalidade): ?>
-                                <option value="<?= (int)$modalidade['id_modalidade']; ?>">
-                                    <?= htmlspecialchars($modalidade['nome'], ENT_QUOTES, 'UTF-8'); ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-                <?php endfor; ?>
+                <div class="modalidades-inline">
+                    <?php for ($numeroModalidade = 1; $numeroModalidade <= 3; $numeroModalidade++): ?>
+                        <div>
+                            <label for="id_modalidade_<?= $numeroModalidade; ?>">
+                                Modalidade <?= $numeroModalidade; ?><?= $numeroModalidade === 1 ? ' (obrigatória)' : ' (opcional)'; ?>:
+                            </label>
+                            <select
+                                id="id_modalidade_<?= $numeroModalidade; ?>"
+                                name="id_modalidades[]"
+                                <?= $numeroModalidade === 1 ? 'required' : ''; ?>
+                            >
+                                <option value="">Selecione...</option>
+                                <?php foreach ($modalidades as $modalidade): ?>
+                                    <option value="<?= (int)$modalidade['id_modalidade']; ?>">
+                                        <?= htmlspecialchars($modalidade['nome'], ENT_QUOTES, 'UTF-8'); ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                    <?php endfor; ?>
+                </div>
 
-                <div>
+                <div class="form-row-inline">
+                    <div>
                     <label for="nome_plano">Plano Contratado:</label>
                     <select id="nome_plano" name="nome_plano">
                         <option value="">Selecione o plano...</option>
@@ -153,11 +210,11 @@ $modalidadeDAO = new ModalidadeDAO();$modalidades = $modalidadeDAO->listarPorAca
                             <option value="All Inclusive Ilimitado">All Inclusive (Ilimitado)</option>
                         </optgroup>
                     </select>
-                </div>
-
-                <div>
-                    <label for="valor_plano">Valor do Plano (R$):</label>
-                    <input type="number" step="0.01" min="0" id="valor_plano" name="valor_plano" placeholder="Ex: 150.00">
+                    </div>
+                    <div>
+                        <label for="valor_plano">Valor do Plano (R$):</label>
+                        <input type="number" step="0.01" min="0" id="valor_plano" name="valor_plano" placeholder="Ex: 150.00">
+                    </div>
                 </div>
             </div>
 
@@ -193,6 +250,7 @@ $modalidadeDAO = new ModalidadeDAO();$modalidades = $modalidadeDAO->listarPorAca
     </div>
 
     <?php include '../includes/footer.php'; ?>
+    <script src="../../assets/js/cep.js" defer></script>
 
     <!-- SCRIPT PARA ALTERNÂNCIA DINÂMICA DE CAMPOS E VALIDAÇÃO -->
     <script>
@@ -288,5 +346,6 @@ $modalidadeDAO = new ModalidadeDAO();$modalidades = $modalidadeDAO->listarPorAca
             }
         });
     </script>
+    <script src="../../assets/js/cpf.js?v=<?= filemtime(__DIR__ . '/../../assets/js/cpf.js'); ?>"></script>
 </body>
 </html>

@@ -43,7 +43,7 @@ $academias = $academiaDAO->listarTodas();
             <div class="alert-erro">Erro ao cadastrar gerente. Verifique se o CPF ou E-mail já estão em uso.</div>
         <?php endif; ?>
 
-        <form action="../../controller/UsuarioController.php" method="POST">
+        <form action="../../controller/UsuarioController.php" method="POST" autocomplete="off">
              <div class="text-center" style="margin-bottom: 20px;">
                 <img src="../../assets/img/dojify_logo1.png" alt="Dojify Logo" style="width: 100px; height: auto; margin-bottom: 12px; filter: grayscale(100%);">
                 <h2>Cadastrar Gerente</h2>
@@ -61,20 +61,39 @@ $academias = $academiaDAO->listarTodas();
             <label>Nome Completo do Gerente:</label>
             <input type="text" name="nome" required>
 
-            <label>CPF (apenas números):</label>
-            <input type="text" name="cpf" maxlength="11" required>
+            <div class="form-row-inline">
+                <div>
+                    <label for="cpf">CPF (apenas números):</label>
+                    <input type="text" id="cpf" name="cpf" placeholder="000.000.000-00" maxlength="14" required>
+                </div>
+                <div>
+                    <label for="telefone">Telefone:</label>
+                    <input type="tel" id="telefone" name="telefone" pattern="\([0-9]{2}\) [0-9]{4,5}-[0-9]{4}" required>
+                </div>
+            </div>
 
-            <label>Data de Nascimento:</label>
-            <input type="date" name="data_nascimento" required>
-
-            <label>Telefone:</label>
-            <input type="tel" name="telefone" pattern="\([0-9]{2}\) [0-9]{4,5}-[0-9]{4}" required>
+            <div class="form-row-inline">
+                <div>
+                    <label for="data_nascimento">Data de Nascimento:</label>
+                    <input type="date" id="data_nascimento" name="data_nascimento" required>
+                </div>
+                <div>
+                    <label for="sexo">Sexo:</label>
+                    <select id="sexo" name="sexo" required>
+                        <option value="">Selecione...</option>
+                        <option value="Feminino">Feminino</option>
+                        <option value="Masculino">Masculino</option>
+                        <option value="Outro">Outro</option>
+                        <option value="Prefiro não informar">Prefiro não informar</option>
+                    </select>
+                </div>
+            </div>
 
             <label>E-mail de Acesso:</label>
             <input type="email" name="email" required>
 
             <label>Senha de Acesso:</label>
-            <input type="password" name="senha" required>
+            <input type="password" name="senha" autocomplete="new-password" required>
 
             <button type="submit">Cadastrar Gerente</button>
         </form>
@@ -82,5 +101,6 @@ $academias = $academiaDAO->listarTodas();
     <footer class="footer">
             <p>&copy; <?php echo date('Y'); ?> Dojify. Todos os direitos reservados.</p>
     </footer>
+    <script src="../../assets/js/cpf.js?v=<?= filemtime(__DIR__ . '/../../assets/js/cpf.js'); ?>"></script>
 </body>
 </html>

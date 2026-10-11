@@ -9,17 +9,12 @@ if (!isset($_SESSION['usuario']) || (int) ($_SESSION['usuario']['perfil_id'] ?? 
 	exit;
 }
 
-if (!isset($_SESSION['csrf_token'])) {
-	$_SESSION['csrf_token'] = bin2hex(random_bytes(32));
-}
-
 require_once __DIR__ . '/../../controller/GraduacaoController.php';
 require_once __DIR__ . '/../../model/dao/AvaliacaoDAO.php';
 
 $historico = [];
 $graduacoesPrevistas = [];
 $avaliacoes = [];
-$notificacoes = [];
 $mensagemErro = null;
 $avaliacaoDAO = new AvaliacaoDAO();
 
@@ -60,26 +55,6 @@ function formatarDataGraduacao(string $data): string
 			<a href="home_aluno.php" class="btn btn-sm ms-auto">Voltar ao início</a>
 		</div>
 
-		<?php
-		$mensagensFeedback = [
-			'comentario_enviado' => 'Seu comentário foi enviado ao professor e à gerência.',
-			'previsao_salva' => 'A previsão da graduação foi atualizada.',
-			'notificacao_lida' => 'Notificação marcada como lida.',
-		];
-		$mensagensErroFeedback = [
-			'dados_invalidos' => 'Confira os dados informados e tente novamente.',
-			'token_invalido' => 'Sua sessão expirou. Atualize a página e tente novamente.',
-			'interno' => 'Não foi possível salvar sua solicitação. Tente novamente mais tarde.',
-		];
-		$sucessoFeedback = $mensagensFeedback[(string)($_GET['sucesso'] ?? '')] ?? null;
-		$erroFeedback = $mensagensErroFeedback[(string)($_GET['erro'] ?? '')] ?? null;
-		?>
-		<?php if ($sucessoFeedback): ?>
-			<div class="alert alert-success" role="status"><?= htmlspecialchars($sucessoFeedback, ENT_QUOTES, 'UTF-8') ?></div>
-		<?php endif; ?>
-		<?php if ($erroFeedback): ?>
-			<div class="alert alert-danger" role="alert"><?= htmlspecialchars($erroFeedback, ENT_QUOTES, 'UTF-8') ?></div>
-		<?php endif; ?>
 		<?php if ($mensagemErro): ?>
 			<div class="alert-erro alerta-historico" role="alert"><?= htmlspecialchars($mensagemErro, ENT_QUOTES, 'UTF-8') ?></div>
 		<?php endif; ?>
@@ -89,7 +64,7 @@ function formatarDataGraduacao(string $data): string
 				<div class="card border-0 shadow-sm mb-4">
 					<div class="card-body p-4">
 						<div class="d-flex align-items-center gap-3 mb-3">
-							<span class="evolucao-icon" aria-hidden="true">🥋</span>
+							<span class="evolucao-icon" aria-hidden="true"></span>
 							<div>
 								<h3 id="graduacoes-heading" class="h5 fw-bold mb-1">Próximas graduações</h3>
 								<p class="text-muted small mb-0">Previsões informadas pela equipe da academia.</p>
@@ -148,7 +123,7 @@ function formatarDataGraduacao(string $data): string
 
 			<section class="col-lg-7" aria-labelledby="avaliacoes-heading">
 				<div class="d-flex align-items-center gap-3 mb-3">
-					<span class="evolucao-icon" aria-hidden="true">✍️</span>
+					<span class="evolucao-icon" aria-hidden="true"></span>
 					<div>
 						<h3 id="avaliacoes-heading" class="h5 fw-bold mb-1">Avaliações do professor</h3>
 						<p class="text-muted small mb-0">Orientações registradas para acompanhar sua evolução.</p>
@@ -171,6 +146,10 @@ function formatarDataGraduacao(string $data): string
 										</div>
 									</div>
 									<div class="avaliacao-conteudo mb-3">
+										<?php if (!empty($avaliacao['nome_modalidade'])): ?>
+											<h5 class="small fw-bold text-uppercase">Modalidade</h5>
+											<p><?= htmlspecialchars($avaliacao['nome_modalidade'], ENT_QUOTES, 'UTF-8') ?></p>
+										<?php endif; ?>
 										<h5 class="small fw-bold text-uppercase">Pontos para desenvolver</h5>
 										<p class="mb-0"><?= nl2br(htmlspecialchars($avaliacao['habilidades_melhorar'], ENT_QUOTES, 'UTF-8')) ?></p>
 									</div>
@@ -180,32 +159,6 @@ function formatarDataGraduacao(string $data): string
 											<p class="mb-0"><?= nl2br(htmlspecialchars($avaliacao['observacoes'], ENT_QUOTES, 'UTF-8')) ?></p>
 										</div>
 									<?php endif; ?>
-
-									<div class="avaliacao-comentarios mt-4">
-										<h5 class="small fw-bold mb-3">Seu comentário</h5>
-										<?php if (!empty($avaliacao['comentarios'])): ?>
-											<div class="d-grid gap-2 mb-3">
-												<?php foreach ($avaliacao['comentarios'] as $comentario): ?>
-													<div class="comentario-aluno">
-														<p class="mb-1"><?= nl2br(htmlspecialchars($comentario['comentario'], ENT_QUOTES, 'UTF-8')) ?></p>
-														<time class="small text-muted" datetime="<?= htmlspecialchars($comentario['data_comentario'], ENT_QUOTES, 'UTF-8') ?>">
-															<?= date('d/m/Y H:i', strtotime($comentario['data_comentario'])) ?>
-														</time>
-													</div>
-												<?php endforeach; ?>
-											</div>
-										<?php endif; ?>
-										<form method="POST" action="../../controller/AvaliacaoController.php?acao=comentar">
-											<input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'], ENT_QUOTES, 'UTF-8') ?>">
-											<input type="hidden" name="id_avaliacao" value="<?= (int)$avaliacao['id_avaliacao'] ?>">
-											<label class="visually-hidden" for="comentario-<?= (int)$avaliacao['id_avaliacao'] ?>">Escreva um comentário sobre esta avaliação</label>
-											<textarea class="form-control mb-2" id="comentario-<?= (int)$avaliacao['id_avaliacao'] ?>" name="comentario" rows="3" maxlength="3000" placeholder="Escreva uma dúvida ou comentário para o professor..." required></textarea>
-											<div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
-												<span class="small text-muted">O professor responsável e a gerência serão avisados.</span>
-												<button type="submit" class="btn btn-dark btn-sm fw-bold px-3">Enviar comentário</button>
-											</div>
-										</form>
-									</div>
 								</div>
 							</article>
 						<?php endforeach; ?>

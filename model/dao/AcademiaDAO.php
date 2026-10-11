@@ -12,13 +12,16 @@ class AcademiaDAO {
 
     public function cadastrar(AcademiaDTO $academia): bool {
         try {
-            $sql = "INSERT INTO academia (nome, documento, endereco, telefone, email) 
-                    VALUES (:nome, :documento, :endereco, :telefone, :email)";
+            $sql = "INSERT INTO academia (nome, documento, cep, endereco, cidade, estado, telefone, email)
+                    VALUES (:nome, :documento, :cep, :endereco, :cidade, :estado, :telefone, :email)";
             
             $stmt = $this->conexao->prepare($sql);
             $stmt->bindValue(':nome', $academia->getNome());
             $stmt->bindValue(':documento', $academia->getDocumento());
+            $stmt->bindValue(':cep', $academia->getCep());
             $stmt->bindValue(':endereco', $academia->getEndereco());
+            $stmt->bindValue(':cidade', $academia->getCidade());
+            $stmt->bindValue(':estado', $academia->getEstado());
             $stmt->bindValue(':telefone', $academia->getTelefone());
             $stmt->bindValue(':email', $academia->getEmail());
             

@@ -22,7 +22,9 @@ $pdo = Conexao::getConexao();
 $sql = "SELECT u.*, p.id_plano, p.id_modalidade, p.nome_plano, p.valor, p.status as status_plano 
         FROM usuario u 
         LEFT JOIN plano p ON u.id_usuario = p.id_usuario_aluno AND p.status = 'ATIVO' 
-        WHERE u.id_usuario = :id AND u.id_academia = :id_academia";
+        WHERE u.id_usuario = :id AND u.id_academia = :id_academia
+        ORDER BY p.id_plano ASC
+        LIMIT 1";
 
 $stmt = $pdo->prepare($sql);
 $stmt->execute([
@@ -32,17 +34,15 @@ $stmt->execute([
 $aluno = $stmt->fetch(PDO::FETCH_ASSOC);
 $modalidades = (new ModalidadeDAO())->listarPorAcademia((int)$_SESSION['usuario']['id_academia']);
 $stmtModalidadesAluno = $pdo->prepare("
-    SELECT id_modalidade
-    FROM aluno_modalidade
+    SELECT DISTINCT id_modalidade
+    FROM plano
     WHERE id_usuario_aluno = :id_usuario_aluno
+      AND status = 'ATIVO'
+      AND id_modalidade IS NOT NULL
+    ORDER BY id_modalidade
 ");
 $stmtModalidadesAluno->execute([':id_usuario_aluno' => $idUsuario]);
 $idsModalidadesAluno = array_map('intval', $stmtModalidadesAluno->fetchAll(PDO::FETCH_COLUMN));
-$idModalidadePlano = (int)($aluno['id_modalidade'] ?? 0);
-$idsModalidadesAluno = array_values(array_unique(array_merge(
-    $idModalidadePlano > 0 ? [$idModalidadePlano] : [],
-    $idsModalidadesAluno
-)));
 
 if (!$aluno) {
     header('Location: listar_usuarios.php?erro=nao_encontrado');

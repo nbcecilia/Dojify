@@ -51,15 +51,16 @@ $avaliacoes = $avaliacaoController->listarPorAcademia($idAcademia);
                                 <tr>
                                     <th class="ps-4">Data</th>
                                     <th>Aluno</th>
+                                    <th>Modalidade</th>
                                     <th>Professor</th>
                                     <th>Habilidades a Melhorar</th>
-                                    <th class="text-end pe-4">Ações</th>
+                                    <th>Próxima graduação prevista</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <?php if (empty($avaliacoes)): ?>
                                     <tr>
-                                        <td colspan="5" class="text-center py-4 text-muted">
+                                        <td colspan="6" class="text-center py-4 text-muted">
                                             Nenhuma avaliação registada até o momento.
                                         </td>
                                     </tr>
@@ -68,13 +69,10 @@ $avaliacoes = $avaliacaoController->listarPorAcademia($idAcademia);
                                         <tr>
                                             <td class="ps-4"><?= date('d/m/Y', strtotime($av->getDataAvaliacao())) ?></td>
                                             <td><strong><?= htmlspecialchars($av->getNomeAluno()) ?></strong></td>
+                                            <td><?= htmlspecialchars((string)($av->getNomeModalidade() ?? 'Não informada'), ENT_QUOTES, 'UTF-8') ?></td>
                                             <td><?= htmlspecialchars($av->getNomeProfessor()) ?></td>
                                             <td><?= htmlspecialchars(mb_strimwidth($av->getHabilidadesMelhorar(), 0, 50, "...")) ?></td>
-                                            <td class="text-end pe-4">
-                                                <a href="ver_avaliacao.php?id=<?= $av->getIdAvaliacao() ?>" class="btn btn-sm btn-outline-secondary" title="Ver detalhes">
-                                                    <i class="bi bi-eye"></i>
-                                                </a>
-                                            </td>
+                                            <td><?= $av->getDataPrevista() ? date('d/m/Y', strtotime($av->getDataPrevista())) : '—' ?></td>
                                         </tr>
                                     <?php endforeach; ?>
                                 <?php endif; ?>

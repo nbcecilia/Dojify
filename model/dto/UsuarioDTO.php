@@ -7,6 +7,7 @@ class UsuarioDTO {
     private string $nome;
     private string $cpf;
     private string $dataNascimento;
+    private ?string $sexo = null;
     private string $telefone;
     private string $email;
     private ?string $especialidade = null;
@@ -34,6 +35,9 @@ class UsuarioDTO {
 
     public function getDataNascimento(): string { return $this->dataNascimento; }
     public function setDataNascimento(string $dataNascimento): void { $this->dataNascimento = $dataNascimento; }
+
+    public function getSexo(): ?string { return $this->sexo; }
+    public function setSexo(?string $sexo): void { $this->sexo = $sexo; }
 
     public function getTelefone(): string { return $this->telefone; }
     public function setTelefone(string $telefone): void { $this->telefone = $telefone; }

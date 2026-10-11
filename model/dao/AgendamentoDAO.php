@@ -53,28 +53,17 @@ class AgendamentoDAO
     public function obterModalidadesAluno(int $id_aluno): array
     {
         $stmt = $this->conexao->prepare("
-            SELECT am.id_modalidade, m.nome AS modalidade_nome
-            FROM aluno_modalidade am
-            INNER JOIN modalidade m ON m.id_modalidade = am.id_modalidade
-            WHERE am.id_usuario_aluno = ?
-            ORDER BY am.id_modalidade
+            SELECT DISTINCT p.id_modalidade, m.nome AS modalidade_nome
+            FROM plano p
+            INNER JOIN modalidade m ON m.id_modalidade = p.id_modalidade
+            WHERE p.id_usuario_aluno = ?
+              AND p.status = 'ATIVO'
+              AND p.id_modalidade IS NOT NULL
+            ORDER BY p.id_modalidade
         ");
         $stmt->execute([$id_aluno]);
         $modalidades = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-        if ($modalidades !== []) {
-            return $modalidades;
-        }
-
-        $planoAtivo = $this->obterDadosPlanoAtivo($id_aluno);
-        if (!$planoAtivo || (int)($planoAtivo['id_modalidade'] ?? 0) <= 0) {
-            return [];
-        }
-
-        return [[
-            'id_modalidade' => (int)$planoAtivo['id_modalidade'],
-            'modalidade_nome' => (string)($planoAtivo['modalidade_nome'] ?? '')
-        ]];
+        return $modalidades;
     }
 
     public function obterDadosPlanoAtivo(int $id_aluno): ?array

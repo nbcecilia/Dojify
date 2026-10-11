@@ -1,14 +1,28 @@
+-- Faça um backup do banco antes de executar.
+-- Execute este arquivo uma única vez em uma base já existente.
 
 
-ALTER TABLE dojify_1.pagamento
-    ADD COLUMN comprovante_path VARCHAR(255) NULL DEFAULT NULL
-    COMMENT 'Nome interno do arquivo de comprovante enviado pelo aluno.';
+ALTER TABLE dojify_1.usuario
+    ADD COLUMN primeiro_acesso TINYINT(1) DEFAULT 1;
 
-ALTER TABLE usuario ADD primeiro_acesso TINYINT(1) DEFAULT 1;
+ALTER TABLE dojify_1.usuario
+    ADD COLUMN sexo VARCHAR(30) NULL DEFAULT NULL COMMENT 'Sexo informado pelo usuário.' AFTER data_nascimento;
 
-<<<<<<< HEAD
--- Vincula cada plano a uma modalidade para restringir a agenda do aluno.
--- A coluna fica NULL durante a migração para permitir associar os planos existentes.
+ALTER TABLE dojify_1.academia
+    ADD COLUMN status VARCHAR(20) NOT NULL DEFAULT 'ATIVO';
+
+ALTER TABLE dojify_1.usuario
+    ADD COLUMN cep VARCHAR(9) NULL DEFAULT NULL COMMENT 'CEP do endereço do usuário.' AFTER email,
+    ADD COLUMN endereco VARCHAR(100) NOT NULL DEFAULT '' COMMENT 'Endereço residencial do usuário.' AFTER cep,
+    ADD COLUMN cidade VARCHAR(45) NOT NULL DEFAULT '' COMMENT 'Cidade de residência do usuário.' AFTER endereco,
+    ADD COLUMN estado CHAR(2) NOT NULL DEFAULT '' COMMENT 'Sigla do estado (UF) de residência do usuário.' AFTER cidade;
+
+ALTER TABLE dojify_1.academia
+    ADD COLUMN cep VARCHAR(9) NULL DEFAULT NULL COMMENT 'CEP da academia.' AFTER documento,
+    ADD COLUMN cidade VARCHAR(100) NOT NULL DEFAULT '' COMMENT 'Cidade onde a academia está localizada.' AFTER endereco,
+    ADD COLUMN estado CHAR(2) NOT NULL DEFAULT '' COMMENT 'Sigla do estado (UF) onde a academia está localizada.' AFTER cidade;
+
+-- Associa cada plano a uma modalidade.
 ALTER TABLE dojify_1.plano
     ADD COLUMN id_modalidade INT(11) NULL AFTER id_usuario_aluno,
     ADD INDEX id_modalidade (id_modalidade),
@@ -18,8 +32,98 @@ ALTER TABLE dojify_1.plano
         ON DELETE NO ACTION
         ON UPDATE CASCADE;
 
--- Após aplicar a migração, edite os planos existentes e escolha a modalidade correta.
--- Planos sem modalidade vinculada não terão aulas disponíveis para agendamento.
-=======
-ALTER TABLE academia ADD COLUMN status VARCHAR(20) NOT NULL DEFAULT 'ATIVO';
->>>>>>> 7f8e266ebd578604c57b7cd45f4465d2c383512b
+-- Copia as modalidades existentes para plano, sem gerar cobranças adicionais.
+-- O plano ativo mais antigo passa a representar a primeira modalidade.
+UPDATE dojify_1.plano p
+INNER JOIN (
+    SELECT am.id_usuario_aluno, MIN(am.id_modalidade) AS id_modalidade
+    FROM dojify_1.aluno_modalidade am
+    GROUP BY am.id_usuario_aluno
+) primeira_modalidade ON primeira_modalidade.id_usuario_aluno = p.id_usuario_aluno
+SET p.id_modalidade = primeira_modalidade.id_modalidade
+WHERE p.status = 'ATIVO' AND p.id_modalidade IS NULL;
+
+-- Cria registros de plano adicionais apenas como vínculo de modalidade.
+-- Os pagamentos existentes permanecem vinculados ao plano original.
+INSERT INTO dojify_1.plano
+    (id_usuario_aluno, id_modalidade, nome_plano, valor, data_inicio, data_fim, status)
+SELECT
+    am.id_usuario_aluno,
+    am.id_modalidade,
+    base.nome_plano,
+    base.valor,
+    base.data_inicio,
+    base.data_fim,
+    'ATIVO'
+FROM dojify_1.aluno_modalidade am
+INNER JOIN dojify_1.plano base
+    ON base.id_plano = (
+        SELECT MIN(p2.id_plano)
+        FROM dojify_1.plano p2
+        WHERE p2.id_usuario_aluno = am.id_usuario_aluno
+          AND p2.status = 'ATIVO'
+          AND p2.id_modalidade IS NOT NULL
+    )
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM dojify_1.plano existente
+    WHERE existente.id_usuario_aluno = am.id_usuario_aluno
+      AND existente.id_modalidade = am.id_modalidade
+      AND existente.status = 'ATIVO'
+);
+
+-- Revise estes vínculos sem plano ativo antes de excluir aluno_modalidade.
+SELECT am.id_usuario_aluno, am.id_modalidade
+FROM dojify_1.aluno_modalidade am
+LEFT JOIN dojify_1.plano p
+    ON p.id_usuario_aluno = am.id_usuario_aluno
+   AND p.id_modalidade = am.id_modalidade
+   AND p.status = 'ATIVO'
+WHERE p.id_plano IS NULL;
+
+ALTER TABLE dojify_1.avaliacao
+    ADD COLUMN id_modalidade INT(11) NULL AFTER id_usuario_aluno,
+    ADD COLUMN data_prevista DATE NULL DEFAULT NULL AFTER data_avaliacao,
+    ADD INDEX id_modalidade (id_modalidade),
+    ADD CONSTRAINT avaliacao_ibfk_3
+        FOREIGN KEY (id_modalidade)
+        REFERENCES dojify_1.modalidade (id_modalidade)
+        ON DELETE NO ACTION
+        ON UPDATE CASCADE;
+
+-- Migra previsões para a avaliação mais recente quando o aluno tem uma
+-- única modalidade ativa. Previsões sem avaliação correspondente ou de
+-- alunos com várias modalidades devem ser revisadas antes de excluir a tabela.
+UPDATE dojify_1.avaliacao a
+INNER JOIN (
+    SELECT avaliacao.id_usuario_aluno, MAX(avaliacao.id_avaliacao) AS id_avaliacao,
+           MIN(plano.id_modalidade) AS id_modalidade
+    FROM dojify_1.avaliacao
+    INNER JOIN dojify_1.plano
+        ON plano.id_usuario_aluno = avaliacao.id_usuario_aluno
+       AND plano.status = 'ATIVO'
+       AND plano.id_modalidade IS NOT NULL
+    GROUP BY avaliacao.id_usuario_aluno
+    HAVING COUNT(DISTINCT plano.id_modalidade) = 1
+) alvo ON alvo.id_avaliacao = a.id_avaliacao
+INNER JOIN dojify_1.graduacao_prevista prevista
+    ON prevista.id_usuario_aluno = alvo.id_usuario_aluno
+   AND prevista.id_modalidade = alvo.id_modalidade
+SET a.id_modalidade = alvo.id_modalidade,
+    a.data_prevista = prevista.data_prevista;
+
+-- Revise/exporte estas previsões antes de excluir graduacao_prevista.
+SELECT prevista.id_usuario_aluno, prevista.id_modalidade, prevista.data_prevista
+FROM dojify_1.graduacao_prevista prevista
+LEFT JOIN dojify_1.avaliacao a
+    ON a.id_usuario_aluno = prevista.id_usuario_aluno
+   AND a.id_modalidade = prevista.id_modalidade
+   AND a.data_prevista = prevista.data_prevista
+WHERE a.id_avaliacao IS NULL;
+
+-- Depois de conferir os dois SELECTs acima e tratar/exportar os registros
+-- sem correspondência, execute manualmente os DROP TABLE abaixo:
+-- DROP TABLE dojify_1.notificacao_avaliacao;
+-- DROP TABLE dojify_1.avaliacao_comentario;
+-- DROP TABLE dojify_1.graduacao_prevista;
+-- DROP TABLE dojify_1.aluno_modalidade;

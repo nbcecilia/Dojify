@@ -42,11 +42,32 @@ class AcademiaController {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') return;
 
         $a = new AcademiaDTO();
-        $a->setNome(trim($_POST['nome']));
-        $a->setDocumento(preg_replace('/[^0-9]/', '', $_POST['documento']));
-        $a->setEndereco(trim($_POST['endereco']));
-        $a->setTelefone(trim($_POST['telefone']));
-        $a->setEmail(filter_input(INPUT_POST, 'email', FILTER_VALIDATE_EMAIL));
+        $cep = preg_replace('/\D/', '', $_POST['cep'] ?? '');
+        $nome = trim($_POST['nome'] ?? '');
+        $documento = preg_replace('/\D/', '', $_POST['documento'] ?? '');
+        $endereco = trim($_POST['endereco'] ?? '');
+        $cidade = trim($_POST['cidade'] ?? '');
+        $estado = strtoupper(trim($_POST['estado'] ?? ''));
+        $telefone = trim($_POST['telefone'] ?? '');
+        $email = filter_input(INPUT_POST, 'email', FILTER_VALIDATE_EMAIL);
+
+        if (
+            strlen($cep) !== 8 || $nome === '' || $documento === '' || $endereco === ''
+            || $cidade === '' || !preg_match('/^[A-Z]{2}$/', $estado)
+            || $telefone === '' || !$email
+        ) {
+            header('Location: ../view/admin/cadastrar_academia.php?erro=1');
+            exit;
+        }
+
+        $a->setNome($nome);
+        $a->setDocumento($documento);
+        $a->setCep(substr($cep, 0, 5) . '-' . substr($cep, 5));
+        $a->setEndereco($endereco);
+        $a->setCidade($cidade);
+        $a->setEstado($estado);
+        $a->setTelefone($telefone);
+        $a->setEmail($email);
 
         if ($this->dao->cadastrar($a)) {
             header('Location: ../view/admin/listar_academias_gerentes.php?sucesso=1');

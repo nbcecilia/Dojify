@@ -54,6 +54,7 @@ CREATE TABLE IF NOT EXISTS `dojify_1`.`usuario` (
   `nome` VARCHAR(100) NOT NULL COMMENT 'Nome completo do usuário.\n',
   `cpf` CHAR(11) NOT NULL COMMENT 'CPF do usuário (somente números).\n',
   `data_nascimento` DATE NOT NULL COMMENT 'Data de nascimento.\n',
+  `sexo` VARCHAR(30) NULL DEFAULT NULL COMMENT 'Sexo informado pelo usuário.',
   `telefone` VARCHAR(20) NOT NULL COMMENT 'Telefone de contato pessoal.\n',
   `email` VARCHAR(100) NOT NULL COMMENT 'E-mail do usuário para acesso.',
   `especialidade` VARCHAR(100) NULL DEFAULT NULL COMMENT 'Arte marcial/foco de ensino (Específico de Professor).',
@@ -95,27 +96,6 @@ CREATE TABLE IF NOT EXISTS `dojify_1`.`modalidade` (
     FOREIGN KEY (`id_academia`)
     REFERENCES `dojify_1`.`academia` (`id_academia`)
     ON DELETE NO ACTION
-    ON UPDATE CASCADE)
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8mb4;
-
--- -----------------------------------------------------
--- Table `dojify_1`.`aluno_modalidade`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `dojify_1`.`aluno_modalidade` (
-  `id_usuario_aluno` INT(11) NOT NULL,
-  `id_modalidade` INT(11) NOT NULL,
-  PRIMARY KEY (`id_usuario_aluno`, `id_modalidade`),
-  INDEX `id_modalidade` (`id_modalidade` ASC),
-  CONSTRAINT `aluno_modalidade_ibfk_1`
-    FOREIGN KEY (`id_usuario_aluno`)
-    REFERENCES `dojify_1`.`usuario` (`id_usuario`)
-    ON DELETE CASCADE
-    ON UPDATE CASCADE,
-  CONSTRAINT `aluno_modalidade_ibfk_2`
-    FOREIGN KEY (`id_modalidade`)
-    REFERENCES `dojify_1`.`modalidade` (`id_modalidade`)
-    ON DELETE CASCADE
     ON UPDATE CASCADE)
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb4;
@@ -179,12 +159,15 @@ CREATE TABLE IF NOT EXISTS `dojify_1`.`avaliacao` (
   `id_avaliacao` INT(11) NOT NULL AUTO_INCREMENT COMMENT 'Identificador único da avaliação.\n',
   `id_usuario_professor` INT(11) NOT NULL COMMENT 'Professor que aplicou a avaliação.\n',
   `id_usuario_aluno` INT(11) NOT NULL COMMENT 'Aluno avaliado.\n',
+  `id_modalidade` INT(11) NULL DEFAULT NULL COMMENT 'Modalidade à qual esta avaliação e previsão se referem.',
   `data_avaliacao` DATE NOT NULL,
+  `data_prevista` DATE NULL DEFAULT NULL COMMENT 'Data prevista para a próxima graduação.',
   `habilidades_melhorar` TEXT NOT NULL COMMENT 'Descrição técnica das habilidades e pontos a melhorar.',
   `observacoes` TEXT NULL DEFAULT NULL COMMENT 'Registro do professor sobre a evolução técnica, física e comportamental do aluno.',
   PRIMARY KEY (`id_avaliacao`),
   INDEX `id_usuario_professor` (`id_usuario_professor` ASC) ,
   INDEX `id_usuario_aluno` (`id_usuario_aluno` ASC) ,
+  INDEX `id_modalidade` (`id_modalidade` ASC) ,
   CONSTRAINT `avaliacao_ibfk_1`
     FOREIGN KEY (`id_usuario_professor`)
     REFERENCES `dojify_1`.`usuario` (`id_usuario`)
@@ -193,6 +176,11 @@ CREATE TABLE IF NOT EXISTS `dojify_1`.`avaliacao` (
   CONSTRAINT `avaliacao_ibfk_2`
     FOREIGN KEY (`id_usuario_aluno`)
     REFERENCES `dojify_1`.`usuario` (`id_usuario`)
+    ON DELETE NO ACTION
+    ON UPDATE CASCADE,
+  CONSTRAINT `avaliacao_ibfk_3`
+    FOREIGN KEY (`id_modalidade`)
+    REFERENCES `dojify_1`.`modalidade` (`id_modalidade`)
     ON DELETE NO ACTION
     ON UPDATE CASCADE)
 ENGINE = InnoDB
@@ -227,86 +215,6 @@ CREATE TABLE IF NOT EXISTS `dojify_1`.`graduacao` (
     FOREIGN KEY (`id_modalidade`)
     REFERENCES `dojify_1`.`modalidade` (`id_modalidade`)
     ON DELETE NO ACTION
-    ON UPDATE CASCADE)
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8mb4;
-
--- -----------------------------------------------------
--- Table `dojify_1`.`graduacao_prevista`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `dojify_1`.`graduacao_prevista` (
-  `id_usuario_aluno` INT(11) NOT NULL,
-  `id_modalidade` INT(11) NOT NULL,
-  `id_usuario_atualizou` INT(11) NOT NULL,
-  `data_prevista` DATE NOT NULL,
-  `data_atualizada` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id_usuario_aluno`, `id_modalidade`),
-  INDEX `id_modalidade` (`id_modalidade` ASC),
-  INDEX `id_usuario_atualizou` (`id_usuario_atualizou` ASC),
-  CONSTRAINT `graduacao_prevista_ibfk_1`
-    FOREIGN KEY (`id_usuario_aluno`)
-    REFERENCES `dojify_1`.`usuario` (`id_usuario`)
-    ON DELETE CASCADE
-    ON UPDATE CASCADE,
-  CONSTRAINT `graduacao_prevista_ibfk_2`
-    FOREIGN KEY (`id_modalidade`)
-    REFERENCES `dojify_1`.`modalidade` (`id_modalidade`)
-    ON DELETE CASCADE
-    ON UPDATE CASCADE,
-  CONSTRAINT `graduacao_prevista_ibfk_3`
-    FOREIGN KEY (`id_usuario_atualizou`)
-    REFERENCES `dojify_1`.`usuario` (`id_usuario`)
-    ON DELETE NO ACTION
-    ON UPDATE CASCADE)
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8mb4;
-
--- -----------------------------------------------------
--- Table `dojify_1`.`avaliacao_comentario`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `dojify_1`.`avaliacao_comentario` (
-  `id_comentario` INT(11) NOT NULL AUTO_INCREMENT,
-  `id_avaliacao` INT(11) NOT NULL,
-  `id_usuario_aluno` INT(11) NOT NULL,
-  `comentario` TEXT NOT NULL,
-  `data_comentario` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id_comentario`),
-  INDEX `id_avaliacao` (`id_avaliacao` ASC),
-  INDEX `id_usuario_aluno` (`id_usuario_aluno` ASC),
-  CONSTRAINT `avaliacao_comentario_ibfk_1`
-    FOREIGN KEY (`id_avaliacao`)
-    REFERENCES `dojify_1`.`avaliacao` (`id_avaliacao`)
-    ON DELETE CASCADE
-    ON UPDATE CASCADE,
-  CONSTRAINT `avaliacao_comentario_ibfk_2`
-    FOREIGN KEY (`id_usuario_aluno`)
-    REFERENCES `dojify_1`.`usuario` (`id_usuario`)
-    ON DELETE CASCADE
-    ON UPDATE CASCADE)
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8mb4;
-
--- -----------------------------------------------------
--- Table `dojify_1`.`notificacao_avaliacao`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `dojify_1`.`notificacao_avaliacao` (
-  `id_notificacao` INT(11) NOT NULL AUTO_INCREMENT,
-  `id_avaliacao_comentario` INT(11) NOT NULL,
-  `id_usuario_destinatario` INT(11) NOT NULL,
-  `data_criacao` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `data_leitura` TIMESTAMP NULL DEFAULT NULL,
-  PRIMARY KEY (`id_notificacao`),
-  UNIQUE INDEX `notificacao_avaliacao_destinatario` (`id_avaliacao_comentario` ASC, `id_usuario_destinatario` ASC),
-  INDEX `notificacao_avaliacao_usuario_lida` (`id_usuario_destinatario` ASC, `data_leitura` ASC),
-  CONSTRAINT `notificacao_avaliacao_ibfk_1`
-    FOREIGN KEY (`id_avaliacao_comentario`)
-    REFERENCES `dojify_1`.`avaliacao_comentario` (`id_comentario`)
-    ON DELETE CASCADE
-    ON UPDATE CASCADE,
-  CONSTRAINT `notificacao_avaliacao_ibfk_2`
-    FOREIGN KEY (`id_usuario_destinatario`)
-    REFERENCES `dojify_1`.`usuario` (`id_usuario`)
-    ON DELETE CASCADE
     ON UPDATE CASCADE)
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb4;
@@ -389,7 +297,6 @@ CREATE TABLE IF NOT EXISTS `dojify_1`.`pagamento` (
   `forma_pagamento` VARCHAR(50) NULL DEFAULT NULL COMMENT 'Método usado (PIX, CARTAO, DINHEIRO).',
   `status` VARCHAR(20) NULL DEFAULT 'PENDENTE' COMMENT 'Estado do pagamento (PENDENTE, EM_ANALISE, PAGO, ATRASADO).',
   `observacao` TEXT NULL DEFAULT NULL,
-  `comprovante_path` VARCHAR(255) NULL DEFAULT NULL COMMENT 'Nome interno do arquivo de comprovante enviado pelo aluno.',
   PRIMARY KEY (`id_pagamento`),
   INDEX `id_plano_matricula` (`id_plano_matricula` ASC) ,
   CONSTRAINT `pagamento_ibfk_1`
@@ -480,11 +387,6 @@ INSERT INTO modalidade (id_modalidade, id_academia, nome, descricao) VALUES
 (1, 1, 'Jiu-Jítsu', 'Arte suave focada em luta no chão e finalizações'),
 (2, 1, 'Muay Thai', 'Arte com socos, chutes, joelhadas e cotoveladas');
 
-INSERT INTO aluno_modalidade (id_usuario_aluno, id_modalidade) VALUES
-(4, 1),
-(4, 2),
-(5, 2);
-
 -- ==========================================================
 -- 6. TURMA E HORARIO_TURMA
 -- ==========================================================
@@ -500,7 +402,8 @@ INSERT INTO horario_turma(id_horario, id_turma, dia_semana, hora_inicio, hora_fi
 -- ==========================================================
 INSERT INTO plano(id_plano, id_usuario_aluno, id_modalidade, nome_plano, valor, data_inicio, data_fim, status) VALUES 
 (1, 4, 1, 'Mensal 3x/semana', 140.00, '2026-03-01', '2026-04-01', 'ATIVO'),
-(2, 5, 2,  'Mensal 2x/semana', 100.00, '2026-03-01', '2026-06-01', 'ATIVO');
+(2, 5, 2,  'Mensal 2x/semana', 100.00, '2026-03-01', '2026-06-01', 'ATIVO'),
+(3, 4, 2, 'Mensal 3x/semana', 140.00, '2026-03-01', '2026-04-01', 'ATIVO');
 
 INSERT INTO pagamento(id_pagamento, id_plano_matricula, valor, data_vencimento, data_pagamento, forma_pagamento, status) VALUES 
 (1, 1, 140.00, '2026-03-10', '2026-03-08', 'PIX', 'PAGO'),

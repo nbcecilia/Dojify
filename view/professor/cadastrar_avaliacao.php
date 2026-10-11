@@ -15,19 +15,37 @@ if (!isset($_SESSION['usuario']) || !in_array((int)$_SESSION['usuario']['perfil_
 $idAcademia = $_SESSION['usuario']['id_academia'] ?? 0;
 $idProfessor = $_SESSION['usuario']['id_usuario'] ?? 0;
 
-$avaliacaoController = new AvaliacaoController();
+$avaliacaoController = new \AvaliacaoController();
 $alunos = $avaliacaoController->listarAlunosPorAcademia($idAcademia);
 
 $erro = '';
 $sucesso = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $id_aluno = $_POST['id_usuario_aluno'] ?? '';
+    $alunoModalidade = explode('|', (string)($_POST['id_usuario_aluno_modalidade'] ?? ''), 2);
+    $id_aluno = filter_var($alunoModalidade[0] ?? null, FILTER_VALIDATE_INT) ?: 0;
+    $id_modalidade = filter_var($alunoModalidade[1] ?? null, FILTER_VALIDATE_INT) ?: 0;
     $data_avaliacao = $_POST['data_avaliacao'] ?? '';
+    $data_prevista = trim((string)($_POST['data_prevista'] ?? ''));
     $habilidades = $_POST['habilidades_melhorar'] ?? '';
     $observacoes = $_POST['observacoes'] ?? '';
 
-    $resposta = $avaliacaoController->cadastrar($idProfessor, $id_aluno, $data_avaliacao, $habilidades, $observacoes);
+    try {
+        $resposta = $avaliacaoController->cadastrar(
+            (int)$idProfessor,
+            $id_aluno,
+            $id_modalidade,
+            (string)$data_avaliacao,
+            $data_prevista !== '' ? $data_prevista : null,
+            (string)$habilidades,
+            (string)$observacoes
+        );
+    } catch (DomainException $e) {
+        $resposta = ['status' => false, 'mensagem' => 'O aluno ou a modalidade selecionada não tem matrícula ativa nesta academia.'];
+    } catch (Throwable $e) {
+        error_log('Erro ao salvar avaliação: ' . $e->getMessage());
+        $resposta = ['status' => false, 'mensagem' => 'Não foi possível salvar a avaliação. Tente novamente.'];
+    }
 
     if ($resposta['status']) {
         $sucesso = $resposta['mensagem'];
@@ -84,11 +102,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
                 <div class="row g-3">
                     <div class="col-md-8">
-                        <label for="id_usuario_aluno" class="form-label">Aluno <span class="text-danger">*</span></label>
-                        <select class="form-select" id="id_usuario_aluno" name="id_usuario_aluno" required>
-                            <option value="">Selecione o aluno...</option>
+                        <label for="id_usuario_aluno_modalidade" class="form-label">Aluno e modalidade <span class="text-danger">*</span></label>
+                        <select class="form-select" id="id_usuario_aluno_modalidade" name="id_usuario_aluno_modalidade" required>
+                            <option value="">Selecione o aluno e a modalidade...</option>
                             <?php foreach ($alunos as $aluno): ?>
-                                <option value="<?= $aluno['id_usuario'] ?>"><?= htmlspecialchars($aluno['nome']) ?></option>
+                                <option value="<?= (int)$aluno['id_usuario'] ?>|<?= (int)$aluno['id_modalidade'] ?>">
+                                    <?= htmlspecialchars($aluno['nome'] . ' - ' . $aluno['nome_modalidade'], ENT_QUOTES, 'UTF-8') ?>
+                                </option>
                             <?php endforeach; ?>
                         </select>
                     </div>
@@ -96,6 +116,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <div class="col-md-4">
                         <label for="data_avaliacao" class="form-label">Data da Avaliação <span class="text-danger">*</span></label>
                         <input type="date" class="form-control" id="data_avaliacao" name="data_avaliacao" value="<?= date('Y-m-d') ?>" required>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label for="data_prevista" class="form-label">Previsão da próxima graduação</label>
+                        <input type="date" class="form-control" id="data_prevista" name="data_prevista" min="<?= date('Y-m-d', strtotime('+1 day')) ?>">
                     </div>
 
                     <div class="col-12">
