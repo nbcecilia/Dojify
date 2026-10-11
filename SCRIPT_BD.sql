@@ -423,45 +423,6 @@ SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
 
-
--- ===========================================================
--- ALTERAÇÕES
--- ===========================================================
-ALTER TABLE usuario ADD primeiro_acesso TINYINT(1) DEFAULT 1;
-ALTER TABLE academia ADD COLUMN status VARCHAR(20) NOT NULL DEFAULT 'ATIVO'; 
-
--- Adicionando novos campos na tabela usuario logo após o email
-ALTER TABLE usuario 
-  ADD COLUMN cep VARCHAR(9) NULL DEFAULT NULL COMMENT 'CEP do endereço do usuário.' AFTER email,
-  ADD COLUMN endereco VARCHAR(100) NOT NULL DEFAULT NULL COMMENT 'Endereço residencial do usuário.' AFTER cep,
-  ADD COLUMN cidade VARCHAR(45) NOT NULL DEFAULT NULL COMMENT 'Cidade de residência do usuário.' AFTER endereco,
-  ADD COLUMN estado CHAR(2) NOT NULL DEFAULT NULL COMMENT 'Sigla do estado (UF) de residência do usuário.' AFTER cidade;
-
--- Adicionando novos campos na tabela academia 
-ALTER TABLE academia 
-  ADD COLUMN cep VARCHAR(9) NULL DEFAULT NULL COMMENT 'CEP da academia.' AFTER documento,
-  ADD COLUMN cidade VARCHAR(100) NOT NULL DEFAULT NULL COMMENT 'Cidade onde a academia está localizada.' AFTER endereco,
-  ADD COLUMN estado CHAR(2) NOT NULL DEFAULT NULL COMMENT 'Sigla do estado (UF) onde a academia está localizada.' AFTER cidade;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 -- INSERTS PARA TESTE!
 
 
@@ -556,3 +517,24 @@ INSERT INTO presenca(id_presenca, id_agendamento, data, status) VALUES
 
 INSERT INTO graduacao(id_graduacao, id_usuario_aluno, id_usuario_professor, id_modalidade, data_graduacao, faixa, grau) VALUES 
 (1, 4, 3, 1, '2026-01-15', 'Branca', '2º Grau');
+
+
+
+-- ===========================================================
+-- ALTERAÇÕES
+-- ===========================================================
+ALTER TABLE usuario ADD primeiro_acesso TINYINT(1) DEFAULT 1;
+ALTER TABLE academia ADD COLUMN status VARCHAR(20) NOT NULL DEFAULT 'ATIVO'; 
+
+-- Adicionando novos campos na tabela usuario logo após o email
+ALTER TABLE usuario 
+  ADD COLUMN cep VARCHAR(9) NULL DEFAULT NULL COMMENT 'CEP do endereço do usuário.' AFTER email,
+  ADD COLUMN endereco VARCHAR(100) NOT NULL DEFAULT '' COMMENT 'Endereço residencial do usuário.' AFTER cep,
+  ADD COLUMN cidade VARCHAR(45) NOT NULL DEFAULT '' COMMENT 'Cidade de residência do usuário.' AFTER endereco,
+  ADD COLUMN estado CHAR(2) NOT NULL DEFAULT '' COMMENT 'Sigla do estado (UF) de residência do usuário.' AFTER cidade;
+
+-- Adicionando novos campos na tabela academia 
+ALTER TABLE academia 
+  ADD COLUMN cep VARCHAR(9) NULL DEFAULT NULL COMMENT 'CEP da academia.' AFTER documento,
+  ADD COLUMN cidade VARCHAR(100) NOT NULL DEFAULT '' COMMENT 'Cidade onde a academia está localizada.' AFTER endereco,
+  ADD COLUMN estado CHAR(2) NOT NULL DEFAULT '' COMMENT 'Sigla do estado (UF) onde a academia está localizada.' AFTER cidade;
