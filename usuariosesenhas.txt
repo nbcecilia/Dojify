@@ -1,0 +1,7 @@
+Usuários e Senhas:
+
+suporte@dojify.com -- admin123
+otavio@email.com -- gerente123
+ratto@email.com -- prof123
+joao@email.com -- aluno123
+sebastiana@email.com --aluno123

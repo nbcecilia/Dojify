@@ -424,6 +424,42 @@ SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
 
 
+-- ===========================================================
+-- ALTERAÇÕES
+-- ===========================================================
+ALTER TABLE usuario ADD primeiro_acesso TINYINT(1) DEFAULT 1;
+ALTER TABLE academia ADD COLUMN status VARCHAR(20) NOT NULL DEFAULT 'ATIVO'; 
+
+-- Adicionando novos campos na tabela usuario logo após o email
+ALTER TABLE usuario 
+  ADD COLUMN cep VARCHAR(9) NULL DEFAULT NULL COMMENT 'CEP do endereço do usuário.' AFTER email,
+  ADD COLUMN endereco VARCHAR(100) NOT NULL DEFAULT NULL COMMENT 'Endereço residencial do usuário.' AFTER cep,
+  ADD COLUMN cidade VARCHAR(45) NOT NULL DEFAULT NULL COMMENT 'Cidade de residência do usuário.' AFTER endereco,
+  ADD COLUMN estado CHAR(2) NOT NULL DEFAULT NULL COMMENT 'Sigla do estado (UF) de residência do usuário.' AFTER cidade;
+
+-- Adicionando novos campos na tabela academia 
+ALTER TABLE academia 
+  ADD COLUMN cep VARCHAR(9) NULL DEFAULT NULL COMMENT 'CEP da academia.' AFTER documento,
+  ADD COLUMN cidade VARCHAR(100) NOT NULL DEFAULT NULL COMMENT 'Cidade onde a academia está localizada.' AFTER endereco,
+  ADD COLUMN estado CHAR(2) NOT NULL DEFAULT NULL COMMENT 'Sigla do estado (UF) onde a academia está localizada.' AFTER cidade;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 -- INSERTS PARA TESTE!
@@ -451,20 +487,20 @@ INSERT INTO academia (id_academia, nome, documento, endereco, telefone, email) V
 -- ==========================================================
 -- 	Suporte
 INSERT INTO usuario (id_usuario, id_academia, perfil_id, nome, cpf, data_nascimento, telefone, email, status) VALUES 
-(1, NULL, 1, 'Suporte Técnico', '00000000000', '1990-01-01', '11900000000', 'suporte@dojify.com', 'ATIVO');
+(1, NULL, 1, 'Suporte Técnico', '00000000000', '1990-01-01', '(61) 90000-0000', 'suporte@dojify.com', 'ATIVO');
 
 -- Gerente
 INSERT INTO usuario (id_usuario, id_academia, perfil_id, nome, cpf, data_nascimento, telefone, email, status) VALUES 
-(2, 1, 2, 'Otávio Silva (Gerente)', '11111111111', '1985-04-12', '11988887777', 'otavio@email.com', 'ATIVO');
+(2, 1, 2, 'Otávio Silva (Gerente)', '11111111111', '1985-04-12', '(61) 98888-7777', 'otavio@email.com', 'ATIVO');
 
 -- Professor
 INSERT INTO usuario (id_usuario, id_academia, perfil_id, nome, cpf, data_nascimento, telefone, email, especialidade, data_admissao, status) VALUES 
-(3, 1, 3, 'Mestre Ratto', '22222222222', '1978-08-20', '11977776666', 'ratto@email.com', 'Jiu-Jitsu', '2020-01-15', 'ATIVO');
+(3, 1, 3, 'Mestre Ratto', '22222222222', '1978-08-20', '(61) 97777-6666', 'ratto@email.com', 'Jiu-Jitsu', '2020-01-15', 'ATIVO');
 
 -- Alunos
 INSERT INTO usuario (id_usuario, id_academia, perfil_id, nome, cpf, data_nascimento, telefone, email, data_matricula, status) VALUES 
-(4, 1, 4, 'João Souza', '33333333333', '2002-05-10', '11966665555', 'joao@email.com', '2026-01-10', 'ATIVO'),
-(5, 1, 4, 'Sebastiana Oliveira', '44444444444', '1998-11-25', '11955554444', 'sebastiana@email.com', '2026-02-01', 'ATIVO');
+(4, 1, 4, 'João Souza', '33333333333', '2002-05-10', '(61) 96666-5555', 'joao@email.com', '2026-01-10', 'ATIVO'),
+(5, 1, 4, 'Sebastiana Oliveira', '44444444444', '1998-11-25', '(61) 95555-4444', 'sebastiana@email.com', '2026-02-01', 'ATIVO');
 
 -- ==========================================================
 -- 4. LOGIN (Hash de senhas de teste)
@@ -475,6 +511,7 @@ INSERT INTO `login` (`id_login`, `id_usuario`, `senha_hash`) VALUES
 (3, 3, '$2y$10$QeVSOdmtx/rEy7wUI/Ith.jKSWlGjRQMb9Ll44CF/pTPs7/LbNBdG'), -- prof123
 (4, 4, '$2y$10$cbDvKrrWibvx41K.46HLQu0d.5V80KHO8tg1aJypmNY0vMRnQbo0C'), -- aluno123
 (5, 5, '$2y$10$cbDvKrrWibvx41K.46HLQu0d.5V80KHO8tg1aJypmNY0vMRnQbo0C'); -- aluno123
+
 -- ==========================================================
 -- 5. MODALIDADE
 -- ==========================================================
@@ -519,9 +556,3 @@ INSERT INTO presenca(id_presenca, id_agendamento, data, status) VALUES
 
 INSERT INTO graduacao(id_graduacao, id_usuario_aluno, id_usuario_professor, id_modalidade, data_graduacao, faixa, grau) VALUES 
 (1, 4, 3, 1, '2026-01-15', 'Branca', '2º Grau');
-
--- ===========================================================
--- ALTERAÇÕES
--- ===========================================================
-ALTER TABLE usuario ADD primeiro_acesso TINYINT(1) DEFAULT 1;
-ALTER TABLE academia ADD COLUMN status VARCHAR(20) NOT NULL DEFAULT 'ATIVO';
