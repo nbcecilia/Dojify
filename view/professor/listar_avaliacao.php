@@ -9,10 +9,12 @@ if (!isset($_SESSION['usuario']) || !in_array((int)$_SESSION['usuario']['perfil_
     exit;
 }
 
+$perfilId = (int)$_SESSION['usuario']['perfil_id'];
 $idAcademia = $_SESSION['usuario']['id_academia'] ?? 0;
+$idUsuario = $_SESSION['usuario']['id'] ?? $_SESSION['usuario']['id_usuario'] ?? 0;
 
 $avaliacaoController = new AvaliacaoController();
-$avaliacoes = $avaliacaoController->listarPorAcademia($idAcademia);
+$avaliacoes = $avaliacaoController->listarPorPerfilUsuario($perfilId, $idAcademia, $idUsuario);
 ?>
 <!DOCTYPE html>
 <html lang="pt-pt">
@@ -32,17 +34,18 @@ $avaliacoes = $avaliacaoController->listarPorAcademia($idAcademia);
     <main class="gerente-dashboard">
         <header class="gerente-welcome">
             <div>
-                <h2>Avaliações Técnicas</h2>
-                <p>Consulte o histórico de evolução, pontos fortes e aspetos a melhorar dos alunos.</p>
-            </div>
-            <div>
-                <a href="../professor/cadastrar_avaliacao.php" class="btn gerente-btn">
-                    <i class="bi bi-plus-lg me-1"></i> Nova Avaliação
+                <a href="../professor/cadastrar_avaliacao.php" class="btn btn-dark">
+                    <i class="bi bi-plus-circle me-1"></i> Registar Nova Avaliação
                 </a>
             </div>
         </header>
 
         <section class="gerente-section">
+            <div>
+                <h2>Avaliações Técnicas</h2>
+                <p>Consulte o histórico de evolução, pontos fortes e aspetos a melhorar dos alunos.</p>
+            </div>
+             
             <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
                 <div class="card-body p-0">
                     <div class="table-responsive">

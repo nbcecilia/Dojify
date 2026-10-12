@@ -122,6 +122,45 @@ class TurmaDAO {
     }
 
 
+    /**
+     * MÉTODO ACRESCENTADO: Lista apenas as turmas associadas a um professor específico na academia
+     */
+    public function listarPorProfessor(int $idProfessor, int $idAcademia): array {
+
+        $sql = "SELECT 
+                    t.*,
+                    u.nome AS professor_nome,
+                    m.nome AS modalidade_nome
+                FROM turma t
+                INNER JOIN usuario u 
+                    ON t.id_usuario_professor = u.id_usuario
+                INNER JOIN modalidade m 
+                    ON t.id_modalidade = m.id_modalidade
+                WHERE t.id_usuario_professor = :id_professor
+                AND u.id_academia = :id_academia
+                AND m.id_academia = :id_academia
+                ORDER BY t.id_turma DESC";
+
+        $stmt = $this->conexao->prepare($sql);
+
+        $stmt->bindValue(
+            ':id_professor',
+            $idProfessor,
+            PDO::PARAM_INT
+        );
+
+        $stmt->bindValue(
+            ':id_academia',
+            $idAcademia,
+            PDO::PARAM_INT
+        );
+
+        $stmt->execute();
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+
     public function buscarPorId(int $id, int $idAcademia): ?array {
 
         $sql = "SELECT 

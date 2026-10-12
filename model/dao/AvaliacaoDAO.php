@@ -172,4 +172,69 @@ class AvaliacaoDAO
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
+    // ==========================================
+    // MÉTODOS ACRESCENTADOS PARA O PROFESSOR
+    // ==========================================
+    public function listarPorProfessor(int $idProfessor): array
+    {
+        $stmt = $this->conexao->prepare("
+            SELECT DISTINCT
+                avaliacao.*,
+                aluno.nome AS nome_aluno,
+                professor.nome AS nome_professor,
+                modalidade.nome AS nome_modalidade
+            FROM avaliacao
+            INNER JOIN usuario aluno ON aluno.id_usuario = avaliacao.id_usuario_aluno
+            INNER JOIN usuario professor ON professor.id_usuario = avaliacao.id_usuario_professor
+            LEFT JOIN modalidade ON modalidade.id_modalidade = avaliacao.id_modalidade
+            INNER JOIN turma t ON t.id_modalidade = avaliacao.id_modalidade
+            WHERE t.id_usuario_professor = :id_professor
+            ORDER BY avaliacao.data_avaliacao DESC
+        ");
+        $stmt->execute(['id_professor' => $idProfessor]);
+
+        $avaliacoes = [];
+        foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $linha) {
+            $avaliacao = new AvaliacaoDTO();
+            $avaliacao->setIdAvaliacao($linha['id_avaliacao']);
+            $avaliacao->setIdUsuarioProfessor($linha['id_usuario_professor']);
+            $avaliacao->setIdUsuarioAluno($linha['id_usuario_aluno']);
+            $avaliacao->setIdModalidade($linha['id_modalidade']);
+            $avaliacao->setDataAvaliacao($linha['data_avaliacao']);
+            $avaliacao->setDataPrevista($linha['data_prevista']);
+            $avaliacao->setHabilidadesMelhorar($linha['habilidades_melhorar']);
+            $avaliacao->setObservacoes($linha['observacoes']);
+            $avaliacao->setNomeAluno($linha['nome_aluno']);
+            $avaliacao->setNomeProfessor($linha['nome_professor']);
+            $avaliacao->setNomeModalidade($linha['nome_modalidade']);
+            $avaliacoes[] = $avaliacao;
+        }
+
+        return $avaliacoes;
+    }
+
+    public function listarAlunosPorProfessor(int $idProfessor): array
+    {
+        $stmt = $this->conexao->prepare("
+            SELECT DISTINCT
+                aluno.id_usuario,
+                aluno.nome,
+                modalidade.id_modalidade,
+                modalidade.nome AS nome_modalidade
+            FROM usuario aluno
+            INNER JOIN plano ON plano.id_usuario_aluno = aluno.id_usuario
+                AND plano.status = 'ATIVO'
+                AND plano.id_modalidade IS NOT NULL
+            INNER JOIN modalidade ON modalidade.id_modalidade = plano.id_modalidade
+            INNER JOIN turma t ON t.id_modalidade = modalidade.id_modalidade
+            WHERE t.id_usuario_professor = :id_professor
+              AND aluno.perfil_id = 4
+              AND aluno.status = 'ATIVO'
+            ORDER BY aluno.nome ASC, modalidade.nome ASC
+        ");
+        $stmt->execute(['id_professor' => $idProfessor]);
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 }

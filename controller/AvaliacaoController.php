@@ -75,4 +75,37 @@ class AvaliacaoController
     {
         return $this->dao->listarAlunosPorAcademia($idAcademia);
     }
+
+    public function listarPorProfessor(int $idProfessor): array
+    {
+        return $this->dao->listarPorProfessor($idProfessor);
+    }
+
+    public function listarAlunosPorProfessor(int $idProfessor): array
+    {
+        return $this->dao->listarAlunosPorProfessor($idProfessor);
+    }
+
+    // ==========================================
+    // MÉTODOS SOLICITADOS PELAS VIEWS
+    // ==========================================
+    public function listarPorPerfilUsuario(int $perfilId, int $idAcademia, int $idUsuario): array
+    {
+        if ($perfilId == 2) {
+            return $this->listarPorAcademia($idAcademia);
+        } elseif ($perfilId == 3) {
+            return $this->listarPorProfessor($idUsuario);
+        }
+        return [];
+    }
+
+    public function listarAlunosPorPerfilUsuario(int $perfilId, int $idAcademia, int $idUsuario): array
+    {
+        if ($perfilId == 2) {
+            return $this->listarAlunosPorAcademia($idAcademia);
+        } elseif ($perfilId == 3) {
+            return $this->listarAlunosPorProfessor($idUsuario);
+        }
+        return [];
+    }
 }

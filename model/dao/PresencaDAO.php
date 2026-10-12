@@ -13,7 +13,32 @@ class PresencaDAO {
     }
 
     /**
-     * 1. Lista os alunos agendados numa turma para uma data (para fazer a chamada)
+     * Lista todas as turmas da academia (para o Gerente)
+     */
+    public function listarTurmasPorAcademia(int $idAcademia): array {
+        $sql = "SELECT t.id_turma, t.nome FROM turma t
+                JOIN modalidade m ON m.id_modalidade = t.id_modalidade
+                WHERE m.id_academia = :id_academia
+                ORDER BY t.nome ASC";
+        $stmt = $this->conexao->prepare($sql);
+        $stmt->bindValue(':id_academia', $idAcademia, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Lista apenas as turmas associadas a um professor específico (para o Professor)
+     */
+    public function listarTurmasPorProfessor(int $idProfessor): array {
+        $sql = "SELECT id_turma, nome FROM turma WHERE id_usuario_professor = :id_professor ORDER BY nome ASC";
+        $stmt = $this->conexao->prepare($sql);
+        $stmt->bindValue(':id_professor', $idProfessor, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Lista os alunos agendados numa turma para uma data (para fazer a chamada)
      */
     public function listarAlunosParaChamada(int $idTurma, string $dataAula): array {
         $sql = "SELECT a.id_agendamento, u.id_usuario AS id_aluno, u.nome AS aluno_nome, 
@@ -33,7 +58,76 @@ class PresencaDAO {
     }
 
     /**
-     * 2. Regista ou atualiza a chamada em lote para os agendamentos da aula
+     * Histórico de presenças geral da academia (para o Gerente)
+     */
+    public function listarHistoricoGeralAcademia(int $idAcademia, ?int $idTurma = null, ?string $data = null): array {
+        $sql = "SELECT p.id_presenca, p.data, p.status, 
+                       u.nome AS aluno_nome, t.nome AS nome_turma
+                FROM presenca p
+                JOIN agendamento a ON p.id_agendamento = a.id_agendamento
+                JOIN usuario u ON a.id_usuario_aluno = u.id_usuario
+                JOIN turma t ON a.id_turma = t.id_turma
+                JOIN modalidade m ON m.id_modalidade = t.id_modalidade
+                WHERE m.id_academia = :id_academia";
+        
+        if (!empty($idTurma)) {
+            $sql .= " AND t.id_turma = :id_turma";
+        }
+        if (!empty($data)) {
+            $sql .= " AND p.data = :data";
+        }
+        
+        $sql .= " ORDER BY p.data DESC, u.nome ASC";
+
+        $stmt = $this->conexao->prepare($sql);
+        $stmt->bindValue(':id_academia', $idAcademia, PDO::PARAM_INT);
+        if (!empty($idTurma)) {
+            $stmt->bindValue(':id_turma', $idTurma, PDO::PARAM_INT);
+        }
+        if (!empty($data)) {
+            $stmt->bindValue(':data', $data);
+        }
+        $stmt->execute();
+        
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Histórico de presenças restrito às turmas do professor (para o Professor)
+     */
+    public function listarHistoricoGeralProfessor(int $idProfessor, ?int $idTurma = null, ?string $data = null): array {
+        $sql = "SELECT p.id_presenca, p.data, p.status, 
+                       u.nome AS aluno_nome, t.nome AS nome_turma
+                FROM presenca p
+                JOIN agendamento a ON p.id_agendamento = a.id_agendamento
+                JOIN usuario u ON a.id_usuario_aluno = u.id_usuario
+                JOIN turma t ON a.id_turma = t.id_turma
+                WHERE t.id_usuario_professor = :id_professor";
+        
+        if (!empty($idTurma)) {
+            $sql .= " AND t.id_turma = :id_turma";
+        }
+        if (!empty($data)) {
+            $sql .= " AND p.data = :data";
+        }
+        
+        $sql .= " ORDER BY p.data DESC, u.nome ASC";
+
+        $stmt = $this->conexao->prepare($sql);
+        $stmt->bindValue(':id_professor', $idProfessor, PDO::PARAM_INT);
+        if (!empty($idTurma)) {
+            $stmt->bindValue(':id_turma', $idTurma, PDO::PARAM_INT);
+        }
+        if (!empty($data)) {
+            $stmt->bindValue(':data', $data);
+        }
+        $stmt->execute();
+        
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Regista ou atualiza a chamada em lote para os agendamentos da aula
      */
     public function salvarChamada(string $dataAula, array $presencas): bool {
         try {
@@ -74,7 +168,7 @@ class PresencaDAO {
     }
 
     /**
-     * 3. Lista o histórico de frequência de um aluno específico
+     * Lista o histórico de frequência de um aluno específico
      */
     public function listarPorAluno(int $idAluno): array {
         if ($idAluno <= 0) {

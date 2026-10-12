@@ -12,11 +12,12 @@ if (!isset($_SESSION['usuario']) || !in_array((int)$_SESSION['usuario']['perfil_
     exit;
 }
 
+$perfilId = (int)$_SESSION['usuario']['perfil_id'];
 $idAcademia = $_SESSION['usuario']['id_academia'] ?? 0;
-$idProfessor = $_SESSION['usuario']['id_usuario'] ?? 0;
+$idProfessor = $_SESSION['usuario']['id'] ?? $_SESSION['usuario']['id_usuario'] ?? 0;
 
 $avaliacaoController = new \AvaliacaoController();
-$alunos = $avaliacaoController->listarAlunosPorAcademia($idAcademia);
+$alunos = $avaliacaoController->listarAlunosPorPerfilUsuario($perfilId, $idAcademia, $idProfessor);
 
 $erro = '';
 $sucesso = '';
@@ -73,10 +74,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <main class="container my-4">
         <header class="d-flex justify-content-between align-items-center mb-4">
-           
             <div>
-                <a href="listar_avaliacao.php" class="btn btn-outline-secondary btn-sm">
-                    <i class="bi bi-arrow-left me-1"></i> Voltar
+                <a href="listar_avaliacao.php" class="btn btn-dark btn-sm">
+                    <i class="bi bi-arrow-left me-1"></i> Histórico de Avaliações
                 </a>
             </div>
         </header>
@@ -144,7 +144,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </main>
 
     <?php include '../includes/footer.php'; ?>
-    <!-- Bootstrap JS Bundle -->
+    <!-- Bootstrap 5 JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

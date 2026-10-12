@@ -478,6 +478,7 @@ try {
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../../assets/css/estilo.css?v=<?= filemtime(__DIR__ . '/../../assets/css/estilo.css'); ?>">
     <link rel="stylesheet" href="../../assets/css/aluno.css?v=<?= filemtime(__DIR__ . '/../../assets/css/aluno.css'); ?>">
+    <link rel="stylesheet" href="../../assets/css/gerente.css">
 </head>
 
 <body class="aluno-theme<?= $is_primeiro_acesso ? ' aluno-contract-page' : ''; ?>">
@@ -497,7 +498,7 @@ try {
                             <h4 class="mb-0 fw-bold"> Bem-vindo ao seu Acesso Inicial</h4>
                         </div>
                         <div class="card-body p-4">
-                            <p class="text-center text-muted mb-4 d-print-none">Para libertar o seu painel de agendamentos, confirme os seus dados no contrato abaixo, assinale a caixa de aceite e defina a sua nova senha pessoal.</p>
+                            <p class="text-center text-muted mb-4 d-print-none">Para liberar o seu painel de agendamentos, confirme os seus dados no contrato abaixo, assinale a caixa de aceite e defina a sua nova senha pessoal.</p>
                             <?php if (!empty($mensagem_erro)): ?>
                                 <div class="alert alert-secondary py-2 text-center fw-bold d-print-none"><?= $mensagem_erro; ?></div>
                             <?php endif; ?>
@@ -530,7 +531,7 @@ try {
                                 </div>
                                 <div class="row mb-2" style="border-bottom: 1px dashed #eee; padding-bottom: 5px;">
                                     <div class="col-6"><strong>Nome do Responsável:</strong> <?= htmlspecialchars($c_responsavel) ?></div>
-                                    <div class="col-6"><strong>CPF do Responsável:</strong> <?= htmlspecialchars($c_cpf_resp) ?></div>
+                            
                                 </div>
                                 <div class="row mb-2" style="border-bottom: 1px dashed #eee; padding-bottom: 5px;">
                                     <div class="col-6"><strong>E-mail:</strong> <?= htmlspecialchars($c_email) ?></div>
@@ -544,9 +545,8 @@ try {
                                 <p class="mb-1"><strong>Modalidade:</strong> <?= htmlspecialchars($c_luta) ?></p>
                                 <p><strong>Frequência e Plano:</strong> <?= htmlspecialchars($c_plano) ?></p>
                                 <h3 class="fw-bold mt-4 mb-2" style="color: #212529; font-size: 1.1rem; border-bottom: 1px solid #eee;">Informações Adicionais</h3>
-                                <p class="mb-1"><strong>Informações médicas a serem consideradas?</strong> <?= htmlspecialchars($c_infoMedica) ?></p>
-                                <p class="mb-1"><strong>O aluno necessita de alguma adaptação especial?</strong> <?= htmlspecialchars($c_especial) ?></p>
-                                <p><strong>Observações gerais:</strong> <?= htmlspecialchars($c_obs) ?></p>
+                
+                                <p><strong>Observações médicas ou gerais:</strong> <?= htmlspecialchars($c_obs) ?></p>
                                 <h3 class="fw-bold mt-4 mb-2" style="color: #212529; font-size: 1.1rem; border-bottom: 1px solid #eee;">Dados do Contratado</h3>
                                 <p class="mb-1"><strong>Contratado:</strong> <?= htmlspecialchars($c_academia_nome, ENT_QUOTES, 'UTF-8'); ?></p>
                                 <p class="mb-1"><strong>CNPJ:</strong> 66.790.246/0001-12</p>
@@ -613,13 +613,12 @@ try {
         <?php else: ?>
             <header class="aluno-dashboard-welcome">
                 <div>
-                    <h2>Painel do Aluno</h2>
-                    <p>Bem-vindo(a), <?= htmlspecialchars($_SESSION['usuario']['nome']) ?>!</p>
+                    <h2>Olá, <?= htmlspecialchars($_SESSION['usuario']['nome']) ?>!</h2>
                 </div>
-                <a href="perfil.php" class="aluno-dashboard-role">
-                    <i class="bi bi-person"></i>
-                    Aluno
-                </a>
+                <span class="gerente-role">
+                <i class="bi bi-person-workspace"></i>
+                Aluno
+                </span>
             </header>
 
             <?php if (!empty($mensagem_sucesso)): ?>
