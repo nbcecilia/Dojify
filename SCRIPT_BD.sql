@@ -57,6 +57,10 @@ CREATE TABLE IF NOT EXISTS `dojify_1`.`usuario` (
   `sexo` VARCHAR(30) NULL DEFAULT NULL COMMENT 'Sexo informado pelo usuário.',
   `telefone` VARCHAR(20) NOT NULL COMMENT 'Telefone de contato pessoal.\n',
   `email` VARCHAR(100) NOT NULL COMMENT 'E-mail do usuário para acesso.',
+  `cep` VARCHAR(9) NULL DEFAULT NULL COMMENT 'CEP do endereço do usuário.',
+  `endereco` VARCHAR(100) NULL DEFAULT NULL COMMENT 'Endereço residencial do usuário.',
+  `cidade` VARCHAR(45) NULL DEFAULT NULL COMMENT 'Cidade do usuário.',
+  `estado` CHAR(2) NULL DEFAULT NULL COMMENT 'UF do estado do usuário.',
   `especialidade` VARCHAR(100) NULL DEFAULT NULL COMMENT 'Arte marcial/foco de ensino (Específico de Professor).',
   `data_admissao` DATE NULL DEFAULT NULL COMMENT 'Data de contratação (Específico de Professor/Funcionário).\n',
   `responsavel` VARCHAR(100) NULL DEFAULT NULL COMMENT 'Responsável legal (Específico de Aluno menor).\n',
@@ -428,13 +432,6 @@ INSERT INTO graduacao(id_graduacao, id_usuario_aluno, id_usuario_professor, id_m
 -- ===========================================================
 ALTER TABLE usuario ADD primeiro_acesso TINYINT(1) DEFAULT 1;
 ALTER TABLE academia ADD COLUMN status VARCHAR(20) NOT NULL DEFAULT 'ATIVO'; 
-
--- Adicionando novos campos na tabela usuario logo após o email
-ALTER TABLE usuario 
-  ADD COLUMN cep VARCHAR(9) NULL DEFAULT NULL COMMENT 'CEP do endereço do usuário.' AFTER email,
-  ADD COLUMN endereco VARCHAR(100) NOT NULL DEFAULT '' COMMENT 'Endereço residencial do usuário.' AFTER cep,
-  ADD COLUMN cidade VARCHAR(45) NOT NULL DEFAULT '' COMMENT 'Cidade de residência do usuário.' AFTER endereco,
-  ADD COLUMN estado CHAR(2) NOT NULL DEFAULT '' COMMENT 'Sigla do estado (UF) de residência do usuário.' AFTER cidade;
 
 -- Adicionando novos campos na tabela academia 
 ALTER TABLE academia 

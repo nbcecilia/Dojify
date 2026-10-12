@@ -92,19 +92,49 @@ class UsuarioController {
             $cidade         = trim($_POST['cidade'] ?? '');
             $estado         = strtoupper(trim($_POST['estado'] ?? ''));
             $email          = filter_input(INPUT_POST, 'email', FILTER_VALIDATE_EMAIL);
-            $senha          = $_POST['senha'] ?? '';
+            $senha          = 'aluno123';
 
-            $nomePlano      = trim($_POST['nome_plano'] ?? '');
-            $idsModalidades = $_POST['id_modalidades'] ?? [];
-            $idsModalidades = is_array($idsModalidades)
-                ? array_values(array_unique(array_filter(array_map(
-                    static fn ($id): int => filter_var($id, FILTER_VALIDATE_INT) ?: 0,
-                    $idsModalidades
-                ), static fn (int $id): bool => $id > 0)))
-                : [];
-            $valorPlanoStr  = $_POST['valor_plano'] ?? '0';
-            $valorPlanoStr  = str_replace(',', '.', $valorPlanoStr);
-            $valorPlano     = (float)$valorPlanoStr;
+            $modalidadesPost = $_POST['id_modalidades'] ?? [];
+            $planosPost = $_POST['planos'] ?? [];
+            $idsModalidades = [];
+            $planosPorIndice = [];
+            $modalidadesJaSelecionadas = [];
+
+            if (!is_array($modalidadesPost) || !is_array($planosPost)) {
+                throw new InvalidArgumentException('modalidade_invalida');
+            }
+
+            foreach ($modalidadesPost as $indice => $idModalidade) {
+                $indiceValido = filter_var((string)$indice, FILTER_VALIDATE_INT);
+                $idModalidade = is_scalar($idModalidade)
+                    ? filter_var($idModalidade, FILTER_VALIDATE_INT)
+                    : false;
+                if ($idModalidade === false || $idModalidade < 1) {
+                    continue;
+                }
+                if ($indiceValido === false || $indiceValido < 0 || $indiceValido > 2 || in_array($idModalidade, $modalidadesJaSelecionadas, true)) {
+                    throw new InvalidArgumentException('modalidade_invalida');
+                }
+
+                $dadosPlano = $planosPost[$indice] ?? null;
+                $nomePlano = is_array($dadosPlano) && is_scalar($dadosPlano['nome_plano'] ?? null)
+                    ? trim((string)$dadosPlano['nome_plano'])
+                    : '';
+                $valorPlanoStr = is_array($dadosPlano) && is_scalar($dadosPlano['valor'] ?? null)
+                    ? str_replace(',', '.', trim((string)$dadosPlano['valor']))
+                    : '';
+
+                if ($nomePlano === '' || !is_numeric($valorPlanoStr) || (float)$valorPlanoStr < 0) {
+                    throw new InvalidArgumentException('plano_invalido');
+                }
+
+                $idsModalidades[$indiceValido] = (int)$idModalidade;
+                $planosPorIndice[$indiceValido] = [
+                    'nome_plano' => $nomePlano,
+                    'valor' => (float)$valorPlanoStr,
+                ];
+                $modalidadesJaSelecionadas[] = (int)$idModalidade;
+            }
 
             $responsavel    = !empty($_POST['responsavel']) ? trim($_POST['responsavel']) : null;
             $observacao     = !empty($_POST['observacao']) ? trim($_POST['observacao']) : null;
@@ -113,12 +143,13 @@ class UsuarioController {
             if (
                 empty($idAcademia) || empty($nome) || empty($cpf) || empty($dataNascimento)
                 || !in_array($sexo, ['Feminino', 'Masculino', 'Outro', 'Prefiro não informar'], true)
-                || !$email || empty($senha) || empty($nomePlano) || count($idsModalidades) < 1
-                || count($idsModalidades) > 3 || strlen($cep) !== 8 || $endereco === ''
+                || !$email || empty($senha) || count($idsModalidades) < 1
+                || count($idsModalidades) > 3 || !array_key_exists(0, $idsModalidades)
+                || strlen($cep) !== 8 || $endereco === ''
                 || $cidade === '' || !preg_match('/^[A-Z]{2}$/', $estado)
             ) {
                 if (count($idsModalidades) < 1 || count($idsModalidades) > 3) {
-                    throw new InvalidArgumentException("Selecione de uma a três modalidades.");
+                    throw new InvalidArgumentException('modalidade_invalida');
                 }
                 throw new Exception("Preencha todos os campos obrigatórios corretamente.");
             }
@@ -127,7 +158,7 @@ class UsuarioController {
             foreach ($idsModalidades as $idModalidadeSelecionada) {
                 $stmtModalidade->execute([$idModalidadeSelecionada, $idAcademia]);
                 if (!$stmtModalidade->fetchColumn()) {
-                    throw new InvalidArgumentException("Selecione modalidades válidas da sua academia.");
+                    throw new InvalidArgumentException('modalidade_invalida');
                 }
             }
 
@@ -166,27 +197,27 @@ class UsuarioController {
             $sqlPlano = "INSERT INTO plano (id_usuario_aluno, id_modalidade, nome_plano, valor, data_inicio, data_fim, status)
                        VALUES (:id_usuario_aluno, :id_modalidade, :nome_plano, :valor, CURDATE(), DATE_ADD(CURDATE(), INTERVAL 1 MONTH), 'ATIVO')";
             $stmtPlano = $pdo->prepare($sqlPlano);
-            $idPlanoNovo = null;
-            foreach ($idsModalidades as $idModalidadeSelecionada) {
+            $totalPlanos = array_sum(array_column($planosPorIndice, 'valor'));
+            $sqlPagamento = "INSERT INTO pagamento (id_plano_matricula, valor, data_vencimento, status)
+                             VALUES (:id_plano_matricula, :valor, DATE_ADD(CURDATE(), INTERVAL 10 DAY), 'PENDENTE')";
+            $stmtPagamento = $pdo->prepare($sqlPagamento);
+            $idPlanoCobranca = null;
+            foreach ($idsModalidades as $indice => $idModalidadeSelecionada) {
+                $plano = $planosPorIndice[$indice];
                 $stmtPlano->execute([
                     ':id_usuario_aluno' => $idUsuarioNovo,
                     ':id_modalidade'    => $idModalidadeSelecionada,
-                    ':nome_plano'       => $nomePlano,
-                    ':valor'            => $valorPlano
+                    ':nome_plano'       => $plano['nome_plano'],
+                    ':valor'            => $plano['valor']
                 ]);
-                if ($idPlanoNovo === null) {
-                    $idPlanoNovo = (int)$pdo->lastInsertId();
-                }
+                $idPlanoCobranca = (int)$pdo->lastInsertId();
             }
-
-            $sqlPagamento = "INSERT INTO pagamento (id_plano_matricula, valor, data_vencimento, status) 
-                             VALUES (:id_plano_matricula, :valor, DATE_ADD(CURDATE(), INTERVAL 10 DAY), 'PENDENTE')";
-            
-            $stmtPagamento = $pdo->prepare($sqlPagamento);
-            $stmtPagamento->execute([
-                ':id_plano_matricula' => $idPlanoNovo,
-                ':valor'              => $valorPlano
-            ]);
+            if ($idPlanoCobranca !== null) {
+                $stmtPagamento->execute([
+                    ':id_plano_matricula' => $idPlanoCobranca,
+                    ':valor' => $totalPlanos,
+                ]);
+            }
 
             $pdo->commit();
             header('Location: ../view/gerente/listar_usuarios.php?sucesso=cadastrado');
@@ -197,7 +228,11 @@ class UsuarioController {
                 $pdo->rollBack();
             }
             error_log('Falha ao cadastrar aluno: ' . $e->getMessage());
-            $erro = $e instanceof InvalidArgumentException ? 'modalidade_invalida' : 'falha_cadastro';
+            if ($e instanceof InvalidArgumentException) {
+                $erro = $e->getMessage() === 'plano_invalido' ? 'plano_invalido' : 'modalidade_invalida';
+            } else {
+                $erro = 'falha_cadastro';
+            }
             header('Location: ../view/gerente/cadastrar_aluno_prof.php?erro=' . $erro);
             exit;
         }
@@ -235,7 +270,7 @@ class UsuarioController {
             $cidade         = trim($_POST['cidade'] ?? '');
             $estado         = strtoupper(trim($_POST['estado'] ?? ''));
             $email          = filter_input(INPUT_POST, 'email', FILTER_VALIDATE_EMAIL);
-            $senha          = $_POST['senha'] ?? '';
+            $senha          = 'professor123';
             $especialidade  = trim($_POST['especialidade'] ?? '');
             $dataAdmissao   = !empty($_POST['data_admissao']) ? $_POST['data_admissao'] : date('Y-m-d');
 

@@ -40,7 +40,7 @@ class AgendamentoDAO
 
         $placeholders = implode(',', array_fill(0, count($ids_modalidades), '?'));
         $stmt = $this->conexao->prepare("
-            SELECT t.id_turma, t.nome AS nome_turma, t.capacidade, h.dia_semana, h.hora_inicio
+            SELECT t.id_turma, t.id_modalidade, t.nome AS nome_turma, t.capacidade, h.dia_semana, h.hora_inicio
             FROM turma t
             LEFT JOIN horario_turma h ON t.id_turma = h.id_turma
             WHERE t.status = 'ATIVA' AND t.id_modalidade IN ($placeholders)
@@ -172,19 +172,16 @@ class AgendamentoDAO
         return (int)($row['total_semana'] ?? 0);
     }
 
-    /**
-     * Obtém o limite semanal do plano ativo do aluno
-     */
-    public function obterLimiteSemanalPlano(int $id_aluno): int
+    public function obterLimiteSemanalPlano(int $id_aluno, int $id_modalidade): int
     {
         $stmt = $this->conexao->prepare("
             SELECT nome_plano 
             FROM plano 
-            WHERE id_usuario_aluno = ? AND status = 'ATIVO' 
+            WHERE id_usuario_aluno = ? AND id_modalidade = ? AND status = 'ATIVO'
             ORDER BY data_inicio DESC, id_plano DESC
             LIMIT 1
         ");
-        $stmt->execute([$id_aluno]);
+        $stmt->execute([$id_aluno, $id_modalidade]);
         $dadosPlano = $stmt->fetch(PDO::FETCH_ASSOC);
         
         $limiteSemanal = 99; // Default (Livre)
@@ -195,6 +192,26 @@ class AgendamentoDAO
             }
         }
         return $limiteSemanal;
+    }
+
+    public function contarAgendamentosSemanaPorModalidade(
+        int $id_aluno,
+        int $id_modalidade,
+        string $data_inicio_semana,
+        string $data_fim_semana
+    ): int {
+        $stmt = $this->conexao->prepare("
+            SELECT COUNT(*) AS total_semana
+            FROM agendamento a
+            INNER JOIN turma t ON t.id_turma = a.id_turma
+            WHERE a.id_usuario_aluno = ?
+              AND t.id_modalidade = ?
+              AND a.status = 'CONFIRMADO'
+              AND a.data_agendamento BETWEEN ? AND ?
+        ");
+        $stmt->execute([$id_aluno, $id_modalidade, $data_inicio_semana, $data_fim_semana]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        return (int)($row['total_semana'] ?? 0);
     }
 
     /**

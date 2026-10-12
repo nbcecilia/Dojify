@@ -397,7 +397,13 @@ try {
         $turmas_brutas = $agendamentoDAO->listarTurmasAtivasComHorario(
             $idsModalidadesAluno
         );
-        $limiteSemanalPlano = $agendamentoDAO->obterLimiteSemanalPlano((int)$id_aluno);
+        $limitesSemanaisPorModalidade = [];
+        foreach ($idsModalidadesAluno as $idModalidadeAluno) {
+            $limitesSemanaisPorModalidade[$idModalidadeAluno] = $agendamentoDAO->obterLimiteSemanalPlano(
+                (int)$id_aluno,
+                $idModalidadeAluno
+            );
+        }
         $agendamentosPorSemana = [];
 
         $hoje = new DateTime();
@@ -424,24 +430,32 @@ try {
             $fimSemana = (clone $inicioSemana)->modify('sunday this week')->setTime(23, 59, 59);
             $chaveSemana = $inicioSemana->format('Y-m-d');
             if (!array_key_exists($chaveSemana, $agendamentosPorSemana)) {
-                $agendamentosPorSemana[$chaveSemana] = $agendamentoDAO->contarAgendamentosSemana(
-                    (int)$id_aluno,
-                    $inicioSemana->format('Y-m-d H:i:s'),
-                    $fimSemana->format('Y-m-d H:i:s')
-                );
+                $agendamentosPorSemana[$chaveSemana] = [];
+                foreach ($idsModalidadesAluno as $idModalidadeAluno) {
+                    $agendamentosPorSemana[$chaveSemana][$idModalidadeAluno] =
+                        $agendamentoDAO->contarAgendamentosSemanaPorModalidade(
+                            (int)$id_aluno,
+                            $idModalidadeAluno,
+                            $inicioSemana->format('Y-m-d H:i:s'),
+                            $fimSemana->format('Y-m-d H:i:s')
+                        );
+                }
             }
             $nomeDiaPt = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'][(int)$diaLoop->format('w')];
             $calendarioSemanal[$i] = [
                 'nome_dia' => $nomeDiaPt,
                 'data_iso' => $diaLoop->format('Y-m-d'),
                 'data_exibicao' => $diaLoop->format('d/m'),
-                'limite_atingido' => $agendamentosPorSemana[$chaveSemana] >= $limiteSemanalPlano,
                 'aulas' => []
             ];
             foreach ($turmas_brutas as $turma) {
                 $diaTurma = trim(ucfirst(strtolower($turma['dia_semana'] ?? '')));
                 if (empty($diaTurma) || $diaTurma === 'Geral' || stripos($diaTurma, $nomeDiaPt) !== false) {
                     $turma['hora_inicio'] = $turma['hora_inicio'] ?? '19:00:00';
+                    $idModalidadeTurma = (int)$turma['id_modalidade'];
+                    $turma['limite_atingido'] =
+                        ($agendamentosPorSemana[$chaveSemana][$idModalidadeTurma] ?? 0)
+                        >= ($limitesSemanaisPorModalidade[$idModalidadeTurma] ?? 0);
                     $calendarioSemanal[$i]['aulas'][] = $turma;
                 }
             }
@@ -615,90 +629,108 @@ try {
                 <div class="alert alert-secondary text-center py-2"><?= $mensagem_erro; ?></div>
             <?php endif; ?>
 
-            <?php ob_start(); ?>
-            <section aria-labelledby="progressoAlunoTitulo">
-            
-            <div class="row g-3 justify-content-center mb-4 aluno-dashboard-kpis">
-                <div class="col-12 col-md-4 aluno-dashboard-kpi-column aluno-dashboard-progress-column">
-                    <div class="card h-100 shadow-sm border p-2 aluno-dashboard-kpi aluno-dashboard-progress-card">
-                        <section class="aluno-dashboard-progress-item" aria-labelledby="graduacaoAlunoTitulo">
-                            <h5 id="graduacaoAlunoTitulo" class="text-dark fw-bold mb-1">Graduação</h5>
-                            <div class="d-flex align-items-center justify-content-center gap-3 mb-2">
-                                <?php if ($faixaImagem !== null): ?>
-                                    <img
-                                        src="../../assets/img/<?= htmlspecialchars($faixaImagem, ENT_QUOTES, 'UTF-8') ?>"
-                                        alt="Imagem da faixa <?= htmlspecialchars($faixa_aluno, ENT_QUOTES, 'UTF-8') ?>"
-                                        width="76"
-                                        height="66"
-                                        style="object-fit: contain;"
-                                    >
-                                <?php endif; ?>
-                                <p class="text-dark fw-bold fs-5 mb-0"><?= htmlspecialchars($faixa_aluno, ENT_QUOTES, 'UTF-8') ?></p>
+<?php ob_start(); ?>
+<section class="mb-4">
+    <div class="row g-3 align-items-stretch">
+        
+        <!-- CARD 1: GRADUAÇÃO (COM BOTÃO DE SETA NO CANTO INFERIOR DIREITO) -->
+        <div class="col-12 col-md-4">
+            <div class="card h-100 shadow-sm border-2 p-3 d-flex flex-column justify-content-between bg-white position-relative overflow-hidden" style="border-color: #111111 !important; border-radius: 12px;">
+                <div class="position-absolute top-0 start-0 bg-dark text-white px-3 py-1 rounded-bottom-end small fw-bold" style="font-size: 0.7rem; letter-spacing: 0.05em;">GRADUAÇÃO</div>
+                
+                <div class="pt-3 d-flex flex-column justify-content-center flex-grow-1">
+                    <!-- Bloco com Imagem à Esquerda e Textos ao Lado -->
+                    <div class="d-flex align-items-center gap-3 my-2">
+                        <?php if ($faixaImagem !== null): ?>
+                            <div class="flex-shrink-0 text-center">
+                                <img src="../../assets/img/<?= htmlspecialchars($faixaImagem, ENT_QUOTES, 'UTF-8') ?>" alt="Faixa" width="110" height="50" style="object-fit: contain;">
                             </div>
-                            <span class="badge bg-secondary mt-1 mx-auto" style="width: fit-content;"><?= htmlspecialchars($grau_aluno) ?></span>
-                            <?php if (!empty($graduacoesPrevistasPainel)): ?>
-                                <div class="small text-muted mt-2">
+                        <?php endif; ?>
+                        <div class="text-start">
+                            <h4 class="fw-bold text-dark mb-1" style="font-size: 1.15rem;"><?= htmlspecialchars($faixa_aluno, ENT_QUOTES, 'UTF-8') ?></h4>
+                            <span class="badge bg-secondary mb-1 px-2 py-1" style="font-size: 0.75rem;"><?= htmlspecialchars($grau_aluno) ?></span>
+                            <div>
+                                <?php if (!empty($graduacoesPrevistasPainel)): ?>
                                     <?php foreach ($graduacoesPrevistasPainel as $prevista): ?>
-                                        <div>
-                                            <?= htmlspecialchars((string)$prevista['nome_modalidade'], ENT_QUOTES, 'UTF-8') ?>:
-                                            <?= date('d/m/Y', strtotime((string)$prevista['data_prevista'])) ?>
-                                        </div>
+                                        <small class="text-muted d-block" style="font-size: 0.7rem;">Próxima: <?= date('d/m/Y', strtotime((string)$prevista['data_prevista'])) ?></small>
                                     <?php endforeach; ?>
-                                </div>
-                            <?php else: ?>
-                                <p class="small text-muted text-center mt-2 mb-0">Sem previsão de próxima graduação.</p>
-                            <?php endif; ?>
-                            <div class="aluno-dashboard-assessment-note mt-3">
-                                <?php if (!empty($avaliacoesAlunoPainel)): ?>
-                                    <?php $ultimaAvaliacaoPainel = $avaliacoesAlunoPainel[0]; ?>
-                                    <p class="small mb-0">
-                                        <i class="bi bi-clipboard-check me-1" aria-hidden="true"></i>
-                                        <?= count($avaliacoesAlunoPainel) ?>
-                                        <?= count($avaliacoesAlunoPainel) === 1 ? 'avaliação registrada' : 'avaliações registradas' ?>
-                                        · última em <?= date('d/m/Y', strtotime((string)$ultimaAvaliacaoPainel['data_avaliacao'])) ?>
-                                    </p>
                                 <?php else: ?>
-                                    <p class="small text-muted mb-0">
-                                        <i class="bi bi-clipboard-check me-1" aria-hidden="true"></i>
-                                        Ainda não há avaliações registradas.
-                                    </p>
+                                    <small class="text-muted d-block" style="font-size: 0.7rem;">Sem próxima previsão</small>
                                 <?php endif; ?>
                             </div>
-                            <a
-                                href="historico_graduacao.php#graduacoes-previstas"
-                                class="aluno-dashboard-card-arrow"
-                                aria-label="Ver detalhes da graduação"
-                                title="Ver graduação"
-                            >
-                                <i class="bi bi-arrow-right" aria-hidden="true"></i>
-                            </a>
-                        </section>
+                        </div>
                     </div>
                 </div>
 
-                <div class="col-12 col-md-3 aluno-dashboard-kpi-column aluno-dashboard-sidecards-column">
-                    <article class="card aluno-dashboard-sidecard aluno-dashboard-date-card">
-                        <i class="bi bi-calendar-event" aria-hidden="true"></i>
-                        <h6 class="fw-bold mb-1">Hoje</h6>
-                        <p class="mb-0"><?= htmlspecialchars($dataAtualAluno, ENT_QUOTES, 'UTF-8') ?></p>
-                    </article>
-                    <article class="card aluno-dashboard-sidecard aluno-dashboard-level-card">
-                        <i class="bi bi-stars" aria-hidden="true"></i>
-                        <h6 class="fw-bold mb-1">Nível <?= $num_nivel ?> · <?= htmlspecialchars($nome_nivel, ENT_QUOTES, 'UTF-8') ?></h6>
-                        <p class="mb-2">Sua jornada continua!</p>
-                        <span class="small"><?= $xp_atual ?> / <?= $xp_max ?> XP</span>
-                        <div class="progress mx-auto" role="progressbar" aria-label="Progresso de XP" aria-valuenow="<?= (int)round($progresso_xp) ?>" aria-valuemin="0" aria-valuemax="100">
-                            <div class="progress-bar bg-warning" style="width: <?= $progresso_xp ?>%;"></div>
-                        </div>
-                    </article>
-                </div>
-                <div class="col-12 col-md-5 aluno-dashboard-kpi-column aluno-dashboard-payment-column">
-                    <!-- ALUNO-PAYMENT-CARD -->
+                <div class="border-top pt-2 mt-2 d-flex justify-content-between align-items-center">
+                    <span class="text-muted small" style="font-size: 0.75rem;">
+                        <i class="bi bi-clipboard-check me-1"></i><?= !empty($avaliacoesAlunoPainel) ? count($avaliacoesAlunoPainel) . ' avaliação(ões)' : 'Nenhuma avaliação' ?>
+                    </span>
+                    <a href="historico_graduacao.php#graduacoes-previstas" class="btn btn-sm btn-dark py-0 px-2 fw-bold d-inline-flex align-items-center gap-1" style="font-size: 0.75rem;" title="Ver detalhes da graduação">
+                        Detalhes <i class="bi bi-arrow-right" aria-hidden="true"></i>
+                    </a>
                 </div>
             </div>
-            </section>
-            <?php $progressoAlunoHtml = ob_get_clean(); ?>
+        </div>
 
+        <!-- CARD 2: NÍVEL E XP (MESMA ALTURA) -->
+        <div class="col-12 col-md-4">
+            <div class="card h-100 shadow-sm border-2 p-3 d-flex flex-column justify-content-between position-relative overflow-hidden" style="background: #fffdf4; border-color: #e6b800 !important; border-radius: 12px;">
+                <div class="position-absolute top-0 start-0 bg-warning text-dark px-3 py-1 rounded-bottom-end small fw-bold" style="font-size: 0.7rem; letter-spacing: 0.05em;">EVOLUÇÃO</div>
+                <div class="pt-3">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <span class="badge bg-warning text-dark fw-bold">Nível <?= $num_nivel ?></span>
+                        <small class="text-muted fw-semibold" style="font-size: 0.75rem;"><i class="bi bi-calendar-event me-1"></i><?= htmlspecialchars($dataAtualAluno, ENT_QUOTES, 'UTF-8') ?></small>
+                    </div>
+                    <h5 class="fw-bold text-dark mb-1"><?= htmlspecialchars($nome_nivel, ENT_QUOTES, 'UTF-8') ?></h5>
+                </div>
+                <div class="pb-1">
+                    <div class="d-flex justify-content-between align-items-center mb-1 small fw-bold text-dark" style="font-size: 0.75rem;">
+                        <span>XP Acumulado</span>
+                        <span><?= $xp_atual ?> / <?= $xp_max ?> XP</span>
+                    </div>
+                    <div class="progress shadow-sm" role="progressbar" aria-valuenow="<?= (int)round($progresso_xp) ?>" aria-valuemin="0" aria-valuemax="100" style="height: 10px; border-radius: 5px; background: rgba(0,0,0,0.08);">
+                        <div class="progress-bar bg-warning" style="width: <?= $progresso_xp ?>%;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CARD 3: FINANCEIRO (MESMA ALTURA) -->
+        <div class="col-12 col-md-4">
+            <div class="card h-100 shadow-sm border-2 p-3 d-flex flex-column justify-content-between position-relative overflow-hidden" style="background: #f8f9fa; border-color: #495057 !important; border-radius: 12px;">
+                <div class="position-absolute top-0 start-0 bg-secondary text-white px-3 py-1 rounded-bottom-end small fw-bold" style="font-size: 0.7rem; letter-spacing: 0.05em;">MENSALIDADE</div>
+                <div class="pt-3">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <?php $statusPagamentoUpper = strtoupper((string)$status_pagamento); ?>
+                        <?php if ($statusPagamentoUpper === 'PAGO'): ?>
+                            <span class="badge bg-success">Confirmado</span>
+                        <?php elseif ($statusPagamentoUpper === 'EM_ANALISE'): ?>
+                            <span class="badge bg-info text-dark">Em análise</span>
+                        <?php else: ?>
+                            <span class="badge bg-danger">Pendente</span>
+                        <?php endif; ?>
+                        <small class="text-muted fw-semibold" style="font-size: 0.75rem;">Venc: <?= htmlspecialchars($data_vencimento, ENT_QUOTES, 'UTF-8') ?></small>
+                    </div>
+                    <h4 class="fw-bold text-dark mb-0 mt-1"><?= htmlspecialchars($valor_pagamento, ENT_QUOTES, 'UTF-8') ?></h4>
+                </div>
+                <div class="pt-2">
+                    <?php if ($statusPagamentoUpper !== 'PAGO' && $statusPagamentoUpper !== 'EM_ANALISE' && $id_pagamento_atual !== null && !$comprovante_pagamento_enviado): ?>
+                        <button type="button" class="btn btn-dark btn-sm w-100 fw-bold py-1 shadow-sm" style="font-size: 0.8rem;" data-bs-toggle="modal" data-bs-target="#modalPagamento">
+                            Escolher pagamento
+                        </button>
+                    <?php elseif ($statusPagamentoUpper === 'PAGO'): ?>
+                        <p class="small text-success mb-0 fw-semibold text-center"><i class="bi bi-check-circle-fill me-1"></i>Mensalidade em dia</p>
+                    <?php else: ?>
+                        <p class="small text-info-emphasis mb-0 fw-semibold text-center">Em conferência pela academia</p>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>
+<?php $progressoAlunoHtml = ob_get_clean(); ?>
             <!-- SEÇÃO FINANCEIRA / STATUS DA MENSALIDADE -->
             <?php ob_start(); ?>
             <?php $statusPagamentoUpper = strtoupper((string)$status_pagamento); ?>
@@ -866,7 +898,7 @@ try {
                                                 <button type="button" class="btn btn-success btn-sm w-100 fw-bold border-0" style="font-size: 0.75rem; padding: 4px 0;" disabled aria-pressed="true">
                                                     Agendado
                                                 </button>
-                                            <?php elseif ($dia['limite_atingido']): ?>
+                                            <?php elseif ($aula['limite_atingido']): ?>
                                                 <span class="badge bg-secondary w-100" title="O limite semanal do seu plano foi atingido.">
                                                     Limite semanal atingido
                                                 </span>

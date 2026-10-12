@@ -21,6 +21,28 @@ if ((int)$usuario['perfil_id'] !== 2) {
 $idAcademia = isset($usuario['id_academia']) ? (int)$usuario['id_academia'] : 0;
 
 $modalidadeDAO = new ModalidadeDAO();$modalidades = $modalidadeDAO->listarPorAcademia($idAcademia);
+$opcoesPlano = [
+    'Mensal' => [
+        'Mensal 2x/semana' => 'Mensal (2x/semana)',
+        'Mensal 3x/semana' => 'Mensal (3x/semana)',
+        'Mensal Ilimitado' => 'Mensal (Ilimitado)',
+    ],
+    'Trimestral' => [
+        'Trimestral 2x/semana' => 'Trimestral (2x/semana)',
+        'Trimestral 3x/semana' => 'Trimestral (3x/semana)',
+        'Trimestral Ilimitado' => 'Trimestral (Ilimitado)',
+    ],
+    'Anual' => [
+        'Anual 2x/semana' => 'Anual (2x/semana)',
+        'Anual 3x/semana' => 'Anual (3x/semana)',
+        'Anual Ilimitado' => 'Anual (Ilimitado)',
+    ],
+    'All Inclusive' => [
+        'All Inclusive 2x/semana' => 'All Inclusive (2x/semana)',
+        'All Inclusive 4x/semana' => 'All Inclusive (4x/semana)',
+        'All Inclusive Ilimitado' => 'All Inclusive (Ilimitado)',
+    ],
+];
 ?>
 <!DOCTYPE html>
 <html lang="pt-br">
@@ -69,7 +91,7 @@ $modalidadeDAO = new ModalidadeDAO();$modalidades = $modalidadeDAO->listarPorAca
                 </div>
                 <div>
                     <label for="telefone">Telefone:</label>
-                    <input type="tel" id="telefone" name="telefone" pattern="\([0-9]{2}\) [0-9]{4,5}-[0-9]{4}" placeholder="Ex: (61) 98888-7777" required>
+                    <input type="tel" id="telefone" name="telefone" inputmode="numeric" maxlength="15" pattern="\([0-9]{2}\) [0-9]{4,5}-[0-9]{4}" placeholder="(61) 98888-7777" required>
                 </div>
             </div>
 
@@ -138,7 +160,7 @@ $modalidadeDAO = new ModalidadeDAO();$modalidades = $modalidadeDAO->listarPorAca
 
             <div>
                 <label for="senha">Senha temporária de Acesso:</label>
-                <input type="password" id="senha" name="senha" placeholder="Mínimo de 6 caracteres" autocomplete="new-password" required>
+                <input type="password" id="senha" value="aluno123" readonly style="background-color: #eaf4ff; border-color: #93c5fd; color: #1e3a5f; font-weight: 600;">
             </div>
 
 
@@ -184,37 +206,35 @@ $modalidadeDAO = new ModalidadeDAO();$modalidades = $modalidadeDAO->listarPorAca
                     <?php endfor; ?>
                 </div>
 
-                <div class="form-row-inline">
-                    <div>
-                    <label for="nome_plano">Plano Contratado:</label>
-                    <select id="nome_plano" name="nome_plano">
-                        <option value="">Selecione o plano...</option>
-                        <optgroup label="Planos Mensais">
-                            <option value="Mensal 2x/semana">Mensal (2x/semana)</option>
-                            <option value="Mensal 3x/semana">Mensal (3x/semana)</option>
-                            <option value="Mensal Ilimitado">Mensal (Ilimitado)</option>
-                        </optgroup>
-                        <optgroup label="Planos Trimestrais">
-                            <option value="Trimestral 2x/semana">Trimestral (2x/semana)</option>
-                            <option value="Trimestral 3x/semana">Trimestral (3x/semana)</option>
-                            <option value="Trimestral Ilimitado">Trimestral (Ilimitado)</option>
-                        </optgroup>
-                        <optgroup label="Planos Anuais">
-                            <option value="Anual 2x/semana">Anual (2x/semana)</option>
-                            <option value="Anual 3x/semana">Anual (3x/semana)</option>
-                            <option value="Anual Ilimitado">Anual (Ilimitado)</option>
-                        </optgroup>
-                        <optgroup label="Planos All Inclusive">
-                            <option value="All Inclusive 2x/semana">All Inclusive (2x/semana)</option>
-                            <option value="All Inclusive 4x/semana">All Inclusive (4x/semana)</option>
-                            <option value="All Inclusive Ilimitado">All Inclusive (Ilimitado)</option>
-                        </optgroup>
-                    </select>
-                    </div>
-                    <div>
-                        <label for="valor_plano">Valor do Plano (R$):</label>
-                        <input type="number" step="0.01" min="0" id="valor_plano" name="valor_plano" placeholder="Ex: 150.00">
-                    </div>
+                <div class="mt-3">
+                    <p class="small text-muted mb-2">Configure um plano e valor para cada modalidade selecionada.</p>
+                    <?php for ($numeroModalidade = 1; $numeroModalidade <= 3; $numeroModalidade++): ?>
+                        <?php $indiceModalidade = $numeroModalidade - 1; ?>
+                        <div class="plano-modalidade mb-3" data-plano-modalidade="<?= $indiceModalidade; ?>" hidden>
+                            <h4 class="h6 fw-bold">Plano da modalidade <?= $numeroModalidade; ?></h4>
+                            <div class="form-row-inline">
+                                <div>
+                                    <label for="nome_plano_<?= $numeroModalidade; ?>">Plano Contratado:</label>
+                                    <select id="nome_plano_<?= $numeroModalidade; ?>" name="planos[<?= $indiceModalidade; ?>][nome_plano]" disabled>
+                                        <option value="">Selecione o plano...</option>
+                                        <?php foreach ($opcoesPlano as $grupoPlano => $opcoes): ?>
+                                            <optgroup label="Planos <?= htmlspecialchars($grupoPlano, ENT_QUOTES, 'UTF-8'); ?>">
+                                                <?php foreach ($opcoes as $valorPlanoOpcao => $rotuloPlano): ?>
+                                                    <option value="<?= htmlspecialchars($valorPlanoOpcao, ENT_QUOTES, 'UTF-8'); ?>">
+                                                        <?= htmlspecialchars($rotuloPlano, ENT_QUOTES, 'UTF-8'); ?>
+                                                    </option>
+                                                <?php endforeach; ?>
+                                            </optgroup>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label for="valor_plano_<?= $numeroModalidade; ?>">Valor do Plano (R$):</label>
+                                    <input type="number" step="0.01" min="0" id="valor_plano_<?= $numeroModalidade; ?>" name="planos[<?= $indiceModalidade; ?>][valor]" placeholder="Ex: 150.00" disabled>
+                                </div>
+                            </div>
+                        </div>
+                    <?php endfor; ?>
                 </div>
             </div>
 
@@ -260,16 +280,44 @@ $modalidadeDAO = new ModalidadeDAO();$modalidades = $modalidadeDAO->listarPorAca
             const secaoProfessor = document.getElementById('secao-professor');
             const form = document.getElementById('form-cadastro');
             const btnSubmit = document.getElementById('btn-submit');
+            const senhaTemporaria = document.getElementById('senha');
+            const telefone = document.getElementById('telefone');
+
+            telefone.addEventListener('input', function () {
+                const posicaoOriginal = telefone.selectionStart ?? telefone.value.length;
+                const digitosAntesDoCursor = telefone.value.slice(0, posicaoOriginal).replace(/\D/g, '').length;
+                const digitos = telefone.value.replace(/\D/g, '').slice(0, 11);
+                const tamanhoNumero = digitos.length > 10 ? 5 : 4;
+                let telefoneFormatado = digitos ? '(' + digitos.slice(0, 2) : '';
+
+                if (digitos.length > 2) {
+                    telefoneFormatado += ') ' + digitos.slice(2, 2 + tamanhoNumero);
+                }
+                if (digitos.length > 2 + tamanhoNumero) {
+                    telefoneFormatado += '-' + digitos.slice(2 + tamanhoNumero);
+                }
+
+                telefone.value = telefoneFormatado;
+                let novaPosicao = 0;
+                let digitosContados = 0;
+                while (novaPosicao < telefoneFormatado.length && digitosContados < digitosAntesDoCursor) {
+                    if (/\d/.test(telefoneFormatado[novaPosicao])) {
+                        digitosContados++;
+                    }
+                    novaPosicao++;
+                }
+                telefone.setSelectionRange(novaPosicao, novaPosicao);
+            });
 
             const camposAluno = [
                 ...document.querySelectorAll('[name="id_modalidades[]"]'),
-                document.getElementById('nome_plano'),
-                document.getElementById('valor_plano')
+                ...document.querySelectorAll('[name^="planos["]')
             ];
             const camposProfessor = [
                 document.getElementById('especialidade')
             ];
             const selectsModalidade = [...document.querySelectorAll('[name="id_modalidades[]"]')];
+            const camposPlanoPorModalidade = [...document.querySelectorAll('[data-plano-modalidade]')];
 
             function atualizarModalidadesDisponiveis() {
                 selectsModalidade.forEach(select => {
@@ -288,6 +336,7 @@ $modalidadeDAO = new ModalidadeDAO();$modalidades = $modalidadeDAO->listarPorAca
 
             function alternarFormulario() {
                 const tipo = selectTipo.value;
+                senhaTemporaria.value = tipo === 'professor' ? 'professor123' : 'aluno123';
 
                 if (tipo === 'aluno') {
                     secaoAluno.style.display = 'block';
@@ -298,8 +347,6 @@ $modalidadeDAO = new ModalidadeDAO();$modalidades = $modalidadeDAO->listarPorAca
 
                     camposAluno.forEach(campo => campo.removeAttribute('required'));
                     document.getElementById('id_modalidade_1').setAttribute('required', 'required');
-                    document.getElementById('nome_plano').setAttribute('required', 'required');
-                    document.getElementById('valor_plano').setAttribute('required', 'required');
                     camposProfessor.forEach(campo => campo.removeAttribute('required'));
 
                 } else if (tipo === 'professor') {
@@ -312,10 +359,29 @@ $modalidadeDAO = new ModalidadeDAO();$modalidades = $modalidadeDAO->listarPorAca
                     camposProfessor.forEach(campo => campo.setAttribute('required', 'required'));
                     camposAluno.forEach(campo => campo.removeAttribute('required'));
                 }
+                atualizarPlanosPorModalidade();
+            }
+
+            function atualizarPlanosPorModalidade() {
+                camposPlanoPorModalidade.forEach((grupo, indice) => {
+                    const modalidadeSelecionada = Boolean(selectsModalidade[indice].value);
+                    grupo.hidden = !modalidadeSelecionada;
+                    grupo.querySelectorAll('select, input').forEach(campo => {
+                        campo.disabled = !modalidadeSelecionada;
+                        if (modalidadeSelecionada && selectTipo.value === 'aluno') {
+                            campo.setAttribute('required', 'required');
+                        } else {
+                            campo.removeAttribute('required');
+                        }
+                    });
+                });
             }
 
             selectsModalidade.forEach(select => {
-                select.addEventListener('change', atualizarModalidadesDisponiveis);
+                select.addEventListener('change', function () {
+                    atualizarModalidadesDisponiveis();
+                    atualizarPlanosPorModalidade();
+                });
             });
             atualizarModalidadesDisponiveis();
 
@@ -332,6 +398,8 @@ $modalidadeDAO = new ModalidadeDAO();$modalidades = $modalidadeDAO->listarPorAca
                     mensagem = "⚠️ Atenção: Este CPF já se encontra registado no sistema para outro utilizador!";
                 } else if (erro === 'modalidade_invalida') {
                     mensagem = "⚠️ Selecione até três modalidades diferentes e escolha ao menos uma.";
+                } else if (erro === 'plano_invalido') {
+                    mensagem = "⚠️ Selecione um plano e informe o valor para cada modalidade escolhida.";
                 } else if (erro === 'falha_cadastro') {
                     mensagem = "❌ Erro: Falha técnica ao salvar os dados na base de dados. Tente novamente.";
                 }

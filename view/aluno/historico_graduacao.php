@@ -49,7 +49,7 @@ function formatarDataGraduacao(string $data): string
 	<main class="container">
 		<div class="historico-header d-flex flex-wrap align-items-start justify-content-between gap-3">
 			<div>
-				<h2>Graduação e avaliação</h2>
+				<h1>Graduação e avaliação</h1>
 				<p>Acompanhe suas conquistas, previsões e orientações dos professores.</p>
 			</div>
 			<a href="home_aluno.php" class="btn btn-sm ms-auto">Voltar ao início</a>

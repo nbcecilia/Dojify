@@ -104,15 +104,17 @@ class AgendamentoController
         }
 
         // 3. Verifica limite semanal do plano
-        $limiteSemanal = $this->dao->obterLimiteSemanalPlano($id_aluno);
+        $id_modalidade = (int)$turmaInfo['id_modalidade'];
+        $limiteSemanal = $this->dao->obterLimiteSemanalPlano($id_aluno, $id_modalidade);
         
         $inicioSemana = clone $data_obj; 
         $inicioSemana->modify('monday this week')->setTime(0, 0, 0);
         $fimSemana = clone $data_obj; 
         $fimSemana->modify('sunday this week')->setTime(23, 59, 59);
 
-        $totalSemana = $this->dao->contarAgendamentosSemana(
-            $id_aluno, 
+        $totalSemana = $this->dao->contarAgendamentosSemanaPorModalidade(
+            $id_aluno,
+            $id_modalidade,
             $inicioSemana->format('Y-m-d H:i:s'), 
             $fimSemana->format('Y-m-d H:i:s')
         );
