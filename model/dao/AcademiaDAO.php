@@ -135,4 +135,13 @@ class AcademiaDAO {
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+    //Contar o total de academias cadastradas no sistema//
+    public function contarTotal(): int {
+        try {
+            $sql = "SELECT COUNT(*) FROM academia";
+            return (int) $this->conexao->query($sql)->fetchColumn();
+        } catch (PDOException $e) {
+            return 0;
+        }
+    }
 }

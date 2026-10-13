@@ -227,4 +227,15 @@ class UsuarioDAO {
 
         return $indicadores;
     }
+    //Contar o total de gerentes cadastrados no sistema (Suporte)//
+    public function contarGerentes(): int {
+        try {
+            $sql = "SELECT COUNT(*) FROM usuario WHERE perfil_id = 2";
+            $stmt = $this->conexao->prepare($sql);
+            $stmt->execute();
+            return (int) $stmt->fetchColumn();
+        } catch (PDOException $e) {
+            return 0;
+        }
+    }
 }

@@ -8,7 +8,23 @@ if (!isset($_SESSION['usuario']) || $_SESSION['usuario']['perfil_id'] != 1) {
     exit;
 }
 
+require_once __DIR__ . '/../../model/dao/AcademiaDAO.php';
+require_once __DIR__ . '/../../model/dao/UsuarioDAO.php';
+
 $nomeAdmin = htmlspecialchars($_SESSION['usuario']['nome']);
+
+$totalAcademias = 0;
+$totalGerentes = 0;
+
+try {
+    $academiaDAO = new AcademiaDAO();
+    $totalAcademias = $academiaDAO->contarTotal();
+
+    $usuarioDAO = new UsuarioDAO();
+    $totalGerentes = $usuarioDAO->contarGerentes();
+} catch (Exception $e) {
+    // Mantém a contagem a 0 em caso de exceção
+}
 ?>
 
 <!DOCTYPE html>
@@ -153,7 +169,7 @@ $nomeAdmin = htmlspecialchars($_SESSION['usuario']['nome']);
 
 
                 <strong class="gerente-kpi-value">
-                    —
+                    <?= $totalAcademias ?>
                 </strong>
 
 
@@ -185,12 +201,12 @@ $nomeAdmin = htmlspecialchars($_SESSION['usuario']['nome']);
 
 
                 <strong class="gerente-kpi-value">
-                    —
+                    <?= $totalGerentes ?>
                 </strong>
 
 
                 <small class="gerente-kpi-note">
-                    Gerentes cadastrados no sistema
+                    Gerentes cadastrados no Dojify
                 </small>
 
             </article>
@@ -426,7 +442,7 @@ $nomeAdmin = htmlspecialchars($_SESSION['usuario']['nome']);
                         </span>
 
                         <span class="gerente-status-value">
-                            —
+                            <?= $totalAcademias ?>
                         </span>
 
                     </div>
@@ -439,7 +455,7 @@ $nomeAdmin = htmlspecialchars($_SESSION['usuario']['nome']);
                         </span>
 
                         <span class="gerente-status-value">
-                            —
+                            <?= $totalGerentes ?>
                         </span>
 
                     </div>
@@ -466,13 +482,13 @@ $nomeAdmin = htmlspecialchars($_SESSION['usuario']['nome']);
                 <div class="gerente-panel">
 
                     <h4 class="gerente-panel-title">
-                        Área administrativa
+                        Área Suporte Técnico
                     </h4>
 
 
                     <p class="gerente-section-subtitle mb-0">
 
-                        O administrador é responsável pelo gerenciamento
+                        O Suporte Técnico é responsável pelo gerenciamento
                         das academias cadastradas na plataforma e dos
                         respectivos gerentes.
 

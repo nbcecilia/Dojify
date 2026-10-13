@@ -16,6 +16,11 @@ $academias = $academiaDAO->listarTodas();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cadastrar Gerente - Dojify</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <!-- Estilo Global Dojify -->
     <link rel="stylesheet" href="../../assets/css/estilo.css">
 </head>
 <body>
@@ -37,70 +42,98 @@ $academias = $academiaDAO->listarTodas();
         </div>
     </header>
 
-    <div class="container">
+    <main class="container my-4">
+        <header class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <a href="home_admin.php" class="btn btn-dark btn-sm">
+                    <i class="bi bi-arrow-left me-1"></i> Voltar ao Painel
+                </a>
+            </div>
+        </header>
 
-        <?php if (isset($_GET['erro'])): ?>
-            <div class="alert-erro">Erro ao cadastrar gerente. Verifique se o CPF ou E-mail já estão em uso.</div>
-        <?php endif; ?>
-
-        <form action="../../controller/UsuarioController.php" method="POST" autocomplete="off">
-             <div class="text-center" style="margin-bottom: 20px;">
-                <img src="../../assets/img/dojify_logo1.png" alt="Dojify Logo" style="width: 100px; height: auto; margin-bottom: 12px; filter: grayscale(100%);">
-                <h2>Cadastrar Gerente</h2>
-             </div>
-            <input type="hidden" name="acao" value="cadastrar_gerente">
-            
-            <label>Selecione a Academia:</label>
-            <select name="id_academia" required>
-                <option value="">-- Selecione uma Academia --</option>
-                <?php foreach ($academias as $ac): ?>
-                    <option value="<?= $ac['id_academia'] ?>"><?= htmlspecialchars($ac['nome']) ?></option>
-                <?php endforeach; ?>
-            </select>
-
-            <label>Nome Completo do Gerente:</label>
-            <input type="text" name="nome" required>
-
-            <div class="form-row-inline">
-                <div>
-                    <label for="cpf">CPF (apenas números):</label>
-                    <input type="text" id="cpf" name="cpf" placeholder="000.000.000-00" maxlength="14" required>
+        <section class="card shadow-sm border-0 p-4">
+            <?php if (isset($_GET['erro'])): ?>
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    Erro ao cadastrar gerente. Verifique se o CPF ou E-mail já estão em uso.
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
-                <div>
-                    <label for="telefone">Telefone:</label>
-                    <input type="tel" id="telefone" name="telefone" pattern="\([0-9]{2}\) [0-9]{4,5}-[0-9]{4}" required>
-                </div>
+            <?php endif; ?>
+
+            <div class="mb-4">
+                <h2 class="fs-4 fw-bold">Cadastrar Gerente</h2>
             </div>
 
-            <div class="form-row-inline">
-                <div>
-                    <label for="data_nascimento">Data de Nascimento:</label>
-                    <input type="date" id="data_nascimento" name="data_nascimento" required>
+            <form action="../../controller/UsuarioController.php" method="POST" autocomplete="off" class="w-100 mw-100 p-0 m-0 border-0 shadow-none bg-transparent">
+                <input type="hidden" name="acao" value="cadastrar_gerente">
+                
+                <div class="row g-3">
+                    <div class="col-12">
+                        <label for="id_academia" class="form-label">Selecione a Academia: <span class="text-danger">*</span></label>
+                        <select class="form-select" id="id_academia" name="id_academia" required>
+                            <option value="">-- Selecione uma Academia --</option>
+                            <?php foreach ($academias as $ac): ?>
+                                <option value="<?= $ac['id_academia'] ?>"><?= htmlspecialchars($ac['nome']) ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+
+                    <div class="col-12">
+                        <label for="nome" class="form-label">Nome Completo do Gerente: <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="nome" name="nome" required>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="cpf" class="form-label">CPF (apenas números): <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="cpf" name="cpf" placeholder="000.000.000-00" maxlength="14" required>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="telefone" class="form-label">Telefone: <span class="text-danger">*</span></label>
+                        <input type="tel" class="form-control" id="telefone" name="telefone" pattern="\([0-9]{2}\) [0-9]{4,5}-[0-9]{4}" required>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="data_nascimento" class="form-label">Data de Nascimento: <span class="text-danger">*</span></label>
+                        <input type="date" class="form-control" id="data_nascimento" name="data_nascimento" required>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="sexo" class="form-label">Sexo: <span class="text-danger">*</span></label>
+                        <select class="form-select" id="sexo" name="sexo" required>
+                            <option value="">Selecione...</option>
+                            <option value="Feminino">Feminino</option>
+                            <option value="Masculino">Masculino</option>
+                            <option value="Outro">Outro</option>
+                            <option value="Prefiro não informar">Prefiro não informar</option>
+                        </select>
+                    </div>
+
+                    <div class="col-12">
+                        <label for="email" class="form-label">E-mail de Acesso: <span class="text-danger">*</span></label>
+                        <input type="email" class="form-control" id="email" name="email" required>
+                    </div>
+
+                    <div class="col-12">
+                        <label for="senha" class="form-label">Senha de Acesso: <span class="text-danger">*</span></label>
+                        <input type="password" class="form-control" id="senha" name="senha" autocomplete="new-password" required>
+                    </div>
+
+                    <div class="col-12 mt-4 d-flex gap-3 justify-content-center align-items-center">
+                        <a href="home_admin.php" class="btn btn-secondary px-4 m-0 w-auto">Cancelar</a>
+                        <button type="submit" class="btn btn-success px-4 m-0 w-auto">
+                            <i class="bi bi-check-circle me-1"></i> Cadastrar Gerente
+                        </button>
+                    </div>
                 </div>
-                <div>
-                    <label for="sexo">Sexo:</label>
-                    <select id="sexo" name="sexo" required>
-                        <option value="">Selecione...</option>
-                        <option value="Feminino">Feminino</option>
-                        <option value="Masculino">Masculino</option>
-                        <option value="Outro">Outro</option>
-                        <option value="Prefiro não informar">Prefiro não informar</option>
-                    </select>
-                </div>
-            </div>
+            </form>
+        </section>
+    </main>
 
-            <label>E-mail de Acesso:</label>
-            <input type="email" name="email" required>
-
-            <label>Senha de Acesso:</label>
-            <input type="password" name="senha" autocomplete="new-password" required>
-
-            <button type="submit">Cadastrar Gerente</button>
-        </form>
-    </div>
     <footer class="footer">
-            <p>&copy; <?php echo date('Y'); ?> Dojify. Todos os direitos reservados.</p>
+        <p>&copy; <?php echo date('Y'); ?> Dojify. Todos os direitos reservados.</p>
     </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="../../assets/js/cpf.js?v=<?= filemtime(__DIR__ . '/../../assets/js/cpf.js'); ?>"></script>
 </body>
 </html>
