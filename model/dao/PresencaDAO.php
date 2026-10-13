@@ -46,12 +46,15 @@ class PresencaDAO {
                 FROM agendamento a
                 JOIN usuario u ON a.id_usuario_aluno = u.id_usuario
                 LEFT JOIN presenca p ON p.id_agendamento = a.id_agendamento AND p.data = :data_aula
-                WHERE a.id_turma = :id_turma AND a.status = 'CONFIRMADO'
+                WHERE a.id_turma = :id_turma
+                  AND a.status = 'CONFIRMADO'
+                  AND DATE(a.data_agendamento) = :data_agendamento
                 ORDER BY u.nome ASC";
         
         $stmt = $this->conexao->prepare($sql);
         $stmt->bindValue(':id_turma', $idTurma, PDO::PARAM_INT);
         $stmt->bindValue(':data_aula', $dataAula);
+        $stmt->bindValue(':data_agendamento', $dataAula);
         $stmt->execute();
         
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -68,7 +71,8 @@ class PresencaDAO {
                 JOIN usuario u ON a.id_usuario_aluno = u.id_usuario
                 JOIN turma t ON a.id_turma = t.id_turma
                 JOIN modalidade m ON m.id_modalidade = t.id_modalidade
-                WHERE m.id_academia = :id_academia";
+                WHERE m.id_academia = :id_academia
+                  AND p.status = 1";
         
         if (!empty($idTurma)) {
             $sql .= " AND t.id_turma = :id_turma";
@@ -102,7 +106,8 @@ class PresencaDAO {
                 JOIN agendamento a ON p.id_agendamento = a.id_agendamento
                 JOIN usuario u ON a.id_usuario_aluno = u.id_usuario
                 JOIN turma t ON a.id_turma = t.id_turma
-                WHERE t.id_usuario_professor = :id_professor";
+                WHERE t.id_usuario_professor = :id_professor
+                  AND p.status = 1";
         
         if (!empty($idTurma)) {
             $sql .= " AND t.id_turma = :id_turma";

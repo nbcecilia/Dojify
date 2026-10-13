@@ -101,7 +101,7 @@ if ($perfilId === 2) {
                     <tbody>
                         <?php if (empty($historicoPresencas)): ?>
                             <tr>
-                                <td colspan="4" class="text-center text-muted py-4">Nenhum registo de presença encontrado para os filtros selecionados.</td>
+                                <td colspan="4" class="text-center text-muted py-4">Nenhuma presença confirmada encontrada para os filtros selecionados.</td>
                             </tr>
                         <?php else: ?>
                             <?php foreach ($historicoPresencas as $registo): ?>

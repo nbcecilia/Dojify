@@ -145,7 +145,7 @@ $alunosChamada = !empty($idTurma) ? $dao->listarAlunosParaChamada($idTurma, $dat
                                 </tr>
                             <?php elseif (empty($alunosChamada)): ?>
                                 <tr>
-                                    <td colspan="2" class="text-center text-muted py-4">Nenhum aluno agendado encontrado para esta turma e data.</td>
+                                    <td colspan="2" class="text-center text-muted py-4">Nenhum aluno com agendamento confirmado encontrado para esta turma e data.</td>
                                 </tr>
                             <?php else: ?>
                                 <?php foreach ($alunosChamada as $aluno): ?>
