@@ -24,9 +24,11 @@ class UsuarioDAO {
 
             $sql = "INSERT INTO usuario (
                         id_academia, perfil_id, nome, cpf, data_nascimento, sexo, telefone, email,
+                        cep, endereco, cidade, estado,
                         especialidade, data_admissao, responsavel, observacao, data_matricula, status
                     ) VALUES (
                         :id_academia, :perfil_id, :nome, :cpf, :data_nascimento, :sexo, :telefone, :email,
+                        :cep, :endereco, :cidade, :estado,
                         :especialidade, :data_admissao, :responsavel, :observacao, :data_matricula, :status
                     )";
 
@@ -41,6 +43,11 @@ class UsuarioDAO {
             $stmt->bindValue(':telefone', $u->getTelefone());
             $stmt->bindValue(':email', $u->getEmail());
             
+            $stmt->bindValue(':cep', $u->getCep() ?: null);
+            $stmt->bindValue(':endereco', $u->getEndereco() ?: null);
+            $stmt->bindValue(':cidade', $u->getCidade() ?: null);
+            $stmt->bindValue(':estado', $u->getEstado() ?: null);
+
             $stmt->bindValue(':especialidade', $u->getEspecialidade() ?: null);
             $stmt->bindValue(':data_admissao', $u->getDataAdmissao() ?: null);
             $stmt->bindValue(':responsavel', $u->getResponsavel() ?: null);
@@ -227,7 +234,7 @@ class UsuarioDAO {
 
         return $indicadores;
     }
-    //Contar o total de gerentes cadastrados no sistema (Suporte)//
+    
     public function contarGerentes(): int {
         try {
             $sql = "SELECT COUNT(*) FROM usuario WHERE perfil_id = 2";

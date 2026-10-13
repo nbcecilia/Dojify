@@ -55,15 +55,6 @@ class UsuarioController {
         }
     }
 
-    // ==========================================
-    // MÉTODOS EXECUTADOS PELO GERENTE (Perfil 2)
-    // Gerem Alunos (Perfil 4) e Professores (Perfil 3) da respetiva academia
-    // ==========================================
-
-    /**
-     * GERENTE: Cadastra um novo Aluno (Perfil 4) na sua academia,
-     * criando também o registo de login, o plano inicial e a respetiva fatura/pagamento.
-     */
     private function cadastrarAluno(): void {
         if (!isset($_SESSION['usuario']) || (int)$_SESSION['usuario']['perfil_id'] !== 2) {
             header('Location: ../view/login.php?erro=acesso_negado');
@@ -162,7 +153,6 @@ class UsuarioController {
                 }
             }
 
-            // Inserção do Aluno (Perfil 4)
             $sqlUsuario = "INSERT INTO usuario (id_academia, perfil_id, nome, cpf, data_nascimento, sexo, telefone, email, cep, endereco, cidade, estado, responsavel, observacao, data_matricula, status)
                             VALUES (:id_academia, 4, :nome, :cpf, :data_nascimento, :sexo, :telefone, :email, :cep, :endereco, :cidade, :estado, :responsavel, :observacao, :data_matricula, 'ATIVO')";
             
@@ -238,10 +228,6 @@ class UsuarioController {
         }
     }
 
-    /**
-     * GERENTE: Cadastra um novo Professor (Perfil 3) na sua academia,
-     * configurando os dados profissionais e as credenciais de acesso de login.
-     */
     private function cadastrarProfessor(): void {
         if (!isset($_SESSION['usuario']) || (int)$_SESSION['usuario']['perfil_id'] !== 2) {
             header('Location: ../view/login.php?erro=acesso_negado');
@@ -283,7 +269,6 @@ class UsuarioController {
                 throw new Exception("Preencha todos os campos obrigatórios corretamente.");
             }
 
-            // Inserção do Professor (perfil_id = 3)
             $sqlUsuario = "INSERT INTO usuario (id_academia, perfil_id, nome, cpf, data_nascimento, sexo, telefone, email, cep, endereco, cidade, estado, especialidade, data_admissao, status)
                             VALUES (:id_academia, 3, :nome, :cpf, :data_nascimento, :sexo, :telefone, :email, :cep, :endereco, :cidade, :estado, :especialidade, :data_admissao, 'ATIVO')";
             
@@ -333,9 +318,6 @@ class UsuarioController {
         }
     }
 
-    /**
-     * GERENTE: Atualiza os dados cadastrais e o plano de um Aluno (Perfil 4) existente.
-     */
     private function atualizarAluno(): void {
         if (!isset($_SESSION['usuario']) || (int)$_SESSION['usuario']['perfil_id'] !== 2) {
             header('Location: ../view/login.php?erro=acesso_negado');
@@ -468,10 +450,6 @@ class UsuarioController {
         }
     }
 
-    /**
-     * GERENTE: Altera de forma dinâmica o status (ATIVO, INATIVO, SUSPENSO)
-     * de utilizadores afetos à sua respetiva academia.
-     */
     private function alternarStatus(): void {
         if (!isset($_SESSION['usuario']) || (int)$_SESSION['usuario']['perfil_id'] !== 2) {
             header('Location: ../view/login.php');
@@ -503,15 +481,6 @@ class UsuarioController {
         exit;
     }
 
-
-    // ==========================================
-    // MÉTODOS EXECUTADOS PELO ADMINISTRADOR (Perfil 1)
-    // Gerem Academias e Gestores/Gerentes (Perfil 2) globalmente no sistema
-    // ==========================================
-
-    /**
-     * ADMINISTRADOR: Cadastra um novo Gerente (Perfil 2) vinculado a uma academia específica.
-     */
     private function cadastrarGerente(): void {
         if (!isset($_SESSION['usuario']) || (int)$_SESSION['usuario']['perfil_id'] !== 1) {
             header('Location: ../view/login.php');
@@ -526,13 +495,19 @@ class UsuarioController {
         try {
             $u = new UsuarioDTO();
             $u->setIdAcademia((int)($_POST['id_academia'] ?? 0));
-            $u->setPerfilId(2); // Perfil 2 = Gerente
+            $u->setPerfilId(2);
             $u->setNome(trim($_POST['nome'] ?? ''));
             $u->setCpf(preg_replace('/[^0-9]/', '', $_POST['cpf'] ?? ''));
             $u->setDataNascimento($_POST['data_nascimento'] ?? '');
             $sexo = trim($_POST['sexo'] ?? '');
             $u->setTelefone(trim($_POST['telefone'] ?? ''));
             $u->setEmail(filter_input(INPUT_POST, 'email', FILTER_VALIDATE_EMAIL));
+            
+            $u->setCep(preg_replace('/\D/', '', $_POST['cep'] ?? ''));
+            $u->setEndereco(trim($_POST['endereco'] ?? ''));
+            $u->setCidade(trim($_POST['cidade'] ?? ''));
+            $u->setEstado(strtoupper(trim($_POST['estado'] ?? '')));
+            
             $u->setStatus('ATIVO');
 
             $senha = $_POST['senha'] ?? '';
@@ -557,9 +532,6 @@ class UsuarioController {
         exit;
     }
 
-    /**
-     * ADMINISTRADOR: Atualiza dados gerais de qualquer perfil no sistema a partir do painel administrativo.
-     */
     private function atualizar(): void {
         if (!isset($_SESSION['usuario']) || (int)$_SESSION['usuario']['perfil_id'] !== 1) {
             header('Location: ../view/login.php');
@@ -598,9 +570,6 @@ class UsuarioController {
         exit;
     }
 
-    /**
-     * ADMINISTRADOR: Atualiza especificamente os dados de um Gerente (Perfil 2) e a sua academia associada.
-     */
     private function atualizarGerente(): void {
         if (!isset($_SESSION['usuario']) || (int)$_SESSION['usuario']['perfil_id'] !== 1) {
             header('Location: ../view/login.php?erro=acesso_negado');
@@ -653,9 +622,6 @@ class UsuarioController {
         exit;
     }
 
-    /**
-     * ADMINISTRADOR: Desativa um utilizador ou gerente globalmente a partir da gestão de academias.
-     */
     private function desativar(): void {
         if (!isset($_SESSION['usuario']) || (int)$_SESSION['usuario']['perfil_id'] !== 1) {
             header('Location: ../view/login.php');
@@ -681,9 +647,6 @@ class UsuarioController {
         exit;
     }
 
-    /**
-     * ADMINISTRADOR: Reativa um utilizador ou gerente previamente desativado no sistema.
-     */
     private function reativar(): void {
         if (!isset($_SESSION['usuario']) || (int)$_SESSION['usuario']['perfil_id'] !== 1) {
             header('Location: ../view/login.php');
@@ -698,14 +661,12 @@ class UsuarioController {
         }
 
         try {
-            // Busca o utilizador para validar se é um gerente e qual é a sua academia
             $usuario = $this->dao->buscarPorId($id);
             if (!$usuario) {
                 header('Location: ../view/admin/listar_academias_gerentes.php?erro=nao_encontrado');
                 exit;
             }
 
-            // Se for um gerente (perfil_id = 2) e pertencer a uma academia, valida se já existe um ativo
             if ((int)$usuario['perfil_id'] === 2 && !empty($usuario['id_academia'])) {
                 $idAcademia = (int)$usuario['id_academia'];
                 if ($this->dao->existeGerenteAtivoNaAcademia($idAcademia)) {

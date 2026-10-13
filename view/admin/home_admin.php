@@ -85,8 +85,7 @@ try {
         <div class="navbar-user">
 
             <span class="user-greeting">
-                Logado como:
-                <strong><?= $nomeAdmin ?></strong>
+                Olá, <strong><?= $nomeAdmin ?></strong>
             </span>
 
             <a

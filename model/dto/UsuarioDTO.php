@@ -10,6 +10,10 @@ class UsuarioDTO {
     private ?string $sexo = null;
     private string $telefone;
     private string $email;
+    private ?string $cep = null;
+    private ?string $endereco = null;
+    private ?string $cidade = null;
+    private ?string $estado = null;
     private ?string $especialidade = null;
     private ?string $dataAdmissao = null;
     private ?string $responsavel = null;
@@ -44,6 +48,18 @@ class UsuarioDTO {
 
     public function getEmail(): string { return $this->email; }
     public function setEmail(string $email): void { $this->email = $email; }
+
+    public function getCep(): ?string { return $this->cep; }
+    public function setCep(?string $cep): void { $this->cep = $cep; }
+
+    public function getEndereco(): ?string { return $this->endereco; }
+    public function setEndereco(?string $endereco): void { $this->endereco = $endereco; }
+
+    public function getCidade(): ?string { return $this->cidade; }
+    public function setCidade(?string $cidade): void { $this->cidade = $cidade; }
+
+    public function getEstado(): ?string { return $this->estado; }
+    public function setEstado(?string $estado): void { $this->estado = $estado; }
 
     public function getEspecialidade(): ?string { return $this->especialidade; }
     public function setEspecialidade(?string $especialidade): void { $this->especialidade = $especialidade; }

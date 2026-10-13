@@ -37,16 +37,25 @@ $academias = $academiaDAO->listarTodas();
         
         <div class="navbar-user">
             <span class="user-greeting">Olá, <strong><?= htmlspecialchars($_SESSION['usuario']['nome']) ?></strong></span>
-            <a href="home_admin.php" class="btn btn-sm btn-voltar">⬅ Voltar</a>
-            <a href="../../controller/UsuarioController.php?acao=logout" class="btn btn-sm btn-danger">Sair</a>
+          <a
+                href="../../controller/LoginController.php?acao=logout"
+                class="btn btn-sm btn-danger header-logout-button"
+                aria-label="Sair"
+                title="Sair"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M10 17l5-5-5-5M15 12H3"/>
+                    <path d="M12 3h6a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-6"/>
+                </svg>
+            </a>
         </div>
     </header>
 
     <main class="container my-4">
         <header class="d-flex justify-content-between align-items-center mb-4">
             <div>
-                <a href="home_admin.php" class="btn btn-dark btn-sm">
-                    <i class="bi bi-arrow-left me-1"></i> Voltar ao Painel
+                <a href="listar_academias_gerentes.php" class="btn btn-dark btn-sm">
+                    <i class="bi bi-arrow-left me-1"></i> Gestão de Academias & Gerentes
                 </a>
             </div>
         </header>
@@ -61,9 +70,10 @@ $academias = $academiaDAO->listarTodas();
 
             <div class="mb-4">
                 <h2 class="fs-4 fw-bold">Cadastrar Gerente</h2>
+                <p class="text-muted">Preencha os campos abaixo para cadastrar um novo gerente.</p>
             </div>
 
-            <form action="../../controller/UsuarioController.php" method="POST" autocomplete="off" class="w-100 mw-100 p-0 m-0 border-0 shadow-none bg-transparent">
+            <form action="../../controller/UsuarioController.php" method="POST" data-cep-form autocomplete="off" class="w-100 mw-100 p-0 m-0 border-0 shadow-none bg-transparent">
                 <input type="hidden" name="acao" value="cadastrar_gerente">
                 
                 <div class="row g-3">
@@ -108,6 +118,46 @@ $academias = $academiaDAO->listarTodas();
                         </select>
                     </div>
 
+                    <div class="col-md-4">
+                        <label for="cep" class="form-label">CEP: <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="cep" name="cep" inputmode="numeric" autocomplete="postal-code" maxlength="9" pattern="[0-9]{5}-?[0-9]{3}" placeholder="00000-000" required>
+                            <button type="button" class="btn btn-outline-secondary" data-cep-lookup>Buscar CEP</button>
+                        </div>
+                        <p id="cep-status" class="form-text text-muted mb-0" aria-live="polite"></p>
+                    </div>
+
+                    <div class="col-md-8">
+                        <label for="endereco" class="form-label">Endereço: <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="endereco" name="endereco" autocomplete="street-address" maxlength="100" required>
+                    </div>
+
+                    <div class="col-md-8">
+                        <label for="cidade" class="form-label">Cidade: <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="cidade" name="cidade" autocomplete="address-level2" maxlength="45" required>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label for="estado" class="form-label">Estado (UF): <span class="text-danger">*</span></label>
+                        <select class="form-select" id="estado" name="estado" autocomplete="off" required>
+                            <option value="" selected>Selecione...</option>
+                            <option value="AC">AC</option><option value="AL">AL</option>
+                            <option value="AP">AP</option><option value="AM">AM</option>
+                            <option value="BA">BA</option><option value="CE">CE</option>
+                            <option value="DF">DF</option><option value="ES">ES</option>
+                            <option value="GO">GO</option><option value="MA">MA</option>
+                            <option value="MT">MT</option><option value="MS">MS</option>
+                            <option value="MG">MG</option><option value="PA">PA</option>
+                            <option value="PB">PB</option><option value="PR">PR</option>
+                            <option value="PE">PE</option><option value="PI">PI</option>
+                            <option value="RJ">RJ</option><option value="RN">RN</option>
+                            <option value="RS">RS</option><option value="RO">RO</option>
+                            <option value="RR">RR</option><option value="SC">SC</option>
+                            <option value="SP">SP</option><option value="SE">SE</option>
+                            <option value="TO">TO</option>
+                        </select>
+                    </div>
+
                     <div class="col-12">
                         <label for="email" class="form-label">E-mail de Acesso: <span class="text-danger">*</span></label>
                         <input type="email" class="form-control" id="email" name="email" required>
@@ -134,6 +184,7 @@ $academias = $academiaDAO->listarTodas();
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../../assets/js/cep.js" defer></script>
     <script src="../../assets/js/cpf.js?v=<?= filemtime(__DIR__ . '/../../assets/js/cpf.js'); ?>"></script>
 </body>
 </html>

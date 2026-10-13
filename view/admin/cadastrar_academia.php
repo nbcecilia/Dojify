@@ -32,8 +32,17 @@ if (!isset($_SESSION['usuario']) || $_SESSION['usuario']['perfil_id'] != 1) {
         
         <div class="navbar-user">
             <span class="user-greeting">Olá, <strong><?= htmlspecialchars($_SESSION['usuario']['nome']) ?></strong></span>
-            <a href="home_admin.php" class="btn btn-sm btn-voltar">Voltar</a>
-            <a href="../../controller/UsuarioController.php?acao=logout" class="btn btn-sm btn-danger">Sair</a>
+                <a
+                href="../../controller/LoginController.php?acao=logout"
+                class="btn btn-sm btn-danger header-logout-button"
+                aria-label="Sair"
+                title="Sair"
+                >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M10 17l5-5-5-5M15 12H3"/>
+                    <path d="M12 3h6a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-6"/>
+                </svg>
+                </a>
         </div>
     </header>
 
@@ -56,7 +65,7 @@ if (!isset($_SESSION['usuario']) || $_SESSION['usuario']['perfil_id'] != 1) {
 
             <div class="mb-4">
                 <h2 class="fs-4 fw-bold">Cadastrar Nova Academia</h2>
-                <p>Cadastrar uma nova academia no sistema.</p>
+                <p class="text-muted">Cadastrar uma nova academia no sistema.</p>
             </div>
 
             <form action="../../controller/AcademiaController.php" method="POST" data-cep-form autocomplete="off" class="w-100 mw-100 p-0 m-0 border-0 shadow-none bg-transparent">
