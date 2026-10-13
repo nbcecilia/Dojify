@@ -43,84 +43,88 @@ $modalidades = $stmtModalidades->fetchAll(PDO::FETCH_ASSOC);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Editar Professor - Dojify</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="../../assets/css/estilo.css">
 </head>
 <body>
-    <header class="navbar">
-        <div class="navbar-brand">
-            <a href="home_gerente.php" class="logo-link">
-                <img src="../../assets/img/Dojify_original2.png" alt="Dojify Logo" class="navbar-logo">
-                <div>
-                    <h1>Dojify</h1>
+    <?php include '../includes/header.php'; ?>
+
+    <main class="container my-4">
+        <header class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <a href="listar_usuarios.php" class="btn btn-dark btn-sm">
+                    <i class="bi bi-arrow-left me-1"></i> Voltar
+                </a>
+            </div>
+        </header>
+
+        <section class="card shadow-sm border-0 p-4">
+            <div class="text-center mb-4">
+                <h2 class="fs-4 fw-bold">Editar Dados do Professor</h2>
+                <p class="text-muted">Atualize as informações cadastrais do instrutor.</p>
+            </div>
+
+            <form action="../../controller/UsuarioController.php?acao=atualizar_professor" method="POST" class="w-100 mw-100 p-0 m-0 border-0 shadow-none bg-transparent">
+                <input type="hidden" name="id_usuario" value="<?= $professor['id_usuario']; ?>">
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label for="nome" class="form-label">Nome Completo: <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="nome" name="nome" value="<?= htmlspecialchars($professor['nome']); ?>" required>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="cpf" class="form-label">CPF (Não editável):</label>
+                        <input type="text" class="form-control" id="cpf" value="<?= htmlspecialchars($professor['cpf'] ?? ''); ?>" disabled>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="email" class="form-label">E-mail de Acesso: <span class="text-danger">*</span></label>
+                        <input type="email" class="form-control" id="email" name="email" value="<?= htmlspecialchars($professor['email']); ?>" required>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="telefone" class="form-label">Telefone: <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="telefone" name="telefone" value="<?= htmlspecialchars($professor['telefone']); ?>" required>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="especialidade" class="form-label">Especialidade / Arte Marcial: <span class="text-danger">*</span></label>
+                        <select class="form-select" id="especialidade" name="especialidade" required>
+                            <option value="">Selecione a especialidade...</option>
+                            <?php foreach ($modalidades as $mod): ?>
+                                <option value="<?= htmlspecialchars($mod['nome']); ?>" <?= (($professor['especialidade'] ?? '') === $mod['nome']) ? 'selected' : ''; ?>>
+                                    <?= htmlspecialchars($mod['nome']); ?>
+                                </option>
+                            <?php endforeach; ?>
+                            <option value="Outras" <?= (($professor['especialidade'] ?? '') === 'Outras') ? 'selected' : ''; ?>>Outras</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="status" class="form-label">Status do Professor: <span class="text-danger">*</span></label>
+                        <select class="form-select" id="status" name="status" required>
+                            <option value="ATIVO" <?= ($professor['status'] === 'ATIVO') ? 'selected' : ''; ?>>Ativo</option>
+                            <option value="INATIVO" <?= ($professor['status'] === 'INATIVO') ? 'selected' : ''; ?>>Inativo</option>
+                            <option value="SUSPENSO" <?= ($professor['status'] === 'SUSPENSO') ? 'selected' : ''; ?>>Suspenso</option>
+                        </select>
+                    </div>
+
+                    <div class="col-12 mt-4 d-flex gap-3 justify-content-center align-items-center">
+                        <a href="listar_usuarios.php" class="btn btn-secondary px-4 m-0 w-auto">Cancelar</a>
+                        <button type="submit" class="btn btn-success px-4 m-0 w-auto">
+                            <i class="bi bi-check-circle me-1"></i> Salvar Alterações
+                        </button>
+                    </div>
                 </div>
-            </a>
-        </div>
-        
-        <div class="navbar-user">
-            <span class="user-greeting">Olá, <strong><?= htmlspecialchars($_SESSION['usuario']['nome']) ?></strong></span>
-            <a href="listar_usuarios.php" class="btn btn-sm">Voltar</a>
-            <a href="../../controller/UsuarioController.php?acao=logout" class="btn btn-sm btn-danger">Sair</a>
-        </div>
-    </header>
+            </form>
+        </section>
+    </main>
 
-    <div class="container">
-        <h2>Editar Dados do Professor</h2>
-        <p class="text-center text-muted" style="margin-bottom: 24px;">Atualize as informações cadastrais do instrutor.</p>
-
-        <form action="../../controller/UsuarioController.php?acao=atualizar_professor" method="POST">
-            <input type="hidden" name="id_usuario" value="<?= $professor['id_usuario']; ?>">
-
-            <div>
-                <label for="nome">Nome Completo:</label>
-                <input type="text" id="nome" name="nome" value="<?= htmlspecialchars($professor['nome']); ?>" required>
-            </div>
-
-            <div>
-                <label for="cpf">CPF (Não editável):</label>
-                <input type="text" id="cpf" value="<?= htmlspecialchars($professor['cpf'] ?? ''); ?>" disabled>
-            </div>
-
-            <div>
-                <label for="email">E-mail de Acesso:</label>
-                <input type="email" id="email" name="email" value="<?= htmlspecialchars($professor['email']); ?>" required>
-            </div>
-
-            <div>
-                <label for="telefone">Telefone:</label>
-                <input type="text" id="telefone" name="telefone" value="<?= htmlspecialchars($professor['telefone']); ?>" required>
-            </div>
-
-            <div>
-                <label for="especialidade">Especialidade / Arte Marcial:</label>
-                <select id="especialidade" name="especialidade" required>
-                    <option value="">Selecione a especialidade...</option>
-                    <?php foreach ($modalidades as $mod): ?>
-                        <option value="<?= htmlspecialchars($mod['nome']); ?>" <?= (($professor['especialidade'] ?? '') === $mod['nome']) ? 'selected' : ''; ?>>
-                            <?= htmlspecialchars($mod['nome']); ?>
-                        </option>
-                    <?php endforeach; ?>
-                    <option value="Outras" <?= (($professor['especialidade'] ?? '') === 'Outras') ? 'selected' : ''; ?>>Outras</option>
-                </select>
-            </div>
-
-            <div>
-                <label for="status">Status do Professor:</label>
-                <select id="status" name="status" required>
-                    <option value="ATIVO" <?= ($professor['status'] === 'ATIVO') ? 'selected' : ''; ?>>Ativo</option>
-                    <option value="INATIVO" <?= ($professor['status'] === 'INATIVO') ? 'selected' : ''; ?>>Inativo</option>
-                    <option value="SUSPENSO" <?= ($professor['status'] === 'SUSPENSO') ? 'selected' : ''; ?>>Suspenso</option>
-                </select>
-            </div>
-
-            <div style="display: flex; gap: 12px; margin-top: 24px;">
-                <a href="listar_usuarios.php" class="btn" style="flex: 1; text-align: center; background-color: var(--border-color); color: var(--text-primary) !important; text-decoration: none; display: flex; align-items: center; justify-content: center;">Cancelar</a>
-                <button type="submit" style="margin-top: 0; flex: 1;">Salvar Alterações</button>
-            </div>
-        </form>
-    </div>
-
-    <footer class="footer">
-        <p>&copy; <?php echo date('Y'); ?> Dojify. Todos os direitos reservados.</p>
-    </footer>
+    <?php include '../includes/footer.php'; ?>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

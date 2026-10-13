@@ -75,12 +75,16 @@ class UsuarioDAO {
         return $this->conexao->query($sql)->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    /* Lista apenas os usuários vinculados à academia logada (Visão Gerente) */
+   /* Lista apenas os usuários vinculados à academia logada (Visão Gerente) com as respetivas modalidades/especialidades */
     public function listarPorAcademia(int $idAcademia): array {
-        $sql = "SELECT u.*, p.nome AS perfil_nome 
+        $sql = "SELECT u.*, p.nome AS perfil_nome, 
+                       GROUP_CONCAT(DISTINCT m.nome SEPARATOR ', ') AS modalidade_nome 
                 FROM usuario u 
                 JOIN perfil p ON u.perfil_id = p.id_perfil 
+                LEFT JOIN plano pl ON pl.id_usuario_aluno = u.id_usuario AND pl.status = 'ATIVO'
+                LEFT JOIN modalidade m ON m.id_modalidade = pl.id_modalidade
                 WHERE u.id_academia = :id_academia 
+                GROUP BY u.id_usuario
                 ORDER BY u.nome ASC";
                 
         $stmt = $this->conexao->prepare($sql);
