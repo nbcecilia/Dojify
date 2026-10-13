@@ -25,96 +25,121 @@ $modalidades = (new ModalidadeDAO())->listarPorAcademia($idAcademia);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cadastrar Plano - Dojify</title>
+    <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <!-- Estilo Global Dojify -->
     <link rel="stylesheet" href="../../assets/css/estilo.css">
 </head>
 <body>
-    <header class="navbar">
-        <div class="navbar-brand">
-            <a href="home_gerente.php" class="logo-link">
-                <img src="../../assets/img/Dojify_original2.png" alt="Dojify Logo" class="navbar-logo">
-                <div><h1>Dojify</h1></div>
-            </a>
-        </div>
-        <div class="navbar-user">
-            <span class="user-greeting">Olá, <strong><?= htmlspecialchars($_SESSION['usuario']['nome']) ?></strong></span>
-            <a href="listar_plano.php" class="btn btn-sm">Voltar</a>
-            <a href="../../controller/UsuarioController.php?acao=logout" class="btn btn-sm btn-danger">Sair</a>
-        </div>
-    </header>
+    <?php include '../includes/header.php'; ?>
 
-    <div class="container">
-        <form action="../../controller/PlanoController.php?acao=salvar" method="POST">
-            <h2>Cadastrar Novo Plano</h2>
-
-            <label for="id_usuario_aluno">Aluno:</label>
-            <select id="id_usuario_aluno" name="id_usuario_aluno" required>
-                <option value="">Selecione o aluno...</option>
-                <?php foreach ($alunos as $aluno): ?>
-                    <option value="<?= $aluno['id_usuario'] ?>"><?= htmlspecialchars($aluno['nome']) ?></option>
-                <?php endforeach; ?>
-            </select>
-
-            <label for="id_modalidade">Modalidade:</label>
-            <select id="id_modalidade" name="id_modalidade" required>
-                <option value="">Selecione a modalidade...</option>
-                <?php foreach ($modalidades as $modalidade): ?>
-                    <option value="<?= (int)$modalidade['id_modalidade']; ?>">
-                        <?= htmlspecialchars($modalidade['nome'], ENT_QUOTES, 'UTF-8'); ?>
-                    </option>
-                <?php endforeach; ?>
-            </select>
-
-            <label for="nome_plano">Plano Contratado:</label>
-            <select id="nome_plano" name="nome_plano" required>
-                <option value="">Selecione o plano...</option>
-                <optgroup label="Planos Mensais">
-                    <option value="Mensal 2x/semana">Mensal (2x/semana)</option>
-                    <option value="Mensal 3x/semana">Mensal (3x/semana)</option>
-                    <option value="Mensal Ilimitado">Mensal (Ilimitado)</option>
-                </optgroup>
-                <optgroup label="Planos Trimestrais">
-                    <option value="Trimestral 2x/semana">Trimestral (2x/semana)</option>
-                    <option value="Trimestral 3x/semana">Trimestral (3x/semana)</option>
-                    <option value="Trimestral Ilimitado">Trimestral (Ilimitado)</option>
-                </optgroup>
-                <optgroup label="Planos Anuais">
-                    <option value="Anual 2x/semana">Anual (2x/semana)</option>
-                    <option value="Anual 3x/semana">Anual (3x/semana)</option>
-                    <option value="Anual Ilimitado">Anual (Ilimitado)</option>
-                </optgroup>
-                <optgroup label="Planos All Inclusive">
-                    <option value="All Inclusive 2x/semana">All Inclusive (2x/semana)</option>
-                    <option value="All Inclusive 4x/semana">All Inclusive(4x/semana)</option>
-                    <option value="All Inclusive Ilimitado">All Inclusive (Ilimitado)</option>
-                </optgroup>
-            </select>
-
-            <label for="valor">Valor do Plano (R$):</label>
-            <input type="text" id="valor" name="valor" placeholder="0,00" required>
-
-            <label for="data_inicio">Data de Início:</label>
-            <input type="date" id="data_inicio" name="data_inicio" value="<?= date('Y-m-d') ?>" required>
-
-            <label for="data_fim">Data de Término (Opcional):</label>
-            <input type="date" id="data_fim" name="data_fim">
-
-            <label for="status">Status do Plano:</label>
-            <select id="status" name="status" required>
-                <option value="ATIVO" selected>Ativo</option>
-                <option value="INATIVO">Inativo</option>
-                <option value="CANCELADO">Cancelado</option>
-            </select>
-
-            <div class="d-flex gap-2 mt-4">
-                <a href="listar_plano.php" class="btn btn-secondary w-100 text-decoration-none text-center">Cancelar</a>
-                <button type="submit" class="btn btn-success w-100 m-0">Cadastrar Plano</button>
+    <main class="container my-4">
+        <header class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <a href="listar_plano.php" class="btn btn-dark btn-sm">
+                    <i class="bi bi-arrow-left me-1"></i> Voltar
+                </a>
             </div>
-        </form>
-    </div>
+        </header>
 
-    <footer class="footer">
-        <p>&copy; <?= date('Y'); ?> Dojify. Todos os direitos reservados.</p>
-    </footer>
+        <section class="card shadow-sm border-0 p-4">
+            <div class="text-center mb-4">
+                <h2 class="fs-4 fw-bold">Cadastrar Novo Plano</h2>
+            </div>
+
+            <form action="../../controller/PlanoController.php?acao=salvar" method="POST" class="w-100 mw-100 p-0 m-0 border-0 shadow-none bg-transparent">
+                
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label for="id_usuario_aluno" class="form-label">Aluno: <span class="text-danger">*</span></label>
+                        <select class="form-select" id="id_usuario_aluno" name="id_usuario_aluno" required>
+                            <option value="">Selecione o aluno...</option>
+                            <?php foreach ($alunos as $aluno): ?>
+                                <option value="<?= $aluno['id_usuario'] ?>"><?= htmlspecialchars($aluno['nome']) ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="id_modalidade" class="form-label">Modalidade: <span class="text-danger">*</span></label>
+                        <select class="form-select" id="id_modalidade" name="id_modalidade" required>
+                            <option value="">Selecione a modalidade...</option>
+                            <?php foreach ($modalidades as $modalidade): ?>
+                                <option value="<?= (int)$modalidade['id_modalidade']; ?>">
+                                    <?= htmlspecialchars($modalidade['nome'], ENT_QUOTES, 'UTF-8'); ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="nome_plano" class="form-label">Plano Contratado: <span class="text-danger">*</span></label>
+                        <select class="form-select" id="nome_plano" name="nome_plano" required>
+                            <option value="">Selecione o plano...</option>
+                            <optgroup label="Planos Mensais">
+                                <option value="Mensal 2x/semana">Mensal (2x/semana)</option>
+                                <option value="Mensal 3x/semana">Mensal (3x/semana)</option>
+                                <option value="Mensal Ilimitado">Mensal (Ilimitado)</option>
+                            </optgroup>
+                            <optgroup label="Planos Trimestrais">
+                                <option value="Trimestral 2x/semana">Trimestral (2x/semana)</option>
+                                <option value="Trimestral 3x/semana">Trimestral (3x/semana)</option>
+                                <option value="Trimestral Ilimitado">Trimestral (Ilimitado)</option>
+                            </optgroup>
+                            <optgroup label="Planos Anuais">
+                                <option value="Anual 2x/semana">Anual (2x/semana)</option>
+                                <option value="Anual 3x/semana">Anual (3x/semana)</option>
+                                <option value="Anual Ilimitado">Anual (Ilimitado)</option>
+                            </optgroup>
+                            <optgroup label="Planos All Inclusive">
+                                <option value="All Inclusive 2x/semana">All Inclusive (2x/semana)</option>
+                                <option value="All Inclusive 4x/semana">All Inclusive (4x/semana)</option>
+                                <option value="All Inclusive Ilimitado">All Inclusive (Ilimitado)</option>
+                            </optgroup>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="valor" class="form-label">Valor do Plano (R$): <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="valor" name="valor" placeholder="0,00" required>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label for="data_inicio" class="form-label">Data de Início: <span class="text-danger">*</span></label>
+                        <input type="date" class="form-control" id="data_inicio" name="data_inicio" value="<?= date('Y-m-d') ?>" required>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label for="data_fim" class="form-label">Data de Término (Opcional):</label>
+                        <input type="date" class="form-control" id="data_fim" name="data_fim">
+                    </div>
+
+                    <div class="col-md-4">
+                        <label for="status" class="form-label">Status do Plano: <span class="text-danger">*</span></label>
+                        <select class="form-select" id="status" name="status" required>
+                            <option value="ATIVO" selected>Ativo</option>
+                            <option value="INATIVO">Inativo</option>
+                            <option value="CANCELADO">Cancelado</option>
+                        </select>
+                    </div>
+
+                    <!-- Botões de Ação -->
+                    <div class="col-12 mt-4 d-flex gap-3 justify-content-center align-items-center">
+                        <a href="listar_plano.php" class="btn btn-secondary px-4 m-0 w-auto">Cancelar</a>
+                        <button type="submit" class="btn btn-success px-4 m-0 w-auto">
+                            <i class="bi bi-check-circle me-1"></i> Cadastrar Plano
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </section>
+    </main>
+
+    <?php include '../includes/footer.php'; ?>
+    
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

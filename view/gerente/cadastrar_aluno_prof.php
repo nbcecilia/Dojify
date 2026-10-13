@@ -20,8 +20,8 @@ if ((int)$usuario['perfil_id'] !== 2) {
 
 $idAcademia = isset($usuario['id_academia']) ? (int)$usuario['id_academia'] : 0;
 
-$modalidadeDAO = new ModalidadeDAO();$modalidades = $modalidadeDAO->listarPorAcademia($idAcademia);
-$opcoesPlano = [
+$modalidadeDAO = new ModalidadeDAO();
+$modalidades =$modalidadeDAO->listarPorAcademia($idAcademia);$opcoesPlano = [
     'Mensal' => [
         'Mensal 2x/semana' => 'Mensal (2x/semana)',
         'Mensal 3x/semana' => 'Mensal (3x/semana)',
@@ -50,226 +50,244 @@ $opcoesPlano = [
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cadastrar Utilizador - Dojify</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <!-- Estilo Global Dojify -->
     <link rel="stylesheet" href="../../assets/css/estilo.css?v=<?= filemtime(__DIR__ . '/../../assets/css/estilo.css'); ?>">
 </head>
 <body>
     <?php include '../includes/header.php'; ?>
 
-    <div class="container">
+    <main class="container my-4">
         <!-- Container para alertas de erro enviados via URL -->
         <div id="alerta-container"></div>
 
-        <!-- O action inicial aponta para aluno como padrão, mas o JS vai alterar dinamicamente -->
-        <form id="form-cadastro" action="../../controller/UsuarioController.php?acao=cadastrar_aluno" method="POST" data-cep-form autocomplete="off">
+        <header class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <a href="listar_usuarios.php" class="btn btn-dark btn-sm">
+                    <i class="bi bi-arrow-left me-1"></i> Lista de Utilizadores
+                </a>
+            </div>
+        </header>
+
+        <section class="card shadow-sm border-0 p-4">
             
-            <div class="text-center" style="margin-bottom: 20px;">
-                <img src="../../assets/img/dojify_logo1.png" alt="Dojify Logo" style="width: 100px; height: auto; margin-bottom: 12px; filter: grayscale(100%);">
-                <h2>Cadastrar Novo Utilizador</h2>
+            <div class="text-center mb-4">
+                <h2 class="fs-4 fw-bold">Cadastrar Novo Utilizador</h2>
             </div>
 
-            <!-- SELETOR DO TIPO DE UTILIZADOR -->
-            <div>
-                <label for="tipo_usuario">Tipo de Cadastro:</label>
-                <select id="tipo_usuario" name="tipo_usuario" required>
-                    <option value="aluno" selected>Aluno</option>
-                    <option value="professor">Professor</option>
-                </select>
-            </div>
+            <form id="form-cadastro" action="../../controller/UsuarioController.php?acao=cadastrar_aluno" method="POST" data-cep-form autocomplete="off" class="w-100 mw-100 p-0 m-0 border-0 shadow-none bg-transparent">
+                
+                <div class="row g-3">
+                    <!-- SELETOR DO TIPO DE UTILIZADOR -->
+                    <div class="col-12">
+                        <label for="tipo_usuario" class="form-label">Tipo de Cadastro: <span class="text-danger">*</span></label>
+                        <select class="form-select" id="tipo_usuario" name="tipo_usuario" required>
+                            <option value="aluno" selected>Aluno</option>
+                            <option value="professor">Professor</option>
+                        </select>
+                    </div>
 
-            <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 20px 0;">
+                    <div class="col-12">
+                        <hr class="text-muted my-2">
+                    </div>
 
-            <!-- ================= CAMPOS COMUNS ================= -->
-            <div>
-                <label for="nome">Nome Completo:</label>
-                <input type="text" id="nome" name="nome" placeholder="Ex: João da Silva" required>
-            </div>
+                    <!-- ================= CAMPOS COMUNS ================= -->
+                    <div class="col-12">
+                        <label for="nome" class="form-label">Nome Completo: <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="nome" name="nome" placeholder="Ex: João da Silva" required>
+                    </div>
 
-            <div class="form-row-inline">
-                <div>
-                    <label for="cpf">CPF:</label>
-                    <input type="text" id="cpf" name="cpf" placeholder="000.000.000-00" maxlength="14" required>
-                </div>
-                <div>
-                    <label for="telefone">Telefone:</label>
-                    <input type="tel" id="telefone" name="telefone" inputmode="numeric" maxlength="15" pattern="\([0-9]{2}\) [0-9]{4,5}-[0-9]{4}" placeholder="(61) 98888-7777" required>
-                </div>
-            </div>
+                    <div class="col-md-6">
+                        <label for="cpf" class="form-label">CPF: <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="cpf" name="cpf" placeholder="000.000.000-00" maxlength="14" required>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <label for="telefone" class="form-label">Telefone: <span class="text-danger">*</span></label>
+                        <input type="tel" class="form-control" id="telefone" name="telefone" inputmode="numeric" maxlength="15" pattern="\([0-9]{2}\) [0-9]{4,5}-[0-9]{4}" placeholder="(61) 98888-7777" required>
+                    </div>
 
-            <div class="form-row-inline">
-                <div>
-                    <label for="data_nascimento">Data de Nascimento:</label>
-                    <input type="date" id="data_nascimento" name="data_nascimento" required>
-                </div>
-                <div>
-                    <label for="sexo">Sexo:</label>
-                    <select id="sexo" name="sexo" required>
-                        <option value="">Selecione...</option>
-                        <option value="Feminino">Feminino</option>
-                        <option value="Masculino">Masculino</option>
-                        <option value="Outro">Outro</option>
-                        <option value="Prefiro não informar">Prefiro não informar</option>
-                    </select>
-                </div>
-            </div>
+                    <div class="col-md-6">
+                        <label for="data_nascimento" class="form-label">Data de Nascimento: <span class="text-danger">*</span></label>
+                        <input type="date" class="form-control" id="data_nascimento" name="data_nascimento" required>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <label for="sexo" class="form-label">Sexo: <span class="text-danger">*</span></label>
+                        <select class="form-select" id="sexo" name="sexo" required>
+                            <option value="">Selecione...</option>
+                            <option value="Feminino">Feminino</option>
+                            <option value="Masculino">Masculino</option>
+                            <option value="Outro">Outro</option>
+                            <option value="Prefiro não informar">Prefiro não informar</option>
+                        </select>
+                    </div>
 
-            <div>
-                <label for="email">E-mail de Acesso:</label>
-                <input type="email" id="email" name="email" placeholder="exemplo@email.com" required>
-            </div>
+                    <div class="col-12">
+                        <label for="email" class="form-label">E-mail de Acesso: <span class="text-danger">*</span></label>
+                        <input type="email" class="form-control" id="email" name="email" placeholder="exemplo@email.com" required>
+                    </div>
 
-            <div>
-                <label for="cep">CEP:</label>
-                <div class="cep-lookup">
-                    <input type="text" id="cep" name="cep" inputmode="numeric" autocomplete="postal-code" maxlength="9" pattern="[0-9]{5}-?[0-9]{3}" placeholder="00000-000" required>
-                    <button type="button" class="btn btn-sm btn-info" data-cep-lookup>Buscar CEP</button>
-                </div>
-                <p id="cep-status" class="text-muted" aria-live="polite"></p>
-            </div>
+                    <div class="col-md-4">
+                        <label for="cep" class="form-label">CEP: <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="cep" name="cep" inputmode="numeric" autocomplete="postal-code" maxlength="9" pattern="[0-9]{5}-?[0-9]{3}" placeholder="00000-000" required>
+                            <button type="button" class="btn btn-outline-secondary" data-cep-lookup>Buscar</button>
+                        </div>
+                        <p id="cep-status" class="form-text text-muted mb-0" aria-live="polite"></p>
+                    </div>
 
-            <div>
-                <label for="endereco">Endereço:</label>
-                <input type="text" id="endereco" name="endereco" autocomplete="street-address" maxlength="100" required>
-            </div>
+                    <div class="col-md-8">
+                        <label for="endereco" class="form-label">Endereço: <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="endereco" name="endereco" autocomplete="street-address" maxlength="100" required>
+                    </div>
 
-            <div class="form-row-inline">
-                <div>
-                    <label for="cidade">Cidade:</label>
-                    <input type="text" id="cidade" name="cidade" autocomplete="address-level2" maxlength="45" required>
-                </div>
-                <div>
-                    <label for="estado">Estado (UF):</label>
-                    <select id="estado" name="estado" autocomplete="off" required>
-                    <option value="" selected>Selecione o estado...</option>
-                    <option value="AC">AC</option><option value="AL">AL</option>
-                    <option value="AP">AP</option><option value="AM">AM</option>
-                    <option value="BA">BA</option><option value="CE">CE</option>
-                    <option value="DF">DF</option><option value="ES">ES</option>
-                    <option value="GO">GO</option><option value="MA">MA</option>
-                    <option value="MT">MT</option><option value="MS">MS</option>
-                    <option value="MG">MG</option><option value="PA">PA</option>
-                    <option value="PB">PB</option><option value="PR">PR</option>
-                    <option value="PE">PE</option><option value="PI">PI</option>
-                    <option value="RJ">RJ</option><option value="RN">RN</option>
-                    <option value="RS">RS</option><option value="RO">RO</option>
-                    <option value="RR">RR</option><option value="SC">SC</option>
-                    <option value="SP">SP</option><option value="SE">SE</option>
-                    <option value="TO">TO</option>
-                    </select>
-                </div>
-            </div>
+                    <div class="col-md-8">
+                        <label for="cidade" class="form-label">Cidade: <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="cidade" name="cidade" autocomplete="address-level2" maxlength="45" required>
+                    </div>
+                    
+                    <div class="col-md-4">
+                        <label for="estado" class="form-label">Estado (UF): <span class="text-danger">*</span></label>
+                        <select class="form-select" id="estado" name="estado" autocomplete="off" required>
+                            <option value="" selected>Selecione...</option>
+                            <option value="AC">AC</option><option value="AL">AL</option>
+                            <option value="AP">AP</option><option value="AM">AM</option>
+                            <option value="BA">BA</option><option value="CE">CE</option>
+                            <option value="DF">DF</option><option value="ES">ES</option>
+                            <option value="GO">GO</option><option value="MA">MA</option>
+                            <option value="MT">MT</option><option value="MS">MS</option>
+                            <option value="MG">MG</option><option value="PA">PA</option>
+                            <option value="PB">PB</option><option value="PR">PR</option>
+                            <option value="PE">PE</option><option value="PI">PI</option>
+                            <option value="RJ">RJ</option><option value="RN">RN</option>
+                            <option value="RS">RS</option><option value="RO">RO</option>
+                            <option value="RR">RR</option><option value="SC">SC</option>
+                            <option value="SP">SP</option><option value="SE">SE</option>
+                            <option value="TO">TO</option>
+                        </select>
+                    </div>
 
-            <div>
-                <label for="senha">Senha temporária de Acesso:</label>
-                <input type="password" id="senha" value="aluno123" readonly style="background-color: #eaf4ff; border-color: #93c5fd; color: #1e3a5f; font-weight: 600;">
-            </div>
-
-
-            <!-- ================= CAMPOS ESPECÍFICOS DE ALUNO ================= -->
-            <div id="secao-aluno" class="secao-especifica">
-                <hr style="border: 0; border-top: 1px dashed var(--border-color); margin: 20px 0;">
-                <h3 style="margin-bottom: 15px; font-size: 1.1rem; color: var(--text-primary);">Informações do Aluno</h3>
-
-                <div>
-                    <label for="data_matricula">Data da Matrícula:</label>
-                    <input type="date" id="data_matricula" name="data_matricula" value="<?= date('Y-m-d'); ?>">
+                    <div class="col-12">
+                        <label for="senha" class="form-label">Senha temporária de Acesso:</label>
+                        <!-- Usando classes utilitárias do Bootstrap em vez de CSS inline -->
+                        <input type="password" class="form-control bg-info-subtle text-primary fw-bold border-info-subtle" id="senha" value="aluno123" readonly>
+                    </div>
                 </div>
 
-                <div>
-                    <label for="responsavel">Responsável Legal (Caso seja menor):</label>
-                    <input type="text" id="responsavel" name="responsavel" placeholder="Nome do pai ou responsável">
+                <!-- ================= CAMPOS ESPECÍFICOS DE ALUNO ================= -->
+                <div id="secao-aluno" class="secao-especifica mt-4">
+                    <h3 class="fs-5 mb-3 text-primary border-bottom pb-2">Informações do Aluno</h3>
+                    
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="data_matricula" class="form-label">Data da Matrícula:</label>
+                            <input type="date" class="form-control" id="data_matricula" name="data_matricula" value="<?= date('Y-m-d'); ?>">
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="responsavel" class="form-label">Responsável Legal (Caso menor):</label>
+                            <input type="text" class="form-control" id="responsavel" name="responsavel" placeholder="Nome do pai ou responsável">
+                        </div>
+
+                        <div class="col-12">
+                            <label for="observacao" class="form-label">Observações Médicas / Alergias:</label>
+                            <textarea class="form-control" id="observacao" name="observacao" rows="2" placeholder="Ex: Alérgico a dipirona, lesão antiga no joelho..."></textarea>
+                        </div> 
+
+                        <!-- Modalidades Inline com Bootstrap Grid -->
+                        <?php for ($numeroModalidade = 1; $numeroModalidade <= 3; $numeroModalidade++): ?>
+                            <div class="col-md-4">
+                                <label for="id_modalidade_<?= $numeroModalidade; ?>" class="form-label">
+                                    Modalidade <?= $numeroModalidade; ?><?=$numeroModalidade === 1 ? ' <span class="text-danger">*</span>' : ' (opcional)'; ?>
+                                </label>
+                                <select class="form-select" id="id_modalidade_<?= $numeroModalidade; ?>" name="id_modalidades[]" <?= $numeroModalidade === 1 ? 'required' : ''; ?>>
+                                    <option value="">Selecione...</option>
+                                    <?php foreach ($modalidades as$modalidade): ?>
+                                        <option value="<?= (int)$modalidade['id_modalidade']; ?>">
+                                            <?= htmlspecialchars($modalidade['nome'], ENT_QUOTES, 'UTF-8'); ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+                        <?php endfor; ?>
+
+                        <div class="col-12 mt-4">
+                            <p class="form-text text-muted mb-3">Configure um plano e valor para cada modalidade selecionada.</p>
+                            
+                            <?php for ($numeroModalidade = 1; $numeroModalidade <= 3; $numeroModalidade++): ?>
+                                <?php $indiceModalidade =$numeroModalidade - 1; ?>
+                                <div class="plano-modalidade p-3 border rounded mb-3 bg-light" data-plano-modalidade="<?= $indiceModalidade; ?>" hidden>
+                                    <h4 class="h6 fw-bold mb-3">Plano da Modalidade <?= $numeroModalidade; ?></h4>
+                                    <div class="row g-3">
+                                        <div class="col-md-8">
+                                            <label for="nome_plano_<?= $numeroModalidade; ?>" class="form-label">Plano Contratado:</label>
+                                            <select class="form-select" id="nome_plano_<?= $numeroModalidade; ?>" name="planos[<?= $indiceModalidade; ?>][nome_plano]" disabled>
+                                                <option value="">Selecione o plano...</option>
+                                                <?php foreach ($opcoesPlano as $grupoPlano =>$opcoes): ?>
+                                                    <optgroup label="Planos <?= htmlspecialchars($grupoPlano, ENT_QUOTES, 'UTF-8'); ?>">
+                                                        <?php foreach ($opcoes as $valorPlanoOpcao =>$rotuloPlano): ?>
+                                                            <option value="<?= htmlspecialchars($valorPlanoOpcao, ENT_QUOTES, 'UTF-8'); ?>">
+                                                                <?= htmlspecialchars($rotuloPlano, ENT_QUOTES, 'UTF-8'); ?>
+                                                            </option>
+                                                        <?php endforeach; ?>
+                                                    </optgroup>
+                                                <?php endforeach; ?>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label for="valor_plano_<?= $numeroModalidade; ?>" class="form-label">Valor (R$):</label>
+                                            <input type="number" class="form-control" step="0.01" min="0" id="valor_plano_<?= $numeroModalidade; ?>" name="planos[<?= $indiceModalidade; ?>][valor]" placeholder="Ex: 150.00" disabled>
+                                        </div>
+                                    </div>
+                                </div>
+                            <?php endfor; ?>
+                        </div>
+                    </div>
                 </div>
 
-                <div>
-                    <label for="observacao">Observações Médicas / Alergias:</label>
-                    <textarea id="observacao" name="observacao" placeholder="Ex: Alérgico a dipirona, lesão antiga no joelho..."></textarea>
-                </div> 
-
-                <div class="modalidades-inline">
-                    <?php for ($numeroModalidade = 1; $numeroModalidade <= 3; $numeroModalidade++): ?>
-                        <div>
-                            <label for="id_modalidade_<?= $numeroModalidade; ?>">
-                                Modalidade <?= $numeroModalidade; ?><?= $numeroModalidade === 1 ? ' (obrigatória)' : ' (opcional)'; ?>:
-                            </label>
-                            <select
-                                id="id_modalidade_<?= $numeroModalidade; ?>"
-                                name="id_modalidades[]"
-                                <?= $numeroModalidade === 1 ? 'required' : ''; ?>
-                            >
-                                <option value="">Selecione...</option>
-                                <?php foreach ($modalidades as $modalidade): ?>
-                                    <option value="<?= (int)$modalidade['id_modalidade']; ?>">
-                                        <?= htmlspecialchars($modalidade['nome'], ENT_QUOTES, 'UTF-8'); ?>
-                                    </option>
+                <!-- ================= CAMPOS ESPECÍFICOS DE PROFESSOR ================= -->
+                <div id="secao-professor" class="secao-especifica mt-4 d-none">
+                    <h3 class="fs-5 mb-3 text-primary border-bottom pb-2">Informações do Professor</h3>
+                    
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="especialidade" class="form-label">Especialidade / Arte Marcial: <span class="text-danger">*</span></label>
+                            <select class="form-select" id="especialidade" name="especialidade">
+                                <option value="">Selecione a especialidade...</option>
+                                <?php foreach ($modalidades as$mod): ?>
+                                    <option value="<?= htmlspecialchars($mod['nome']); ?>"><?= htmlspecialchars($mod['nome']); ?></option>
                                 <?php endforeach; ?>
+                                <option value="Outras">Outras</option>
                             </select>
                         </div>
-                    <?php endfor; ?>
-                </div>
 
-                <div class="mt-3">
-                    <p class="small text-muted mb-2">Configure um plano e valor para cada modalidade selecionada.</p>
-                    <?php for ($numeroModalidade = 1; $numeroModalidade <= 3; $numeroModalidade++): ?>
-                        <?php $indiceModalidade = $numeroModalidade - 1; ?>
-                        <div class="plano-modalidade mb-3" data-plano-modalidade="<?= $indiceModalidade; ?>" hidden>
-                            <h4 class="h6 fw-bold">Plano da modalidade <?= $numeroModalidade; ?></h4>
-                            <div class="form-row-inline">
-                                <div>
-                                    <label for="nome_plano_<?= $numeroModalidade; ?>">Plano Contratado:</label>
-                                    <select id="nome_plano_<?= $numeroModalidade; ?>" name="planos[<?= $indiceModalidade; ?>][nome_plano]" disabled>
-                                        <option value="">Selecione o plano...</option>
-                                        <?php foreach ($opcoesPlano as $grupoPlano => $opcoes): ?>
-                                            <optgroup label="Planos <?= htmlspecialchars($grupoPlano, ENT_QUOTES, 'UTF-8'); ?>">
-                                                <?php foreach ($opcoes as $valorPlanoOpcao => $rotuloPlano): ?>
-                                                    <option value="<?= htmlspecialchars($valorPlanoOpcao, ENT_QUOTES, 'UTF-8'); ?>">
-                                                        <?= htmlspecialchars($rotuloPlano, ENT_QUOTES, 'UTF-8'); ?>
-                                                    </option>
-                                                <?php endforeach; ?>
-                                            </optgroup>
-                                        <?php endforeach; ?>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label for="valor_plano_<?= $numeroModalidade; ?>">Valor do Plano (R$):</label>
-                                    <input type="number" step="0.01" min="0" id="valor_plano_<?= $numeroModalidade; ?>" name="planos[<?= $indiceModalidade; ?>][valor]" placeholder="Ex: 150.00" disabled>
-                                </div>
-                            </div>
+                        <div class="col-md-6">
+                            <label for="data_admissao" class="form-label">Data de Admissão: <span class="text-danger">*</span></label>
+                            <input type="date" class="form-control" id="data_admissao" name="data_admissao" value="<?= date('Y-m-d'); ?>">
                         </div>
-                    <?php endfor; ?>
-                </div>
-            </div>
-
-
-            <!-- ================= CAMPOS ESPECÍFICOS DE PROFESSOR ================= -->
-            <div id="secao-professor" class="secao-especifica" style="display: none;">
-                <hr style="border: 0; border-top: 1px dashed var(--border-color); margin: 20px 0;">
-                <h3 style="margin-bottom: 15px; font-size: 1.1rem; color: var(--text-primary);">Informações do Professor</h3>
-
-                <div>
-                    <label for="especialidade">Especialidade / Arte Marcial:</label>
-                    <select id="especialidade" name="especialidade">
-                        <option value="">Selecione a especialidade...</option>
-                        <?php foreach ($modalidades as$mod): ?>
-                            <option value="<?= htmlspecialchars($mod['nome']); ?>"><?= htmlspecialchars($mod['nome']); ?></option>
-                        <?php endforeach; ?>
-                        <option value="Outras">Outras</option>
-                    </select>
+                    </div>
                 </div>
 
-                <div>
-                    <label for="data_admissao">Data de Admissão:</label>
-                    <input type="date" id="data_admissao" name="data_admissao" value="<?= date('Y-m-d'); ?>">
-                </div>
-            </div>
-
-            <!-- BOTÕES DE AÇÃO -->
-            <div style="display: flex; gap: 12px; margin-top: 24px;">
-                <a href="listar_usuarios.php" class="btn" style="flex: 1; text-align: center; background-color: var(--border-color); color: var(--text-primary) !important; text-decoration: none; display: flex; align-items: center; justify-content: center;">Cancelar</a>
-                <button type="submit" style="margin-top: 0; flex: 1;" id="btn-submit">Concluir Matrícula</button>
-            </div>
-        </form>
-    </div>
+                <!-- BOTÕES DE AÇÃO -->
+                
+            <div class="col-12 mt-4 d-flex gap-3 justify-content-center align-items-center">
+                <a href="listar_usuarios.php" class="btn btn-secondary px-4 m-0 w-auto">Cancelar</a>
+                <button type="submit" class="btn btn-success px-4 m-0 w-auto" id="btn-submit">
+                <i class="bi bi-check-circle me-1"></i> Concluir Matrícula
+            </button>
+</div>
+            </form>
+        </section>
+    </main>
 
     <?php include '../includes/footer.php'; ?>
+    
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="../../assets/js/cep.js" defer></script>
 
     <!-- SCRIPT PARA ALTERNÂNCIA DINÂMICA DE CAMPOS E VALIDAÇÃO -->
@@ -339,25 +357,33 @@ $opcoesPlano = [
                 senhaTemporaria.value = tipo === 'professor' ? 'professor123' : 'aluno123';
 
                 if (tipo === 'aluno') {
-                    secaoAluno.style.display = 'block';
-                    secaoProfessor.style.display = 'none';
+                    secaoAluno.classList.remove('d-none');
+                    secaoProfessor.classList.add('d-none');
                     
                     form.action = '../../controller/UsuarioController.php?acao=cadastrar_aluno';
-                    btnSubmit.textContent = 'Concluir Matrícula';
+                    btnSubmit.innerHTML = '<i class="bi bi-check-circle me-1"></i> Concluir Matrícula';
 
-                    camposAluno.forEach(campo => campo.removeAttribute('required'));
-                    document.getElementById('id_modalidade_1').setAttribute('required', 'required');
-                    camposProfessor.forEach(campo => campo.removeAttribute('required'));
+                    camposProfessor.forEach(campo => {
+                        if(campo) campo.removeAttribute('required');
+                    });
+                    
+                    const modalidade1 = document.getElementById('id_modalidade_1');
+                    if(modalidade1) modalidade1.setAttribute('required', 'required');
 
                 } else if (tipo === 'professor') {
-                    secaoAluno.style.display = 'none';
-                    secaoProfessor.style.display = 'block';
+                    secaoAluno.classList.add('d-none');
+                    secaoProfessor.classList.remove('d-none');
                     
                     form.action = '../../controller/UsuarioController.php?acao=cadastrar_professor';
-                    btnSubmit.textContent = 'Cadastrar Professor';
+                    btnSubmit.innerHTML = '<i class="bi bi-check-circle me-1"></i> Cadastrar Professor';
 
-                    camposProfessor.forEach(campo => campo.setAttribute('required', 'required'));
-                    camposAluno.forEach(campo => campo.removeAttribute('required'));
+                    camposProfessor.forEach(campo => {
+                        if(campo) campo.setAttribute('required', 'required');
+                    });
+                    
+                    camposAluno.forEach(campo => {
+                        if(campo) campo.removeAttribute('required');
+                    });
                 }
                 atualizarPlanosPorModalidade();
             }
@@ -383,8 +409,8 @@ $opcoesPlano = [
                     atualizarPlanosPorModalidade();
                 });
             });
+            
             atualizarModalidadesDisponiveis();
-
             selectTipo.addEventListener('change', alternarFormulario);
             alternarFormulario();
 
@@ -405,10 +431,11 @@ $opcoesPlano = [
                 }
 
                 const alertaDiv = document.createElement('div');
-                alertaDiv.style.cssText = "background-color: #f8d7da; color: #721c24; padding: 15px; border: 1px solid #f5c6cb; border-radius: 6px; margin-bottom: 20px; font-family: inherit; font-size: 14px; display: flex; justify-content: space-between; align-items: center;";
+                alertaDiv.className = 'alert alert-danger alert-dismissible fade show';
+                alertaDiv.setAttribute('role', 'alert');
                 alertaDiv.innerHTML = `
-                    <span>${mensagem}</span>
-                    <button type="button" onclick="this.parentElement.remove()" style="background: none; border: none; font-size: 18px; cursor: pointer; color: #721c24;">&times;</button>
+                    ${mensagem}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 `;
                 container.appendChild(alertaDiv);
             }

@@ -55,123 +55,140 @@ if (!$aluno) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Editar Aluno - Dojify</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="../../assets/css/estilo.css">
 </head>
 <body>
-    <header class="navbar">
-        <div class="navbar-brand">
-            <a href="home_gerente.php" class="logo-link">
-                <img src="../../assets/img/Dojify_original2.png" alt="Dojify Logo" class="navbar-logo">
-                <div>
-                    <h1>Dojify</h1>
-                </div>
-            </a>
-        </div>
-        
-        <div class="navbar-user">
-            <span class="user-greeting">Olá, <strong><?= htmlspecialchars($_SESSION['usuario']['nome']) ?></strong></span>
-            <a href="listar_usuarios.php" class="btn btn-sm">Voltar</a>
-            <a href="../../controller/UsuarioController.php?acao=logout" class="btn btn-sm btn-danger">Sair</a>
-        </div>
-    </header>
+    <?php include '../includes/header.php'; ?>
 
-    <div class="container">
-       
-
-        <form action="../../controller/UsuarioController.php?acao=atualizar_aluno" method="POST">
-             <h2>Editar Dados do Aluno</h2>
-            <!-- ID Oculto do Aluno -->
-            <input type="hidden" name="id_usuario" value="<?php echo $aluno['id_usuario']; ?>">
-            <!-- ID Oculto do Plano (caso exista para atualização) -->
-            <input type="hidden" name="id_plano" value="<?php echo $aluno['id_plano'] ?? ''; ?>">
-
-            <label for="nome">Nome Completo:</label>
-            <input type="text" id="nome" name="nome" value="<?php echo htmlspecialchars($aluno['nome']); ?>" required>
-
-            <label for="cpf">CPF (Não editável):</label>
-            <input type="text" id="cpf" value="<?php echo htmlspecialchars($aluno['cpf']); ?>" disabled>
-
-            <label for="data_nascimento">Data de Nascimento (Não editável):</label>
-            <input type="date" id="data_nascimento" value="<?php echo htmlspecialchars($aluno['data_nascimento']); ?>" disabled>
-
-            <label for="email">E-mail:</label>
-            <input type="email" id="email" name="email" value="<?php echo htmlspecialchars($aluno['email']); ?>" required>
-
-            <label for="telefone">Telefone / WhatsApp:</label>
-            <input type="text" id="telefone" name="telefone" value="<?php echo htmlspecialchars($aluno['telefone']); ?>">
-
-            <label for="responsavel">Responsável (Caso seja menor de idade):</label>
-            <input type="text" id="responsavel" name="responsavel" value="<?php echo htmlspecialchars($aluno['responsavel'] ?? ''); ?>">
-            
-            <label for="observacao">Observações:</label>
-            <textarea id="observacao" name="observacao" rows="3"><?php echo htmlspecialchars($aluno['observacao'] ?? ''); ?></textarea>
-
-            <hr style="margin: 24px 0; border: none; border-top: 1px solid var(--border-color);">
-            <h3 style="font-size: 1rem; margin-bottom: 4px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em;">Informações do Plano</h3>
-
-            <?php for ($numeroModalidade = 1; $numeroModalidade <= 3; $numeroModalidade++): ?>
-                <label for="id_modalidade_<?= $numeroModalidade; ?>">
-                    Modalidade <?= $numeroModalidade; ?><?= $numeroModalidade === 1 ? ' (obrigatória)' : ' (opcional)'; ?>:
-                </label>
-                <select
-                    id="id_modalidade_<?= $numeroModalidade; ?>"
-                    name="id_modalidades[]"
-                    <?= $numeroModalidade === 1 ? 'required' : ''; ?>
-                >
-                    <option value="">Selecione a modalidade...</option>
-                    <?php foreach ($modalidades as $modalidade): ?>
-                        <option
-                            value="<?= (int)$modalidade['id_modalidade']; ?>"
-                            <?= (int)$modalidade['id_modalidade'] === ($idsModalidadesAluno[$numeroModalidade - 1] ?? 0) ? 'selected' : ''; ?>
-                        >
-                            <?= htmlspecialchars($modalidade['nome'], ENT_QUOTES, 'UTF-8'); ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
-            <?php endfor; ?>
-
-            <label for="nome_plano">Plano Contratado:</label>
-            <select id="nome_plano" name="nome_plano" required>
-                <option value="">Selecione o plano...</option>
-                
-                <optgroup label="Planos Mensais">
-                    <option value="Mensal 2x/semana" <?php echo (isset($aluno['nome_plano']) && $aluno['nome_plano'] === 'Mensal 2x/semana') ? 'selected' : ''; ?>>Mensal (2x/semana)</option>
-                    <option value="Mensal 3x/semana" <?php echo (isset($aluno['nome_plano']) && $aluno['nome_plano'] === 'Mensal 3x/semana') ? 'selected' : ''; ?>>Mensal (3x/semana)</option>
-                    <option value="Mensal Ilimitado" <?php echo (isset($aluno['nome_plano']) && $aluno['nome_plano'] === 'Mensal Ilimitado') ? 'selected' : ''; ?>>Mensal (Ilimitado)</option>
-                </optgroup>
-
-                <optgroup label="Planos Trimestrais">
-                    <option value="Trimestral 2x/semana" <?php echo (isset($aluno['nome_plano']) && $aluno['nome_plano'] === 'Trimestral 2x/semana') ? 'selected' : ''; ?>>Trimestral (2x/semana)</option>
-                    <option value="Trimestral 3x/semana" <?php echo (isset($aluno['nome_plano']) && $aluno['nome_plano'] === 'Trimestral 3x/semana') ? 'selected' : ''; ?>>Trimestral (3x/semana)</option>
-                    <option value="Trimestral Ilimitado" <?php echo (isset($aluno['nome_plano']) && $aluno['nome_plano'] === 'Trimestral Ilimitado') ? 'selected' : ''; ?>>Trimestral (Ilimitado)</option>
-                </optgroup>
-
-                <optgroup label="Planos Anuais">
-                    <option value="Anual 2x/semana" <?php echo (isset($aluno['nome_plano']) && $aluno['nome_plano'] === 'Anual 2x/semana') ? 'selected' : ''; ?>>Anual (2x/semana)</option>
-                    <option value="Anual 3x/semana" <?php echo (isset($aluno['nome_plano']) && $aluno['nome_plano'] === 'Anual 3x/semana') ? 'selected' : ''; ?>>Anual (3x/semana)</option>
-                    <option value="Anual Ilimitado" <?php echo (isset($aluno['nome_plano']) && $aluno['nome_plano'] === 'Anual Ilimitado') ? 'selected' : ''; ?>>Anual (Ilimitado)</option>
-                </optgroup>
-            </select>
-
-            <label for="valor_plano">Valor do Plano (R$):</label>
-            <input type="text" id="valor_plano" name="valor_plano" value="<?php echo isset($aluno['valor']) ? number_format($aluno['valor'], 2, ',', '') : ''; ?>" placeholder="0,00">
-
-            <label for="status">Status do Aluno:</label>
-            <select id="status" name="status" required>
-                <option value="ATIVO" <?php echo ($aluno['status'] === 'ATIVO') ? 'selected' : ''; ?>>Ativo</option>
-                <option value="INATIVO" <?php echo ($aluno['status'] === 'INATIVO') ? 'selected' : ''; ?>>Inativo</option>
-                <option value="SUSPENSO" <?php echo ($aluno['status'] === 'SUSPENSO') ? 'selected' : ''; ?>>Suspenso</option>
-            </select>
-
-            <div style="display: flex; gap: 12px; margin-top: 24px;">
-                <a href="listar_usuarios.php" class="btn" style="flex: 1; text-align: center; background-color: var(--border-color); color: var(--text-primary) !important; text-decoration: none;">Cancelar</a>
-                <button type="submit" style="margin-top: 0; flex: 1;">Salvar Alterações</button>
+    <main class="container my-4">
+        <header class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <a href="listar_usuarios.php" class="btn btn-dark btn-sm">
+                    <i class="bi bi-arrow-left me-1"></i> Voltar
+                </a>
             </div>
-        </form>
-    </div>
+        </header>
 
-    <footer class="footer">
-        <p>&copy; <?php echo date('Y'); ?> Dojify. Todos os direitos reservados.</p>
-    </footer>
+        <section class="card shadow-sm border-0 p-4">
+            <div class="text-center mb-4">
+                <h2 class="fs-4 fw-bold">Editar Dados do Aluno</h2>
+                <p class="text-muted">Atualize as informações cadastrais do aluno.</p>
+            </div>
+
+            <form action="../../controller/UsuarioController.php?acao=atualizar_aluno" method="POST" class="w-100 mw-100 p-0 m-0 border-0 shadow-none bg-transparent">
+                <!-- ID Oculto do Aluno -->
+                <input type="hidden" name="id_usuario" value="<?php echo $aluno['id_usuario']; ?>">
+                <!-- ID Oculto do Plano (caso exista para atualização) -->
+                <input type="hidden" name="id_plano" value="<?php echo $aluno['id_plano'] ?? ''; ?>">
+
+                <div class="row g-3">
+                    <div class="col-md-8">
+                        <label for="nome" class="form-label">Nome Completo: <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="nome" name="nome" value="<?php echo htmlspecialchars($aluno['nome']); ?>" required>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label for="cpf" class="form-label">CPF (Não editável):</label>
+                        <input type="text" class="form-control" id="cpf" value="<?php echo htmlspecialchars($aluno['cpf']); ?>" disabled>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label for="data_nascimento" class="form-label">Data de Nascimento (Não editável):</label>
+                        <input type="date" class="form-control" id="data_nascimento" value="<?php echo htmlspecialchars($aluno['data_nascimento']); ?>" disabled>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label for="email" class="form-label">E-mail: <span class="text-danger">*</span></label>
+                        <input type="email" class="form-control" id="email" name="email" value="<?php echo htmlspecialchars($aluno['email']); ?>" required>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label for="telefone" class="form-label">Telefone / WhatsApp:</label>
+                        <input type="text" class="form-control" id="telefone" name="telefone" value="<?php echo htmlspecialchars($aluno['telefone']); ?>">
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="responsavel" class="form-label">Responsável (Caso seja menor de idade):</label>
+                        <input type="text" class="form-control" id="responsavel" name="responsavel" value="<?php echo htmlspecialchars($aluno['responsavel'] ?? ''); ?>">
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="status" class="form-label">Status do Aluno: <span class="text-danger">*</span></label>
+                        <select class="form-select" id="status" name="status" required>
+                            <option value="ATIVO" <?php echo ($aluno['status'] === 'ATIVO') ? 'selected' : ''; ?>>Ativo</option>
+                            <option value="INATIVO" <?php echo ($aluno['status'] === 'INATIVO') ? 'selected' : ''; ?>>Inativo</option>
+                            <option value="SUSPENSO" <?php echo ($aluno['status'] === 'SUSPENSO') ? 'selected' : ''; ?>>Suspenso</option>
+                        </select>
+                    </div>
+                    
+                    <div class="col-12">
+                        <label for="observacao" class="form-label">Observações:</label>
+                        <textarea class="form-control" id="observacao" name="observacao" rows="3"><?php echo htmlspecialchars($aluno['observacao'] ?? ''); ?></textarea>
+                    </div>
+
+                    <div class="col-12 mt-4">
+                        <h3 class="fs-5 mb-3 text-primary border-bottom pb-2">Informações do Plano</h3>
+                    </div>
+
+                    <?php for ($numeroModalidade = 1; $numeroModalidade <= 3; $numeroModalidade++): ?>
+                        <div class="col-md-4">
+                            <label for="id_modalidade_<?= $numeroModalidade; ?>" class="form-label">
+                                Modalidade <?= $numeroModalidade; ?><?= $numeroModalidade === 1 ? ' <span class="text-danger">*</span>' : ' (opcional)'; ?>:
+                            </label>
+                            <select class="form-select" id="id_modalidade_<?= $numeroModalidade; ?>" name="id_modalidades[]" <?= $numeroModalidade === 1 ? 'required' : ''; ?>>
+                                <option value="">Selecione a modalidade...</option>
+                                <?php foreach ($modalidades as $modalidade): ?>
+                                    <option value="<?= (int)$modalidade['id_modalidade']; ?>" <?= (int)$modalidade['id_modalidade'] === ($idsModalidadesAluno[$numeroModalidade - 1] ?? 0) ? 'selected' : ''; ?>>
+                                        <?= htmlspecialchars($modalidade['nome'], ENT_QUOTES, 'UTF-8'); ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                    <?php endfor; ?>
+
+                    <div class="col-md-8">
+                        <label for="nome_plano" class="form-label">Plano Contratado: <span class="text-danger">*</span></label>
+                        <select class="form-select" id="nome_plano" name="nome_plano" required>
+                            <option value="">Selecione o plano...</option>
+                            <optgroup label="Planos Mensais">
+                                <option value="Mensal 2x/semana" <?php echo (isset($aluno['nome_plano']) && $aluno['nome_plano'] === 'Mensal 2x/semana') ? 'selected' : ''; ?>>Mensal (2x/semana)</option>
+                                <option value="Mensal 3x/semana" <?php echo (isset($aluno['nome_plano']) && $aluno['nome_plano'] === 'Mensal 3x/semana') ? 'selected' : ''; ?>>Mensal (3x/semana)</option>
+                                <option value="Mensal Ilimitado" <?php echo (isset($aluno['nome_plano']) && $aluno['nome_plano'] === 'Mensal Ilimitado') ? 'selected' : ''; ?>>Mensal (Ilimitado)</option>
+                            </optgroup>
+                            <optgroup label="Planos Trimestrais">
+                                <option value="Trimestral 2x/semana" <?php echo (isset($aluno['nome_plano']) && $aluno['nome_plano'] === 'Trimestral 2x/semana') ? 'selected' : ''; ?>>Trimestral (2x/semana)</option>
+                                <option value="Trimestral 3x/semana" <?php echo (isset($aluno['nome_plano']) && $aluno['nome_plano'] === 'Trimestral 3x/semana') ? 'selected' : ''; ?>>Trimestral (3x/semana)</option>
+                                <option value="Trimestral Ilimitado" <?php echo (isset($aluno['nome_plano']) && $aluno['nome_plano'] === 'Trimestral Ilimitado') ? 'selected' : ''; ?>>Trimestral (Ilimitado)</option>
+                            </optgroup>
+                            <optgroup label="Planos Anuais">
+                                <option value="Anual 2x/semana" <?php echo (isset($aluno['nome_plano']) && $aluno['nome_plano'] === 'Anual 2x/semana') ? 'selected' : ''; ?>>Anual (2x/semana)</option>
+                                <option value="Anual 3x/semana" <?php echo (isset($aluno['nome_plano']) && $aluno['nome_plano'] === 'Anual 3x/semana') ? 'selected' : ''; ?>>Anual (3x/semana)</option>
+                                <option value="Anual Ilimitado" <?php echo (isset($aluno['nome_plano']) && $aluno['nome_plano'] === 'Anual Ilimitado') ? 'selected' : ''; ?>>Anual (Ilimitado)</option>
+                            </optgroup>
+                        </select>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label for="valor_plano" class="form-label">Valor do Plano (R$):</label>
+                        <input type="text" class="form-control" id="valor_plano" name="valor_plano" value="<?php echo isset($aluno['valor']) ? number_format($aluno['valor'], 2, ',', '') : ''; ?>" placeholder="0,00">
+                    </div>
+
+                    <div class="col-12 mt-4 d-flex gap-3 justify-content-center align-items-center">
+                        <a href="listar_usuarios.php" class="btn btn-secondary px-4 m-0 w-auto">Cancelar</a>
+                        <button type="submit" class="btn btn-success px-4 m-0 w-auto">
+                            <i class="bi bi-check-circle me-1"></i> Salvar Alterações
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </section>
+    </main>
+
+    <?php include '../includes/footer.php'; ?>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

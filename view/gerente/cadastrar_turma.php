@@ -31,6 +31,11 @@ $modalidades = $dao->listarModalidadesPorAcademia($idAcademia);
 
     <title>Cadastrar Turma - Dojify</title>
 
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    
     <link rel="stylesheet" href="../../assets/css/estilo.css">
 </head>
 
@@ -38,129 +43,92 @@ $modalidades = $dao->listarModalidadesPorAcademia($idAcademia);
 
     <?php include '../includes/header.php'; ?>
 
-    <main class="conteudo">
-        <form action="../../controller/TurmaController.php" method="POST">
-            <div class="text-center">
-                <img src="../../assets/img/dojify_logo1.png" alt="Dojify Logo" style="width: 100px; height: auto; margin-bottom: 12px; filter: grayscale(100%);">
-                <h2>Cadastrar Turma</h2>
+    <main class="container my-4">
+        <header class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <a href="listar_turma.php" class="btn btn-dark btn-sm">
+                    <i class="bi bi-arrow-left me-1"></i> Voltar
+                </a>
+            </div>
+        </header>
+
+        <section class="card shadow-sm border-0 p-4">
+            <div class="text-center mb-4">
+                <h2 class="fs-4 fw-bold">Cadastrar Nova Turma</h2>
             </div>
 
-            <input type="hidden" name="acao" value="cadastrar">
+            <form action="../../controller/TurmaController.php" method="POST" class="w-100 mw-100 p-0 m-0 border-0 shadow-none bg-transparent">
+                
+                <input type="hidden" name="acao" value="cadastrar">
 
-            <div class="campo">
-                <label for="nome">Nome da turma</label>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label for="nome" class="form-label">Nome da turma: <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="nome" name="nome" maxlength="100" required>
+                    </div>
 
-                <input
-                    type="text"
-                    id="nome"
-                    name="nome"
-                    maxlength="100"
-                    required
-                >
-            </div>
+                    <div class="col-md-6">
+                        <label for="id_usuario_professor" class="form-label">Professor: <span class="text-danger">*</span></label>
+                        <select class="form-select" id="id_usuario_professor" name="id_usuario_professor" required>
+                            <option value="">Selecione o professor</option>
+                            <?php foreach ($professores as $professor): ?>
+                                <option value="<?= $professor['id_usuario'] ?>">
+                                    <?= htmlspecialchars($professor['nome']) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
 
-            <div class="campo">
-                <label for="id_usuario_professor">Professor</label>
+                    <div class="col-md-6">
+                        <label for="id_modalidade" class="form-label">Modalidade: <span class="text-danger">*</span></label>
+                        <select class="form-select" id="id_modalidade" name="id_modalidade" required>
+                            <option value="">Selecione a modalidade</option>
+                            <?php foreach ($modalidades as $modalidade): ?>
+                                <option value="<?= $modalidade['id_modalidade'] ?>">
+                                    <?= htmlspecialchars($modalidade['nome']) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
 
-                <select
-                    id="id_usuario_professor"
-                    name="id_usuario_professor"
-                    required
-                >
-                    <option value="">
-                        Selecione o professor
-                    </option>
+                    <div class="col-md-6">
+                        <label for="capacidade" class="form-label">Capacidade: <span class="text-danger">*</span></label>
+                        <input type="number" class="form-control" id="capacidade" name="capacidade" min="1" required>
+                    </div>
 
-                    <?php foreach ($professores as $professor): ?>
+                    <div class="col-md-6">
+                        <label for="nivel" class="form-label">Nível(opcional):</label>
+                        <select class="form-select" id="nivel" name="nivel">
+                            <option value="">Selecione o nível</option>
+                            <option value="INICIANTE">Iniciante</option>
+                            <option value="INTERMEDIARIO">Intermediário</option>
+                            <option value="AVANCADO">Avançado</option>
+                        </select>
+                    </div>
 
-                        <option value="<?= $professor['id_usuario'] ?>">
-                            <?= htmlspecialchars($professor['nome']) ?>
-                        </option>
+                    <div class="col-md-6">
+                        <label for="status" class="form-label">Status: <span class="text-danger">*</span></label>
+                        <select class="form-select" id="status" name="status" required>
+                            <option value="ATIVA">Ativa</option>
+                            <option value="INATIVA">Inativa</option>
+                        </select>
+                    </div>
 
-                    <?php endforeach; ?>
-
-                </select>
-            </div>
-
-            <div class="campo">
-                <label for="id_modalidade">Modalidade</label>
-
-                <select
-                    id="id_modalidade"
-                    name="id_modalidade"
-                    required
-                >
-                    <option value="">
-                        Selecione a modalidade
-                    </option>
-
-                    <?php foreach ($modalidades as $modalidade): ?>
-
-                        <option value="<?= $modalidade['id_modalidade'] ?>">
-                            <?= htmlspecialchars($modalidade['nome']) ?>
-                        </option>
-
-                    <?php endforeach; ?>
-
-                </select>
-            </div>
-
-            <div class="campo">
-                <label for="capacidade">Capacidade</label>
-
-                <input
-                    type="number"
-                    id="capacidade"
-                    name="capacidade"
-                    min="1"
-                    required
-                >
-            </div>
-
-            <div class="campo">
-                <label for="nivel">Nível</label>
-
-                <select
-                    id="nivel"
-                    name="nivel"
-        
-                >
-                    <option value="">
-                        Selecione o nível
-                    </option>
-
-                    <option value="INICIANTE">Iniciante</option>
-                    <option value="INTERMEDIARIO">Intermediário</option>
-                    <option value="AVANCADO">Avançado</option>
-                </select>
-            </div>
-
-            <div class="campo">
-                <label for="status">Status</label>
-
-                <select
-                    id="status"
-                    name="status"
-                    required
-                >
-                    <option value="ATIVA">Ativa</option>
-                    <option value="INATIVA">Inativa</option>
-                </select>
-            </div>
-
-            <button type="submit"  href="listar_turma.php">
-                Cadastrar
-            </button>
-
-            <a href="listar_turma.php">
-                Voltar
-            </a>
-
-        </form>
-
+                    <!-- Botões de Ação -->
+                    <div class="col-12 mt-4 d-flex gap-3 justify-content-center align-items-center">
+                        <a href="listar_turma.php" class="btn btn-secondary px-4 m-0 w-auto">Cancelar</a>
+                        <button type="submit" class="btn btn-success px-4 m-0 w-auto">
+                            <i class="bi bi-check-circle me-1"></i> Cadastrar
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </section>
     </main>
 
+    <?php include '../includes/footer.php'; ?>
+    
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
-
 </html>
-

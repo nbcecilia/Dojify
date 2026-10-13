@@ -22,6 +22,11 @@ if (
 
     <title>Cadastrar Modalidade - Dojify</title>
 
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    
     <link rel="stylesheet" href="../../assets/css/estilo.css">
 </head>
 
@@ -29,49 +34,58 @@ if (
 
     <?php include '../includes/header.php'; ?>
 
-    <main class="conteudo">
-            <form action="../../controller/ModalidadeController.php" method="POST">
-            <div class="text-center">
-                <img src="../../assets/img/dojify_logo1.png" alt="Dojify Logo" style="width: 100px; height: auto; margin-bottom: 12px; filter: grayscale(100%);">
-                <h2>Cadastrar Modalidade</h2>
+    <main class="container my-4">
+        
+        <header class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <!-- Link Voltar estilizado como botão no topo -->
+                <a href="listar_modalidade.php" class="btn btn-dark btn-sm">
+                    <i class="bi bi-arrow-left me-1"></i> Voltar
+                </a>
+            </div>
+        </header>
+
+        <section class="card shadow-sm border-0 p-4">
+            <div class="text-center mb-4">
+                <h2 class="fs-4 fw-bold">Cadastrar Modalidade</h2>
             </div>
 
-            <input type="hidden" name="acao" value="cadastrar">
+            <form action="../../controller/ModalidadeController.php" method="POST" class="w-100 mw-100 p-0 m-0 border-0 shadow-none bg-transparent">
+                
+                <!-- Seu input oculto exato -->
+                <input type="hidden" name="acao" value="cadastrar">
 
-            <div class="campo">
-                <label for="nome">Nome da modalidade</label>
+                <div class="row g-3">
+                    
+                    <!-- Seu campo de Nome -->
+                    <div class="col-12">
+                        <label for="nome" class="form-label">Nome da modalidade <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="nome" name="nome" maxlength="100" required>
+                    </div>
 
-                <input
-                    type="text"
-                    id="nome"
-                    name="nome"
-                    maxlength="100"
-                    required
-                >
-            </div>
+                    <!-- Seu campo de Descrição -->
+                    <div class="col-12">
+                        <label for="descricao" class="form-label">Descrição</label>
+                        <textarea class="form-control" id="descricao" name="descricao" rows="5"></textarea>
+                    </div>
 
-            <div class="campo">
-                <label for="descricao">Descrição</label>
+                    <!-- Botões de Ação lado a lado e centralizados -->
+                    <div class="col-12 mt-4 d-flex gap-3 justify-content-center align-items-center">
+                        <a href="listar_modalidade.php" class="btn btn-secondary px-4 m-0 w-auto">
+                            Cancelar
+                        </a>
+                        <button type="submit" class="btn btn-success px-4 m-0 w-auto">
+                            <i class="bi bi-check-circle me-1"></i> Cadastrar
+                        </button>
+                    </div>
 
-                <textarea
-                    id="descricao"
-                    name="descricao"
-                    rows="5"
-                ></textarea>
-            </div>
-
-            <button type="submit">
-                Cadastrar
-            </button>
-
-            <a href="listar_modalidade.php">
-                Voltar
-            </a>
-
-        </form>
-
+                </div>
+            </form>
+        </section>
     </main>
 
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 
 </html>

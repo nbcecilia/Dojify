@@ -172,7 +172,7 @@ $kpis = $usuarioDAO->buscarIndicadoresGerente($idAcademia);
                     </p>
 
                     <div class="gerente-card-action">
-                        <a href="listar_graduacao.php"
+                        <a href="../professor/listar_graduacao.php"
                            class="btn gerente-btn">
                             Acessar graduações
                         </a>
