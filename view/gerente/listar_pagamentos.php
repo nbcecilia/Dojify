@@ -23,33 +23,22 @@ $pagamentos = $dao->listarPagamentosDaAcademia($idAcademia);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestão Financeira - Dojify</title>
+    <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <!-- Estilo Global Dojify -->
     <link rel="stylesheet" href="../../assets/css/estilo.css">
 </head>
 <body>
 
     <?php include '../includes/header.php'; ?>
 
-<<<<<<< HEAD
-    <main class="container">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
-            <h2 style="margin: 0;">Gestão de Pagamentos</h2>
-            <div style="display: flex; gap: 10px;">
-                <a href="relatorio_financeiro.php" class="btn btn-info" style="color: white !important;">📊 Emitir Relatório</a>
-                <a href="home_gerente.php" class="btn" style="background-color: var(--border-color); color: var(--text-primary) !important;">⬅ Voltar ao Painel</a>
-=======
     <main class="container my-4">
         <header class="d-flex justify-content-between align-items-center mb-4">
             <div>
                 <a href="relatorio_financeiro.php" class="btn btn-info text-white">
                     <i class="bi bi-bar-chart-fill me-1"></i> Emitir Relatório
-                </a>
->>>>>>> 0427ff754a7c53facfa2e94d3bb0b7f7441f52aa
-            </div>
-            <div>
-                <a href="home_gerente.php" class="btn btn-dark btn-sm">
-                    <i class="bi bi-arrow-left me-1"></i> Voltar ao Painel
                 </a>
             </div>
         </header>
@@ -57,7 +46,7 @@ $pagamentos = $dao->listarPagamentosDaAcademia($idAcademia);
         <section class="card shadow-sm border-0 p-4">
             <div class="mb-4">
                 <h2>Gestão de Pagamentos</h2>
-                <p class="text-muted">Controlo das mensalidades dos alunos.</p>
+                <p class="text-muted">Controle das mensalidades dos alunos.</p>
             </div>
 
             <?php
@@ -153,6 +142,7 @@ $pagamentos = $dao->listarPagamentosDaAcademia($idAcademia);
     </main>
 
     <?php include '../includes/footer.php'; ?>
+    <!-- Bootstrap 5 JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
