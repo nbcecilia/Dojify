@@ -199,12 +199,33 @@ body.gerente-page {
 }
 
 .gerente-card-action {
+    display: flex;
+    justify-content: flex-end;
+    width: 100%;
     margin-top: auto;
     padding-top: 18px;
 }
 
-.gerente-card-action .btn {
-    width: 100%;
+.gerente-card-action > .gerente-btn,
+.gerente-panel-action > .gerente-btn {
+    flex: 0 0 auto;
+    width: auto !important;
+    min-height: 0;
+    padding: 5px 10px !important;
+    font-size: .78rem !important;
+    line-height: 1.2;
+}
+
+.gerente-panel-reports {
+    display: flex;
+    flex-direction: column;
+}
+
+.gerente-panel-action {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: auto;
+    padding-top: 16px;
 }
 
 /* Ações rápidas */

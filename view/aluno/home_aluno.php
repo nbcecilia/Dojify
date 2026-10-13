@@ -713,9 +713,9 @@ try {
                     </div>
                     <h4 class="fw-bold text-dark mb-0 mt-1"><?= htmlspecialchars($valor_pagamento, ENT_QUOTES, 'UTF-8') ?></h4>
                 </div>
-                <div class="pt-2">
+                <div class="border-top pt-2 mt-2 d-flex justify-content-end align-items-center">
                     <?php if ($statusPagamentoUpper !== 'PAGO' && $statusPagamentoUpper !== 'EM_ANALISE' && $id_pagamento_atual !== null && !$comprovante_pagamento_enviado): ?>
-                        <button type="button" class="btn btn-dark btn-sm w-100 fw-bold py-1 shadow-sm" style="font-size: 0.8rem;" data-bs-toggle="modal" data-bs-target="#modalPagamento">
+                        <button type="button" class="btn btn-sm btn-dark py-0 px-2 fw-bold d-inline-flex align-items-center gap-1" style="font-size: 0.75rem;" data-bs-toggle="modal" data-bs-target="#modalPagamento">
                             Escolher pagamento
                         </button>
                     <?php elseif ($statusPagamentoUpper === 'PAGO'): ?>

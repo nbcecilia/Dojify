@@ -112,7 +112,6 @@ if (isset($_GET['filtrar'])) {
                             <th>Valor (R$)</th>
                             <th>Estado</th>
                             <th>Forma de Pag.</th>
-                            <th class="no-print">Comprovante</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -148,15 +147,6 @@ if (isset($_GET['filtrar'])) {
                                     </span>
                                 </td>
                                 <td><?= $pag['forma_pagamento'] ? htmlspecialchars($pag['forma_pagamento']) : '-' ?></td>
-                                <td class="no-print">
-                                    <?php if (!empty($pag['comprovante_path'])): ?>
-                                        <a class="btn btn-sm btn-outline-primary" href="../../controller/ComprovantePagamentoController.php?acao=visualizar&amp;id_pagamento=<?= (int)$pag['id_pagamento']; ?>" target="_blank" rel="noopener">
-                                            Visualizar
-                                        </a>
-                                    <?php else: ?>
-                                        <span class="text-muted">Não enviado</span>
-                                    <?php endif; ?>
-                                </td>
                             </tr>
                         <?php endforeach; ?>
                     </tbody>

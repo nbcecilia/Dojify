@@ -66,13 +66,12 @@ session_start();
             <label for="email">E-mail de Acesso</label>
             <input type="email" id="email" name="email" placeholder="exemplo@email.com" required>
 
-            <!-- Botão de Submissão -->
-            <button type="submit">Gerar Nova Senha</button>
-
-            <!-- Botão Voltar -->
-            <a href="login.php" class="btn" style="width: 100%; margin-top: 10px; background-color: transparent; border: 1px solid var(--border-color); color: var(--text-primary) !important;">
-                Cancelar
-            </a>
+            <div class="auth-form-actions">
+                <a href="login.php" class="auth-form-cancel">
+                    Cancelar
+                </a>
+                <button type="submit">Gerar Nova Senha</button>
+            </div>
 
         </form>
     </div>

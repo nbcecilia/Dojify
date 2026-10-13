@@ -33,7 +33,7 @@ $kpis = $usuarioDAO->buscarIndicadoresGerente($idAcademia);
           href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
     <link rel="stylesheet" href="../../assets/css/estilo.css">
-    <link rel="stylesheet" href="../../assets/css/gerente.css">
+    <link rel="stylesheet" href="../../assets/css/gerente.css?v=2">
 </head>
 
 <body class="gerente-page">
@@ -395,17 +395,19 @@ $kpis = $usuarioDAO->buscarIndicadoresGerente($idAcademia);
                     </div>
                 </div>
 
-                <div class="gerente-panel">
+                <div class="gerente-panel gerente-panel-reports">
                     <h4 class="gerente-panel-title">Relatórios</h4>
 
                     <p class="gerente-section-subtitle mb-3">
                         Consulte os dados consolidados da academia.
                     </p>
 
-                    <a href="relatorio_financeiro.php" class="btn gerente-btn w-100">
-                        <i class="bi bi-bar-chart me-2"></i>
-                        Emitir relatórios
-                    </a>
+                    <div class="gerente-panel-action">
+                        <a href="relatorio_financeiro.php" class="btn gerente-btn">
+                            <i class="bi bi-bar-chart me-2"></i>
+                            Emitir relatórios
+                        </a>
+                    </div>
                 </div>
 
             </div>

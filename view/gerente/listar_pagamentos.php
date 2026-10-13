@@ -32,7 +32,6 @@ $pagamentos = $dao->listarPagamentosDaAcademia($idAcademia);
     <?php include '../includes/header.php'; ?>
 
     <main class="container">
-        <main class="container">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
             <h2 style="margin: 0;">Gestão de Pagamentos</h2>
             <div style="display: flex; gap: 10px;">

@@ -66,13 +66,12 @@ session_start();
                 <a href="login_redefinir.php" style="font-size: 0.8rem; text-decoration: none;" class="text-muted">Esqueceu a palavra-passe?</a>
             </div>
 
-            <!-- Botão de Submissão -->
-            <button type="submit">Entrar</button>
-
-            <!-- Botão Voltar -->
-            <a href="../index.php" class="btn" style="width: 100%; margin-top: 10px; background-color: transparent; border: 1px solid var(--border-color); color: var(--text-primary) !important;">
-                Voltar
-            </a>
+            <div class="auth-form-actions">
+                <a href="../index.php" class="auth-form-cancel">
+                    Voltar
+                </a>
+                <button type="submit">Entrar</button>
+            </div>
 
         </form>
     </div>

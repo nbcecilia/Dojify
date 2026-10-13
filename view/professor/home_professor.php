@@ -72,7 +72,7 @@ try {
 
     <!-- Folhas de Estilo Dojify -->
     <link rel="stylesheet" href="../../assets/css/estilo.css">
-    <link rel="stylesheet" href="../../assets/css/gerente.css">
+    <link rel="stylesheet" href="../../assets/css/gerente.css?v=2">
 </head>
 
 <body class="gerente-page">

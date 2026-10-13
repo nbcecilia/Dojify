@@ -606,6 +606,28 @@ button[type="submit"]:hover {
     background-color: var(--action-submit-hover);
 }
 
+.auth-form-actions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 10px;
+    margin-top: 24px;
+}
+
+.auth-form-actions > button[type="submit"] {
+    width: auto;
+    margin: 0;
+    padding: 8px 16px;
+    white-space: nowrap;
+}
+
+.auth-form-actions > .auth-form-cancel {
+    padding: 0;
+    color: var(--text-secondary);
+    font-size: .875rem;
+    white-space: nowrap;
+}
+
 /* ----------------------------------------------------------
    MENSAGENS E ALERTAS
    ---------------------------------------------------------- */
