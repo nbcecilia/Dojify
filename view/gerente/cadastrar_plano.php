@@ -47,6 +47,7 @@ $modalidades = (new ModalidadeDAO())->listarPorAcademia($idAcademia);
         <section class="card shadow-sm border-0 p-4">
             <div class="text-center mb-4">
                 <h2 class="fs-4 fw-bold">Cadastrar Novo Plano</h2>
+                <p class="text-muted">Cadastrar novo plano para um aluno na sua academia.</p>
             </div>
 
             <form action="../../controller/PlanoController.php?acao=salvar" method="POST" class="w-100 mw-100 p-0 m-0 border-0 shadow-none bg-transparent">

@@ -35,53 +35,58 @@ if (
     <?php include '../includes/header.php'; ?>
 
     <main class="container my-4">
-        
-        <header class="d-flex justify-content-between align-items-center mb-4">
-            <div>
-                <!-- Link Voltar estilizado como botão no topo -->
-                <a href="listar_modalidade.php" class="btn btn-dark btn-sm">
-                    <i class="bi bi-arrow-left me-1"></i> Voltar
-                </a>
-            </div>
-        </header>
-
-        <section class="card shadow-sm border-0 p-4">
-            <div class="text-center mb-4">
-                <h2 class="fs-4 fw-bold">Cadastrar Modalidade</h2>
-            </div>
-
-            <form action="../../controller/ModalidadeController.php" method="POST" class="w-100 mw-100 p-0 m-0 border-0 shadow-none bg-transparent">
+        <div class="row justify-content-center">
+            <div class="col-lg-9 col-xl-8">
                 
-                <!-- Seu input oculto exato -->
-                <input type="hidden" name="acao" value="cadastrar">
-
-                <div class="row g-3">
-                    
-                    <!-- Seu campo de Nome -->
-                    <div class="col-12">
-                        <label for="nome" class="form-label">Nome da modalidade <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="nome" name="nome" maxlength="100" required>
-                    </div>
-
-                    <!-- Seu campo de Descrição -->
-                    <div class="col-12">
-                        <label for="descricao" class="form-label">Descrição</label>
-                        <textarea class="form-control" id="descricao" name="descricao" rows="5"></textarea>
-                    </div>
-
-                    <!-- Botões de Ação lado a lado e centralizados -->
-                    <div class="col-12 mt-4 d-flex gap-3 justify-content-center align-items-center">
-                        <a href="listar_modalidade.php" class="btn btn-secondary px-4 m-0 w-auto">
-                            Cancelar
+                <header class="d-flex justify-content-between align-items-center mb-4">
+                   <div>
+                        <a href="listar_modalidade.php" class="btn btn-dark btn-sm">
+                            <i class="bi bi-arrow-left me-1"></i> Lista de Modalidades
                         </a>
-                        <button type="submit" class="btn btn-success px-4 m-0 w-auto">
-                            <i class="bi bi-check-circle me-1"></i> Cadastrar
-                        </button>
                     </div>
+                </header>
 
-                </div>
-            </form>
-        </section>
+                <section class="card shadow-sm border-0 p-4">
+                    <div class="mb-4">
+                <h2>Cadastrar Modalidade</h2>
+                <p class="text-muted">Cadastrar modalidades oferecidas pela sua academia.</p>
+            </div>
+                    
+                    <form action="../../controller/ModalidadeController.php" method="POST" class="w-100 mw-100 p-0 m-0 border-0 shadow-none bg-transparent">
+                        
+                        <!-- Seu input oculto exato -->
+                        <input type="hidden" name="acao" value="cadastrar">
+
+                        <div class="row g-3">
+                            
+                            <!-- Seu campo de Nome -->
+                            <div class="col-12">
+                                <label for="nome" class="form-label">Nome da modalidade <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="nome" name="nome" maxlength="100" required>
+                            </div>
+
+                            <!-- Seu campo de Descrição -->
+                            <div class="col-12">
+                                <label for="descricao" class="form-label">Descrição</label>
+                                <textarea class="form-control" id="descricao" name="descricao" rows="5"></textarea>
+                            </div>
+
+                            <!-- Botões de Ação lado a lado e centralizados -->
+                            <div class="col-12 mt-4 d-flex gap-3 justify-content-center align-items-center">
+                                <a href="listar_modalidade.php" class="btn btn-secondary px-4 m-0 w-auto">
+                                    Cancelar
+                                </a>
+                                <button type="submit" class="btn btn-success px-4 m-0 w-auto">
+                                    <i class="bi bi-check-circle me-1"></i> Cadastrar
+                                </button>
+                            </div>
+
+                        </div>
+                    </form>
+                </section>
+
+            </div>
+        </div>
     </main>
 
     <!-- Bootstrap 5 JS Bundle -->

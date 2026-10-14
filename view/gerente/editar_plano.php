@@ -60,6 +60,7 @@ $modalidades = (new ModalidadeDAO())->listarPorAcademia($idAcademia);
         <section class="card shadow-sm border-0 p-4">
             <div class="text-center mb-4">
                 <h2 class="fs-4 fw-bold">Editar Plano</h2>
+                <p class="text-muted">Edite as informações do plano do aluno.</p>
             </div>
 
             <form action="../../controller/PlanoController.php?acao=atualizar" method="POST" class="w-100 mw-100 p-0 m-0 border-0 shadow-none bg-transparent">

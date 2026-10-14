@@ -16,6 +16,19 @@ require_once __DIR__ . '/../../model/dao/PlanoDAO.php';
 $dao = new PlanoDAO();
 $idAcademia = (int) $_SESSION['id_academia'];
 $planos = $dao->listarPorAcademia($idAcademia);
+
+// Agrupar planos por aluno
+$alunosAgrupados = [];
+foreach ($planos as $plano) {
+    $idAluno = $plano['id_usuario_aluno'];
+    if (!isset($alunosAgrupados[$idAluno])) {
+        $alunosAgrupados[$idAluno] = [
+            'nome' => $plano['aluno_nome'],
+            'planos' => []
+        ];
+    }
+    $alunosAgrupados[$idAluno]['planos'][] = $plano;
+}
 ?>
 <!DOCTYPE html>
 <html lang="pt-pt">
@@ -26,6 +39,7 @@ $planos = $dao->listarPorAcademia($idAcademia);
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="../../assets/css/estilo.css">
+
 </head>
 <body>
 
@@ -36,11 +50,6 @@ $planos = $dao->listarPorAcademia($idAcademia);
             <div>
                 <a href="cadastrar_plano.php" class="btn btn-success">
                     <i class="bi bi-plus-circle me-1"></i> Cadastrar Plano
-                </a>
-            </div>
-            <div>
-                <a href="home_gerente.php" class="btn btn-dark btn-sm">
-                    <i class="bi bi-arrow-left me-1"></i> Voltar ao Painel
                 </a>
             </div>
         </header>
@@ -65,7 +74,7 @@ $planos = $dao->listarPorAcademia($idAcademia);
                 <p class="text-muted">Consulte e gira os planos ativos na academia.</p>
             </div>
 
-            <?php if (empty($planos)): ?>
+            <?php if (empty($alunosAgrupados)): ?>
                 <p class="text-center text-muted py-4">Nenhum plano cadastrado.</p>
             <?php else: ?>
                 <div class="table-responsive">
@@ -74,6 +83,7 @@ $planos = $dao->listarPorAcademia($idAcademia);
                             <tr>
                                 <th>Aluno</th>
                                 <th>Plano</th>
+                                <th>Modalidade</th>
                                 <th>Valor (R$)</th>
                                 <th>Início</th>
                                 <th>Fim</th>
@@ -82,23 +92,37 @@ $planos = $dao->listarPorAcademia($idAcademia);
                             </tr>
                         </thead>
                         <tbody>
-                            <?php foreach ($planos as $plano): ?>
-                                <tr>
-                                    <td><strong><?= htmlspecialchars($plano['aluno_nome']) ?></strong></td>
-                                    <td><?= htmlspecialchars($plano['nome_plano']) ?></td>
-                                    <td>R$ <?= number_format($plano['valor'], 2, ',', '.') ?></td>
-                                    <td><?= date('d/m/Y', strtotime($plano['data_inicio'])) ?></td>
-                                    <td><?= $plano['data_fim'] ? date('d/m/Y', strtotime($plano['data_fim'])) : '-' ?></td>
-                                    <td><?= htmlspecialchars($plano['status']) ?></td>
-                                    <td class="text-end">
-                                        <a href="editar_plano.php?id=<?= $plano['id_plano'] ?>" class="btn btn-info btn-sm">
-                                            <i class="bi bi-pencil me-1"></i> Editar
-                                        </a>
-                                        <a href="../../controller/PlanoController.php?acao=excluir&id=<?= $plano['id_plano'] ?>" class="btn btn-danger btn-sm" onclick="return confirm('Deseja realmente excluir este plano?');">
-                                            <i class="bi bi-trash me-1"></i> Excluir
-                                        </a>
-                                    </td>
-                                </tr>
+                            <?php foreach ($alunosAgrupados as $dadosAluno): ?>
+                                <?php 
+                                $totalPlanos = count($dadosAluno['planos']);
+                                foreach ($dadosAluno['planos'] as $index => $plano): 
+                                ?>
+                                    <tr <?= $index > 0 ? 'class="aluno-sub-linha"' : '' ?>>
+                                        <?php if ($index === 0): ?>
+                                            <td rowspan="<?= $totalPlanos ?>" class="align-middle bg-white">
+                                                <strong><?= htmlspecialchars($dadosAluno['nome']) ?></strong>
+                                            </td>
+                                        <?php endif; ?>
+                                        <td><?= htmlspecialchars($plano['nome_plano']) ?></td>
+                                        <td>
+                                            <span class="badge bg-dark">
+                                                <?= htmlspecialchars($plano['modalidade_nome'] ?? $plano['nome_modalidade'] ?? $plano['modalidade'] ?? '-') ?>
+                                            </span>
+                                        </td>
+                                        <td>R$ <?= number_format($plano['valor'], 2, ',', '.') ?></td>
+                                        <td><?= date('d/m/Y', strtotime($plano['data_inicio'])) ?></td>
+                                        <td><?= $plano['data_fim'] ? date('d/m/Y', strtotime($plano['data_fim'])) : '-' ?></td>
+                                        <td><?= htmlspecialchars($plano['status']) ?></td>
+                                        <td class="text-end">
+                                            <a href="editar_plano.php?id=<?= $plano['id_plano'] ?>" class="btn btn-info btn-sm">
+                                                <i class="bi bi-pencil me-1"></i> Editar
+                                            </a>
+                                            <a href="../../controller/PlanoController.php?acao=excluir&id=<?= $plano['id_plano'] ?>" class="btn btn-danger btn-sm" onclick="return confirm('Deseja realmente excluir este plano?');">
+                                                <i class="bi bi-trash me-1"></i> Excluir
+                                            </a>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
                             <?php endforeach; ?>
                         </tbody>
                     </table>

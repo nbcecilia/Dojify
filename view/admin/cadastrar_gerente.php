@@ -52,131 +52,135 @@ $academias = $academiaDAO->listarTodas();
     </header>
 
     <main class="container my-4">
-        <header class="d-flex justify-content-between align-items-center mb-4">
-            <div>
-                <a href="listar_academias_gerentes.php" class="btn btn-dark btn-sm">
-                    <i class="bi bi-arrow-left me-1"></i> Gestão de Academias & Gerentes
-                </a>
-            </div>
-        </header>
-
-        <section class="card shadow-sm border-0 p-4">
-            <?php if (isset($_GET['erro'])): ?>
-                <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                    Erro ao cadastrar gerente. Verifique se o CPF ou E-mail já estão em uso.
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            <?php endif; ?>
-
-            <div class="mb-4">
-                <h2 class="fs-4 fw-bold">Cadastrar Gerente</h2>
-                <p class="text-muted">Preencha os campos abaixo para cadastrar um novo gerente.</p>
-            </div>
-
-            <form action="../../controller/UsuarioController.php" method="POST" data-cep-form autocomplete="off" class="w-100 mw-100 p-0 m-0 border-0 shadow-none bg-transparent">
-                <input type="hidden" name="acao" value="cadastrar_gerente">
-                
-                <div class="row g-3">
-                    <div class="col-12">
-                        <label for="id_academia" class="form-label">Selecione a Academia: <span class="text-danger">*</span></label>
-                        <select class="form-select" id="id_academia" name="id_academia" required>
-                            <option value="">-- Selecione uma Academia --</option>
-                            <?php foreach ($academias as $ac): ?>
-                                <option value="<?= $ac['id_academia'] ?>"><?= htmlspecialchars($ac['nome']) ?></option>
-                            <?php endforeach; ?>
-                        </select>
+        <div class="row justify-content-center">
+            <div class="col-lg-9 col-xl-8">
+                <header class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <a href="listar_academias_gerentes.php" class="btn btn-dark btn-sm">
+                            <i class="bi bi-arrow-left me-1"></i> Gestão de Academias & Gerentes
+                        </a>
                     </div>
+                </header>
 
-                    <div class="col-12">
-                        <label for="nome" class="form-label">Nome Completo do Gerente: <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="nome" name="nome" required>
-                    </div>
-
-                    <div class="col-md-6">
-                        <label for="cpf" class="form-label">CPF (apenas números): <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="cpf" name="cpf" placeholder="000.000.000-00" maxlength="14" required>
-                    </div>
-
-                    <div class="col-md-6">
-                        <label for="telefone" class="form-label">Telefone: <span class="text-danger">*</span></label>
-                        <input type="tel" class="form-control" id="telefone" name="telefone" pattern="\([0-9]{2}\) [0-9]{4,5}-[0-9]{4}" required>
-                    </div>
-
-                    <div class="col-md-6">
-                        <label for="data_nascimento" class="form-label">Data de Nascimento: <span class="text-danger">*</span></label>
-                        <input type="date" class="form-control" id="data_nascimento" name="data_nascimento" required>
-                    </div>
-
-                    <div class="col-md-6">
-                        <label for="sexo" class="form-label">Sexo: <span class="text-danger">*</span></label>
-                        <select class="form-select" id="sexo" name="sexo" required>
-                            <option value="">Selecione...</option>
-                            <option value="Feminino">Feminino</option>
-                            <option value="Masculino">Masculino</option>
-                            <option value="Outro">Outro</option>
-                            <option value="Prefiro não informar">Prefiro não informar</option>
-                        </select>
-                    </div>
-
-                    <div class="col-md-4">
-                        <label for="cep" class="form-label">CEP: <span class="text-danger">*</span></label>
-                        <div class="input-group">
-                            <input type="text" class="form-control" id="cep" name="cep" inputmode="numeric" autocomplete="postal-code" maxlength="9" pattern="[0-9]{5}-?[0-9]{3}" placeholder="00000-000" required>
-                            <button type="button" class="btn btn-outline-secondary" data-cep-lookup>Buscar CEP</button>
+                <section class="card shadow-sm border-0 p-4">
+                    <?php if (isset($_GET['erro'])): ?>
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            Erro ao cadastrar gerente. Verifique se o CPF ou E-mail já estão em uso.
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>
-                        <p id="cep-status" class="form-text text-muted mb-0" aria-live="polite"></p>
+                    <?php endif; ?>
+
+                    <div class="mb-4">
+                        <h2 class="fs-4 fw-bold">Cadastrar Gerente</h2>
+                        <p class="text-muted">Preencha os campos abaixo para cadastrar um novo gerente.</p>
                     </div>
 
-                    <div class="col-md-8">
-                        <label for="endereco" class="form-label">Endereço: <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="endereco" name="endereco" autocomplete="street-address" maxlength="100" required>
-                    </div>
+                    <form action="../../controller/UsuarioController.php" method="POST" data-cep-form autocomplete="off" class="w-100 mw-100 p-0 m-0 border-0 shadow-none bg-transparent">
+                        <input type="hidden" name="acao" value="cadastrar_gerente">
+                        
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label for="id_academia" class="form-label">Selecione a Academia: <span class="text-danger">*</span></label>
+                                <select class="form-select" id="id_academia" name="id_academia" required>
+                                    <option value="">-- Selecione uma Academia --</option>
+                                    <?php foreach ($academias as $ac): ?>
+                                        <option value="<?= $ac['id_academia'] ?>"><?= htmlspecialchars($ac['nome']) ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
 
-                    <div class="col-md-8">
-                        <label for="cidade" class="form-label">Cidade: <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="cidade" name="cidade" autocomplete="address-level2" maxlength="45" required>
-                    </div>
+                            <div class="col-12">
+                                <label for="nome" class="form-label">Nome Completo do Gerente: <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="nome" name="nome" required>
+                            </div>
 
-                    <div class="col-md-4">
-                        <label for="estado" class="form-label">Estado (UF): <span class="text-danger">*</span></label>
-                        <select class="form-select" id="estado" name="estado" autocomplete="off" required>
-                            <option value="" selected>Selecione...</option>
-                            <option value="AC">AC</option><option value="AL">AL</option>
-                            <option value="AP">AP</option><option value="AM">AM</option>
-                            <option value="BA">BA</option><option value="CE">CE</option>
-                            <option value="DF">DF</option><option value="ES">ES</option>
-                            <option value="GO">GO</option><option value="MA">MA</option>
-                            <option value="MT">MT</option><option value="MS">MS</option>
-                            <option value="MG">MG</option><option value="PA">PA</option>
-                            <option value="PB">PB</option><option value="PR">PR</option>
-                            <option value="PE">PE</option><option value="PI">PI</option>
-                            <option value="RJ">RJ</option><option value="RN">RN</option>
-                            <option value="RS">RS</option><option value="RO">RO</option>
-                            <option value="RR">RR</option><option value="SC">SC</option>
-                            <option value="SP">SP</option><option value="SE">SE</option>
-                            <option value="TO">TO</option>
-                        </select>
-                    </div>
+                            <div class="col-md-6">
+                                <label for="cpf" class="form-label">CPF: <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="cpf" name="cpf" placeholder="000.000.000-00" maxlength="14" required>
+                            </div>
 
-                    <div class="col-12">
-                        <label for="email" class="form-label">E-mail de Acesso: <span class="text-danger">*</span></label>
-                        <input type="email" class="form-control" id="email" name="email" required>
-                    </div>
+                            <div class="col-md-6">
+                                <label for="telefone" class="form-label">Telefone: <span class="text-danger">*</span></label>
+                                <input type="tel" class="form-control" id="telefone" name="telefone" inputmode="numeric" maxlength="15" pattern="\([0-9]{2}\) [0-9]{4,5}-[0-9]{4}" placeholder="(61) 98888-7777" required>
+                            </div>
 
-                    <div class="col-12">
-                        <label for="senha" class="form-label">Senha de Acesso: <span class="text-danger">*</span></label>
-                        <input type="password" class="form-control" id="senha" name="senha" autocomplete="new-password" required>
-                    </div>
+                            <div class="col-md-6">
+                                <label for="data_nascimento" class="form-label">Data de Nascimento: <span class="text-danger">*</span></label>
+                                <input type="date" class="form-control" id="data_nascimento" name="data_nascimento" required>
+                            </div>
 
-                    <div class="col-12 mt-4 d-flex gap-3 justify-content-center align-items-center">
-                        <a href="home_admin.php" class="btn btn-secondary px-4 m-0 w-auto">Cancelar</a>
-                        <button type="submit" class="btn btn-success px-4 m-0 w-auto">
-                            <i class="bi bi-check-circle me-1"></i> Cadastrar Gerente
-                        </button>
-                    </div>
-                </div>
-            </form>
-        </section>
+                            <div class="col-md-6">
+                                <label for="sexo" class="form-label">Sexo: <span class="text-danger">*</span></label>
+                                <select class="form-select" id="sexo" name="sexo" required>
+                                    <option value="">Selecione...</option>
+                                    <option value="Feminino">Feminino</option>
+                                    <option value="Masculino">Masculino</option>
+                                    <option value="Outro">Outro</option>
+                                    <option value="Prefiro não informar">Prefiro não informar</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-4">
+                                <label for="cep" class="form-label">CEP: <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="cep" name="cep" inputmode="numeric" autocomplete="postal-code" maxlength="9" pattern="[0-9]{5}-?[0-9]{3}" placeholder="00000-000" required>
+                                    <button type="button" class="btn btn-outline-secondary" data-cep-lookup>Buscar CEP</button>
+                                </div>
+                                <p id="cep-status" class="form-text text-muted mb-0" aria-live="polite"></p>
+                            </div>
+
+                            <div class="col-md-8">
+                                <label for="endereco" class="form-label">Endereço: <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="endereco" name="endereco" autocomplete="street-address" maxlength="100" required>
+                            </div>
+
+                            <div class="col-md-8">
+                                <label for="cidade" class="form-label">Cidade: <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="cidade" name="cidade" autocomplete="address-level2" maxlength="45" required>
+                            </div>
+
+                            <div class="col-md-4">
+                                <label for="estado" class="form-label">Estado (UF): <span class="text-danger">*</span></label>
+                                <select class="form-select" id="estado" name="estado" autocomplete="off" required>
+                                    <option value="" selected>Selecione...</option>
+                                    <option value="AC">AC</option><option value="AL">AL</option>
+                                    <option value="AP">AP</option><option value="AM">AM</option>
+                                    <option value="BA">BA</option><option value="CE">CE</option>
+                                    <option value="DF">DF</option><option value="ES">ES</option>
+                                    <option value="GO">GO</option><option value="MA">MA</option>
+                                    <option value="MT">MT</option><option value="MS">MS</option>
+                                    <option value="MG">MG</option><option value="PA">PA</option>
+                                    <option value="PB">PB</option><option value="PR">PR</option>
+                                    <option value="PE">PE</option><option value="PI">PI</option>
+                                    <option value="RJ">RJ</option><option value="RN">RN</option>
+                                    <option value="RS">RS</option><option value="RO">RO</option>
+                                    <option value="RR">RR</option><option value="SC">SC</option>
+                                    <option value="SP">SP</option><option value="SE">SE</option>
+                                    <option value="TO">TO</option>
+                                </select>
+                            </div>
+
+                            <div class="col-12">
+                                <label for="email" class="form-label">E-mail de Acesso: <span class="text-danger">*</span></label>
+                                <input type="email" class="form-control" id="email" name="email" required>
+                            </div>
+
+                            <div class="col-12">
+                                <label for="senha" class="form-label">Senha de Acesso: <span class="text-danger">*</span></label>
+                                <input type="password" class="form-control" id="senha" name="senha" autocomplete="new-password" required>
+                            </div>
+
+                            <div class="col-12 mt-4 d-flex gap-3 justify-content-center align-items-center">
+                                <a href="home_admin.php" class="btn btn-secondary px-4 m-0 w-auto">Cancelar</a>
+                                <button type="submit" class="btn btn-success px-4 m-0 w-auto">
+                                    <i class="bi bi-check-circle me-1"></i> Cadastrar Gerente
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </section>
+            </div>
+        </div>
     </main>
 
     <footer class="footer">
@@ -185,6 +189,39 @@ $academias = $academiaDAO->listarTodas();
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="../../assets/js/cep.js" defer></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const telefone = document.getElementById('telefone');
+
+            if (telefone) {
+                telefone.addEventListener('input', function () {
+                    const posicaoOriginal = telefone.selectionStart ?? telefone.value.length;
+                    const digitosAntesDoCursor = telefone.value.slice(0, posicaoOriginal).replace(/\D/g, '').length;
+                    const digitos = telefone.value.replace(/\D/g, '').slice(0, 11);
+                    const tamanhoNumero = digitos.length > 10 ? 5 : 4;
+                    let telefoneFormatado = digitos ? '(' + digitos.slice(0, 2) : '';
+
+                    if (digitos.length > 2) {
+                        telefoneFormatado += ') ' + digitos.slice(2, 2 + tamanhoNumero);
+                    }
+                    if (digitos.length > 2 + tamanhoNumero) {
+                        telefoneFormatado += '-' + digitos.slice(2 + tamanhoNumero);
+                    }
+
+                    telefone.value = telefoneFormatado;
+                    let novaPosicao = 0;
+                    let digitosContados = 0;
+                    while (novaPosicao < telefoneFormatado.length && digitosContados < digitosAntesDoCursor) {
+                        if (/\d/.test(telefoneFormatado[novaPosicao])) {
+                            digitosContados++;
+                        }
+                        novaPosicao++;
+                    }
+                    telefone.setSelectionRange(novaPosicao, novaPosicao);
+                });
+            }
+        });
+    </script>
     <script src="../../assets/js/cpf.js?v=<?= filemtime(__DIR__ . '/../../assets/js/cpf.js'); ?>"></script>
 </body>
 </html>

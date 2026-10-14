@@ -61,227 +61,230 @@ $modalidades =$modalidadeDAO->listarPorAcademia($idAcademia);$opcoesPlano = [
     <?php include '../includes/header.php'; ?>
 
     <main class="container my-4">
-        <!-- Container para alertas de erro enviados via URL -->
-        <div id="alerta-container"></div>
+        <div class="row justify-content-center">
+            <div class="col-lg-9 col-xl-8">
+                <!-- Container para alertas de erro enviados via URL -->
+                <div id="alerta-container"></div>
 
-        <header class="d-flex justify-content-between align-items-center mb-4">
-            <div>
-                <a href="listar_usuarios.php" class="btn btn-dark btn-sm">
-                    <i class="bi bi-arrow-left me-1"></i> Lista de Utilizadores
-                </a>
-            </div>
-        </header>
-
-        <section class="card shadow-sm border-0 p-4">
-            
-            <div class="text-center mb-4">
-                <h2 class="fs-4 fw-bold">Cadastrar Novo Utilizador</h2>
-            </div>
-
-            <form id="form-cadastro" action="../../controller/UsuarioController.php?acao=cadastrar_aluno" method="POST" data-cep-form autocomplete="off" class="w-100 mw-100 p-0 m-0 border-0 shadow-none bg-transparent">
-                
-                <div class="row g-3">
-                    <!-- SELETOR DO TIPO DE UTILIZADOR -->
-                    <div class="col-12">
-                        <label for="tipo_usuario" class="form-label">Tipo de Cadastro: <span class="text-danger">*</span></label>
-                        <select class="form-select" id="tipo_usuario" name="tipo_usuario" required>
-                            <option value="aluno" selected>Aluno</option>
-                            <option value="professor">Professor</option>
-                        </select>
+                <header class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <a href="listar_usuarios.php" class="btn btn-dark btn-sm">
+                            <i class="bi bi-arrow-left me-1"></i> Lista de Utilizadores
+                        </a>
                     </div>
+                </header>
 
-                    <div class="col-12">
-                        <hr class="text-muted my-2">
-                    </div>
-
-                    <!-- ================= CAMPOS COMUNS ================= -->
-                    <div class="col-12">
-                        <label for="nome" class="form-label">Nome Completo: <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="nome" name="nome" placeholder="Ex: João da Silva" required>
-                    </div>
-
-                    <div class="col-md-6">
-                        <label for="cpf" class="form-label">CPF: <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="cpf" name="cpf" placeholder="000.000.000-00" maxlength="14" required>
-                    </div>
+                <section class="card shadow-sm border-0 p-4">
                     
-                    <div class="col-md-6">
-                        <label for="telefone" class="form-label">Telefone: <span class="text-danger">*</span></label>
-                        <input type="tel" class="form-control" id="telefone" name="telefone" inputmode="numeric" maxlength="15" pattern="\([0-9]{2}\) [0-9]{4,5}-[0-9]{4}" placeholder="(61) 98888-7777" required>
+                    <div class="mb-4">
+                        <h2 class="fs-4 fw-bold">Cadastrar Novo Utilizador</h2>
+                        <p class="text-muted">Cadastrar novos professores e alunos na sua academia.</p>
                     </div>
 
-                    <div class="col-md-6">
-                        <label for="data_nascimento" class="form-label">Data de Nascimento: <span class="text-danger">*</span></label>
-                        <input type="date" class="form-control" id="data_nascimento" name="data_nascimento" required>
-                    </div>
-                    
-                    <div class="col-md-6">
-                        <label for="sexo" class="form-label">Sexo: <span class="text-danger">*</span></label>
-                        <select class="form-select" id="sexo" name="sexo" required>
-                            <option value="">Selecione...</option>
-                            <option value="Feminino">Feminino</option>
-                            <option value="Masculino">Masculino</option>
-                            <option value="Outro">Outro</option>
-                            <option value="Prefiro não informar">Prefiro não informar</option>
-                        </select>
-                    </div>
-
-                    <div class="col-12">
-                        <label for="email" class="form-label">E-mail de Acesso: <span class="text-danger">*</span></label>
-                        <input type="email" class="form-control" id="email" name="email" placeholder="exemplo@email.com" required>
-                    </div>
-
-                    <div class="col-md-4">
-                        <label for="cep" class="form-label">CEP: <span class="text-danger">*</span></label>
-                        <div class="input-group">
-                            <input type="text" class="form-control" id="cep" name="cep" inputmode="numeric" autocomplete="postal-code" maxlength="9" pattern="[0-9]{5}-?[0-9]{3}" placeholder="00000-000" required>
-                            <button type="button" class="btn btn-outline-secondary" data-cep-lookup>Buscar</button>
-                        </div>
-                        <p id="cep-status" class="form-text text-muted mb-0" aria-live="polite"></p>
-                    </div>
-
-                    <div class="col-md-8">
-                        <label for="endereco" class="form-label">Endereço: <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="endereco" name="endereco" autocomplete="street-address" maxlength="100" required>
-                    </div>
-
-                    <div class="col-md-8">
-                        <label for="cidade" class="form-label">Cidade: <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="cidade" name="cidade" autocomplete="address-level2" maxlength="45" required>
-                    </div>
-                    
-                    <div class="col-md-4">
-                        <label for="estado" class="form-label">Estado (UF): <span class="text-danger">*</span></label>
-                        <select class="form-select" id="estado" name="estado" autocomplete="off" required>
-                            <option value="" selected>Selecione...</option>
-                            <option value="AC">AC</option><option value="AL">AL</option>
-                            <option value="AP">AP</option><option value="AM">AM</option>
-                            <option value="BA">BA</option><option value="CE">CE</option>
-                            <option value="DF">DF</option><option value="ES">ES</option>
-                            <option value="GO">GO</option><option value="MA">MA</option>
-                            <option value="MT">MT</option><option value="MS">MS</option>
-                            <option value="MG">MG</option><option value="PA">PA</option>
-                            <option value="PB">PB</option><option value="PR">PR</option>
-                            <option value="PE">PE</option><option value="PI">PI</option>
-                            <option value="RJ">RJ</option><option value="RN">RN</option>
-                            <option value="RS">RS</option><option value="RO">RO</option>
-                            <option value="RR">RR</option><option value="SC">SC</option>
-                            <option value="SP">SP</option><option value="SE">SE</option>
-                            <option value="TO">TO</option>
-                        </select>
-                    </div>
-
-                    <div class="col-12">
-                        <label for="senha" class="form-label">Senha temporária de Acesso:</label>
-                        <!-- Usando classes utilitárias do Bootstrap em vez de CSS inline -->
-                        <input type="password" class="form-control bg-info-subtle text-primary fw-bold border-info-subtle" id="senha" value="aluno123" readonly>
-                    </div>
-                </div>
-
-                <!-- ================= CAMPOS ESPECÍFICOS DE ALUNO ================= -->
-                <div id="secao-aluno" class="secao-especifica mt-4">
-                    <h3 class="fs-5 mb-3 text-primary border-bottom pb-2">Informações do Aluno</h3>
-                    
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <label for="data_matricula" class="form-label">Data da Matrícula:</label>
-                            <input type="date" class="form-control" id="data_matricula" name="data_matricula" value="<?= date('Y-m-d'); ?>">
-                        </div>
-
-                        <div class="col-md-6">
-                            <label for="responsavel" class="form-label">Responsável Legal (Caso menor):</label>
-                            <input type="text" class="form-control" id="responsavel" name="responsavel" placeholder="Nome do pai ou responsável">
-                        </div>
-
-                        <div class="col-12">
-                            <label for="observacao" class="form-label">Observações Médicas / Alergias:</label>
-                            <textarea class="form-control" id="observacao" name="observacao" rows="2" placeholder="Ex: Alérgico a dipirona, lesão antiga no joelho..."></textarea>
-                        </div> 
-
-                        <!-- Modalidades Inline com Bootstrap Grid -->
-                        <?php for ($numeroModalidade = 1; $numeroModalidade <= 3; $numeroModalidade++): ?>
-                            <div class="col-md-4">
-                                <label for="id_modalidade_<?= $numeroModalidade; ?>" class="form-label">
-                                    Modalidade <?= $numeroModalidade; ?><?=$numeroModalidade === 1 ? ' <span class="text-danger">*</span>' : ' (opcional)'; ?>
-                                </label>
-                                <select class="form-select" id="id_modalidade_<?= $numeroModalidade; ?>" name="id_modalidades[]" <?= $numeroModalidade === 1 ? 'required' : ''; ?>>
-                                    <option value="">Selecione...</option>
-                                    <?php foreach ($modalidades as$modalidade): ?>
-                                        <option value="<?= (int)$modalidade['id_modalidade']; ?>">
-                                            <?= htmlspecialchars($modalidade['nome'], ENT_QUOTES, 'UTF-8'); ?>
-                                        </option>
-                                    <?php endforeach; ?>
+                    <form id="form-cadastro" action="../../controller/UsuarioController.php?acao=cadastrar_aluno" method="POST" data-cep-form autocomplete="off" class="w-100 mw-100 p-0 m-0 border-0 shadow-none bg-transparent">
+                        
+                        <div class="row g-3">
+                            <!-- SELETOR DO TIPO DE UTILIZADOR -->
+                            <div class="col-12">
+                                <label for="tipo_usuario" class="form-label">Tipo de Cadastro: <span class="text-danger">*</span></label>
+                                <select class="form-select" id="tipo_usuario" name="tipo_usuario" required>
+                                    <option value="aluno" selected>Aluno</option>
+                                    <option value="professor">Professor</option>
                                 </select>
                             </div>
-                        <?php endfor; ?>
 
-                        <div class="col-12 mt-4">
-                            <p class="form-text text-muted mb-3">Configure um plano e valor para cada modalidade selecionada.</p>
+                            <div class="col-12">
+                                <hr class="text-muted my-2">
+                            </div>
+
+                            <!-- ================= CAMPOS COMUNS ================= -->
+                            <div class="col-12">
+                                <label for="nome" class="form-label">Nome Completo: <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="nome" name="nome" placeholder="Ex: João da Silva" required>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="cpf" class="form-label">CPF: <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="cpf" name="cpf" placeholder="000.000.000-00" maxlength="14" required>
+                            </div>
                             
-                            <?php for ($numeroModalidade = 1; $numeroModalidade <= 3; $numeroModalidade++): ?>
-                                <?php $indiceModalidade =$numeroModalidade - 1; ?>
-                                <div class="plano-modalidade p-3 border rounded mb-3 bg-light" data-plano-modalidade="<?= $indiceModalidade; ?>" hidden>
-                                    <h4 class="h6 fw-bold mb-3">Plano da Modalidade <?= $numeroModalidade; ?></h4>
-                                    <div class="row g-3">
-                                        <div class="col-md-8">
-                                            <label for="nome_plano_<?= $numeroModalidade; ?>" class="form-label">Plano Contratado:</label>
-                                            <select class="form-select" id="nome_plano_<?= $numeroModalidade; ?>" name="planos[<?= $indiceModalidade; ?>][nome_plano]" disabled>
-                                                <option value="">Selecione o plano...</option>
-                                                <?php foreach ($opcoesPlano as $grupoPlano =>$opcoes): ?>
-                                                    <optgroup label="Planos <?= htmlspecialchars($grupoPlano, ENT_QUOTES, 'UTF-8'); ?>">
-                                                        <?php foreach ($opcoes as $valorPlanoOpcao =>$rotuloPlano): ?>
-                                                            <option value="<?= htmlspecialchars($valorPlanoOpcao, ENT_QUOTES, 'UTF-8'); ?>">
-                                                                <?= htmlspecialchars($rotuloPlano, ENT_QUOTES, 'UTF-8'); ?>
-                                                            </option>
-                                                        <?php endforeach; ?>
-                                                    </optgroup>
-                                                <?php endforeach; ?>
-                                            </select>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <label for="valor_plano_<?= $numeroModalidade; ?>" class="form-label">Valor (R$):</label>
-                                            <input type="number" class="form-control" step="0.01" min="0" id="valor_plano_<?= $numeroModalidade; ?>" name="planos[<?= $indiceModalidade; ?>][valor]" placeholder="Ex: 150.00" disabled>
-                                        </div>
-                                    </div>
+                            <div class="col-md-6">
+                                <label for="telefone" class="form-label">Telefone: <span class="text-danger">*</span></label>
+                                <input type="tel" class="form-control" id="telefone" name="telefone" inputmode="numeric" maxlength="15" pattern="\([0-9]{2}\) [0-9]{4,5}-[0-9]{4}" placeholder="(61) 98888-7777" required>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="data_nascimento" class="form-label">Data de Nascimento: <span class="text-danger">*</span></label>
+                                <input type="date" class="form-control" id="data_nascimento" name="data_nascimento" required>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label for="sexo" class="form-label">Sexo: <span class="text-danger">*</span></label>
+                                <select class="form-select" id="sexo" name="sexo" required>
+                                    <option value="">Selecione...</option>
+                                    <option value="Feminino">Feminino</option>
+                                    <option value="Masculino">Masculino</option>
+                                    <option value="Outro">Outro</option>
+                                    <option value="Prefiro não informar">Prefiro não informar</option>
+                                </select>
+                            </div>
+
+                            <div class="col-12">
+                                <label for="email" class="form-label">E-mail de Acesso: <span class="text-danger">*</span></label>
+                                <input type="email" class="form-control" id="email" name="email" placeholder="exemplo@email.com" required>
+                            </div>
+
+                            <div class="col-md-4">
+                                <label for="cep" class="form-label">CEP: <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="cep" name="cep" inputmode="numeric" autocomplete="postal-code" maxlength="9" pattern="[0-9]{5}-?[0-9]{3}" placeholder="00000-000" required>
+                                    <button type="button" class="btn btn-outline-secondary" data-cep-lookup>Buscar</button>
                                 </div>
-                            <?php endfor; ?>
-                        </div>
-                    </div>
-                </div>
+                                <p id="cep-status" class="form-text text-muted mb-0" aria-live="polite"></p>
+                            </div>
 
-                <!-- ================= CAMPOS ESPECÍFICOS DE PROFESSOR ================= -->
-                <div id="secao-professor" class="secao-especifica mt-4 d-none">
-                    <h3 class="fs-5 mb-3 text-primary border-bottom pb-2">Informações do Professor</h3>
-                    
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <label for="especialidade" class="form-label">Especialidade / Arte Marcial: <span class="text-danger">*</span></label>
-                            <select class="form-select" id="especialidade" name="especialidade">
-                                <option value="">Selecione a especialidade...</option>
-                                <?php foreach ($modalidades as$mod): ?>
-                                    <option value="<?= htmlspecialchars($mod['nome']); ?>"><?= htmlspecialchars($mod['nome']); ?></option>
-                                <?php endforeach; ?>
-                                <option value="Outras">Outras</option>
-                            </select>
+                            <div class="col-md-8">
+                                <label for="endereco" class="form-label">Endereço: <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="endereco" name="endereco" autocomplete="street-address" maxlength="100" required>
+                            </div>
+
+                            <div class="col-md-8">
+                                <label for="cidade" class="form-label">Cidade: <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="cidade" name="cidade" autocomplete="address-level2" maxlength="45" required>
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <label for="estado" class="form-label">Estado (UF): <span class="text-danger">*</span></label>
+                                <select class="form-select" id="estado" name="estado" autocomplete="off" required>
+                                    <option value="" selected>Selecione...</option>
+                                    <option value="AC">AC</option><option value="AL">AL</option>
+                                    <option value="AP">AP</option><option value="AM">AM</option>
+                                    <option value="BA">BA</option><option value="CE">CE</option>
+                                    <option value="DF">DF</option><option value="ES">ES</option>
+                                    <option value="GO">GO</option><option value="MA">MA</option>
+                                    <option value="MT">MT</option><option value="MS">MS</option>
+                                    <option value="MG">MG</option><option value="PA">PA</option>
+                                    <option value="PB">PB</option><option value="PR">PR</option>
+                                    <option value="PE">PE</option><option value="PI">PI</option>
+                                    <option value="RJ">RJ</option><option value="RN">RN</option>
+                                    <option value="RS">RS</option><option value="RO">RO</option>
+                                    <option value="RR">RR</option><option value="SC">SC</option>
+                                    <option value="SP">SP</option><option value="SE">SE</option>
+                                    <option value="TO">TO</option>
+                                </select>
+                            </div>
+
+                            <div class="col-12">
+                                <label for="senha" class="form-label">Senha temporária de Acesso:</label>
+                                <input type="password" class="form-control bg-info-subtle text-primary fw-bold border-info-subtle" id="senha" value="aluno123" readonly>
+                            </div>
                         </div>
 
-                        <div class="col-md-6">
-                            <label for="data_admissao" class="form-label">Data de Admissão: <span class="text-danger">*</span></label>
-                            <input type="date" class="form-control" id="data_admissao" name="data_admissao" value="<?= date('Y-m-d'); ?>">
-                        </div>
-                    </div>
-                </div>
+                        <!-- ================= CAMPOS ESPECÍFICOS DE ALUNO ================= -->
+                        <div id="secao-aluno" class="secao-especifica mt-4">
+                            <h3 class="fs-5 mb-3 text-primary border-bottom pb-2">Informações do Aluno</h3>
+                            
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="data_matricula" class="form-label">Data da Matrícula:</label>
+                                    <input type="date" class="form-control" id="data_matricula" name="data_matricula" value="<?= date('Y-m-d'); ?>">
+                                </div>
 
-                <!-- BOTÕES DE AÇÃO -->
-                
-            <div class="col-12 mt-4 d-flex gap-3 justify-content-center align-items-center">
-                <a href="listar_usuarios.php" class="btn btn-secondary px-4 m-0 w-auto">Cancelar</a>
-                <button type="submit" class="btn btn-success px-4 m-0 w-auto" id="btn-submit">
-                <i class="bi bi-check-circle me-1"></i> Concluir Matrícula
-            </button>
-</div>
-            </form>
-        </section>
+                                <div class="col-md-6">
+                                    <label for="responsavel" class="form-label">Responsável Legal (Caso menor):</label>
+                                    <input type="text" class="form-control" id="responsavel" name="responsavel" placeholder="Nome do pai ou responsável">
+                                </div>
+
+                                <div class="col-12">
+                                    <label for="observacao" class="form-label">Observações Médicas / Alergias:</label>
+                                    <textarea class="form-control" id="observacao" name="observacao" rows="2" placeholder="Ex: Alérgico a dipirona, lesão antiga no joelho..."></textarea>
+                                </div> 
+
+                                <!-- Modalidades Inline com Bootstrap Grid -->
+                                <?php for ($numeroModalidade = 1; $numeroModalidade <= 3; $numeroModalidade++): ?>
+                                    <div class="col-md-4">
+                                        <label for="id_modalidade_<?= $numeroModalidade; ?>" class="form-label">
+                                            Modalidade <?= $numeroModalidade; ?><?=$numeroModalidade === 1 ? ' <span class="text-danger">*</span>' : ' (opcional)'; ?>
+                                        </label>
+                                        <select class="form-select" id="id_modalidade_<?= $numeroModalidade; ?>" name="id_modalidades[]" <?= $numeroModalidade === 1 ? 'required' : ''; ?>>
+                                            <option value="">Selecione...</option>
+                                            <?php foreach ($modalidades as$modalidade): ?>
+                                                <option value="<?= (int)$modalidade['id_modalidade']; ?>">
+                                                    <?= htmlspecialchars($modalidade['nome'], ENT_QUOTES, 'UTF-8'); ?>
+                                                </option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                    </div>
+                                <?php endfor; ?>
+
+                                <div class="col-12 mt-4">
+                                    <p class="form-text text-muted mb-3">Configure um plano e valor para cada modalidade selecionada.</p>
+                                    
+                                    <?php for ($numeroModalidade = 1; $numeroModalidade <= 3; $numeroModalidade++): ?>
+                                        <?php $indiceModalidade =$numeroModalidade - 1; ?>
+                                        <div class="plano-modalidade p-3 border rounded mb-3 bg-light" data-plano-modalidade="<?= $indiceModalidade; ?>" hidden>
+                                            <h4 class="h6 fw-bold mb-3">Plano da Modalidade <?= $numeroModalidade; ?></h4>
+                                            <div class="row g-3">
+                                                <div class="col-md-8">
+                                                    <label for="nome_plano_<?= $numeroModalidade; ?>" class="form-label">Plano Contratado:</label>
+                                                    <select class="form-select" id="nome_plano_<?= $numeroModalidade; ?>" name="planos[<?= $indiceModalidade; ?>][nome_plano]" disabled>
+                                                        <option value="">Selecione o plano...</option>
+                                                        <?php foreach ($opcoesPlano as $grupoPlano =>$opcoes): ?>
+                                                            <optgroup label="Planos <?= htmlspecialchars($grupoPlano, ENT_QUOTES, 'UTF-8'); ?>">
+                                                                <?php foreach ($opcoes as $valorPlanoOpcao =>$rotuloPlano): ?>
+                                                                    <option value="<?= htmlspecialchars($valorPlanoOpcao, ENT_QUOTES, 'UTF-8'); ?>">
+                                                                        <?= htmlspecialchars($rotuloPlano, ENT_QUOTES, 'UTF-8'); ?>
+                                                                    </option>
+                                                                <?php endforeach; ?>
+                                                            </optgroup>
+                                                        <?php endforeach; ?>
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <label for="valor_plano_<?= $numeroModalidade; ?>" class="form-label">Valor (R$):</label>
+                                                    <input type="number" class="form-control" step="0.01" min="0" id="valor_plano_<?= $numeroModalidade; ?>" name="planos[<?= $indiceModalidade; ?>][valor]" placeholder="Ex: 150.00" disabled>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    <?php endfor; ?>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ================= CAMPOS ESPECÍFICOS DE PROFESSOR ================= -->
+                        <div id="secao-professor" class="secao-especifica mt-4 d-none">
+                            <h3 class="fs-5 mb-3 text-primary border-bottom pb-2">Informações do Professor</h3>
+                            
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="especialidade" class="form-label">Especialidade / Arte Marcial: <span class="text-danger">*</span></label>
+                                    <select class="form-select" id="especialidade" name="especialidade">
+                                        <option value="">Selecione a especialidade...</option>
+                                        <?php foreach ($modalidades as$mod): ?>
+                                            <option value="<?= htmlspecialchars($mod['nome']); ?>"><?= htmlspecialchars($mod['nome']); ?></option>
+                                        <?php endforeach; ?>
+                                        <option value="Outras">Outras</option>
+                                    </select>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="data_admissao" class="form-label">Data de Admissão: <span class="text-danger">*</span></label>
+                                    <input type="date" class="form-control" id="data_admissao" name="data_admissao" value="<?= date('Y-m-d'); ?>">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- BOTÕES DE AÇÃO -->
+                        <div class="col-12 mt-4 d-flex gap-3 justify-content-center align-items-center">
+                            <a href="listar_usuarios.php" class="btn btn-secondary px-4 m-0 w-auto">Cancelar</a>
+                            <button type="submit" class="btn btn-success px-4 m-0 w-auto" id="btn-submit">
+                                <i class="bi bi-check-circle me-1"></i> Concluir Matrícula
+                            </button>
+                        </div>
+                    </form>
+                </section>
+            </div>
+        </div>
     </main>
 
     <?php include '../includes/footer.php'; ?>

@@ -367,52 +367,49 @@ $kpis = $usuarioDAO->buscarIndicadoresGerente($idAcademia);
 
             <div class="gerente-section-header">
                 <div>
-                    <h3 class="gerente-section-title">Resumo financeiro</h3>
-                    <p class="gerente-section-subtitle">
-                        Área preparada para receber os dados reais do banco.
-                    </p>
+                <h3 class="gerente-section-title">Resumo financeiro</h3>
+                <p class="gerente-section-subtitle">
+                Situação atual das mensalidades da academia.</p>
                 </div>
             </div>
 
             <div class="gerente-finance-box">
-
                 <div class="gerente-panel">
-                    <h4 class="gerente-panel-title">Situação das mensalidades</h4>
+            <h4 class="gerente-panel-title">Situação das mensalidades</h4>
 
-                    <div class="gerente-status-row">
-                        <span>Pagamentos realizados</span>
-                        <span class="gerente-status-value">—</span>
-                    </div>
-
-                    <div class="gerente-status-row">
-                        <span>Pagamentos pendentes</span>
-                        <span class="gerente-status-value"><?= $kpis['pagamentos_pendentes'] ?></span>
-                    </div>
-
-                    <div class="gerente-status-row">
-                        <span>Pagamentos em atraso</span>
-                        <span class="gerente-status-value">—</span>
-                    </div>
-                </div>
-
-                <div class="gerente-panel gerente-panel-reports">
-                    <h4 class="gerente-panel-title">Relatórios</h4>
-
-                    <p class="gerente-section-subtitle mb-3">
-                        Consulte os dados consolidados da academia.
-                    </p>
-
-                    <div class="gerente-panel-action">
-                        <a href="relatorio_financeiro.php" class="btn gerente-btn">
-                            <i class="bi bi-bar-chart me-2"></i>
-                            Emitir relatórios
-                        </a>
-                    </div>
-                </div>
-
+            <div class="gerente-status-row">
+                <span>Pagamentos realizados</span>
+                <span class="gerente-status-value"><?= $kpis['pagamentos_realizados'] ?? '0' ?></span>
             </div>
-        </section>
 
+            <div class="gerente-status-row">
+                <span>Pagamentos pendentes</span>
+                <span class="gerente-status-value"><?= $kpis['pagamentos_pendentes'] ?? '0' ?></span>
+            </div>
+
+            <div class="gerente-status-row">
+                <span>Pagamentos em atraso</span>
+                <span class="gerente-status-value"><?= $kpis['pagamentos_em_atraso'] ?? '0' ?></span>
+            </div>
+        </div>
+
+        <div class="gerente-panel gerente-panel-reports">
+            <h4 class="gerente-panel-title">Relatórios Financeiros</h4>
+
+            <p class="gerente-section-subtitle mb-3">
+                Consulte os dados financeiros consolidados da academia.
+            </p>
+
+            <div class="gerente-panel-action">
+                <a href="relatorio_financeiro.php" class="btn gerente-btn">
+                    <i class="bi bi-bar-chart me-2"></i>
+                    Emitir relatórios
+                </a>
+            </div>
+        </div>
+
+    </div>
+    </section>
     </main>
 
     <?php include '../includes/footer.php'; ?>

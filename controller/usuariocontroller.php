@@ -187,11 +187,11 @@ class UsuarioController {
             $sqlPlano = "INSERT INTO plano (id_usuario_aluno, id_modalidade, nome_plano, valor, data_inicio, data_fim, status)
                        VALUES (:id_usuario_aluno, :id_modalidade, :nome_plano, :valor, CURDATE(), DATE_ADD(CURDATE(), INTERVAL 1 MONTH), 'ATIVO')";
             $stmtPlano = $pdo->prepare($sqlPlano);
-            $totalPlanos = array_sum(array_column($planosPorIndice, 'valor'));
+
             $sqlPagamento = "INSERT INTO pagamento (id_plano_matricula, valor, data_vencimento, status)
                              VALUES (:id_plano_matricula, :valor, DATE_ADD(CURDATE(), INTERVAL 10 DAY), 'PENDENTE')";
             $stmtPagamento = $pdo->prepare($sqlPagamento);
-            $idPlanoCobranca = null;
+
             foreach ($idsModalidades as $indice => $idModalidadeSelecionada) {
                 $plano = $planosPorIndice[$indice];
                 $stmtPlano->execute([
@@ -200,12 +200,12 @@ class UsuarioController {
                     ':nome_plano'       => $plano['nome_plano'],
                     ':valor'            => $plano['valor']
                 ]);
-                $idPlanoCobranca = (int)$pdo->lastInsertId();
-            }
-            if ($idPlanoCobranca !== null) {
+                $idPlanoCriado = (int)$pdo->lastInsertId();
+
+                // Cria um registo de pagamento individual para cada plano/modalidade
                 $stmtPagamento->execute([
-                    ':id_plano_matricula' => $idPlanoCobranca,
-                    ':valor' => $totalPlanos,
+                    ':id_plano_matricula' => $idPlanoCriado,
+                    ':valor' => $plano['valor']
                 ]);
             }
 
@@ -344,21 +344,52 @@ class UsuarioController {
             $observacao    = !empty($_POST['observacao']) ? trim($_POST['observacao']) : null;
             $status        = $_POST['status'] ?? 'ATIVO';
 
-            $nomePlano     = trim($_POST['nome_plano'] ?? '');
-            $idsModalidades = $_POST['id_modalidades'] ?? [];
-            $idsModalidades = is_array($idsModalidades)
-                ? array_values(array_unique(array_filter(array_map(
-                    static fn ($id): int => filter_var($id, FILTER_VALIDATE_INT) ?: 0,
-                    $idsModalidades
-                ), static fn (int $id): bool => $id > 0)))
-                : [];
-            $valorPlanoStr = $_POST['valor_plano'] ?? '0';
-            $valorPlanoStr = str_replace(',', '.', $valorPlanoStr);
-            $valorPlano    = (float)$valorPlanoStr;
+            $modalidadesPost = $_POST['id_modalidades'] ?? [];
+            $planosPost = $_POST['planos'] ?? [];
+            $idsModalidades = [];
+            $planosPorIndice = [];
+            $modalidadesJaSelecionadas = [];
+
+            if (!is_array($modalidadesPost) || !is_array($planosPost)) {
+                throw new InvalidArgumentException('modalidade_invalida');
+            }
+
+            foreach ($modalidadesPost as $indice => $idModalidade) {
+                $indiceValido = filter_var((string)$indice, FILTER_VALIDATE_INT);
+                $idModalidade = is_scalar($idModalidade)
+                    ? filter_var($idModalidade, FILTER_VALIDATE_INT)
+                    : false;
+                if ($idModalidade === false || $idModalidade < 1) {
+                    continue;
+                }
+                if ($indiceValido === false || $indiceValido < 0 || $indiceValido > 2 || in_array($idModalidade, $modalidadesJaSelecionadas, true)) {
+                    throw new InvalidArgumentException('modalidade_invalida');
+                }
+
+                $dadosPlano = $planosPost[$indice] ?? null;
+                $nomePlano = is_array($dadosPlano) && is_scalar($dadosPlano['nome_plano'] ?? null)
+                    ? trim((string)$dadosPlano['nome_plano'])
+                    : '';
+                $valorPlanoStr = is_array($dadosPlano) && is_scalar($dadosPlano['valor'] ?? null)
+                    ? str_replace(',', '.', trim((string)$dadosPlano['valor']))
+                    : '';
+
+                if ($nomePlano === '' || !is_numeric($valorPlanoStr) || (float)$valorPlanoStr < 0) {
+                    throw new InvalidArgumentException('plano_invalido');
+                }
+
+                $idsModalidades[$indiceValido] = (int)$idModalidade;
+                $planosPorIndice[$indiceValido] = [
+                    'nome_plano' => $nomePlano,
+                    'valor' => (float)$valorPlanoStr,
+                ];
+                $modalidadesJaSelecionadas[] = (int)$idModalidade;
+            }
 
             if (
-                !$idUsuario || empty($idAcademia) || empty($nome) || !$email || empty($nomePlano)
-                || count($idsModalidades) < 1 || count($idsModalidades) > 3
+                !$idUsuario || empty($idAcademia) || empty($nome) || !$email 
+                || count($idsModalidades) < 1 || count($idsModalidades) > 3 
+                || !array_key_exists(0, $idsModalidades)
             ) {
                 throw new Exception("Preencha todos os campos obrigatórios corretamente.");
             }
@@ -388,52 +419,58 @@ class UsuarioController {
                 ':id_academia' => $idAcademia
             ]);
 
-            $stmtPlanos = $pdo->prepare("
+            $stmtPlanosAtivos = $pdo->prepare("
                 SELECT id_plano, id_modalidade
                 FROM plano
                 WHERE id_usuario_aluno = :id_usuario_aluno AND status = 'ATIVO'
                 ORDER BY id_plano ASC
             ");
-            $stmtPlanos->execute([':id_usuario_aluno' => $idUsuario]);
-            $planosPorModalidade = [];
-            foreach ($stmtPlanos->fetchAll(PDO::FETCH_ASSOC) as $planoAtivo) {
-                $planosPorModalidade[(int)$planoAtivo['id_modalidade']] = (int)$planoAtivo['id_plano'];
-            }
+            $stmtPlanosAtivos->execute([':id_usuario_aluno' => $idUsuario]);
+            $planosAtivosBanco = $stmtPlanosAtivos->fetchAll(PDO::FETCH_ASSOC);
 
             $stmtAtualizarPlano = $pdo->prepare("
-                UPDATE plano SET nome_plano = :nome_plano, valor = :valor
+                UPDATE plano SET id_modalidade = :id_modalidade, nome_plano = :nome_plano, valor = :valor
                 WHERE id_plano = :id_plano
             ");
+            
             $stmtNovoPlano = $pdo->prepare("
                 INSERT INTO plano (id_usuario_aluno, id_modalidade, nome_plano, valor, data_inicio, data_fim, status)
                 VALUES (:id_usuario_aluno, :id_modalidade, :nome_plano, :valor, CURDATE(), DATE_ADD(CURDATE(), INTERVAL 1 MONTH), 'ATIVO')
             ");
-            foreach ($idsModalidades as $idModalidadeSelecionada) {
-                if (isset($planosPorModalidade[$idModalidadeSelecionada])) {
-                    $stmtAtualizarPlano->execute([
-                        ':nome_plano' => $nomePlano,
-                        ':valor' => $valorPlano,
-                        ':id_plano' => $planosPorModalidade[$idModalidadeSelecionada],
-                    ]);
-                    unset($planosPorModalidade[$idModalidadeSelecionada]);
-                    continue;
-                }
 
-                $stmtNovoPlano->execute([
-                    ':id_usuario_aluno' => $idUsuario,
-                    ':id_modalidade' => $idModalidadeSelecionada,
-                    ':nome_plano' => $nomePlano,
-                    ':valor' => $valorPlano,
-                ]);
+            $indicesModalidades = array_keys($idsModalidades);
+            
+            foreach ($indicesModalidades as $posicao) {
+                $idModSel = $idsModalidades[$posicao];
+                $dadosPlanoModalidade = $planosPorIndice[$posicao];
+
+                if (isset($planosAtivosBanco[$posicao])) {
+                    $idPlanoExistente = $planosAtivosBanco[$posicao]['id_plano'];
+                    $stmtAtualizarPlano->execute([
+                        ':id_modalidade' => $idModSel,
+                        ':nome_plano'    => $dadosPlanoModalidade['nome_plano'],
+                        ':valor'         => $dadosPlanoModalidade['valor'],
+                        ':id_plano'      => $idPlanoExistente
+                    ]);
+                    unset($planosAtivosBanco[$posicao]);
+                } else {
+                    $stmtNovoPlano->execute([
+                        ':id_usuario_aluno' => $idUsuario,
+                        ':id_modalidade'    => $idModSel,
+                        ':nome_plano'       => $dadosPlanoModalidade['nome_plano'],
+                        ':valor'            => $dadosPlanoModalidade['valor']
+                    ]);
+                }
             }
 
-            if ($planosPorModalidade !== []) {
-                $placeholders = implode(',', array_fill(0, count($planosPorModalidade), '?'));
+            if (!empty($planosAtivosBanco)) {
+                $idsParaCancelar = array_column($planosAtivosBanco, 'id_plano');
+                $placeholders = implode(',', array_fill(0, count($idsParaCancelar), '?'));
                 $stmtCancelarPlanos = $pdo->prepare("
                     UPDATE plano SET status = 'CANCELADO', data_fim = CURDATE()
                     WHERE id_plano IN ($placeholders)
                 ");
-                $stmtCancelarPlanos->execute(array_values($planosPorModalidade));
+                $stmtCancelarPlanos->execute($idsParaCancelar);
             }
 
             $pdo->commit();

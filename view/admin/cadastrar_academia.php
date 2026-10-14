@@ -47,100 +47,104 @@ if (!isset($_SESSION['usuario']) || $_SESSION['usuario']['perfil_id'] != 1) {
     </header>
 
     <main class="container my-4">
-        <header class="d-flex justify-content-between align-items-center mb-4">
-            <div>
-                <a href="listar_academias_gerentes.php" class="btn btn-dark btn-sm">
-                    <i class="bi bi-arrow-left me-1"></i> Gestão de Academias & Gerentes
-                </a>
-            </div>
-        </header>
-
-        <section class="card shadow-sm border-0 p-4">
-            <?php if (isset($_GET['erro'])): ?>
-                <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                    Erro ao cadastrar. Verifique os dados fornecidos ou se o documento já está cadastrado.
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            <?php endif; ?>
-
-            <div class="mb-4">
-                <h2 class="fs-4 fw-bold">Cadastrar Nova Academia</h2>
-                <p class="text-muted">Cadastrar uma nova academia no sistema.</p>
-            </div>
-
-            <form action="../../controller/AcademiaController.php" method="POST" data-cep-form autocomplete="off" class="w-100 mw-100 p-0 m-0 border-0 shadow-none bg-transparent">
-                <input type="hidden" name="acao" value="cadastrar">
-                
-                <div class="row g-3">
-                    <div class="col-12">
-                        <label for="nome" class="form-label">Nome da Academia: <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="nome" name="nome" required>
+        <div class="row justify-content-center">
+            <div class="col-lg-9 col-xl-8">
+                <header class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <a href="listar_academias_gerentes.php" class="btn btn-dark btn-sm">
+                            <i class="bi bi-arrow-left me-1"></i> Gestão de Academias & Gerentes
+                        </a>
                     </div>
+                </header>
 
-                    <div class="col-12">
-                        <label for="documento" class="form-label">Documento (CNPJ ou CPF do responsável): <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="documento" name="documento" placeholder="Apenas números" required>
-                    </div>
-
-                    <div class="col-md-4">
-                        <label for="cep" class="form-label">CEP: <span class="text-danger">*</span></label>
-                        <div class="input-group">
-                            <input type="text" class="form-control" id="cep" name="cep" inputmode="numeric" autocomplete="postal-code" maxlength="9" pattern="[0-9]{5}-?[0-9]{3}" placeholder="00000-000" required>
-                            <button type="button" class="btn btn-outline-secondary" data-cep-lookup>Buscar CEP</button>
+                <section class="card shadow-sm border-0 p-4">
+                    <?php if (isset($_GET['erro'])): ?>
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            Erro ao cadastrar. Verifique os dados fornecidos ou se o documento já está cadastrado.
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>
-                        <p id="cep-status" class="form-text text-muted mb-0" aria-live="polite"></p>
+                    <?php endif; ?>
+
+                    <div class="mb-4">
+                        <h2 class="fs-4 fw-bold">Cadastrar Nova Academia</h2>
+                        <p class="text-muted">Cadastrar uma nova academia no sistema.</p>
                     </div>
 
-                    <div class="col-md-8">
-                        <label for="endereco" class="form-label">Endereço: <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="endereco" name="endereco" autocomplete="street-address" maxlength="100" required>
-                    </div>
+                    <form action="../../controller/AcademiaController.php" method="POST" data-cep-form autocomplete="off" class="w-100 mw-100 p-0 m-0 border-0 shadow-none bg-transparent">
+                        <input type="hidden" name="acao" value="cadastrar">
+                        
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label for="nome" class="form-label">Nome da Academia: <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="nome" name="nome" required>
+                            </div>
 
-                    <div class="col-md-8">
-                        <label for="cidade" class="form-label">Cidade: <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="cidade" name="cidade" autocomplete="address-level2" maxlength="100" required>
-                    </div>
+                            <div class="col-12">
+                                <label for="documento" class="form-label">Documento (CNPJ ou CPF do responsável): <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="documento" name="documento" placeholder="000.000.000-00 ou 00.000.000/0000-00" maxlength="18" required>
+                            </div>
 
-                    <div class="col-md-4">
-                        <label for="estado" class="form-label">Estado (UF): <span class="text-danger">*</span></label>
-                        <select class="form-select" id="estado" name="estado" autocomplete="off" required>
-                            <option value="" selected>Selecione o estado...</option>
-                            <option value="AC">AC</option><option value="AL">AL</option>
-                            <option value="AP">AP</option><option value="AM">AM</option>
-                            <option value="BA">BA</option><option value="CE">CE</option>
-                            <option value="DF">DF</option><option value="ES">ES</option>
-                            <option value="GO">GO</option><option value="MA">MA</option>
-                            <option value="MT">MT</option><option value="MS">MS</option>
-                            <option value="MG">MG</option><option value="PA">PA</option>
-                            <option value="PB">PB</option><option value="PR">PR</option>
-                            <option value="PE">PE</option><option value="PI">PI</option>
-                            <option value="RJ">RJ</option><option value="RN">RN</option>
-                            <option value="RS">RS</option><option value="RO">RO</option>
-                            <option value="RR">RR</option><option value="SC">SC</option>
-                            <option value="SP">SP</option><option value="SE">SE</option>
-                            <option value="TO">TO</option>
-                        </select>
-                    </div>
+                            <div class="col-md-4">
+                                <label for="cep" class="form-label">CEP: <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="cep" name="cep" inputmode="numeric" autocomplete="postal-code" maxlength="9" pattern="[0-9]{5}-?[0-9]{3}" placeholder="00000-000" required>
+                                    <button type="button" class="btn btn-outline-secondary" data-cep-lookup>Buscar CEP</button>
+                                </div>
+                                <p id="cep-status" class="form-text text-muted mb-0" aria-live="polite"></p>
+                            </div>
 
-                    <div class="col-md-6">
-                        <label for="telefone" class="form-label">Telefone: <span class="text-danger">*</span></label>
-                        <input type="tel" class="form-control" id="telefone" name="telefone" pattern="\([0-9]{2}\) [0-9]{4,5}-[0-9]{4}" required>
-                    </div>
+                            <div class="col-md-8">
+                                <label for="endereco" class="form-label">Endereço: <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="endereco" name="endereco" autocomplete="street-address" maxlength="100" required>
+                            </div>
 
-                    <div class="col-md-6">
-                        <label for="email" class="form-label">E-mail de Contato: <span class="text-danger">*</span></label>
-                        <input type="email" class="form-control" id="email" name="email" required>
-                    </div>
+                            <div class="col-md-8">
+                                <label for="cidade" class="form-label">Cidade: <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="cidade" name="cidade" autocomplete="address-level2" maxlength="100" required>
+                            </div>
 
-                    <div class="col-12 mt-4 d-flex gap-3 justify-content-center align-items-center">
-                        <a href="home_admin.php" class="btn btn-secondary px-4 m-0 w-auto">Cancelar</a>
-                        <button type="submit" class="btn btn-success px-4 m-0 w-auto">
-                            <i class="bi bi-check-circle me-1"></i> Cadastrar Academia
-                        </button>
-                    </div>
-                </div>
-            </form>
-        </section>
+                            <div class="col-md-4">
+                                <label for="estado" class="form-label">Estado (UF): <span class="text-danger">*</span></label>
+                                <select class="form-select" id="estado" name="estado" autocomplete="off" required>
+                                    <option value="" selected>Selecione o estado...</option>
+                                    <option value="AC">AC</option><option value="AL">AL</option>
+                                    <option value="AP">AP</option><option value="AM">AM</option>
+                                    <option value="BA">BA</option><option value="CE">CE</option>
+                                    <option value="DF">DF</option><option value="ES">ES</option>
+                                    <option value="GO">GO</option><option value="MA">MA</option>
+                                    <option value="MT">MT</option><option value="MS">MS</option>
+                                    <option value="MG">MG</option><option value="PA">PA</option>
+                                    <option value="PB">PB</option><option value="PR">PR</option>
+                                    <option value="PE">PE</option><option value="PI">PI</option>
+                                    <option value="RJ">RJ</option><option value="RN">RN</option>
+                                    <option value="RS">RS</option><option value="RO">RO</option>
+                                    <option value="RR">RR</option><option value="SC">SC</option>
+                                    <option value="SP">SP</option><option value="SE">SE</option>
+                                    <option value="TO">TO</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="telefone" class="form-label">Telefone: <span class="text-danger">*</span></label>
+                                <input type="tel" class="form-control" id="telefone" name="telefone" inputmode="numeric" maxlength="15" pattern="\([0-9]{2}\) [0-9]{4,5}-[0-9]{4}" placeholder="(61) 98888-7777" required>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="email" class="form-label">E-mail de Contato: <span class="text-danger">*</span></label>
+                                <input type="email" class="form-control" id="email" name="email" required>
+                            </div>
+
+                            <div class="col-12 mt-4 d-flex gap-3 justify-content-center align-items-center">
+                                <a href="home_admin.php" class="btn btn-secondary px-4 m-0 w-auto">Cancelar</a>
+                                <button type="submit" class="btn btn-success px-4 m-0 w-auto">
+                                    <i class="bi bi-check-circle me-1"></i> Cadastrar Academia
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </section>
+            </div>
+        </div>
     </main>
 
     <footer class="footer">
@@ -149,5 +153,72 @@ if (!isset($_SESSION['usuario']) || $_SESSION['usuario']['perfil_id'] != 1) {
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="../../assets/js/cep.js" defer></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const telefone = document.getElementById('telefone');
+            const documento = document.getElementById('documento');
+
+            if (telefone) {
+                telefone.addEventListener('input', function () {
+                    const posicaoOriginal = telefone.selectionStart ?? telefone.value.length;
+                    const digitosAntesDoCursor = telefone.value.slice(0, posicaoOriginal).replace(/\D/g, '').length;
+                    const digitos = telefone.value.replace(/\D/g, '').slice(0, 11);
+                    const tamanhoNumero = digitos.length > 10 ? 5 : 4;
+                    let telefoneFormatado = digitos ? '(' + digitos.slice(0, 2) : '';
+
+                    if (digitos.length > 2) {
+                        telefoneFormatado += ') ' + digitos.slice(2, 2 + tamanhoNumero);
+                    }
+                    if (digitos.length > 2 + tamanhoNumero) {
+                        telefoneFormatado += '-' + digitos.slice(2 + tamanhoNumero);
+                    }
+
+                    telefone.value = telefoneFormatado;
+                    let novaPosicao = 0;
+                    let digitosContados = 0;
+                    while (novaPosicao < telefoneFormatado.length && digitosContados < digitosAntesDoCursor) {
+                        if (/\d/.test(telefoneFormatado[novaPosicao])) {
+                            digitosContados++;
+                        }
+                        novaPosicao++;
+                    }
+                    telefone.setSelectionRange(novaPosicao, novaPosicao);
+                });
+            }
+
+            if (documento) {
+                documento.addEventListener('input', function () {
+                    const posicaoOriginal = documento.selectionStart ?? documento.value.length;
+                    const digitosAntesDoCursor = documento.value.slice(0, posicaoOriginal).replace(/\D/g, '').length;
+                    let digitos = documento.value.replace(/\D/g, '').slice(0, 14);
+                    let documentoFormatado = '';
+
+                    if (digitos.length <= 11) {
+                        if (digitos.length > 0) documentoFormatado = digitos.slice(0, 3);
+                        if (digitos.length >= 4) documentoFormatado += '.' + digitos.slice(3, 6);
+                        if (digitos.length >= 7) documentoFormatado += '.' + digitos.slice(6, 9);
+                        if (digitos.length >= 10) documentoFormatado += '-' + digitos.slice(9, 11);
+                    } else {
+                        documentoFormatado = digitos.slice(0, 2);
+                        if (digitos.length >= 3) documentoFormatado += '.' + digitos.slice(2, 5);
+                        if (digitos.length >= 6) documentoFormatado += '.' + digitos.slice(5, 8);
+                        if (digitos.length >= 9) documentoFormatado += '/' + digitos.slice(8, 12);
+                        if (digitos.length >= 13) documentoFormatado += '-' + digitos.slice(12, 14);
+                    }
+
+                    documento.value = documentoFormatado;
+                    let novaPosicao = 0;
+                    let digitosContados = 0;
+                    while (novaPosicao < documentoFormatado.length && digitosContados < digitosAntesDoCursor) {
+                        if (/\d/.test(documentoFormatado[novaPosicao])) {
+                            digitosContados++;
+                        }
+                        novaPosicao++;
+                    }
+                    documento.setSelectionRange(novaPosicao, novaPosicao);
+                });
+            }
+        });
+    </script>
 </body>
 </html>

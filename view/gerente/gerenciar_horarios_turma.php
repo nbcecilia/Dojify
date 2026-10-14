@@ -58,6 +58,7 @@ $horarios = $horarioDAO->listarPorTurma($idTurma);
         <section class="card shadow-sm border-0 p-4 mb-4">
             <div class="mb-4">
                 <h2>Gerenciar Horários</h2>
+                <p class="text-muted">Gestão dos horários das turmas da sua academia.</p>
                 <p class="text-muted">
                     Turma: <strong><?= htmlspecialchars($turmaAtual['nome']) ?></strong> | Modalidade: <?= htmlspecialchars($turmaAtual['modalidade_nome'] ?? '') ?>
                 </p>

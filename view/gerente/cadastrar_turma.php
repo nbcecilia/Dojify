@@ -47,7 +47,7 @@ $modalidades = $dao->listarModalidadesPorAcademia($idAcademia);
         <header class="d-flex justify-content-between align-items-center mb-4">
             <div>
                 <a href="listar_turma.php" class="btn btn-dark btn-sm">
-                    <i class="bi bi-arrow-left me-1"></i> Voltar
+                    <i class="bi bi-arrow-left me-1"></i> Gestão de Turmas
                 </a>
             </div>
         </header>
@@ -55,6 +55,7 @@ $modalidades = $dao->listarModalidadesPorAcademia($idAcademia);
         <section class="card shadow-sm border-0 p-4">
             <div class="text-center mb-4">
                 <h2 class="fs-4 fw-bold">Cadastrar Nova Turma</h2>
+                <p class="text-muted">Cadastrar nova turma na sua academia.</p>
             </div>
 
             <form action="../../controller/TurmaController.php" method="POST" class="w-100 mw-100 p-0 m-0 border-0 shadow-none bg-transparent">

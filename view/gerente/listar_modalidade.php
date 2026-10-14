@@ -38,11 +38,6 @@ $modalidades = $dao->listarPorAcademia($idAcademia);
                     <i class="bi bi-plus-circle me-1"></i> Cadastrar Modalidade
                 </a>
             </div>
-            <div>
-                <a href="home_gerente.php" class="btn btn-dark btn-sm">
-                    <i class="bi bi-arrow-left me-1"></i> Voltar ao Painel
-                </a>
-            </div>
         </header>
 
         <section class="card shadow-sm border-0 p-4">
@@ -61,7 +56,7 @@ $modalidades = $dao->listarPorAcademia($idAcademia);
             <?php endif; ?>
 
             <div class="mb-4">
-                <h2>Modalidades</h2>
+                <h2>Gestão de Modalidades</h2>
                 <p class="text-muted">Gestão das modalidades oferecidas pela academia.</p>
             </div>
 

@@ -38,11 +38,7 @@ $turmas = $dao->listarPorAcademia($idAcademia);
                     <i class="bi bi-plus-circle me-1"></i> Cadastrar Turma
                 </a>
             </div>
-            <div>
-                <a href="home_gerente.php" class="btn btn-dark btn-sm">
-                    <i class="bi bi-arrow-left me-1"></i> Voltar ao Painel
-                </a>
-            </div>
+
         </header>
 
         <section class="card shadow-sm border-0 p-4">
@@ -61,7 +57,7 @@ $turmas = $dao->listarPorAcademia($idAcademia);
             <?php endif; ?>
 
             <div class="mb-4">
-                <h2>Turmas</h2>
+                <h2>Gestão de Turmas e Horários</h2>
                 <p class="text-muted">Gestão das turmas e horários da academia.</p>
             </div>
 

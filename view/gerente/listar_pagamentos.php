@@ -15,7 +15,26 @@ require_once __DIR__ . '/../../model/dao/PagamentoDAO.php';
 
 $dao = new \PagamentoDAO();
 $idAcademia = (int) $_SESSION['id_academia'];
-$pagamentos = $dao->listarPagamentosDaAcademia($idAcademia);
+$pagamentosBrutos = $dao->listarPagamentosDaAcademia($idAcademia);
+
+// Agrupa e soma os valores por Aluno e por Mês/Ano de Vencimento
+$pagamentosAgrupados = [];
+foreach ($pagamentosBrutos as $pag) {
+    // Cria uma chave única por Aluno + Mês/Ano de Vencimento + Estado
+    $mesAno = date('Y-m', strtotime($pag['data_vencimento']));
+    $chave = $pag['aluno_nome'] . '_' . $mesAno . '_' . $pag['status'];
+
+    if (!isset($pagamentosAgrupados[$chave])) {
+        $pagamentosAgrupados[$chave] = $pag;
+        $pagamentosAgrupados[$chave]['nomes_planos'] = [$pag['nome_plano']];
+        $pagamentosAgrupados[$chave]['ids_pagamentos'] = [$pag['id_pagamento']];
+    } else {
+        $pagamentosAgrupados[$chave]['valor'] += $pag['valor'];
+        $pagamentosAgrupados[$chave]['nomes_planos'][] = $pag['nome_plano'];
+        $pagamentosAgrupados[$chave]['ids_pagamentos'][] = $pag['id_pagamento'];
+    }
+}
+$pagamentos = array_values($pagamentosAgrupados);
 ?>
 <!DOCTYPE html>
 <html lang="pt-pt">
@@ -29,6 +48,25 @@ $pagamentos = $dao->listarPagamentosDaAcademia($idAcademia);
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <!-- Estilo Global Dojify -->
     <link rel="stylesheet" href="../../assets/css/estilo.css">
+    <!-- Estilo inline auxiliar para anular o reset de formulários globais na tabela -->
+    <style>
+        .form-pagamento-inline {
+            background: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            max-width: none !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            gap: 8px !important;
+        }
+        .form-pagamento-inline button[type="submit"] {
+            width: auto !important;
+            margin: 0 !important;
+        }
+    </style>
 </head>
 <body>
 
@@ -88,16 +126,16 @@ $pagamentos = $dao->listarPagamentosDaAcademia($idAcademia);
                                 <th>Vencimento</th>
                                 <th>Valor (R$)</th>
                                 <th>Estado</th>
-                                <th>Ações / Registo</th>
+                                <th class="text-center">Ações / Registo</th>
                             </tr>
                         </thead>
                         <tbody>
                             <?php foreach ($pagamentos as $pag): ?>
                                 <tr>
                                     <td><strong><?= htmlspecialchars($pag['aluno_nome']) ?></strong></td>
-                                    <td><?= htmlspecialchars($pag['nome_plano']) ?></td>
+                                    <td><?= htmlspecialchars(implode(', ', array_unique($pag['nomes_planos']))) ?></td>
                                     <td><?= date('d/m/Y', strtotime($pag['data_vencimento'])) ?></td>
-                                    <td>R$ <?= number_format($pag['valor'], 2, ',', '.') ?></td>
+                                    <td class="fw-semibold">R$ <?= number_format($pag['valor'], 2, ',', '.') ?></td>
                                     
                                     <td>
                                         <?php if ($pag['status'] === 'PAGO'): ?>
@@ -110,21 +148,26 @@ $pagamentos = $dao->listarPagamentosDaAcademia($idAcademia);
                                         <?php endif; ?>
                                     </td>
 
-                                    <td>
+                                    <td class="text-center">
                                         <?php if ($pag['status'] !== 'PAGO'): ?>
-                                            <form action="../../controller/FinanceiroController.php" method="POST" class="p-0 m-0 border-0 shadow-none bg-transparent d-flex gap-2 align-items-center w-auto">
+                                            <form action="../../controller/FinanceiroController.php" method="POST" class="form-pagamento-inline">
                                                 
                                                 <input type="hidden" name="acao" value="baixar_pagamento">
-                                                <input type="hidden" name="id_pagamento" value="<?= $pag['id_pagamento'] ?>">
+                                                <!-- Passa todos os IDs de pagamento associados a este agrupamento -->
+                                                <input type="hidden" name="ids_pagamentos" value="<?= htmlspecialchars(implode(',', $pag['ids_pagamentos'])) ?>">
                                                 
-                                                <select name="forma_pagamento" class="form-select form-select-sm" style="width: 120px;" required>
-                                                    <option value="PIX">PIX</option>
-                                                    <option value="CARTAO_DEBITO">Cartão débito</option>
-                                                    <option value="CARTAO_CREDITO">Cartão crédito</option>
+                                                <!-- Seletor de Forma de Pagamento -->
+                                                <select name="forma_pagamento" class="form-select form-select-sm" style="width: 110px;" required>
                                                     <option value="DINHEIRO">Dinheiro</option>
+                
+                                                    <option value="OUTRO">Outro</option>
                                                 </select>
+
+                                                <!-- Calendário para marcar a data do recebimento -->
+                                                <input type="date" name="data_pagamento" class="form-control form-control-sm" style="width: 135px;" value="<?= date('Y-m-d') ?>" required title="Data do Recebimento">
                                                 
-                                                <button type="submit" class="btn btn-sm btn-success text-nowrap" onclick="return confirm('Confirmar o recebimento deste pagamento?');">
+                                                <!-- Botão Receber -->
+                                                <button type="submit" class="btn btn-sm btn-success text-nowrap px-2 py-1" onclick="return confirm('Confirmar o recebimento deste pagamento?');">
                                                     <i class="bi bi-check-circle me-1"></i> Receber
                                                 </button>
                                             </form>

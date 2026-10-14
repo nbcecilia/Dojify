@@ -52,16 +52,17 @@ if (!$modalidade) {
 
     <main class="container my-4">
         <header class="d-flex justify-content-between align-items-center mb-4">
-            <div>
-                <a href="listar_modalidade.php" class="btn btn-dark btn-sm">
-                    <i class="bi bi-arrow-left me-1"></i> Voltar
-                </a>
-            </div>
+                <div>
+                    <a href="listar_modalidade.php" class="btn btn-dark btn-sm">
+                        <i class="bi bi-arrow-left me-1"></i> Gestão de Modalidades
+                    </a>
+                </div>
         </header>
 
         <section class="card shadow-sm border-0 p-4">
-            <div class="text-center mb-4">
+            <div class="mb-4">
                 <h2 class="fs-4 fw-bold">Editar Modalidade</h2>
+                <p class="text-muted">Edite a modalidade oferecida pela sua academia.</p>
             </div>
 
             <?php if (isset($_GET['erro'])): ?>

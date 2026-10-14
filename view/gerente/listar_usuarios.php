@@ -50,8 +50,8 @@ foreach ($usuarios as $u) {
     <main class="container my-4">
         <header class="d-flex justify-content-between align-items-center mb-4">
             <div>
-                <a href="home_gerente.php" class="btn btn-dark btn-sm">
-                    <i class="bi bi-arrow-left me-1"></i> Voltar ao Painel
+                <a href="cadastrar_aluno_prof.php" class="btn btn-success">
+                    <i class="bi bi-plus-circle me-1"></i> Cadastrar Novo Usuário
                 </a>
             </div>
         </header>

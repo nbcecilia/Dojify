@@ -47,7 +47,7 @@ class PlanoDAO {
         }
     }
 
-    public function excluir($id) {
+    public function excluir(int $id) {
         try {
             $pdo = Conexao::getConexao();
             $sql = "DELETE FROM plano WHERE id_plano = :id";
@@ -59,12 +59,13 @@ class PlanoDAO {
         }
     }
 
-    public function buscarPorId($id, $idAcademia) {
+    public function buscarPorId(int $id, int $idAcademia) {
         try {
             $pdo = Conexao::getConexao();
-            $sql = "SELECT p.*, u.nome AS aluno_nome 
+            $sql = "SELECT p.*, u.nome AS aluno_nome, m.nome AS modalidade_nome 
                     FROM plano p 
                     INNER JOIN usuario u ON p.id_usuario_aluno = u.id_usuario 
+                    LEFT JOIN modalidade m ON p.id_modalidade = m.id_modalidade
                     WHERE p.id_plano = :id AND u.id_academia = :id_academia";
             $stmt = $pdo->prepare($sql);
             $stmt->bindValue(':id', $id, PDO::PARAM_INT);
@@ -76,14 +77,15 @@ class PlanoDAO {
         }
     }
 
-    public function listarPorAcademia($idAcademia) {
+    public function listarPorAcademia(int $idAcademia) {
         try {
             $pdo = Conexao::getConexao();
-            $sql = "SELECT p.*, u.nome AS aluno_nome 
+            $sql = "SELECT p.*, u.nome AS aluno_nome, m.nome AS modalidade_nome 
                     FROM plano p 
                     INNER JOIN usuario u ON p.id_usuario_aluno = u.id_usuario 
+                    LEFT JOIN modalidade m ON p.id_modalidade = m.id_modalidade
                     WHERE u.id_academia = :id_academia 
-                    ORDER BY p.data_inicio DESC";
+                    ORDER BY u.nome ASC, p.data_inicio DESC";
             $stmt = $pdo->prepare($sql);
             $stmt->bindValue(':id_academia', $idAcademia, PDO::PARAM_INT);
             $stmt->execute();
@@ -93,10 +95,9 @@ class PlanoDAO {
         }
     }
 
-    public function listarAlunosPorAcademia($idAcademia) {
+    public function listarAlunosPorAcademia(int $idAcademia) {
         try {
             $pdo = Conexao::getConexao();
-            // Corrigido para perfil_id = 4 (Alunos)
             $sql = "SELECT id_usuario, nome FROM usuario WHERE id_academia = :id_academia AND perfil_id = 4 ORDER BY nome";
             $stmt = $pdo->prepare($sql);
             $stmt->bindValue(':id_academia', $idAcademia, PDO::PARAM_INT);
