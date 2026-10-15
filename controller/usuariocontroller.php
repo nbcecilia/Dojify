@@ -220,6 +220,12 @@ class UsuarioController {
             error_log('Falha ao cadastrar aluno: ' . $e->getMessage());
             if ($e instanceof InvalidArgumentException) {
                 $erro = $e->getMessage() === 'plano_invalido' ? 'plano_invalido' : 'modalidade_invalida';
+            } elseif (
+                $e instanceof PDOException
+                && (int)($e->errorInfo[1] ?? 0) === 1062
+                && preg_match("/for key ['`](?:[^'`]*[.])?(cpf|email)(?:_UNIQUE)?['`]/i", $e->getMessage(), $duplicidade)
+            ) {
+                $erro = strtolower($duplicidade[1]) . '_duplicado';
             } else {
                 $erro = 'falha_cadastro';
             }

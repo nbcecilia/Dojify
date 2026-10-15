@@ -92,7 +92,7 @@ if (($_GET['sucesso'] ?? '') === 'comprovante') {
         'metodo_invalido' => 'Não foi possível processar a solicitação. Atualize a página e tente novamente.',
         'acao_invalida' => 'Ação de agendamento inválida.',
         'dados_invalidos' => 'Os dados da aula são inválidos. Atualize a página e tente novamente.',
-        'data_passada' => 'Não é possível agendar uma aula que já começou ou já passou.',
+        'data_passada' => 'O agendamento deve ser feito com pelo menos 30 minutos de antecedência.',
         'agendamento_duplicado' => 'Você já está agendado nesta turma para este dia!',
         'turma_lotada' => 'Turma lotada! Não há vagas disponíveis para este horário.',
         'limite_semanal' => 'Limite semanal do seu plano atingido.',
@@ -840,7 +840,10 @@ try {
             <?php $cardPagamentoHtml = ob_get_clean(); ?>
             <?= str_replace('<!-- ALUNO-PAYMENT-CARD -->', $cardPagamentoHtml, $progressoAlunoHtml); ?>
 
-            <?php $modaisAgendamento = []; ?>
+            <?php
+                $modaisAgendamento = [];
+                $limiteAgendamento = (new DateTime('now', new DateTimeZone('America/Sao_Paulo')))->modify('+30 minutes');
+            ?>
             <!-- CALENDÁRIO SEMANAL COMPACTO -->
             <section class="card shadow-sm border p-3 mb-4 aluno-dashboard-panel aluno-agenda-panel" aria-labelledby="agendaSemanalTitulo">
                 <h2 id="agendaSemanalTitulo" class="aluno-dashboard-section-title">AGENDA SEMANAL DE TREINOS</h2>
@@ -891,8 +894,8 @@ try {
                                             ?>
                                             <?php if (!$horarioValido): ?>
                                                 <span class="badge bg-secondary w-100">Horário indisponível</span>
-                                            <?php elseif ($dataHoraAula <= new DateTime()): ?>
-                                                <span class="badge bg-secondary w-100">Horário encerrado</span>
+                                            <?php elseif ($dataHoraAula < $limiteAgendamento): ?>
+                                                <span class="badge bg-secondary w-100">Agendamento encerrado (mín. 30 min antes)</span>
                                             <?php elseif (isset($reservasPorAula[(int)$aula['id_turma'] . '|' . $dia['data_iso']])): ?>
                                                 <button type="button" class="btn btn-success btn-sm w-100 fw-bold border-0" style="font-size: 0.75rem; padding: 4px 0;" disabled aria-pressed="true">
                                                     Agendado

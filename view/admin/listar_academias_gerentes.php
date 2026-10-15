@@ -56,6 +56,7 @@ foreach ($lista as $linha) {
         
         <div class="navbar-user">
             <span class="user-greeting">Logado como: <strong><?= htmlspecialchars($_SESSION['usuario']['nome']) ?></strong></span>
+            <a href="../alterar_senha.php" class="btn btn-sm btn-voltar">Alterar senha</a>
              <a
                 href="../../controller/LoginController.php?acao=logout"
                 class="btn btn-sm btn-danger header-logout-button"

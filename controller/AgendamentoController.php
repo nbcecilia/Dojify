@@ -60,7 +60,8 @@ class AgendamentoController
         }
 
         $data_formatada = (string)$data_escolhida . ' ' . $hora_aula;
-        $data_obj = DateTime::createFromFormat('!Y-m-d H:i:s', $data_formatada);
+        $fusoHorario = new DateTimeZone('America/Sao_Paulo');
+        $data_obj = DateTime::createFromFormat('!Y-m-d H:i:s', $data_formatada, $fusoHorario);
         $errosData = DateTime::getLastErrors();
         $dataValida = $data_obj !== false
             && preg_match('/^(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d$/', $hora_aula)
@@ -70,7 +71,9 @@ class AgendamentoController
             $this->redirecionarParaHome('erro=dados_invalidos');
         }
 
-        if ($data_obj <= new DateTime()) {
+        $limiteAgendamento = new DateTime('now', $fusoHorario);
+        $limiteAgendamento->modify('+30 minutes');
+        if ($data_obj < $limiteAgendamento) {
             $this->redirecionarParaHome('erro=data_passada');
         }
 

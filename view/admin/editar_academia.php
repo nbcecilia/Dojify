@@ -42,6 +42,7 @@ if (!$academia) {
         
         <div class="navbar-user">
             <span class="user-greeting">Olá, <strong><?= htmlspecialchars($_SESSION['usuario']['nome']) ?></strong></span>
+            <a href="../alterar_senha.php" class="btn btn-sm btn-voltar">Alterar senha</a>
             <a href="home_admin.php" class="btn btn-sm btn-voltar">Voltar</a>
             <a href="../../controller/UsuarioController.php?acao=logout" class="btn btn-sm btn-danger">Sair</a>
         </div>

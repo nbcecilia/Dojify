@@ -32,6 +32,7 @@ if (!isset($_SESSION['usuario']) || $_SESSION['usuario']['perfil_id'] != 1) {
         
         <div class="navbar-user">
             <span class="user-greeting">Olá, <strong><?= htmlspecialchars($_SESSION['usuario']['nome']) ?></strong></span>
+                <a href="../alterar_senha.php" class="btn btn-sm btn-voltar">Alterar senha</a>
                 <a
                 href="../../controller/LoginController.php?acao=logout"
                 class="btn btn-sm btn-danger header-logout-button"

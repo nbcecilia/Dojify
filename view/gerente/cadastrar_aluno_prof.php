@@ -425,6 +425,8 @@ $modalidades =$modalidadeDAO->listarPorAcademia($idAcademia);$opcoesPlano = [
                 let mensagem = "Ocorreu um erro ao processar o cadastro.";
                 if (erro === 'cpf_duplicado') {
                     mensagem = "⚠️ Atenção: Este CPF já se encontra registado no sistema para outro utilizador!";
+                } else if (erro === 'email_duplicado') {
+                    mensagem = "⚠️ Atenção: Este e-mail já se encontra registado no sistema. Informe outro e-mail.";
                 } else if (erro === 'modalidade_invalida') {
                     mensagem = "⚠️ Selecione até três modalidades diferentes e escolha ao menos uma.";
                 } else if (erro === 'plano_invalido') {

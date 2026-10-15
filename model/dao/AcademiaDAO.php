@@ -7,10 +7,10 @@ class AcademiaDAO {
     private PDO $conexao;
 
     public function __construct() {
-        $this->conexao = Conexao::getConexao();
+        $this->conexao = \Conexao::getConexao();
     }
 
-    public function cadastrar(AcademiaDTO $academia): bool {
+    public function cadastrar(\AcademiaDTO $academia): bool {
         try {
             $sql = "INSERT INTO academia (nome, documento, cep, endereco, cidade, estado, telefone, email)
                     VALUES (:nome, :documento, :cep, :endereco, :cidade, :estado, :telefone, :email)";
@@ -64,7 +64,7 @@ class AcademiaDAO {
         return $resultado ?: null;
     }
 
-    public function atualizar(AcademiaDTO $academia): bool {
+    public function atualizar(\AcademiaDTO $academia): bool {
         try {
             $sql = "UPDATE academia 
                     SET nome = :nome, documento = :documento, endereco = :endereco, 

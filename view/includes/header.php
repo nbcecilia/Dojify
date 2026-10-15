@@ -281,6 +281,10 @@ $total_notif_header = count($notificacoes_aluno);
                             Meu perfil
                         </a>
                     <?php endif; ?>
+                    <a class="profile-avatar-profile-link" href="../alterar_senha.php">
+                        <i class="bi bi-key" aria-hidden="true"></i>
+                        Alterar senha
+                    </a>
                     <?php if ($avatarFeedback !== null): ?>
                         <p class="profile-avatar-feedback" role="status">
                             <?= $avatarFeedback === 'sucesso'

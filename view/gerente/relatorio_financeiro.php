@@ -61,7 +61,7 @@ if (isset($_GET['filtrar'])) {
         <?php include '../includes/header.php'; ?>
     </div>
 
-    <main class="container my-4">
+    <main class="container my-4 flex-grow-1">
         
         <header class="d-flex justify-content-between align-items-center mb-4 no-print">
             <div>
@@ -181,9 +181,9 @@ if (isset($_GET['filtrar'])) {
         </section>
     </main>
 
-    <div class="no-print">
+  
         <?php include '../includes/footer.php'; ?>
-    </div>
+  
 
     <!-- Bootstrap 5 JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
