@@ -95,7 +95,7 @@ class TurmaController {
         } else {
 
             header(
-                'Location: ../view/gerente/cadastrar_turma.php?erro=1'
+                'Location: ../view/gerente/listar_turma.php?erro=1&modal=cadastrar'
             );
         }
 

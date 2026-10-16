@@ -200,7 +200,7 @@ try {
                 $c_especial = "Não";
             }
         }
-    } catch (Exception $e) {
+    } catch (Throwable $e) {
         $is_primeiro_acesso = false;
     }
 
@@ -223,13 +223,32 @@ try {
             $mensagem_erro = "As senhas não coincidem. Tente novamente.";
         } else {
             $senha_hash = password_hash($senha_nova, PASSWORD_DEFAULT);
-            $stmt_senha = $pdo_agenda->prepare("UPDATE login SET senha_hash = ? WHERE id_usuario = ?");
-            $stmt_acesso = $pdo_agenda->prepare("UPDATE usuario SET primeiro_acesso = 0 WHERE id_usuario = ?");
-            
-            if ($stmt_senha->execute([$senha_hash, $id_aluno]) && $stmt_acesso->execute([$id_aluno])) {
-                header("Location: home_aluno.php");
-                exit;
-            } else {
+            try {
+                $pdo_agenda->beginTransaction();
+                $stmt_senha = $pdo_agenda->prepare("UPDATE login SET senha_hash = ? WHERE id_usuario = ?");
+                $senhaAtualizada = $stmt_senha->execute([$senha_hash, $id_aluno]) && $stmt_senha->rowCount() > 0;
+
+                $stmt_acesso = $pdo_agenda->prepare("
+                    UPDATE usuario
+                    SET primeiro_acesso = 0, data_aceite_contrato = ?
+                    WHERE id_usuario = ? AND primeiro_acesso = 1
+                ");
+                $aceiteRegistrado = $stmt_acesso->execute([date('Y-m-d H:i:s'), $id_aluno])
+                    && $stmt_acesso->rowCount() > 0;
+
+                if ($senhaAtualizada && $aceiteRegistrado) {
+                    $pdo_agenda->commit();
+                    header("Location: home_aluno.php");
+                    exit;
+                }
+
+                $pdo_agenda->rollBack();
+                $mensagem_erro = "Erro ao guardar as alterações.";
+            } catch (Throwable $e) {
+                if ($pdo_agenda->inTransaction()) {
+                    $pdo_agenda->rollBack();
+                }
+                error_log('Falha ao registrar o aceite do contrato do aluno ' . $id_aluno . ': ' . $e->getMessage());
                 $mensagem_erro = "Erro ao guardar as alterações.";
             }
         }
