@@ -144,4 +144,21 @@ class AcademiaDAO {
             return 0;
         }
     }
+
+ // Retorna a contagem de academias agrupadas por mês/ano para o gráfico
+    public function contarAcademiasPorMes(): array {
+        try {
+            // Utilizando 'data_cadastro' conforme definido na tabela academia do seu script SQL
+            $sql = "SELECT DATE_FORMAT(data_cadastro, '%Y-%m') AS mes_ano, COUNT(*) AS total 
+                    FROM academia 
+                    GROUP BY mes_ano 
+                    ORDER BY mes_ano ASC 
+                    LIMIT 6";
+            
+            $stmt = $this->conexao->query($sql);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            return [];
+        }
+    }
 }

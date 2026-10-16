@@ -47,7 +47,7 @@ function formatarDataGraduacao(string $data): string
     <?php include '../includes/header.php'; ?>
 
     <main class="container">
-        <div class="historico-header d-flex flex-wrap align-items-start justify-content-between gap-3">
+        <div class="historico-header d-flex flex-wrap align-items-start justify-content-between gap-3 mb-4">
             <div>
                 <h1>Graduação e avaliação</h1>
                 <p>Acompanhe suas conquistas, previsões e orientações dos professores.</p>
@@ -62,114 +62,133 @@ function formatarDataGraduacao(string $data): string
         <div class="row g-4 align-items-start">
             <!-- COLUNA ESQUERDA -->
             <section class="col-lg-5 d-flex flex-column gap-4" id="graduacoes-previstas" aria-labelledby="graduacoes-heading">
-                <div class="card border-0 shadow-sm">
-                    <div class="card-body p-4">
-                        <div class="d-flex align-items-center gap-3 mb-3">
-                            <span class="evolucao-icon" aria-hidden="true"></span>
-                            <div>
-                                <h3 id="graduacoes-heading" class="h5 fw-bold mb-1">Próximas graduações</h3>
-                                <p class="text-muted small mb-0">Previsões informadas pela equipe da academia.</p>
-                            </div>
+                
+                <!-- BLUSTO 1: PRÓXIMAS GRADUAÇÕES -->
+                <div>
+                    <!-- Título fora do card -->
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <span class="evolucao-icon" aria-hidden="true"></span>
+                        <div>
+                            <h3 id="graduacoes-heading" class="h5 fw-bold mb-0">Próximas graduações</h3>
+                            <p class="text-muted small mb-0">Previsões informadas pela equipe da academia.</p>
                         </div>
-                        <?php if (empty($graduacoesPrevistas)): ?>
-                            <p class="text-muted mb-0">Ainda não há uma próxima graduação prevista.</p>
-                        <?php else: ?>
-                            <div class="d-grid gap-3">
-                                <?php foreach ($graduacoesPrevistas as $prevista): ?>
-                                    <div class="graduacao-prevista-item">
-                                        <span class="small text-muted"><?= htmlspecialchars((string)$prevista['nome_modalidade'], ENT_QUOTES, 'UTF-8') ?></span>
-                                        <strong><?= formatarDataGraduacao((string)$prevista['data_prevista']) ?></strong>
-                                    </div>
-                                <?php endforeach; ?>
-                            </div>
-                        <?php endif; ?>
+                    </div>
+                    <!-- Container do card -->
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body p-4">
+                            <?php if (empty($graduacoesPrevistas)): ?>
+                                <p class="text-muted mb-0">Ainda não há graduação prevista.</p>
+                            <?php else: ?>
+                                <div class="d-grid gap-3">
+                                    <?php foreach ($graduacoesPrevistas as $prevista): ?>
+                                        <div class="graduacao-prevista-item">
+                                            <span class="small text-muted"><?= htmlspecialchars((string)$prevista['nome_modalidade'], ENT_QUOTES, 'UTF-8') ?></span>
+                                            <strong><?= formatarDataGraduacao((string)$prevista['data_prevista']) ?></strong>
+                                        </div>
+                                    <?php endforeach; ?>
+                                </div>
+                            <?php endif; ?>
+                        </div>
                     </div>
                 </div>
 
-                <div class="card border-0 shadow-sm">
-                    <div class="card-body p-4">
-                        <h3 class="h5 fw-bold mb-1">Histórico de graduação</h3>
-                        <?php if (empty($historico)): ?>
-                            <p class="text-muted mb-0">Nenhuma graduação registrada.</p>
-                        <?php else: ?>
-                            <div class="historico-tabela historico-tabela--graduacao">
-                                <table>
-                                    <thead>
-                                        <tr>
-                                            <th>Data</th>
-                                            <th>Modalidade</th>
-                                            <th>Faixa / grau</th>
-                                            <th>Professor</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <?php foreach ($historico as $graduacao): ?>
+                <!-- BLOCO 2: HISTÓRICO DE GRADUAÇÃO -->
+                <div>
+                    <!-- Título fora do card -->
+                    <div class="mb-2">
+                        <h3 class="h5 fw-bold mb-0">Histórico de graduação</h3>
+                        <p class="text-muted small mb-0">Cada faixa representa dedicação, esforço e novos desafios superados.</p>
+                    </div>
+                    <!-- Container do card -->
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body p-4">
+                            <?php if (empty($historico)): ?>
+                                <p class="text-muted mb-0">Nenhuma graduação registrada.</p>
+                            <?php else: ?>
+                                <div class="historico-tabela historico-tabela--graduacao">
+                                    <table>
+                                        <thead>
                                             <tr>
-                                                <td><?= formatarDataGraduacao($graduacao->getDataGraduacao()) ?></td>
-                                                <td><?= htmlspecialchars($graduacao->getNomeModalidade(), ENT_QUOTES, 'UTF-8') ?></td>
-                                                <td class="graduacao-faixa">
-                                                    <?= htmlspecialchars($graduacao->getFaixa(), ENT_QUOTES, 'UTF-8') ?>
-                                                    <?= $graduacao->getGrau() ? ' · ' . htmlspecialchars($graduacao->getGrau(), ENT_QUOTES, 'UTF-8') : '' ?>
-                                                </td>
-                                                <td><?= htmlspecialchars($graduacao->getNomeProfessor(), ENT_QUOTES, 'UTF-8') ?></td>
+                                                <th>Data</th>
+                                                <th>Modalidade</th>
+                                                <th>Faixa / grau</th>
+                                                <th>Professor</th>
                                             </tr>
-                                        <?php endforeach; ?>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <?php endif; ?>
+                                        </thead>
+                                        <tbody>
+                                            <?php foreach ($historico as $graduacao): ?>
+                                                <tr>
+                                                    <td><?= formatarDataGraduacao($graduacao->getDataGraduacao()) ?></td>
+                                                    <td><?= htmlspecialchars($graduacao->getNomeModalidade(), ENT_QUOTES, 'UTF-8') ?></td>
+                                                    <td class="graduacao-faixa">
+                                                        <?= htmlspecialchars($graduacao->getFaixa(), ENT_QUOTES, 'UTF-8') ?>
+                                                        <?= $graduacao->getGrau() ? ' · ' . htmlspecialchars($graduacao->getGrau(), ENT_QUOTES, 'UTF-8') : '' ?>
+                                                    </td>
+                                                    <td><?= htmlspecialchars($graduacao->getNomeProfessor(), ENT_QUOTES, 'UTF-8') ?></td>
+                                                </tr>
+                                            <?php endforeach; ?>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            <?php endif; ?>
+                        </div>
                     </div>
                 </div>
+
             </section>
 
             <!-- COLUNA DIREITA -->
             <section class="col-lg-7" aria-labelledby="avaliacoes-heading">
-                <div class="card border-0 shadow-sm">
-                    <div class="card-body p-4">
-                        <div class="d-flex align-items-center gap-3">
-                            <span class="evolucao-icon" aria-hidden="true"></span>
-                            <div>
-                                <h3 id="avaliacoes-heading" class="h5 fw-bold mb-1">Avaliações do professor</h3>
-                                <p class="text-muted small mb-0">Orientações registradas para acompanhar sua evolução.</p>
-                            </div>
+                
+                <!-- BLOCO 3: AVALIAÇÕES DO PROFESSOR -->
+                <div>
+                    <!-- Título fora do card -->
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <span class="evolucao-icon" aria-hidden="true"></span>
+                        <div>
+                            <h3 id="avaliacoes-heading" class="h5 fw-bold mb-0">Avaliações do professor</h3>
+                            <p class="text-muted small mb-0">Orientações registradas para acompanhar sua evolução.</p>
                         </div>
-                        <?php if (empty($avaliacoes)): ?>
-                            <p class="text-muted mb-0 mt-3 pt-3 border-top">Ainda não há avaliações registradas para você.</p>
-                        <?php endif; ?>
+                    </div>
+
+                    <!-- Container do card -->
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body p-4">
+                            <?php if (empty($avaliacoes)): ?>
+                                <p class="text-muted mb-0">Ainda não há avaliações registradas para você.</p>
+                            <?php else: ?>
+                                <div class="d-grid gap-3">
+                                    <?php foreach ($avaliacoes as $avaliacao): ?>
+                                        <article class="avaliacao-card border-bottom pb-3 mb-3 last:border-0 last:pb-0 last:mb-0" id="avaliacao-<?= (int)$avaliacao['id_avaliacao'] ?>">
+                                            <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-3">
+                                                <div>
+                                                    <span class="badge text-bg-dark mb-2">Avaliação técnica</span>
+                                                    <h4 class="h6 fw-bold mb-1"><?= htmlspecialchars($avaliacao['nome_avaliador'], ENT_QUOTES, 'UTF-8') ?></h4>
+                                                    <p class="small text-muted mb-0">Responsável · <?= formatarDataGraduacao($avaliacao['data_avaliacao']) ?></p>
+                                                </div>
+                                            </div>
+                                            <div class="avaliacao-conteudo mb-3">
+                                                <?php if (!empty($avaliacao['nome_modalidade'])): ?>
+                                                    <h5 class="small fw-bold text-uppercase">Modalidade</h5>
+                                                    <p><?= htmlspecialchars($avaliacao['nome_modalidade'], ENT_QUOTES, 'UTF-8') ?></p>
+                                                <?php endif; ?>
+                                                <h5 class="small fw-bold text-uppercase">Pontos para desenvolver</h5>
+                                                <p class="mb-0"><?= nl2br(htmlspecialchars($avaliacao['habilidades_melhorar'], ENT_QUOTES, 'UTF-8')) ?></p>
+                                            </div>
+                                            <?php if (!empty($avaliacao['observacoes'])): ?>
+                                                <div class="avaliacao-conteudo">
+                                                    <h5 class="small fw-bold text-uppercase">Observações</h5>
+                                                    <p class="mb-0"><?= nl2br(htmlspecialchars($avaliacao['observacoes'], ENT_QUOTES, 'UTF-8')) ?></p>
+                                                </div>
+                                            <?php endif; ?>
+                                        </article>
+                                    <?php endforeach; ?>
+                                </div>
+                            <?php endif; ?>
+                        </div>
                     </div>
                 </div>
 
-                <?php if (!empty($avaliacoes)): ?>
-                    <div class="d-grid gap-3 mt-4">
-                        <?php foreach ($avaliacoes as $avaliacao): ?>
-                            <article class="card border-0 shadow-sm avaliacao-card" id="avaliacao-<?= (int)$avaliacao['id_avaliacao'] ?>">
-                                <div class="card-body p-4">
-                                    <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-3">
-                                        <div>
-                                            <span class="badge text-bg-dark mb-2">Avaliação técnica</span>
-                                            <h4 class="h6 fw-bold mb-1"><?= htmlspecialchars($avaliacao['nome_avaliador'], ENT_QUOTES, 'UTF-8') ?></h4>
-                                            <p class="small text-muted mb-0">Responsável · <?= formatarDataGraduacao($avaliacao['data_avaliacao']) ?></p>
-                                        </div>
-                                    </div>
-                                    <div class="avaliacao-conteudo mb-3">
-                                        <?php if (!empty($avaliacao['nome_modalidade'])): ?>
-                                            <h5 class="small fw-bold text-uppercase">Modalidade</h5>
-                                            <p><?= htmlspecialchars($avaliacao['nome_modalidade'], ENT_QUOTES, 'UTF-8') ?></p>
-                                        <?php endif; ?>
-                                        <h5 class="small fw-bold text-uppercase">Pontos para desenvolver</h5>
-                                        <p class="mb-0"><?= nl2br(htmlspecialchars($avaliacao['habilidades_melhorar'], ENT_QUOTES, 'UTF-8')) ?></p>
-                                    </div>
-                                    <?php if (!empty($avaliacao['observacoes'])): ?>
-                                        <div class="avaliacao-conteudo mb-3">
-                                            <h5 class="small fw-bold text-uppercase">Observações</h5>
-                                            <p class="mb-0"><?= nl2br(htmlspecialchars($avaliacao['observacoes'], ENT_QUOTES, 'UTF-8')) ?></p>
-                                        </div>
-                                    <?php endif; ?>
-                                </div>
-                            </article>
-                        <?php endforeach; ?>
-                    </div>
-                <?php endif; ?>
             </section>
         </div>
     </main>

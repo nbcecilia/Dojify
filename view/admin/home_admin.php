@@ -14,16 +14,38 @@ require_once __DIR__ . '/../../model/dao/UsuarioDAO.php';
 $nomeAdmin = htmlspecialchars($_SESSION['usuario']['nome'] ?? 'Suporte Técnico');
 
 $totalAcademias = 0;
-$totalGerentes = 0;
+$dadosGrafico = [];
 
 try {
     $academiaDAO = new AcademiaDAO();
     $totalAcademias = $academiaDAO->contarTotal();
-
-    $usuarioDAO = new UsuarioDAO();
-    $totalGerentes = $usuarioDAO->contarGerentes();
+    
+    // Pega os dados reais agrupados por mês do banco
+    $dadosGrafico = $academiaDAO->contarAcademiasPorMes();
 } catch (Exception $e) {
-    // Mantém a contagem a 0 em caso de exceção
+    $dadosGrafico = [];
+}
+
+// Prepara os arrays para o JavaScript do Chart.js
+$mesesLabels = [];
+$totaisValores = [];
+
+foreach ($dadosGrafico as $linha) {
+    $partes = explode('-', $linha['mes_ano']);
+    $ano = $partes[0];
+    $mesNum = $partes[1] ?? '01';
+    
+    $mesesNomes = ['01'=>'Jan', '02'=>'Fev', '03'=>'Mar', '04'=>'Abr', '05'=>'Mai', '06'=>'Jun', '07'=>'Jul', '08'=>'Ago', '09'=>'Set', '10'=>'Out', '11'=>'Nov', '12'=>'Dez'];
+    $nomeMes = $mesesNomes[$mesNum] ?? $mesNum;
+
+    $mesesLabels[] = $nomeMes . '/' . $ano;
+    $totaisValores[] = (int) $linha['total'];
+}
+
+// Fallback caso a tabela esteja vazia
+if (empty($mesesLabels)) {
+    $mesesLabels = ['Atual'];
+    $totaisValores = [$totalAcademias];
 }
 ?>
 
@@ -120,24 +142,26 @@ try {
             </div>
         </header>
 
-        <!-- INDICADORES + ÁREA DE SUPORTE NO TOPO (3 COLUNAS) -->
+        <!-- INDICADOR ÚNICO COM GRÁFICO REAL -->
         <section class="gerente-kpis admin-kpis-top">
-            <!-- Academias (Card Largo com Gráfico) -->
-            <article class="gerente-kpi kpi-largo">
+            <article class="gerente-kpi w-100">
                 <div class="gerente-kpi-top">
-                    <span class="gerente-kpi-label">Academias</span>
+                    <span class="gerente-kpi-label">Visão Geral da Plataforma</span>
                     <span class="gerente-kpi-icon">
                         <i class="bi bi-building"></i>
                     </span>
                 </div>
                 
-                <!-- Valor numérico exibido em destaque -->
-                <strong class="gerente-kpi-value"><?= $totalAcademias ?></strong>
-                <small class="gerente-kpi-note">Academias cadastradas no Dojify</small>
+                <div class="d-flex align-items-center justify-content-between gap-4 mt-2">
+                    <div>
+                        <strong class="gerente-kpi-value d-block"><?= $totalAcademias ?></strong>
+                        <small class="gerente-kpi-note">Academias cadastradas no Dojify</small>
+                    </div>
 
-                <!-- Contêiner do Gráfico com altura otimizada -->
-                <div style="width: 100%; height: 65px; margin-top: 8px;">
-                    <canvas id="graficoAcademiasMensais"></canvas>
+                    <!-- Mini gráfico de barras com dados do BD -->
+                    <div style="width: 140px; height: 50px;">
+                        <canvas id="graficoAcademiasMensais"></canvas>
+                    </div>
                 </div>
             </article>
         </section>
@@ -202,22 +226,23 @@ try {
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-    <!-- Script para renderizar o Gráfico de Academias -->
+    <!-- Script para renderizar o Gráfico com Dados Reais do Banco -->
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             const ctx = document.getElementById('graficoAcademiasMensais');
             if (ctx) {
+                const labelsMeses = <?= json_encode($mesesLabels); ?>;
+                const dadosTotais = <?= json_encode($totaisValores); ?>;
+
                 new Chart(ctx.getContext('2d'), {
                     type: 'bar',
                     data: {
-                        labels: ['Jul', 'Ago', 'Set', 'Out'],
+                        labels: labelsMeses,
                         datasets: [{
-                            data: [2, 5, 8, <?= $totalAcademias ?>],
-                            backgroundColor: 'rgba(33, 37, 41, 0.85)', // Tom escuro elegante
-                            borderColor: '#212529',
-                            borderWidth: 1,
-                            borderRadius: 3,
-                            barThickness: 16 // Deixa as barras bem mais finas e discretas
+                            data: dadosTotais,
+                            backgroundColor: '#212529',
+                            borderRadius: 2,
+                            barThickness: 10
                         }]
                     },
                     options: {
@@ -230,10 +255,7 @@ try {
                         scales: {
                             x: { 
                                 grid: { display: false },
-                                ticks: { 
-                                    font: { size: 9 },
-                                    color: '#6c757d'
-                                }
+                                ticks: { font: { size: 9 }, color: '#888' }
                             },
                             y: { 
                                 display: false,
