@@ -1,4 +1,6 @@
 <?php
+date_default_timezone_set('America/Sao_Paulo');
+
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
@@ -36,6 +38,7 @@ $stmt = $conexao->prepare("
         aluno.cidade,
         aluno.estado,
         aluno.primeiro_acesso,
+        aluno.data_aceite_contrato,
         academia.nome AS academia_nome,
         plano.nome_plano,
         plano.valor AS valor_plano,
@@ -87,6 +90,13 @@ $formatarData = static function ($data): string {
     $timestamp = strtotime((string)$data);
     return $timestamp === false ? 'Não informado' : date('d/m/Y', $timestamp);
 };
+$formatarDataHora = static function ($data): string {
+    if (!$data) {
+        return 'Não registrada para este aceite';
+    }
+    $timestamp = strtotime((string)$data);
+    return $timestamp === false ? 'Não registrada para este aceite' : date('d/m/Y \à\s H:i', $timestamp);
+};
 $cpf = preg_replace('/\D+/', '', (string)$aluno['cpf']);
 $cpfFormatado = strlen($cpf) === 11
     ? preg_replace('/(\d{3})(\d{3})(\d{3})(\d{2})/', '$1.$2.$3-$4', $cpf)
@@ -106,6 +116,8 @@ $endereco = trim(implode(', ', array_filter([
     $aluno['cep'] ? 'CEP ' . $aluno['cep'] : '',
 ])));
 $cidadeEstado = trim(implode(' / ', array_filter([$aluno['cidade'], $aluno['estado']])));
+$dataAceiteContrato = $formatarDataHora($aluno['data_aceite_contrato']);
+$ocultarAlterarSenhaHeader = true;
 ?>
 <!DOCTYPE html>
 <html lang="pt-br">
@@ -128,9 +140,11 @@ $cidadeEstado = trim(implode(' / ', array_filter([$aluno['cidade'], $aluno['esta
     </div>
     <main class="container">
         <div class="contrato-nota alert alert-info d-print-none" role="status">
-            <strong>Aceite registrado.</strong> O sistema registra que o aluno concluiu o aceite no primeiro acesso,
-            mas não armazena a data/hora nem um arquivo original assinado. Esta cópia é reconstruída com os dados
-            atualmente cadastrados.
+            <strong>Aceite registrado.</strong> <?php if ($aluno['data_aceite_contrato']): ?>
+                Data e hora do aceite eletrônico: <?= $escapar($dataAceiteContrato); ?>.
+            <?php else: ?>
+                A data e hora do aceite não foram armazenadas para este contrato. Esta cópia é reconstruída com os dados atualmente cadastrados.
+            <?php endif; ?>
         </div>
         <div class="d-flex justify-content-between gap-2 flex-wrap d-print-none">
             <a class="btn btn-info" href="<?= $perfilLogado === 4 ? '../aluno/perfil.php' : 'listar_usuarios.php'; ?>">
@@ -180,7 +194,11 @@ $cidadeEstado = trim(implode(' / ', array_filter([$aluno['cidade'], $aluno['esta
             <p><strong>CLÁUSULA 8 — DAS DISPOSIÇÕES FINAIS</strong><br>8.1 Este contrato é firmado em duas vias de igual teor e forma, assinadas pelas partes para que produza seus efeitos legais.</p>
             <p class="text-center mt-4"><strong><?= htmlspecialchars('Brasília - DF', ENT_QUOTES, 'UTF-8'); ?></strong></p>
             <div class="d-flex justify-content-between gap-4 text-center mt-5">
-                <div class="w-50"><hr>CONTRATANTE — ACEITE ELETRÔNICO REGISTRADO</div>
+                <div class="w-50">
+                    <hr>
+                    CONTRATANTE — ACEITE ELETRÔNICO REGISTRADO
+                    <br><small>Data do aceite: <?= $escapar($dataAceiteContrato); ?></small>
+                </div>
                 <div class="w-50"><hr>CONTRATADO</div>
             </div>
         </article>

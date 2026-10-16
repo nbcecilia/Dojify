@@ -309,13 +309,15 @@ $total_notif_header = count($notificacoes_aluno);
                             Meu perfil
                         </a>
                     <?php endif; ?>
-                    <button type="button"
-                            class="profile-avatar-profile-link border-0 w-100 text-start"
-                            data-bs-toggle="modal"
-                            data-bs-target="#modalAlterarSenha">
-                        <i class="bi bi-key" aria-hidden="true"></i>
-                        Alterar senha
-                    </button>
+                    <?php if (empty($ocultarAlterarSenhaHeader)): ?>
+                        <button type="button"
+                                class="profile-avatar-profile-link border-0 w-100 text-start"
+                                data-bs-toggle="modal"
+                                data-bs-target="#modalAlterarSenha">
+                            <i class="bi bi-key" aria-hidden="true"></i>
+                            Alterar senha
+                        </button>
+                    <?php endif; ?>
                     <?php if ($avatarFeedback !== null): ?>
                         <p class="profile-avatar-feedback" role="status">
                             <?= $avatarFeedback === 'sucesso'
@@ -359,6 +361,7 @@ $total_notif_header = count($notificacoes_aluno);
     </div>
 </header>
 
+<?php if (empty($ocultarAlterarSenhaHeader)): ?>
 <div class="modal fade" id="modalAlterarSenha" tabindex="-1" aria-labelledby="modalAlterarSenhaLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content shadow border-0">
@@ -416,6 +419,7 @@ $total_notif_header = count($notificacoes_aluno);
         </div>
     </div>
 </div>
+<?php endif; ?>
 
 <!-- SCRIPT PARA ABRIR/FECHAR O DROPDOWN -->
 

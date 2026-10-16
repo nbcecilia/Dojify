@@ -67,6 +67,7 @@ CREATE TABLE IF NOT EXISTS `dojify_1`.`usuario` (
   `observacao` TEXT NULL DEFAULT NULL COMMENT 'Observações médicas ou gerais (Específico de Aluno).\n',
   `data_matricula` DATE NULL DEFAULT NULL COMMENT 'Data de início das atividades (Específico de Aluno).',
   `status` VARCHAR(20) NOT NULL DEFAULT 'ATIVO' COMMENT 'Estado do usuário (ATIVO, INATIVO, SUSPENSO).\n',
+  `data_aceite_contrato` DATETIME NULL DEFAULT NULL COMMENT 'Data e hora em que o aluno aceitou eletronicamente o contrato.',
   PRIMARY KEY (`id_usuario`),
   UNIQUE INDEX `cpf` (`cpf` ASC) ,
   UNIQUE INDEX `email` (`email` ASC) ,
@@ -436,6 +437,7 @@ INSERT INTO graduacao(id_graduacao, id_usuario_aluno, id_usuario_professor, id_m
 -- ALTERAÇÕES
 -- ===========================================================
 ALTER TABLE usuario ADD primeiro_acesso TINYINT(1) DEFAULT 1;
+ALTER TABLE usuario ADD COLUMN IF NOT EXISTS data_aceite_contrato DATETIME NULL DEFAULT NULL COMMENT 'Data e hora em que o aluno aceitou eletronicamente o contrato.';
 ALTER TABLE academia ADD COLUMN status VARCHAR(20) NOT NULL DEFAULT 'ATIVO'; 
 
 -- Adicionando novos campos na tabela academia 
