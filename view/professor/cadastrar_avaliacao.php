@@ -73,13 +73,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <?php include '../includes/header.php'; ?>
 
     <main class="container my-4">
-        <header class="d-flex justify-content-between align-items-center mb-4">
-            <div>
-                <a href="listar_avaliacao.php" class="btn btn-dark btn-sm">
-                    <i class="bi bi-arrow-left me-1"></i> Histórico de Avaliações
-                </a>
-            </div>
-        </header>
 
         <section class="card shadow-sm border-0 p-4">
             
@@ -132,14 +125,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <label for="observacoes" class="form-label">Observações Gerais / Evolução</label>
                         <textarea class="form-control" id="observacoes" name="observacoes" rows="4" placeholder="Notas sobre postura, disciplina, evolução física ou comportamental (opcional)"></textarea>
                     </div>
-
-                    <div class="col-12 text-end mt-4">
-                        <button type="submit" class="btn btn-success px-4">
-                            <i class="bi bi-check-circle me-1"></i> Guardar Avaliação
-                        </button>
+                   
+                    <div class="auth-form-actions">
+                        <a href="listar_avaliacao.php" class="btn" style="background-color: var(--btn-neutral-bg); color: #fff !important; text-decoration: none;">Cancelar</a>
+                        <button type="submit" class="btn btn-success" style="width: auto; margin: 0;">Guardar avaliação</button>
                     </div>
-                </div>
-            </form>
+                </form>
+            </section>  
         </section>
     </main>
 

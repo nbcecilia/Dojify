@@ -57,13 +57,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <?php include '../includes/header.php'; ?>
 
     <main class="container my-4">
-        <header class="d-flex justify-content-between align-items-center mb-4">
-            <div>
-                <a href="listar_graduacao.php" class="btn btn-dark btn-sm">
-                    <i class="bi bi-arrow-left me-1"></i> Histórico de Graduações
-                </a>
-            </div>
-        </header>
 
         <section class="card shadow-sm border-0 p-4">
             
@@ -112,10 +105,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <input type="text" class="form-control" id="grau" name="grau" placeholder="Ex: 1º Grau, 2º Grau (opcional)">
                     </div>
 
-                    <div class="col-12 text-end mt-4">
-                        <button type="submit" class="btn btn-dark px-4">
-                            <i class="bi bi-check-circle me-1"></i> Guardar Graduação
-                        </button>
+                    <div class="auth-form-actions">
+                        <a href="listar_graduacao.php" class="btn" style="background-color: var(--btn-neutral-bg); color: #fff !important; text-decoration: none;">Cancelar</a>
+                        <button type="submit" class="btn btn-success" style="width: auto; margin: 0;">Guardar Graduação</button>
                     </div>
                 </div>
             </form>

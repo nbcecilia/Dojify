@@ -48,6 +48,9 @@ try {
     <!-- CSS das dashboards e suporte -->
     <link rel="stylesheet" href="../../assets/css/gerente.css">
     <link rel="stylesheet" href="../../assets/css/suporte.css?v=4">
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body class="gerente-page">
@@ -119,40 +122,23 @@ try {
 
         <!-- INDICADORES + ÁREA DE SUPORTE NO TOPO (3 COLUNAS) -->
         <section class="gerente-kpis admin-kpis-top">
-            <!-- Academias -->
-            <article class="gerente-kpi">
+            <!-- Academias (Card Largo com Gráfico) -->
+            <article class="gerente-kpi kpi-largo">
                 <div class="gerente-kpi-top">
                     <span class="gerente-kpi-label">Academias</span>
                     <span class="gerente-kpi-icon">
                         <i class="bi bi-building"></i>
                     </span>
                 </div>
+                
+                <!-- Valor numérico exibido em destaque -->
                 <strong class="gerente-kpi-value"><?= $totalAcademias ?></strong>
                 <small class="gerente-kpi-note">Academias cadastradas no Dojify</small>
-            </article>
 
-            <!-- Gerentes -->
-            <article class="gerente-kpi">
-                <div class="gerente-kpi-top">
-                    <span class="gerente-kpi-label">Gerentes</span>
-                    <span class="gerente-kpi-icon">
-                        <i class="bi bi-person-badge"></i>
-                    </span>
+                <!-- Contêiner do Gráfico com altura otimizada -->
+                <div style="width: 100%; height: 65px; margin-top: 8px;">
+                    <canvas id="graficoAcademiasMensais"></canvas>
                 </div>
-                <strong class="gerente-kpi-value"><?= $totalGerentes ?></strong>
-                <small class="gerente-kpi-note">Gerentes cadastrados no Dojify</small>
-            </article>
-
-            <!-- Suporte Técnico -->
-            <article class="gerente-kpi">
-                <div class="gerente-kpi-top">
-                    <span class="gerente-kpi-label">Suporte Técnico</span>
-                    <span class="gerente-kpi-icon">
-                        <i class="bi bi-headset"></i>
-                    </span>
-                </div>
-                <!-- Texto justificado adicionado aqui -->
-                <small class="gerente-kpi-note" style="text-align: justify; display: block;">Responsável pelo gerenciamento das academias cadastradas na plataforma e dos respectivos gerentes.</small>
             </article>
         </section>
 
@@ -216,5 +202,48 @@ try {
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
+    <!-- Script para renderizar o Gráfico de Academias -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const ctx = document.getElementById('graficoAcademiasMensais');
+            if (ctx) {
+                new Chart(ctx.getContext('2d'), {
+                    type: 'bar',
+                    data: {
+                        labels: ['Jul', 'Ago', 'Set', 'Out'],
+                        datasets: [{
+                            data: [2, 5, 8, <?= $totalAcademias ?>],
+                            backgroundColor: 'rgba(33, 37, 41, 0.85)', // Tom escuro elegante
+                            borderColor: '#212529',
+                            borderWidth: 1,
+                            borderRadius: 3,
+                            barThickness: 16 // Deixa as barras bem mais finas e discretas
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: { enabled: true }
+                        },
+                        scales: {
+                            x: { 
+                                grid: { display: false },
+                                ticks: { 
+                                    font: { size: 9 },
+                                    color: '#6c757d'
+                                }
+                            },
+                            y: { 
+                                display: false,
+                                grid: { display: false } 
+                            }
+                        }
+                    }
+                });
+            }
+        });
+    </script>
 </body>
 </html>

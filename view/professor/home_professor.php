@@ -72,7 +72,22 @@ try {
 
     <!-- Folhas de Estilo Dojify -->
     <link rel="stylesheet" href="../../assets/css/estilo.css">
-    <link rel="stylesheet" href="../../assets/css/gerente.css?v=2">
+    <link rel="stylesheet" href="../../assets/css/gerente.css?v=12">
+
+    <!-- Estilos específicos para garantir espaçamento correto e ordem no topo -->
+    <style>
+        .gerente-dashboard {
+            display: flex;
+            flex-direction: column;
+            gap: 20px; /* Garante espaço limpo entre todos os blocos principais */
+        }
+        .gerente-welcome {
+            margin-bottom: 0 !important;
+        }
+        .gerente-kpis {
+            margin-bottom: 5px !important;
+        }
+    </style>
 </head>
 
 <body class="gerente-page">
@@ -89,7 +104,7 @@ try {
             </div>
         </header>
 
-        <!-- INDICADORES (KPIS DO PROFESSOR) -->
+        <!-- INDICADORES (KPIS DO PROFESSOR) - NO TOPO -->
         <section class="gerente-kpis" aria-label="Resumo do professor">
 
             <article class="gerente-kpi">
@@ -138,8 +153,8 @@ try {
 
         </section>
 
-        <!-- ATIVIDADES PEDAGÓGICAS PRINCIPAIS -->
-        <section class="gerente-section">
+        <!-- CONTROLE PEDAGÓGICO -->
+        <section class="gerente-section-box gerente-home-pedagogia">
             <div class="gerente-section-header">
                 <div>
                     <h3 class="gerente-section-title">Controle pedagógico</h3>
@@ -194,7 +209,7 @@ try {
         </section>
 
         <!-- AÇÕES RÁPIDAS -->
-        <section class="gerente-section">
+        <section class="gerente-section-box gerente-home-acoes">
             <div class="gerente-section-header">
                 <div>
                     <h3 class="gerente-section-title">Ações rápidas</h3>
@@ -205,14 +220,6 @@ try {
             </div>
 
             <div class="gerente-quick-grid">
-                <a href="listar_frequencia.php" class="gerente-quick-action">
-                    <i class="bi bi-calendar-check"></i>
-                    <div>
-                        <strong>Consultar presenças</strong>
-                        <span>Histórico por turma</span>
-                    </div>
-                </a>
-             
                 <a href="cadastrar_avaliacao.php" class="gerente-quick-action">
                     <i class="bi bi-clipboard2-plus"></i>
                     <div>
@@ -224,7 +231,7 @@ try {
                 <a href="cadastrar_graduacao.php" class="gerente-quick-action">
                     <i class="bi bi-check2-square"></i>
                     <div>
-                        <strong>Cadastrar Graduação</strong>
+                        <strong>Nova Graduação</strong>
                         <span>Registrar graduação do aluno</span>
                     </div>
                 </a>

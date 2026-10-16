@@ -12,9 +12,28 @@
     width: 85%;
     padding: 7px 12px;
 }
+/* Ajuste para o card de KPI largo com gráfico */
+@media (min-width: 768px) {
+    .admin-kpis-top {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px; /* Ajuste o espaçamento se necessário */
+    }
+
+    .gerente-kpi.kpi-largo {
+        grid-column: span 2;
+    }
+}
+
+/* Estilo para o container do gráfico */
+.gerente-kpi .chart-container {
+    width: 80%;
+    height: 70px;
+    margin-top: 10px;
+}
 
 @media (max-width: 900px) {
     .gerente-home-gestao .gerente-grid {
-        grid-template-columns: 1fr !important;
+        grid-template-columns: 1fr;
     }
 }
