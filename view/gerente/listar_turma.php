@@ -111,7 +111,7 @@ if (!isset($_SESSION['turma_status_csrf_token'])) {
                 </div>
             <?php endif; ?>
 
-            <?php if (isset($_GET['erro']) && !isset($_GET['modal_horario'])): ?>
+            <?php if (isset($_GET['erro']) && !isset($_GET['modal_horario']) && !isset($_GET['modal_editar']) && !isset($_GET['modal'])): ?>
                 <div class="alert alert-danger alert-dismissible fade show" role="alert">
                     <i class="bi bi-exclamation-triangle-fill me-2"></i> Não foi possível realizar a operação.
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
@@ -151,9 +151,9 @@ if (!isset($_SESSION['turma_status_csrf_token'])) {
                                         <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#modalHorarios<?= (int) $turma['id_turma'] ?>">
                                             <i class="bi bi-clock me-1"></i> Gerir Horário
                                         </button>
-                                        <a href="editar_turma.php?id=<?= $turma['id_turma'] ?>" class="btn btn-info btn-sm">
+                                        <button type="button" class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#modalEditarTurma<?= (int) $turma['id_turma'] ?>">
                                             <i class="bi bi-pencil me-1"></i> Editar
-                                        </a>
+                                        </button>
                                         <?php if (strtoupper((string)$turma['status']) === 'INATIVA'): ?>
                                             <form action="../../controller/TurmaController.php?acao=reativar" method="POST" class="turma-status-form" onsubmit="return confirm('Deseja reativar esta turma?');">
                                                 <input type="hidden" name="id" value="<?= (int)$turma['id_turma'] ?>">
@@ -257,6 +257,86 @@ if (!isset($_SESSION['turma_status_csrf_token'])) {
 
     <?php foreach ($turmas as $turma): ?>
         <?php $idTurma = (int) $turma['id_turma']; ?>
+        <div class="modal fade" id="modalEditarTurma<?= $idTurma ?>" tabindex="-1" aria-labelledby="modalEditarTurmaLabel<?= $idTurma ?>" aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+                <div class="modal-content border-0 shadow">
+                    <form action="../../controller/TurmaController.php?acao=atualizar" method="POST" class="w-100 mw-100 p-0 m-0 border-0 shadow-none bg-transparent">
+                        <div class="modal-header">
+                            <div>
+                                <h2 class="modal-title fs-5" id="modalEditarTurmaLabel<?= $idTurma ?>">Editar Turma</h2>
+                                <p class="text-muted small mb-0"><?= htmlspecialchars($turma['nome'], ENT_QUOTES, 'UTF-8') ?></p>
+                            </div>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                        </div>
+                        <div class="modal-body">
+                            <?php if (isset($_GET['modal_editar']) && (int) $_GET['modal_editar'] === $idTurma && isset($_GET['erro'])): ?>
+                                <div class="alert alert-danger" role="alert">Não foi possível salvar as alterações. Verifique os dados e tente novamente.</div>
+                            <?php endif; ?>
+                            <input type="hidden" name="id_turma" value="<?= $idTurma ?>">
+                            <input type="hidden" name="retorno" value="listar_turma">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="editar_nome_<?= $idTurma ?>" class="form-label">Nome da turma <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="editar_nome_<?= $idTurma ?>" name="nome" maxlength="100" value="<?= htmlspecialchars($turma['nome'], ENT_QUOTES, 'UTF-8') ?>" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="editar_professor_<?= $idTurma ?>" class="form-label">Professor <span class="text-danger">*</span></label>
+                                    <select class="form-select" id="editar_professor_<?= $idTurma ?>" name="id_usuario_professor" required>
+                                        <option value="">Selecione o professor</option>
+                                        <?php foreach ($professores as $professor): ?>
+                                            <option value="<?= (int) $professor['id_usuario'] ?>" <?= (int) $professor['id_usuario'] === (int) $turma['id_usuario_professor'] ? 'selected' : '' ?>>
+                                                <?= htmlspecialchars($professor['nome'], ENT_QUOTES, 'UTF-8') ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="editar_modalidade_<?= $idTurma ?>" class="form-label">Modalidade <span class="text-danger">*</span></label>
+                                    <select class="form-select" id="editar_modalidade_<?= $idTurma ?>" name="id_modalidade" required>
+                                        <option value="">Selecione a modalidade</option>
+                                        <?php foreach ($modalidades as $modalidade): ?>
+                                            <option value="<?= (int) $modalidade['id_modalidade'] ?>" <?= (int) $modalidade['id_modalidade'] === (int) $turma['id_modalidade'] ? 'selected' : '' ?>>
+                                                <?= htmlspecialchars($modalidade['nome'], ENT_QUOTES, 'UTF-8') ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="editar_capacidade_<?= $idTurma ?>" class="form-label">Capacidade <span class="text-danger">*</span></label>
+                                    <input type="number" class="form-control" id="editar_capacidade_<?= $idTurma ?>" name="capacidade" min="1" value="<?= htmlspecialchars((string) $turma['capacidade'], ENT_QUOTES, 'UTF-8') ?>" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="editar_nivel_<?= $idTurma ?>" class="form-label">Nível <span class="text-danger">*</span></label>
+                                    <select class="form-select" id="editar_nivel_<?= $idTurma ?>" name="nivel" required>
+                                        <option value="">Selecione o nível</option>
+                                        <option value="INICIANTE" <?= $turma['nivel'] === 'INICIANTE' ? 'selected' : '' ?>>Iniciante</option>
+                                        <option value="INTERMEDIARIO" <?= $turma['nivel'] === 'INTERMEDIARIO' ? 'selected' : '' ?>>Intermediário</option>
+                                        <option value="AVANCADO" <?= $turma['nivel'] === 'AVANCADO' ? 'selected' : '' ?>>Avançado</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="editar_status_<?= $idTurma ?>" class="form-label">Status <span class="text-danger">*</span></label>
+                                    <select class="form-select" id="editar_status_<?= $idTurma ?>" name="status" required>
+                                        <option value="ATIVA" <?= $turma['status'] === 'ATIVA' ? 'selected' : '' ?>>Ativa</option>
+                                        <option value="INATIVA" <?= $turma['status'] === 'INATIVA' ? 'selected' : '' ?>>Inativa</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-success">
+                                <i class="bi bi-check-circle me-1"></i> Salvar alterações
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    <?php endforeach; ?>
+
+    <?php foreach ($turmas as $turma): ?>
+        <?php $idTurma = (int) $turma['id_turma']; ?>
         <div class="modal fade" id="modalHorarios<?= $idTurma ?>" tabindex="-1" aria-labelledby="modalHorariosLabel<?= $idTurma ?>" aria-hidden="true">
             <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
                 <div class="modal-content border-0 shadow">
@@ -355,7 +435,16 @@ if (!isset($_SESSION['turma_status_csrf_token'])) {
 
     <?php include '../includes/footer.php'; ?>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <?php if (isset($_GET['modal_horario']) && filter_var($_GET['modal_horario'], FILTER_VALIDATE_INT)): ?>
+    <?php if (isset($_GET['modal_editar']) && filter_var($_GET['modal_editar'], FILTER_VALIDATE_INT)): ?>
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const modal = document.getElementById('modalEditarTurma<?= (int) $_GET['modal_editar'] ?>');
+                if (modal) {
+                    bootstrap.Modal.getOrCreateInstance(modal).show();
+                }
+            });
+        </script>
+    <?php elseif (isset($_GET['modal_horario']) && filter_var($_GET['modal_horario'], FILTER_VALIDATE_INT)): ?>
         <script>
             document.addEventListener('DOMContentLoaded', function () {
                 const modal = document.getElementById('modalHorarios<?= (int) $_GET['modal_horario'] ?>');

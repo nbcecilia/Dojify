@@ -148,11 +148,19 @@ class TurmaController {
 
         } else {
 
-            header(
-                'Location: ../view/gerente/editar_turma.php?id='
-                . $turma->getIdTurma()
-                . '&erro=1'
-            );
+            if (($_POST['retorno'] ?? '') === 'listar_turma') {
+                header(
+                    'Location: ../view/gerente/listar_turma.php?modal_editar='
+                    . $turma->getIdTurma()
+                    . '&erro=1'
+                );
+            } else {
+                header(
+                    'Location: ../view/gerente/editar_turma.php?id='
+                    . $turma->getIdTurma()
+                    . '&erro=1'
+                );
+            }
         }
 
         exit;
