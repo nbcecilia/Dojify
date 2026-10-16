@@ -62,7 +62,7 @@ class UsuarioController {
         }
 
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header('Location: ../view/gerente/cadastrar_aluno.php');
+            header('Location: ../view/gerente/cadastrar_aluno_prof.php');
             exit;
         }
 
@@ -241,7 +241,7 @@ class UsuarioController {
         }
 
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header('Location: ../view/gerente/cadastrar_professor.php');
+            header('Location: ../view/gerente/cadastrar_aluno_prof.php');
             exit;
         }
 
@@ -315,11 +315,11 @@ class UsuarioController {
             }
     
             if ($e->getCode() == '23000' || strpos($e->getMessage(), '1062') !== false) {
-                header('Location: ../view/gerente/cadastrar_professor.php?erro=cpf_duplicado');
+                header('Location: ../view/gerente/cadastrar_aluno_prof.php?erro=cpf_duplicado&tipo=professor');
                 exit;
             }
 
-            header('Location: ../view/gerente/cadastrar_professor.php?erro=falha_cadastro');
+            header('Location: ../view/gerente/cadastrar_aluno_prof.php?erro=falha_cadastro&tipo=professor');
             exit;
         }
     }
