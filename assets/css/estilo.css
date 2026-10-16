@@ -259,6 +259,11 @@ a:hover {
     text-decoration: none;
 }
 
+.profile-avatar-menu button.profile-avatar-profile-link {
+    border: 0;
+    cursor: pointer;
+}
+
 .profile-avatar-profile-link:hover,
 .profile-avatar-profile-link:focus-visible {
     background: #e5e5e5;
@@ -314,6 +319,26 @@ a:hover {
 
 .profile-avatar-remove {
     margin-top: 8px;
+}
+
+.profile-password-form {
+    max-width: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+}
+
+.profile-password-form .modal-footer > button[type="submit"] {
+    width: auto;
+    margin: 0;
+    background-color: var(--btn-neutral-bg);
+}
+
+.profile-password-form .modal-footer > button[type="submit"]:hover {
+    background-color: var(--btn-neutral-hover);
 }
 
 .profile-avatar-colors {
@@ -996,6 +1021,140 @@ input[type="time"]:focus {
     width: auto;
     padding: 10px 24px;
     font-size: 1rem;
+}
+
+/* ----------------------------------------------------------
+   RESPONSIVIDADE COMPARTILHADA DAS TELAS
+   ---------------------------------------------------------- */
+img,
+video,
+iframe {
+    max-width: 100%;
+}
+
+.table-responsive {
+    max-width: 100%;
+    -webkit-overflow-scrolling: touch;
+}
+
+@media (max-width: 768px) {
+    .container {
+        width: 100%;
+        padding: 20px 16px;
+    }
+
+    .navbar {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 12px;
+        padding: 12px 16px;
+    }
+
+    .navbar-user {
+        width: 100%;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        gap: 10px;
+    }
+
+    .user-greeting {
+        max-width: min(60vw, 320px);
+        overflow-wrap: anywhere;
+    }
+
+    .notificacao-dropdown {
+        max-width: calc(100vw - 24px);
+    }
+
+    .page-header,
+    .busca-form,
+    .acoes-topbar,
+    .form-row-inline,
+    .auth-form-actions {
+        flex-wrap: wrap;
+    }
+
+    .form-row-inline > div {
+        min-width: 0;
+    }
+
+    form {
+        padding: 22px;
+    }
+
+    .container table:not(.table) {
+        display: block;
+        max-width: 100%;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+}
+
+@media (max-width: 520px) {
+    .container {
+        padding: 16px 12px;
+    }
+
+    .navbar {
+        padding: 10px 12px;
+    }
+
+    .navbar-user {
+        justify-content: space-between;
+    }
+
+    .navbar-brand .logo-link {
+        gap: 8px;
+    }
+
+    .navbar-logo {
+        height: 32px;
+    }
+
+    .page-header {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .busca-form {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .busca-form .busca-btn {
+        width: 100% !important;
+    }
+
+    .form-row-inline {
+        flex-direction: column;
+    }
+
+    .form-row-inline > div {
+        width: 100%;
+    }
+
+    .cep-lookup {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .cep-lookup > .btn {
+        width: 100%;
+    }
+
+    form {
+        padding: 16px;
+        margin-top: 16px;
+        margin-bottom: 24px;
+    }
+
+    .card,
+    .relatorio-card {
+        padding: 16px;
+    }
+
+    .footer {
+        padding: 1.25rem 12px;
+    }
 }
 
 /* Regras de impressão (movidas do <style> inline da página) */

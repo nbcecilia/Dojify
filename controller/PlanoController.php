@@ -14,6 +14,36 @@ require_once __DIR__ . '/../model/dao/ModalidadeDAO.php';
 
 $acao = filter_input(INPUT_GET, 'acao', FILTER_SANITIZE_SPECIAL_CHARS);
 
+if ($acao === 'desativar' || $acao === 'reativar') {
+    $tokenSessao = $_SESSION['plano_status_csrf_token'] ?? '';
+    $tokenFormulario = $_POST['csrf_token'] ?? '';
+    if (
+        $_SERVER['REQUEST_METHOD'] !== 'POST' ||
+        !is_string($tokenSessao) ||
+        !is_string($tokenFormulario) ||
+        $tokenSessao === '' ||
+        !hash_equals($tokenSessao, $tokenFormulario)
+    ) {
+        header('Location: ../view/gerente/listar_plano.php?erro=1');
+        exit;
+    }
+
+    $idPlano = filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT);
+    $idAcademia = (int)($_SESSION['usuario']['id_academia'] ?? $_SESSION['id_academia'] ?? 0);
+    $dao = new PlanoDAO();
+    $sucesso = $idPlano && $idPlano > 0 && $idAcademia > 0 && (
+        $acao === 'reativar'
+            ? $dao->reativar($idPlano, $idAcademia)
+            : $dao->desativar($idPlano, $idAcademia)
+    );
+
+    header(
+        'Location: ../view/gerente/listar_plano.php?'
+        . ($sucesso ? 'sucesso=status' : 'erro=1')
+    );
+    exit;
+}
+
 if ($acao === 'salvar' || $acao === 'atualizar') {
     $idPlano = $acao === 'atualizar'
         ? filter_input(INPUT_POST, 'id_plano', FILTER_VALIDATE_INT)

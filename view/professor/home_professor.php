@@ -87,11 +87,6 @@ try {
                 <h2>Olá, <?= $nomeProfessor ?>!</h2>
                 <p>Consulte as suas turmas, efetue registos de frequência e acompanhe a evolução dos alunos.</p>
             </div>
-
-            <span class="gerente-role">
-                <i class="bi bi-person-workspace"></i>
-                Professor
-            </span>
         </header>
 
         <!-- INDICADORES (KPIS DO PROFESSOR) -->

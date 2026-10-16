@@ -273,37 +273,33 @@ class TurmaDAO {
     }
 
 
-    public function excluir(int $id, int $idAcademia): bool {
+    public function desativar(int $id, int $idAcademia): bool {
+        return $this->atualizarStatus($id, $idAcademia, 'INATIVA');
+    }
 
+    public function reativar(int $id, int $idAcademia): bool {
+        return $this->atualizarStatus($id, $idAcademia, 'ATIVA');
+    }
+
+    private function atualizarStatus(int $id, int $idAcademia, string $status): bool {
         try {
-
-            $sql = "DELETE t
-                    FROM turma t
-                    INNER JOIN usuario u 
-                        ON t.id_usuario_professor = u.id_usuario
-                    INNER JOIN modalidade m 
-                        ON t.id_modalidade = m.id_modalidade
+            $sql = "UPDATE turma t
+                    INNER JOIN usuario u ON t.id_usuario_professor = u.id_usuario
+                    INNER JOIN modalidade m ON t.id_modalidade = m.id_modalidade
+                    SET t.status = :status
                     WHERE t.id_turma = :id
-                    AND u.id_academia = :id_academia
-                    AND m.id_academia = :id_academia";
-
+                      AND u.id_academia = :id_academia
+                      AND m.id_academia = :id_academia";
             $stmt = $this->conexao->prepare($sql);
+            $stmt->execute([
+                ':status' => $status,
+                ':id' => $id,
+                ':id_academia' => $idAcademia,
+            ]);
 
-            $stmt->bindValue(
-                ':id',
-                $id,
-                PDO::PARAM_INT
-            );
-
-            $stmt->bindValue(
-                ':id_academia',
-                $idAcademia,
-                PDO::PARAM_INT
-            );
-
-            return $stmt->execute();
-
+            return $stmt->rowCount() > 0;
         } catch (PDOException $e) {
+            error_log('Falha ao atualizar status da turma ' . $id . ': ' . $e->getMessage());
             return false;
         }
     }

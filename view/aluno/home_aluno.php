@@ -139,6 +139,7 @@ try {
             
             $stmt_aluno = $pdo_agenda->prepare("
                 SELECT u.nome, u.email, u.cpf, u.data_nascimento, u.sexo, u.telefone,
+                       u.endereco, u.cidade, u.estado,
                        u.responsavel, u.observacao, a.nome AS academia_nome,
                        p.nome_plano, p.valor AS valor_plano,
                        mp.nome AS modalidade_plano
@@ -166,6 +167,9 @@ try {
                 $c_data_nasc = $dados_contrato['data_nascimento'] ? date('d/m/Y', strtotime($dados_contrato['data_nascimento'])) : "Não informado";
                 $c_sexo = $dados_contrato['sexo'] ?: "Não informado";
                 $c_tel = !empty($dados_contrato['telefone']) ? $dados_contrato['telefone'] : "Não informado";
+                $c_endereco = $dados_contrato['endereco'] ?: "Não informado";
+                $c_cidade = $dados_contrato['cidade'] ?: "Não informado";
+                $c_estado = $dados_contrato['estado'] ?: "Não informado";
                 $c_responsavel = $dados_contrato['responsavel'] ?: "O próprio";
                 $c_obs = $dados_contrato['observacao'] ?: "Nenhuma observação registrada";
                 $c_academia_nome = $dados_contrato['academia_nome'] ?: $c_academia_nome;
@@ -615,10 +619,7 @@ try {
                 <div>
                     <h2>Olá, <?= htmlspecialchars($_SESSION['usuario']['nome']) ?>!</h2>
                 </div>
-                <span class="gerente-role">
-                <i class="bi bi-person-workspace"></i>
-                Aluno
-                </span>
+
             </header>
 
             <?php if (!empty($mensagem_sucesso)): ?>
@@ -943,7 +944,7 @@ try {
                     aria-hidden="true"
                 >
                     <div class="modal-dialog modal-dialog-centered">
-                        <div class="modal-content shadow border-0">
+                        <div class="modal-content shadow border-0 aluno-agendamento-confirmation">
                             <div class="modal-header bg-dark text-white">
                                 <h5 class="modal-title fw-bold" id="<?= htmlspecialchars($modalAgendamento['id'], ENT_QUOTES, 'UTF-8'); ?>Label">
                                     Confirmar agendamento

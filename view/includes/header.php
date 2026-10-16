@@ -10,6 +10,15 @@ $notifications = [
     'lista' => [],
 ];
 $perfilUsuario = (int)($_SESSION['usuario']['perfil_id'] ?? 0);
+$nomesPerfis = [
+    1 => 'Administrador',
+    2 => 'Gerente',
+    3 => 'Professor',
+    4 => 'Aluno',
+];
+$perfil = $nomesPerfis[$perfilUsuario] ?? 'Usuário';
+$idAcademiaHeader = (int)($_SESSION['usuario']['id_academia'] ?? $_SESSION['id_academia'] ?? 0);
+$nomeAcademiaHeader = null;
 $is_aluno = isset($_SESSION['usuario']) && (int)$_SESSION['usuario']['perfil_id'] === 4;
 $idUsuarioHeader = (int)($_SESSION['usuario']['id_usuario'] ?? 0);
 $nomeUsuarioHeader = (string)($_SESSION['usuario']['nome'] ?? 'Usuário');
@@ -39,11 +48,25 @@ foreach (['webp', 'png', 'jpg', 'jpeg'] as $extensaoAvatar) {
 if (isset($_SESSION['usuario']) && !isset($_SESSION['avatar_csrf_token'])) {
     $_SESSION['avatar_csrf_token'] = bin2hex(random_bytes(32));
 }
+if (!isset($_SESSION['senha_csrf_token'])) {
+    $_SESSION['senha_csrf_token'] = bin2hex(random_bytes(32));
+}
 $avatarFeedback = $_SESSION['avatar_feedback'] ?? null;
 unset($_SESSION['avatar_feedback']);
+$senhaModalFeedback = $_SESSION['senha_modal_feedback'] ?? null;
+unset($_SESSION['senha_modal_feedback']);
 $homeUrl = isset($_SESSION['usuario']) && (int) ($_SESSION['usuario']['perfil_id'] ?? 0) === 4
     ? '../aluno/home_aluno.php'
     : ($perfilUsuario === 3 ? '../professor/home_professor.php' : '../gerente/home_gerente.php');
+
+if ($idAcademiaHeader > 0) {
+    require_once __DIR__ . '/../../model/dao/Conexao.php';
+    $stmtAcademiaHeader = \Conexao::getConexao()->prepare(
+        'SELECT nome FROM academia WHERE id_academia = :id_academia LIMIT 1'
+    );
+    $stmtAcademiaHeader->execute([':id_academia' => $idAcademiaHeader]);
+    $nomeAcademiaHeader = $stmtAcademiaHeader->fetchColumn() ?: null;
+}
 
 // Se for um Gerente logado, busca as notificações financeiras
 if (isset($_SESSION['usuario']) && $perfilUsuario === 2 && isset($_SESSION['id_academia'])) {
@@ -270,7 +293,12 @@ $total_notif_header = count($notificacoes_aluno);
                             <span><?= htmlspecialchars($iniciaisUsuarioHeader, ENT_QUOTES, 'UTF-8'); ?></span>
                         <?php endif; ?>
                     </span>
-                    <span class="user-greeting">Olá, <strong><?= htmlspecialchars($nomeUsuarioHeader, ENT_QUOTES, 'UTF-8'); ?></strong></span>
+                    <span class="user-greeting">
+                        <strong><?= htmlspecialchars($perfil, ENT_QUOTES, 'UTF-8'); ?></strong>
+                        <?php if ($nomeAcademiaHeader !== null): ?>
+                            <small class="d-block"><?= htmlspecialchars($nomeAcademiaHeader, ENT_QUOTES, 'UTF-8'); ?></small>
+                        <?php endif; ?>
+                    </span>
                     <i class="bi bi-chevron-down profile-avatar-chevron" aria-hidden="true"></i>
                 </summary>
                 <div class="profile-avatar-menu">
@@ -281,10 +309,13 @@ $total_notif_header = count($notificacoes_aluno);
                             Meu perfil
                         </a>
                     <?php endif; ?>
-                    <a class="profile-avatar-profile-link" href="../alterar_senha.php">
+                    <button type="button"
+                            class="profile-avatar-profile-link border-0 w-100 text-start"
+                            data-bs-toggle="modal"
+                            data-bs-target="#modalAlterarSenha">
                         <i class="bi bi-key" aria-hidden="true"></i>
                         Alterar senha
-                    </a>
+                    </button>
                     <?php if ($avatarFeedback !== null): ?>
                         <p class="profile-avatar-feedback" role="status">
                             <?= $avatarFeedback === 'sucesso'
@@ -328,10 +359,77 @@ $total_notif_header = count($notificacoes_aluno);
     </div>
 </header>
 
+<div class="modal fade" id="modalAlterarSenha" tabindex="-1" aria-labelledby="modalAlterarSenhaLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content shadow border-0">
+            <div class="modal-header bg-dark text-white">
+                <h2 class="modal-title fs-5 fw-bold" id="modalAlterarSenhaLabel">Alterar senha</h2>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar"></button>
+            </div>
+            <form action="../../controller/AlterarSenhaController.php" method="POST" class="profile-password-form">
+                <div class="modal-body">
+                    <?php if (is_array($senhaModalFeedback)): ?>
+                        <?php if (!empty($senhaModalFeedback['sucesso'])): ?>
+                            <div class="alert alert-success" role="status">Sua senha foi alterada com sucesso.</div>
+                        <?php else: ?>
+                            <?php
+                            $errosSenhaModal = [
+                                'metodo_invalido' => 'Não foi possível processar a solicitação. Tente novamente.',
+                                'token' => 'Sua sessão expirou. Atualize a página e tente novamente.',
+                                'dados' => 'Preencha os campos com valores válidos.',
+                                'senha_curta' => 'A nova senha deve ter pelo menos 6 caracteres.',
+                                'confirmacao' => 'A nova senha e a confirmação não coincidem.',
+                                'senha_atual' => 'A senha atual está incorreta.',
+                                'sistema' => 'Não foi possível alterar sua senha. Tente novamente mais tarde.',
+                            ];
+                            $mensagemErroSenhaModal = $errosSenhaModal[(string)($senhaModalFeedback['erro'] ?? '')]
+                                ?? $errosSenhaModal['sistema'];
+                            ?>
+                            <div class="alert alert-danger" role="alert">
+                                <?= htmlspecialchars($mensagemErroSenhaModal, ENT_QUOTES, 'UTF-8'); ?>
+                            </div>
+                        <?php endif; ?>
+                    <?php endif; ?>
+
+                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['senha_csrf_token'], ENT_QUOTES, 'UTF-8'); ?>">
+                    <input type="hidden" name="return_to" value="<?= htmlspecialchars((string)($_SERVER['REQUEST_URI'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>">
+
+                    <div class="mb-3">
+                        <label for="senha_atual_modal" class="form-label">Senha atual</label>
+                        <input type="password" class="form-control" id="senha_atual_modal" name="senha_atual" autocomplete="current-password" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="senha_nova_modal" class="form-label">Nova senha</label>
+                        <input type="password" class="form-control" id="senha_nova_modal" name="senha_nova" minlength="6" autocomplete="new-password" required>
+                        <div class="form-text">Use pelo menos 6 caracteres.</div>
+                    </div>
+                    <div>
+                        <label for="confirmacao_senha_modal" class="form-label">Confirme a nova senha</label>
+                        <input type="password" class="form-control" id="confirmacao_senha_modal" name="confirmacao_senha" minlength="6" autocomplete="new-password" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-dark">Salvar nova senha</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <!-- SCRIPT PARA ABRIR/FECHAR O DROPDOWN -->
 
 <script src="../../assets/js/main.js?v=<?= filemtime(__DIR__ . '/../../assets/js/main.js'); ?>"></script>
 <script>
+    <?php if (is_array($senhaModalFeedback)): ?>
+        document.addEventListener('DOMContentLoaded', () => {
+            const senhaModalElement = document.getElementById('modalAlterarSenha');
+            if (senhaModalElement && window.bootstrap?.Modal) {
+                window.bootstrap.Modal.getOrCreateInstance(senhaModalElement).show();
+            }
+        });
+    <?php endif; ?>
+
     document.querySelectorAll('[data-profile-avatar]').forEach((avatarPicker) => {
         const userId = avatarPicker.dataset.userId;
         const avatar = avatarPicker.querySelector('[data-profile-avatar-display]');

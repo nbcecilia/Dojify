@@ -16,6 +16,9 @@ require_once __DIR__ . '/../../model/dao/PlanoDAO.php';
 $dao = new PlanoDAO();
 $idAcademia = (int) $_SESSION['id_academia'];
 $planos = $dao->listarPorAcademia($idAcademia);
+if (!isset($_SESSION['plano_status_csrf_token'])) {
+    $_SESSION['plano_status_csrf_token'] = bin2hex(random_bytes(32));
+}
 
 // Agrupar planos por aluno
 $alunosAgrupados = [];
@@ -39,6 +42,60 @@ foreach ($planos as $plano) {
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="../../assets/css/estilo.css">
+    <style>
+        .plano-actions {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .plano-status-form {
+            display: inline-flex;
+            align-items: center;
+            width: auto;
+            max-width: none;
+            margin: 0;
+            padding: 0;
+            border: 0;
+            border-radius: 0;
+            box-shadow: none;
+            background: transparent;
+        }
+
+        .table .plano-status-form > button[type="submit"] {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: auto;
+            margin: 0;
+            padding: 5px 10px;
+            font-size: 0.8rem;
+            line-height: 1.5;
+            border: 1px solid transparent;
+            border-radius: 4px;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        .table .plano-status-form > button.btn-danger[type="submit"] {
+            background-color: var(--action-danger);
+            color: #ffffff;
+        }
+
+        .table .plano-status-form > button.btn-danger[type="submit"]:hover {
+            background-color: var(--action-danger-hover);
+        }
+
+        .table .plano-status-form > button.btn-success[type="submit"] {
+            background-color: var(--action-submit);
+            color: #ffffff;
+        }
+
+        .table .plano-status-form > button.btn-success[type="submit"]:hover {
+            background-color: var(--action-submit-hover);
+        }
+    </style>
 
 </head>
 <body>
@@ -114,12 +171,28 @@ foreach ($planos as $plano) {
                                         <td><?= $plano['data_fim'] ? date('d/m/Y', strtotime($plano['data_fim'])) : '-' ?></td>
                                         <td><?= htmlspecialchars($plano['status']) ?></td>
                                         <td class="text-end">
+                                            <div class="plano-actions">
                                             <a href="editar_plano.php?id=<?= $plano['id_plano'] ?>" class="btn btn-info btn-sm">
                                                 <i class="bi bi-pencil me-1"></i> Editar
                                             </a>
-                                            <a href="../../controller/PlanoController.php?acao=excluir&id=<?= $plano['id_plano'] ?>" class="btn btn-danger btn-sm" onclick="return confirm('Deseja realmente excluir este plano?');">
-                                                <i class="bi bi-trash me-1"></i> Excluir
-                                            </a>
+                                            <?php if (strtoupper((string)$plano['status']) === 'INATIVO'): ?>
+                                                <form action="../../controller/PlanoController.php?acao=reativar" method="POST" class="plano-status-form" onsubmit="return confirm('Deseja reativar este plano?');">
+                                                    <input type="hidden" name="id" value="<?= (int)$plano['id_plano'] ?>">
+                                                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['plano_status_csrf_token'], ENT_QUOTES, 'UTF-8') ?>">
+                                                    <button type="submit" class="btn btn-success btn-sm">
+                                                        <i class="bi bi-arrow-counterclockwise me-1"></i> Ativar
+                                                    </button>
+                                                </form>
+                                            <?php elseif (strtoupper((string)$plano['status']) === 'ATIVO'): ?>
+                                                <form action="../../controller/PlanoController.php?acao=desativar" method="POST" class="plano-status-form" onsubmit="return confirm('Deseja desativar este plano?');">
+                                                    <input type="hidden" name="id" value="<?= (int)$plano['id_plano'] ?>">
+                                                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['plano_status_csrf_token'], ENT_QUOTES, 'UTF-8') ?>">
+                                                    <button type="submit" class="btn btn-danger btn-sm">
+                                                        <i class="bi bi-power me-1"></i> Desativar
+                                                    </button>
+                                                </form>
+                                            <?php endif; ?>
+                                            </div>
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>

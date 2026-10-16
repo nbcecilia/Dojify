@@ -85,7 +85,7 @@ try {
         <div class="navbar-user">
 
             <span class="user-greeting">
-                Olá, <strong><?= $nomeAdmin ?></strong>
+             <strong><?= $nomeAdmin ?></strong>
             </span>
 
             <a href="../alterar_senha.php" class="btn btn-sm btn-voltar">Alterar senha</a>
@@ -129,15 +129,6 @@ try {
                 </p> 
 
             </div>
-
-
-            <span class="gerente-role">
-
-                <i class="bi bi-shield-lock"></i>
-
-                Suporte Técnico
-
-            </span>
 
         </header>
 

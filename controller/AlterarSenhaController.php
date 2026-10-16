@@ -11,6 +11,35 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
+$redirecionarComFeedback = static function (string $erro = '', bool $sucesso = false): void {
+    $destino = $_POST['return_to'] ?? '';
+    $partesDestino = is_string($destino) ? parse_url($destino) : false;
+    $caminhoApp = rtrim(str_replace('\\', '/', dirname(dirname((string)($_SERVER['SCRIPT_NAME'] ?? '')))), '/');
+    $caminhoDestino = is_array($partesDestino) ? ($partesDestino['path'] ?? '') : '';
+
+    $retornoValido = is_array($partesDestino)
+        && !isset($partesDestino['scheme'])
+        && !isset($partesDestino['host'])
+        && $caminhoDestino !== ''
+        && ($caminhoApp === '' || $caminhoDestino === $caminhoApp || str_starts_with($caminhoDestino, $caminhoApp . '/'));
+
+    if (!$retornoValido) {
+        unset($_SESSION['senha_modal_feedback']);
+        $destino = '../view/alterar_senha.php?' . ($sucesso ? 'sucesso=1' : 'erro=' . rawurlencode($erro));
+    } else {
+        $destino = $caminhoDestino;
+        if (isset($partesDestino['query'])) {
+            $destino .= '?' . $partesDestino['query'];
+        }
+        $_SESSION['senha_modal_feedback'] = $sucesso
+            ? ['sucesso' => true]
+            : ['erro' => $erro];
+    }
+
+    header('Location: ' . $destino);
+    exit;
+};
+
 $tokenSessao = $_SESSION['senha_csrf_token'] ?? '';
 $tokenFormulario = $_POST['csrf_token'] ?? '';
 if (
@@ -19,26 +48,22 @@ if (
     $tokenSessao === '' ||
     !hash_equals($tokenSessao, $tokenFormulario)
 ) {
-    header('Location: ../view/alterar_senha.php?erro=token');
-    exit;
+    $redirecionarComFeedback('token');
 }
 
 $senhaAtual = $_POST['senha_atual'] ?? '';
 $senhaNova = $_POST['senha_nova'] ?? '';
 $confirmacaoSenha = $_POST['confirmacao_senha'] ?? '';
 if (!is_string($senhaAtual) || !is_string($senhaNova) || !is_string($confirmacaoSenha)) {
-    header('Location: ../view/alterar_senha.php?erro=dados');
-    exit;
+    $redirecionarComFeedback('dados');
 }
 
 if (strlen($senhaNova) < 6) {
-    header('Location: ../view/alterar_senha.php?erro=senha_curta');
-    exit;
+    $redirecionarComFeedback('senha_curta');
 }
 
 if ($senhaNova !== $confirmacaoSenha) {
-    header('Location: ../view/alterar_senha.php?erro=confirmacao');
-    exit;
+    $redirecionarComFeedback('confirmacao');
 }
 
 try {
@@ -51,8 +76,7 @@ try {
     $senhaHashAtual = $stmt->fetchColumn();
 
     if (!is_string($senhaHashAtual) || !password_verify($senhaAtual, $senhaHashAtual)) {
-        header('Location: ../view/alterar_senha.php?erro=senha_atual');
-        exit;
+        $redirecionarComFeedback('senha_atual');
     }
 
     $stmt = $pdo->prepare('UPDATE login SET senha_hash = :senha_hash WHERE id_usuario = :id_usuario');
@@ -61,10 +85,9 @@ try {
         ':id_usuario' => $idUsuario,
     ]);
 
-    header('Location: ../view/alterar_senha.php?sucesso=1');
-    exit;
+    $_SESSION['senha_csrf_token'] = bin2hex(random_bytes(32));
+    $redirecionarComFeedback('', true);
 } catch (PDOException $e) {
     error_log('Falha ao alterar a senha do usuário ' . (int)$_SESSION['usuario']['id_usuario'] . ': ' . $e->getMessage());
-    header('Location: ../view/alterar_senha.php?erro=sistema');
-    exit;
+    $redirecionarComFeedback('sistema');
 }

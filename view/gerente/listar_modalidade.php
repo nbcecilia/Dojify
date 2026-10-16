@@ -81,10 +81,10 @@ $modalidades = $dao->listarPorAcademia($idAcademia);
                                         <a href="editar_modalidade.php?id=<?= $modalidade['id_modalidade'] ?>" class="btn btn-info btn-sm">
                                             <i class="bi bi-pencil me-1"></i> Editar
                                         </a>
-                                        <a href="../../controller/ModalidadeController.php?acao=excluir&id=<?= $modalidade['id_modalidade'] ?>" 
+                                        <a href="../../controller/ModalidadeController.php?acao=desativar&id=<?= $modalidade['id_modalidade'] ?>" 
                                            class="btn btn-danger btn-sm" 
-                                           onclick="return confirm('Deseja realmente excluir esta modalidade?');">
-                                            <i class="bi bi-trash me-1"></i> Excluir
+                                           onclick="return confirm('Deseja realmente desativar esta modalidade?');">
+                                            <i class="bi bi-trash me-1"></i> Desativar
                                         </a>
                                     </td>
                                 </tr>

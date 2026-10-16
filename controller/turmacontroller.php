@@ -38,8 +38,12 @@ class TurmaController {
                 $this->atualizar();
                 break;
 
-            case 'excluir':
-                $this->excluir();
+            case 'desativar':
+                $this->alterarStatus(false);
+                break;
+
+            case 'reativar':
+                $this->alterarStatus(true);
                 break;
 
             default:
@@ -154,28 +158,32 @@ class TurmaController {
         exit;
     }
 
-    private function excluir(): void {
-
-        $id = (int) ($_GET['id'] ?? 0);
-
-        $idAcademia = (int) $_SESSION['id_academia'];
-
+    private function alterarStatus(bool $reativar): void {
+        $tokenSessao = $_SESSION['turma_status_csrf_token'] ?? '';
+        $tokenFormulario = $_POST['csrf_token'] ?? '';
         if (
-            $id > 0 &&
-            $this->dao->excluir($id, $idAcademia)
+            $_SERVER['REQUEST_METHOD'] !== 'POST' ||
+            !is_string($tokenSessao) ||
+            !is_string($tokenFormulario) ||
+            $tokenSessao === '' ||
+            !hash_equals($tokenSessao, $tokenFormulario)
         ) {
-
-            header(
-                'Location: ../view/gerente/listar_turma.php?sucesso=1'
-            );
-
-        } else {
-
-            header(
-                'Location: ../view/gerente/listar_turma.php?erro=1'
-            );
+            header('Location: ../view/gerente/listar_turma.php?erro=1');
+            exit;
         }
 
+        $id = filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT);
+        $idAcademia = (int)$_SESSION['id_academia'];
+        $sucesso = $id && $id > 0 && (
+            $reativar
+                ? $this->dao->reativar($id, $idAcademia)
+                : $this->dao->desativar($id, $idAcademia)
+        );
+
+        header(
+            'Location: ../view/gerente/listar_turma.php?'
+            . ($sucesso ? 'sucesso=1' : 'erro=1')
+        );
         exit;
     }
 }

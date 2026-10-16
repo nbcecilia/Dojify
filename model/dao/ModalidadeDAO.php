@@ -79,7 +79,7 @@ class ModalidadeDAO {
         }
     }
 
-    public function excluir(int $id, int $idAcademia): bool {
+    public function desativar(int $id, int $idAcademia): bool {
         try {
             $sql = "DELETE FROM modalidade 
                     WHERE id_modalidade = :id

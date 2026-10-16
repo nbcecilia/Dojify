@@ -47,14 +47,32 @@ class PlanoDAO {
         }
     }
 
-    public function excluir(int $id) {
+    public function desativar(int $id, int $idAcademia): bool {
+        return $this->atualizarStatus($id, $idAcademia, 'INATIVO');
+    }
+
+    public function reativar(int $id, int $idAcademia): bool {
+        return $this->atualizarStatus($id, $idAcademia, 'ATIVO');
+    }
+
+    private function atualizarStatus(int $id, int $idAcademia, string $status): bool {
         try {
             $pdo = Conexao::getConexao();
-            $sql = "DELETE FROM plano WHERE id_plano = :id";
+            $sql = "UPDATE plano p
+                    INNER JOIN usuario u ON u.id_usuario = p.id_usuario_aluno
+                    SET p.status = :status
+                    WHERE p.id_plano = :id
+                      AND u.id_academia = :id_academia";
             $stmt = $pdo->prepare($sql);
-            $stmt->bindValue(':id', $id, PDO::PARAM_INT);
-            return $stmt->execute();
+            $stmt->execute([
+                ':status' => $status,
+                ':id' => $id,
+                ':id_academia' => $idAcademia,
+            ]);
+
+            return $stmt->rowCount() > 0;
         } catch (PDOException $e) {
+            error_log('Falha ao atualizar status do plano ' . $id . ': ' . $e->getMessage());
             return false;
         }
     }

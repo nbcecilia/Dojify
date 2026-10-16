@@ -33,30 +33,25 @@ $kpis = $usuarioDAO->buscarIndicadoresGerente($idAcademia);
           href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
     <link rel="stylesheet" href="../../assets/css/estilo.css">
-    <link rel="stylesheet" href="../../assets/css/gerente.css?v=2">
+    <link rel="stylesheet" href="../../assets/css/gerente.css?v=10">
 </head>
 
 <body class="gerente-page">
 
     <?php include '../includes/header.php'; ?>
 
-    <main class="gerente-dashboard">
+    <main class="gerente-dashboard gerente-home-layout">
 
-        <header class="gerente-welcome">
+        <header class="gerente-welcome gerente-home-welcome">
             <div>
                 <h2>Olá, <?= $nomeGerente ?>!</h2>
                 <p>Tenha uma visão geral da academia e acesse rapidamente suas principais funções.</p>
             </div>
-
-            <span class="gerente-role">
-                <i class="bi bi-shield-check"></i>
-                Gerente
-            </span>
         </header>
 
 
         <!-- INDICADORES -->
-        <section class="gerente-kpis" aria-label="Resumo da academia">
+        <section class="gerente-kpis gerente-home-kpis" aria-label="Resumo da academia">
 
             <article class="gerente-kpi">
                 <div class="gerente-kpi-top">
@@ -109,128 +104,31 @@ $kpis = $usuarioDAO->buscarIndicadoresGerente($idAcademia);
         </section>
 
 
-        <!-- FUNÇÕES QUE O GERENTE HERDA DO PROFESSOR -->
-        <section href="../professor/listar_frequencia.php" class="gerente-section">
-
-            <div class="gerente-section-header">
-                <div>
-                    <h3 class="gerente-section-title">Atividades pedagógicas</h3>
-                    <p class="gerente-section-subtitle">
-                        Funções que o gerente também possui como professor.
-                    </p>
-                </div>
-            </div>
-
-            <div class="gerente-grid">
-
-                <article class="gerente-card">
-                    <div class="gerente-card-icon">
-                        <i class="bi bi-check2-square"></i>
-                    </div>
-
-                    <h3>Frequência</h3>
-
-                    <p>
-                        Registre e consulte a frequência dos alunos e acompanhe
-                        o histórico de assiduidade.
-                    </p>
-
-                    <div class="gerente-card-action">
-                        <a href="../professor/listar_frequencia.php" class="btn gerente-btn"> Acessar frequência </a>
-                    </div>
-                </article>
-
-
-                <article class="gerente-card">
-                    <div class="gerente-card-icon">
-                        <i class="bi bi-clipboard2-check"></i>
-                    </div>
-
-                    <h3>Avaliações</h3>
-
-                    <p>
-                        Registre avaliações, habilidades a melhorar e observações
-                        sobre o desempenho dos alunos.
-                    </p>
-
-                    <div class="gerente-card-action">
-                        <a href="../professor/listar_avaliacao.php" class="btn gerente-btn">Acessar avaliações</a>
-                    </div>
-                </article>
-
-
-                <article class="gerente-card">
-                    <div class="gerente-card-icon">
-                        <i class="bi bi-award"></i>
-                    </div>
-
-                    <h3>Graduações</h3>
-
-                    <p>
-                        Registre e acompanhe a evolução técnica, faixas e graus
-                        dos alunos por modalidade.
-                    </p>
-
-                    <div class="gerente-card-action">
-                        <a href="../professor/listar_graduacao.php"
-                           class="btn gerente-btn">
-                            Acessar graduações
-                        </a>
-                    </div>
-                </article>
-
-            </div>
-        </section>
-
-
-        <!-- ADMINISTRAÇÃO -->
-        <section class="gerente-section">
-
+        <!-- GESTÃO DA ACADEMIA -->
+        <section class="gerente-section-box gerente-home-gestao">
             <div class="gerente-section-header">
                 <div>
                     <h3 class="gerente-section-title">Gestão da academia</h3>
                     <p class="gerente-section-subtitle">
-                        Cadastros e configurações administrativas.
+                        Cadastre e configure os principais itens administrativos.
                     </p>
                 </div>
             </div>
 
             <div class="gerente-grid">
-
                 <article class="gerente-card">
                     <div class="gerente-card-icon">
                         <i class="bi bi-person-plus"></i>
                     </div>
 
-                    <h3>Alunos e professores</h3>
-
-                    <p>
-                        Cadastre novos alunos e professores no sistema.
-                    </p>
-
-                    <div class="gerente-card-action">
-                        <a href="cadastrar_aluno_prof.php"
-                           class="btn gerente-btn">
-                            Cadastrar
-                        </a>
-                    </div>
-                </article>
-
-
-                <article class="gerente-card">
-                    <div class="gerente-card-icon">
-                        <i class="bi bi-people"></i>
-                    </div>
-
                     <h3>Usuários</h3>
 
                     <p>
-                        Consulte e gerencie os usuários cadastrados na academia.
+                        Cadastre alunos e professores e consulte os dados da academia.
                     </p>
 
-                    <div class="gerente-card-action">
-                        <a href="listar_usuarios.php"
-                           class="btn gerente-btn">
+                    <div class="gerente-card-action d-flex flex-wrap gap-2">
+                        <a href="listar_usuarios.php" class="btn gerente-btn">
                             Gerenciar usuários
                         </a>
                     </div>
@@ -249,8 +147,7 @@ $kpis = $usuarioDAO->buscarIndicadoresGerente($idAcademia);
                     </p>
 
                     <div class="gerente-card-action">
-                        <a href="listar_modalidade.php"
-                           class="btn gerente-btn">
+                        <a href="listar_modalidade.php" class="btn gerente-btn">
                             Gerenciar modalidades
                         </a>
                     </div>
@@ -269,8 +166,7 @@ $kpis = $usuarioDAO->buscarIndicadoresGerente($idAcademia);
                     </p>
 
                     <div class="gerente-card-action">
-                        <a href="listar_turma.php"
-                           class="btn gerente-btn">
+                        <a href="listar_turma.php" class="btn gerente-btn">
                             Gerenciar turmas
                         </a>
                     </div>
@@ -289,8 +185,7 @@ $kpis = $usuarioDAO->buscarIndicadoresGerente($idAcademia);
                     </p>
 
                     <div class="gerente-card-action">
-                        <a href="listar_plano.php"
-                           class="btn gerente-btn">
+                        <a href="listar_plano.php" class="btn gerente-btn">
                             Gerenciar planos
                         </a>
                     </div>
@@ -305,111 +200,161 @@ $kpis = $usuarioDAO->buscarIndicadoresGerente($idAcademia);
                     <h3>Financeiro</h3>
 
                     <p>
-                        Registre pagamentos e acompanhe situações de inadimplência.
+                        Registre pagamentos e acompanhe funções de inadimplência.
                     </p>
 
                     <div class="gerente-card-action">
-                        <a href="listar_pagamentos.php"
-                           class="btn gerente-btn">
+                        <a href="listar_pagamentos.php" class="btn gerente-btn">
                             Acessar financeiro
                         </a>
                     </div>
                 </article>
-
             </div>
         </section>
 
 
-        <!-- AÇÕES RÁPIDAS -->
-        <section class="gerente-section">
+        <!-- LINHA: AÇÕES RÁPIDAS E ATIVIDADES PEDAGÓGICAS -->
+        <div class="gerente-home-pedagogia-actions">
 
-            <div class="gerente-section-header">
-                <div>
-                    <h3 class="gerente-section-title">Ações rápidas</h3>
-                    <p class="gerente-section-subtitle">
-                        Atalhos para as tarefas mais utilizadas.
-                    </p>
+            <!-- AÇÕES RÁPIDAS -->
+            <section class="gerente-section-box gerente-home-acoes">
+                <div class="gerente-section-header">
+                    <div>
+                        <h3 class="gerente-section-title">Ações rápidas</h3>
+                        <p class="gerente-section-subtitle">
+                            Atalhos para as tarefas mais utilizadas.
+                        </p>
+                    </div>
                 </div>
-            </div>
 
-            <div class="gerente-quick-grid">
+                <div class="gerente-quick-grid">
+                    <a href="cadastrar_aluno_prof.php" class="gerente-quick-action">
+                        <i class="bi bi-person-plus"></i>
+                        <div>
+                            <strong>Novo aluno/professor</strong>
+                            <span>Cadastrar usuário</span>
+                        </div>
+                    </a>
 
-                <a href="cadastrar_aluno_prof.php" class="gerente-quick-action">
-                    <i class="bi bi-person-plus"></i>
+                    <a href="../professor/registrar_frequencia.php" class="gerente-quick-action">
+                        <i class="bi bi-check2-square"></i>
+                        <div>
+                            <strong>Registrar frequência</strong>
+                            <span>Controle de presença</span>
+                        </div>
+                    </a>
+
+                    <a href="listar_pagamentos.php" class="gerente-quick-action">
+                        <i class="bi bi-cash-stack"></i>
+                        <div>
+                            <strong>Ver pagamentos</strong>
+                            <span>Controle financeiro</span>
+                        </div>
+                    </a>
+                </div>
+            </section>
+
+
+            <!-- ATIVIDADES PEDAGÓGICAS -->
+            <section class="gerente-section-box gerente-home-pedagogia">
+                <div class="gerente-section-header">
                     <div>
-                        <strong>Novo aluno/professor</strong>
-                        <span>Cadastrar usuário</span>
+                        <h3 class="gerente-section-title">Atividades pedagógicas</h3>
+                        <p class="gerente-section-subtitle">
+                            Funções que o gerente também pode acompanhar.
+                        </p>
                     </div>
-                </a>
+                </div>
 
-                <a href="../professor/registrar_frequencia.php" class="gerente-quick-action">
-                    <i class="bi bi-check2-square"></i>
-                    <div>
-                        <strong>Registrar frequência</strong>
-                        <span>Controle de presença</span>
-                    </div>
-                </a>
+                <div class="gerente-grid gerente-compact-grid">
+                    <article class="gerente-card">
+                        <div class="gerente-card-icon">
+                            <i class="bi bi-check2-square"></i>
+                        </div>
+                        <h3>Frequência</h3>
+                        <p>Registre a presença dos alunos nas aulas e acompanhe o histórico de assiduidade.</p>
+                        <div class="gerente-card-action">
+                            <a href="../professor/listar_frequencia.php" class="btn gerente-btn">Acessar frequência</a>
+                        </div>
+                    </article>
 
-                <a href="listar_pagamentos.php" class="gerente-quick-action">
-                    <i class="bi bi-cash-stack"></i>
-                    <div>
-                        <strong>Ver pagamentos</strong>
-                        <span>Controle financeiro</span>
-                    </div>
-                </a>
+                    <article class="gerente-card">
+                        <div class="gerente-card-icon">
+                            <i class="bi bi-clipboard2-check"></i>
+                        </div>
+                        <h3>Avaliações</h3>
+                        <p>Registre avaliações, acompanhe habilidades e evolução dos alunos.</p>
+                        <div class="gerente-card-action">
+                            <a href="../professor/listar_avaliacao.php" class="btn gerente-btn">Acessar avaliações</a>
+                        </div>
+                    </article>
 
-            </div>
-        </section>
+                    <article class="gerente-card">
+                        <div class="gerente-card-icon">
+                            <i class="bi bi-award"></i>
+                        </div>
+                        <h3>Graduações</h3>
+                        <p>Registre a promoção de graduações e acompanhe as faixas dos alunos por modalidade.</p>
+                        <div class="gerente-card-action">
+                            <a href="../professor/listar_graduacao.php" class="btn gerente-btn">Acessar graduações</a>
+                        </div>
+                    </article>
+                </div>
+            </section>
+
+        </div>
 
 
-        <!-- RESUMO FINANCEIRO -->
-        <section class="gerente-section">
+        <!-- RESUMO FINANCEIRO (ÚNICO E NORMALIZADO) -->
+        <section class="gerente-section-box gerente-home-financeiro">
 
             <div class="gerente-section-header">
                 <div>
-                <h3 class="gerente-section-title">Resumo financeiro</h3>
-                <p class="gerente-section-subtitle">
-                Situação atual das mensalidades da academia.</p>
+                    <h3 class="gerente-section-title">Resumo financeiro</h3>
+                    <p class="gerente-section-subtitle">
+                        Situação geral das movimentações da academia.
+                    </p>
                 </div>
             </div>
 
             <div class="gerente-finance-box">
                 <div class="gerente-panel">
-            <h4 class="gerente-panel-title">Situação das mensalidades</h4>
+                    <h4 class="gerente-panel-title">Situação das mensalidades</h4>
 
-            <div class="gerente-status-row">
-                <span>Pagamentos realizados</span>
-                <span class="gerente-status-value"><?= $kpis['pagamentos_realizados'] ?? '0' ?></span>
+                    <div class="gerente-status-row">
+                        <span>Pagamentos realizados</span>
+                        <span class="gerente-status-value"><?= $kpis['pagamentos_realizados'] ?? '0' ?></span>
+                    </div>
+
+                    <div class="gerente-status-row">
+                        <span>Pagamentos pendentes</span>
+                        <span class="gerente-status-value"><?= $kpis['pagamentos_pendentes'] ?? '0' ?></span>
+                    </div>
+
+                    <div class="gerente-status-row">
+                        <span>Pagamentos em atraso</span>
+                        <span class="gerente-status-value"><?= $kpis['pagamentos_em_atraso'] ?? '0' ?></span>
+                    </div>
+                </div>
+
+                <div class="gerente-panel gerente-panel-reports">
+                    <h4 class="gerente-panel-title">Relatórios Financeiros</h4>
+
+                    <p class="gerente-section-subtitle mb-3">
+                        Consulte os dados financeiros consolidados da academia.
+                    </p>
+
+                    <div class="gerente-panel-action">
+                        <a href="relatorio_financeiro.php" class="btn gerente-btn">
+                            <i class="bi bi-bar-chart me-2"></i>
+                            Emitir relatórios
+                        </a>
+                    </div>
+                </div>
             </div>
 
-            <div class="gerente-status-row">
-                <span>Pagamentos pendentes</span>
-                <span class="gerente-status-value"><?= $kpis['pagamentos_pendentes'] ?? '0' ?></span>
-            </div>
+        </section>
 
-            <div class="gerente-status-row">
-                <span>Pagamentos em atraso</span>
-                <span class="gerente-status-value"><?= $kpis['pagamentos_em_atraso'] ?? '0' ?></span>
-            </div>
-        </div>
-
-        <div class="gerente-panel gerente-panel-reports">
-            <h4 class="gerente-panel-title">Relatórios Financeiros</h4>
-
-            <p class="gerente-section-subtitle mb-3">
-                Consulte os dados financeiros consolidados da academia.
-            </p>
-
-            <div class="gerente-panel-action">
-                <a href="relatorio_financeiro.php" class="btn gerente-btn">
-                    <i class="bi bi-bar-chart me-2"></i>
-                    Emitir relatórios
-                </a>
-            </div>
-        </div>
-
-    </div>
-    </section>
     </main>
 
     <?php include '../includes/footer.php'; ?>
