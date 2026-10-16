@@ -783,6 +783,24 @@ body.aluno-theme.aluno-profile-page .aluno-profile-empty {
     color: var(--aluno-text-secondary);
 }
 
+/* ==========================================================
+   AJUSTE 1: AGENDA SEMANAL MAIS ESCURA E HARMÔNICA
+   ========================================================== */
+body.aluno-theme:not(.aluno-contract-page) .aluno-agenda-panel {
+   background: linear-gradient(135deg, #d4d4d4 0%, #a3a3a3 100%); 
+    border-color: #0d0d0e !important;
+    border-radius: 12px;
+}
+
+body.aluno-theme:not(.aluno-contract-page) .aluno-agenda-panel .aluno-dashboard-section-title {
+    color: #1b1b1b !important;
+}
+
+body.aluno-theme:not(.aluno-contract-page) .aluno-agenda-panel .aluno-dashboard-section-subtitle,
+body.aluno-theme:not(.aluno-contract-page) .aluno-agenda-panel .aluno-agenda-modalidades {
+    color: #2d2d30 !important;
+}
+/*=========================================================================== */
 @media (max-width: 767.98px) {
     body.aluno-theme.aluno-profile-page .aluno-profile-section {
         padding: 18px;

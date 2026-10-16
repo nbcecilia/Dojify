@@ -616,10 +616,10 @@ try {
 
         <?php else: ?>
             <header class="aluno-dashboard-welcome">
-                <div>
-                    <h2>Olá, <?= htmlspecialchars($_SESSION['usuario']['nome']) ?>!</h2>
+                <div class="text-start">
+                    <h2 class="text-start">Olá, <?= htmlspecialchars($_SESSION['usuario']['nome']) ?>!</h2>
+                    <p class="text-start text-muted mb-0">Gerencie seus agendamentos, consulte sua evolução, acompanhe suas avaliações e realize pagamentos.</p>
                 </div>
-
             </header>
 
             <?php if (!empty($mensagem_sucesso)): ?>
