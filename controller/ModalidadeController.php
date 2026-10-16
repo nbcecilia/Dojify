@@ -34,8 +34,9 @@ class ModalidadeController {
                 $this->atualizar();
                 break;
 
-            case 'excluir':
-                $this->excluir();
+            case 'desativar':
+            case 'reativar':
+                $this->alterarStatus($acao === 'reativar');
                 break;
 
             default:
@@ -70,7 +71,7 @@ class ModalidadeController {
         $idModalidade = filter_var($_POST['id_modalidade'] ?? null, FILTER_VALIDATE_INT);
         $nome = trim((string)($_POST['nome'] ?? ''));
         if (!$idModalidade || $idModalidade <= 0 || $nome === '') {
-            header('Location: ../view/gerente/editar_modalidade.php?id=' . (int)$idModalidade . '&erro=1');
+            header('Location: ../view/gerente/listar_modalidade.php?erro=1');
             exit;
         }
 
@@ -87,22 +88,35 @@ class ModalidadeController {
         if ($this->dao->atualizar($m)) {
             header('Location: ../view/gerente/listar_modalidade.php?sucesso=1');
         } else {
-            header('Location: ../view/gerente/editar_modalidade.php?id=' . $m->getIdModalidade() . '&erro=1');
+            header('Location: ../view/gerente/listar_modalidade.php?erro=1');
         }
 
         exit;
     }
 
-    private function excluir(): void {
-        $id = (int)($_GET['id'] ?? 0);
-        $idAcademia = (int)$_SESSION['id_academia'];
-
-        if ($id > 0 && $this->dao->excluir($id, $idAcademia)) {
-            header('Location: ../view/gerente/listar_modalidade.php?sucesso=1');
-        } else {
+    private function alterarStatus(bool $reativar): void {
+        $tokenSessao = $_SESSION['modalidade_status_csrf_token'] ?? '';
+        $tokenFormulario = $_POST['csrf_token'] ?? '';
+        if (
+            $_SERVER['REQUEST_METHOD'] !== 'POST' ||
+            !is_string($tokenSessao) ||
+            !is_string($tokenFormulario) ||
+            $tokenSessao === '' ||
+            !hash_equals($tokenSessao, $tokenFormulario)
+        ) {
             header('Location: ../view/gerente/listar_modalidade.php?erro=1');
+            exit;
         }
 
+        $id = filter_var($_POST['id'] ?? null, FILTER_VALIDATE_INT);
+        $idAcademia = (int)$_SESSION['id_academia'];
+        $sucesso = $id && $id > 0 && (
+            $reativar
+                ? $this->dao->reativar($id, $idAcademia)
+                : $this->dao->desativar($id, $idAcademia)
+        );
+
+        header('Location: ../view/gerente/listar_modalidade.php?' . ($sucesso ? 'sucesso=1' : 'erro=1'));
         exit;
     }
 }

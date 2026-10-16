@@ -30,6 +30,20 @@ class ModalidadeDAO {
         $sql = "SELECT * 
                 FROM modalidade 
                 WHERE id_academia = :id_academia
+                AND status = 'ATIVA'
+                ORDER BY id_modalidade DESC";
+
+        $stmt = $this->conexao->prepare($sql);
+        $stmt->bindValue(':id_academia', $idAcademia, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function listarTodasPorAcademia(int $idAcademia): array {
+        $sql = "SELECT *
+                FROM modalidade
+                WHERE id_academia = :id_academia
                 ORDER BY id_modalidade DESC";
 
         $stmt = $this->conexao->prepare($sql);
@@ -43,7 +57,8 @@ class ModalidadeDAO {
         $sql = "SELECT * 
                 FROM modalidade 
                 WHERE id_modalidade = :id
-                AND id_academia = :id_academia";
+                AND id_academia = :id_academia
+                AND status = 'ATIVA'";
 
         $stmt = $this->conexao->prepare($sql);
         $stmt->bindValue(':id', $id, PDO::PARAM_INT);
@@ -61,7 +76,8 @@ class ModalidadeDAO {
                     SET nome = :nome, 
                         descricao = :descricao
                     WHERE id_modalidade = :id
-                    AND id_academia = :id_academia";
+                    AND id_academia = :id_academia
+                    AND status = 'ATIVA'";
 
             $stmt = $this->conexao->prepare($sql);
             $stmt->bindValue(':nome', $modalidade->getNome());
@@ -80,17 +96,29 @@ class ModalidadeDAO {
     }
 
     public function desativar(int $id, int $idAcademia): bool {
+        return $this->atualizarStatus($id, $idAcademia, 'INATIVA');
+    }
+
+    public function reativar(int $id, int $idAcademia): bool {
+        return $this->atualizarStatus($id, $idAcademia, 'ATIVA');
+    }
+
+    private function atualizarStatus(int $id, int $idAcademia, string $status): bool {
         try {
-            $sql = "DELETE FROM modalidade 
+            $sql = "UPDATE modalidade
+                    SET status = :status
                     WHERE id_modalidade = :id
                     AND id_academia = :id_academia";
 
             $stmt = $this->conexao->prepare($sql);
+            $stmt->bindValue(':status', $status);
             $stmt->bindValue(':id', $id, PDO::PARAM_INT);
             $stmt->bindValue(':id_academia', $idAcademia, PDO::PARAM_INT);
 
-            return $stmt->execute();
+            $stmt->execute();
+            return $stmt->rowCount() > 0;
         } catch (PDOException $e) {
+            error_log('Falha ao alterar status da modalidade ' . $id . ': ' . $e->getMessage());
             return false;
         }
     }
@@ -99,6 +127,7 @@ class ModalidadeDAO {
         $sql = "SELECT * 
                 FROM modalidade
                 WHERE id_academia = :id_academia
+                AND status = 'ATIVA'
                 AND nome LIKE :termo
                 ORDER BY id_modalidade DESC";
 

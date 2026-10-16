@@ -94,6 +94,7 @@ CREATE TABLE IF NOT EXISTS `dojify_1`.`modalidade` (
   `id_academia` INT(11) NOT NULL COMMENT 'Vínculo com a academia proprietária.',
   `nome` VARCHAR(100) NOT NULL COMMENT 'Nome da modalidade (ex: Jiu-Jitsu, Muay Thai).\n',
   `descricao` TEXT NULL DEFAULT NULL COMMENT 'Detalhes sobre a prática ou requisitos.\n',
+  `status` VARCHAR(20) NOT NULL DEFAULT 'ATIVA' COMMENT 'Indica se a modalidade está disponível para novos vínculos.',
   PRIMARY KEY (`id_modalidade`),
   INDEX `id_academia` (`id_academia` ASC) ,
   CONSTRAINT `modalidade_ibfk_1`
@@ -103,6 +104,10 @@ CREATE TABLE IF NOT EXISTS `dojify_1`.`modalidade` (
     ON UPDATE CASCADE)
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb4;
+
+ALTER TABLE `dojify_1`.`modalidade`
+  ADD COLUMN IF NOT EXISTS `status` VARCHAR(20) NOT NULL DEFAULT 'ATIVA'
+  COMMENT 'Indica se a modalidade está disponível para novos vínculos.';
 
 -- -----------------------------------------------------
 -- Table `dojify_1`.`turma`

@@ -42,6 +42,7 @@ class TurmaDAO {
                         FROM modalidade
                         WHERE id_modalidade = :id_modalidade
                         AND id_academia = :id_academia
+                        AND status = 'ATIVA'
                     )";
 
             $stmt = $this->conexao->prepare($sql);
@@ -216,7 +217,14 @@ class TurmaDAO {
                         t.status = :status
                     WHERE t.id_turma = :id
                     AND u.id_academia = :id_academia
-                    AND m.id_academia = :id_academia";
+                    AND m.id_academia = :id_academia_modalidade
+                    AND EXISTS (
+                        SELECT 1
+                        FROM modalidade modalidade_ativa
+                        WHERE modalidade_ativa.id_modalidade = :id_modalidade_ativa
+                          AND modalidade_ativa.id_academia = :id_academia_destino
+                          AND modalidade_ativa.status = 'ATIVA'
+                    )";
 
             $stmt = $this->conexao->prepare($sql);
 
@@ -228,6 +236,12 @@ class TurmaDAO {
 
             $stmt->bindValue(
                 ':id_modalidade',
+                $turma->getIdModalidade(),
+                PDO::PARAM_INT
+            );
+
+            $stmt->bindValue(
+                ':id_modalidade_ativa',
                 $turma->getIdModalidade(),
                 PDO::PARAM_INT
             );
@@ -261,6 +275,18 @@ class TurmaDAO {
 
             $stmt->bindValue(
                 ':id_academia',
+                $idAcademia,
+                PDO::PARAM_INT
+            );
+
+            $stmt->bindValue(
+                ':id_academia_modalidade',
+                $idAcademia,
+                PDO::PARAM_INT
+            );
+
+            $stmt->bindValue(
+                ':id_academia_destino',
                 $idAcademia,
                 PDO::PARAM_INT
             );
@@ -338,6 +364,7 @@ class TurmaDAO {
                     nome
                 FROM modalidade
                 WHERE id_academia = :id_academia
+                AND status = 'ATIVA'
                 ORDER BY nome";
 
         $stmt = $this->conexao->prepare($sql);

@@ -145,7 +145,7 @@ class UsuarioController {
                 throw new Exception("Preencha todos os campos obrigatórios corretamente.");
             }
 
-            $stmtModalidade = $pdo->prepare("SELECT 1 FROM modalidade WHERE id_modalidade = ? AND id_academia = ?");
+            $stmtModalidade = $pdo->prepare("SELECT 1 FROM modalidade WHERE id_modalidade = ? AND id_academia = ? AND status = 'ATIVA'");
             foreach ($idsModalidades as $idModalidadeSelecionada) {
                 $stmtModalidade->execute([$idModalidadeSelecionada, $idAcademia]);
                 if (!$stmtModalidade->fetchColumn()) {
@@ -400,7 +400,7 @@ class UsuarioController {
                 throw new Exception("Preencha todos os campos obrigatórios corretamente.");
             }
 
-            $stmtModalidade = $pdo->prepare("SELECT 1 FROM modalidade WHERE id_modalidade = ? AND id_academia = ?");
+            $stmtModalidade = $pdo->prepare("SELECT 1 FROM modalidade WHERE id_modalidade = ? AND id_academia = ? AND status = 'ATIVA'");
             foreach ($idsModalidades as $idModalidadeSelecionada) {
                 $stmtModalidade->execute([$idModalidadeSelecionada, $idAcademia]);
                 if (!$stmtModalidade->fetchColumn()) {

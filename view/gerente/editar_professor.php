@@ -33,7 +33,7 @@ if (!$professor) {
 }
 
 // Busca modalidades para a especialidade, caso necessário
-$stmtModalidades = $pdo->prepare("SELECT id_modalidade, nome FROM modalidade WHERE id_academia = :id_academia");
+$stmtModalidades = $pdo->prepare("SELECT id_modalidade, nome FROM modalidade WHERE id_academia = :id_academia AND status = 'ATIVA'");
 $stmtModalidades->execute([':id_academia' => $idAcademiaLogada]);
 $modalidades = $stmtModalidades->fetchAll(PDO::FETCH_ASSOC);
 ?>
