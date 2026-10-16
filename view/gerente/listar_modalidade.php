@@ -86,9 +86,9 @@ if (!isset($_SESSION['modalidade_status_csrf_token'])) {
     <main class="container my-4">
         <header class="d-flex justify-content-between align-items-center mb-4">
             <div>
-                <a href="cadastrar_modalidade.php" class="btn btn-success">
+                <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalCadastrarModalidade">
                     <i class="bi bi-plus-circle me-1"></i> Cadastrar Modalidade
-                </a>
+                </button>
             </div>
         </header>
 
@@ -100,7 +100,7 @@ if (!isset($_SESSION['modalidade_status_csrf_token'])) {
                 </div>
             <?php endif; ?>
 
-            <?php if (isset($_GET['erro'])): ?>
+            <?php if (isset($_GET['erro']) && !isset($_GET['modal'])): ?>
                 <div class="alert alert-danger alert-dismissible fade show" role="alert">
                     <i class="bi bi-exclamation-triangle-fill me-2"></i> Não foi possível realizar a operação.
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
@@ -165,6 +165,42 @@ if (!isset($_SESSION['modalidade_status_csrf_token'])) {
         </section>
     </main>
 
+    <div class="modal fade" id="modalCadastrarModalidade" tabindex="-1" aria-labelledby="modalCadastrarModalidadeLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <form action="../../controller/ModalidadeController.php" method="POST" class="p-0 border-0 shadow-none bg-transparent">
+                    <div class="modal-header">
+                        <div>
+                            <h2 class="modal-title fs-5" id="modalCadastrarModalidadeLabel">Cadastrar Modalidade</h2>
+                            <p class="text-muted small mb-0">Informe os dados da modalidade oferecida pela academia.</p>
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" name="acao" value="cadastrar">
+                        <?php if (isset($_GET['modal']) && $_GET['modal'] === 'cadastrar' && isset($_GET['erro'])): ?>
+                            <div class="alert alert-danger" role="alert">Não foi possível cadastrar a modalidade. Verifique os dados e tente novamente.</div>
+                        <?php endif; ?>
+                        <div class="mb-3">
+                            <label for="nova_modalidade_nome" class="form-label">Nome da modalidade <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="nova_modalidade_nome" name="nome" maxlength="100" required>
+                        </div>
+                        <div>
+                            <label for="nova_modalidade_descricao" class="form-label">Descrição</label>
+                            <textarea class="form-control" id="nova_modalidade_descricao" name="descricao" rows="4"></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-success">
+                            <i class="bi bi-check-circle me-1"></i> Cadastrar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <div class="modal fade" id="modalEditarModalidade" tabindex="-1" aria-labelledby="modalEditarModalidadeLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 shadow">
@@ -199,6 +235,12 @@ if (!isset($_SESSION['modalidade_status_csrf_token'])) {
     <?php include '../includes/footer.php'; ?>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        <?php if (isset($_GET['modal']) && $_GET['modal'] === 'cadastrar' && isset($_GET['erro'])): ?>
+        document.addEventListener('DOMContentLoaded', function () {
+            bootstrap.Modal.getOrCreateInstance(document.getElementById('modalCadastrarModalidade')).show();
+        });
+        <?php endif; ?>
+
         document.getElementById('modalEditarModalidade').addEventListener('show.bs.modal', function (event) {
             const button = event.relatedTarget;
             this.querySelector('#editar_id_modalidade').value = button.dataset.id;

@@ -53,13 +53,19 @@ class ModalidadeController {
         // A academia vem da sessão, não do formulário
         $m->setIdAcademia((int)$_SESSION['id_academia']);
 
-        $m->setNome(trim($_POST['nome']));
+        $nome = trim((string)($_POST['nome'] ?? ''));
+        if ($nome === '') {
+            header('Location: ../view/gerente/listar_modalidade.php?erro=1&modal=cadastrar');
+            exit;
+        }
+
+        $m->setNome($nome);
         $m->setDescricao(trim($_POST['descricao'] ?? ''));
 
         if ($this->dao->cadastrar($m)) {
             header('Location: ../view/gerente/listar_modalidade.php?sucesso=1');
         } else {
-            header('Location: ../view/gerente/cadastrar_modalidade.php?erro=1');
+            header('Location: ../view/gerente/listar_modalidade.php?erro=1&modal=cadastrar');
         }
 
         exit;
