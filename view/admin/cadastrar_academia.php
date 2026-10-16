@@ -31,9 +31,26 @@ if (!isset($_SESSION['usuario']) || $_SESSION['usuario']['perfil_id'] != 1) {
         </div>
         
         <div class="navbar-user">
-            <span class="user-greeting">Olá, <strong><?= htmlspecialchars($_SESSION['usuario']['nome']) ?></strong></span>
-                <a href="../alterar_senha.php" class="btn btn-sm btn-voltar">Alterar senha</a>
-                <a
+            <div class="dropdown">
+                <button
+                    class="btn btn-link text-white text-decoration-none dropdown-toggle d-flex align-items-center gap-2 p-0 border-0"
+                    type="button"
+                    id="userDropdown"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
+                >
+                    <i class="bi bi-person-circle fs-5"></i>
+                    <strong><?= htmlspecialchars($_SESSION['usuario']['nome'], ENT_QUOTES, 'UTF-8') ?></strong>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end shadow-sm" aria-labelledby="userDropdown">
+                    <li>
+                        <a class="dropdown-item d-flex align-items-center gap-2" href="../alterar_senha.php">
+                            <i class="bi bi-key"></i> Alterar senha
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            <a
                 href="../../controller/LoginController.php?acao=logout"
                 class="btn btn-sm btn-danger header-logout-button"
                 aria-label="Sair"
