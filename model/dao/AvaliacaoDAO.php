@@ -71,28 +71,11 @@ class AvaliacaoDAO
         int $idModalidade,
         ?string $dataPrevista
     ): bool {
-        $stmt = $this->conexao->prepare("
-            SELECT COUNT(DISTINCT aluno.id_usuario)
-            FROM usuario staff
-            INNER JOIN usuario aluno
-                ON aluno.id_usuario = :aluno
-                AND aluno.id_academia = staff.id_academia
-                AND aluno.perfil_id = 4
-                AND aluno.status = 'ATIVO'
-            INNER JOIN plano
-                ON plano.id_usuario_aluno = aluno.id_usuario
-                AND plano.id_modalidade = :modalidade
-                AND plano.status = 'ATIVO'
-            WHERE staff.id_usuario = :professor
-              AND staff.id_academia IS NOT NULL
-              AND staff.perfil_id IN (2, 3)
-        ");
-        $stmt->execute([
-            'aluno' => $avaliacao->getIdUsuarioAluno(),
-            'modalidade' => $idModalidade,
-            'professor' => $avaliacao->getIdUsuarioProfessor(),
-        ]);
-        if ((int)$stmt->fetchColumn() < 1) {
+        if (!$this->alunoTemMatriculaAtiva(
+            $avaliacao->getIdUsuarioProfessor(),
+            $avaliacao->getIdUsuarioAluno(),
+            $idModalidade
+        )) {
             throw new DomainException('Aluno, modalidade ou avaliador inválido.');
         }
 
@@ -111,6 +94,111 @@ class AvaliacaoDAO
             'habilidades' => $avaliacao->getHabilidadesMelhorar(),
             'observacoes' => $avaliacao->getObservacoes(),
         ]);
+    }
+
+    public function atualizar(AvaliacaoDTO $avaliacao): bool
+    {
+        $stmt = $this->conexao->prepare("
+            SELECT id_usuario_aluno, id_modalidade
+            FROM avaliacao
+            WHERE id_avaliacao = :id_avaliacao
+              AND id_usuario_professor = :professor
+        ");
+        $stmt->execute([
+            'id_avaliacao' => $avaliacao->getIdAvaliacao(),
+            'professor' => $avaliacao->getIdUsuarioProfessor(),
+        ]);
+        $vinculoAtual = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$vinculoAtual) {
+            return false;
+        }
+
+        $mantemVinculoAtual =
+            (int)$vinculoAtual['id_usuario_aluno'] === (int)$avaliacao->getIdUsuarioAluno() &&
+            (int)$vinculoAtual['id_modalidade'] === (int)$avaliacao->getIdModalidade();
+        if (!$mantemVinculoAtual && !$this->alunoTemMatriculaAtiva(
+            $avaliacao->getIdUsuarioProfessor(),
+            $avaliacao->getIdUsuarioAluno(),
+            $avaliacao->getIdModalidade()
+        )) {
+            throw new DomainException('Aluno, modalidade ou avaliador inválido.');
+        }
+
+        $stmt = $this->conexao->prepare("
+            UPDATE avaliacao
+            SET id_usuario_aluno = :aluno,
+                id_modalidade = :modalidade,
+                data_avaliacao = :data,
+                data_prevista = :data_prevista,
+                habilidades_melhorar = :habilidades,
+                observacoes = :observacoes
+            WHERE id_avaliacao = :id_avaliacao
+              AND id_usuario_professor = :professor
+        ");
+        $stmt->execute([
+            'aluno' => $avaliacao->getIdUsuarioAluno(),
+            'modalidade' => $avaliacao->getIdModalidade(),
+            'data' => $avaliacao->getDataAvaliacao(),
+            'data_prevista' => $avaliacao->getDataPrevista(),
+            'habilidades' => $avaliacao->getHabilidadesMelhorar(),
+            'observacoes' => $avaliacao->getObservacoes(),
+            'id_avaliacao' => $avaliacao->getIdAvaliacao(),
+            'professor' => $avaliacao->getIdUsuarioProfessor(),
+        ]);
+
+        if ($stmt->rowCount() > 0) {
+            return true;
+        }
+
+        $stmt = $this->conexao->prepare("
+            SELECT 1
+            FROM avaliacao
+            WHERE id_avaliacao = :id_avaliacao
+              AND id_usuario_professor = :professor
+        ");
+        $stmt->execute([
+            'id_avaliacao' => $avaliacao->getIdAvaliacao(),
+            'professor' => $avaliacao->getIdUsuarioProfessor(),
+        ]);
+
+        return (bool)$stmt->fetchColumn();
+    }
+
+    private function alunoTemMatriculaAtiva(int $idProfessor, int $idAluno, int $idModalidade): bool
+    {
+        $stmt = $this->conexao->prepare("
+            SELECT COUNT(DISTINCT aluno.id_usuario)
+            FROM usuario staff
+            INNER JOIN usuario aluno
+                ON aluno.id_usuario = :aluno
+                AND aluno.id_academia = staff.id_academia
+                AND aluno.perfil_id = 4
+                AND aluno.status = 'ATIVO'
+            INNER JOIN plano
+                ON plano.id_usuario_aluno = aluno.id_usuario
+                AND plano.id_modalidade = :modalidade
+                AND plano.status = 'ATIVO'
+            WHERE staff.id_usuario = :professor
+              AND staff.id_academia IS NOT NULL
+              AND staff.perfil_id IN (2, 3)
+              AND (
+                  staff.perfil_id = 2
+                  OR EXISTS (
+                      SELECT 1
+                      FROM turma
+                      WHERE turma.id_usuario_professor = staff.id_usuario
+                        AND turma.id_modalidade = :modalidade_turma
+                  )
+              )
+        ");
+        $stmt->execute([
+            'aluno' => $idAluno,
+            'modalidade' => $idModalidade,
+            'modalidade_turma' => $idModalidade,
+            'professor' => $idProfessor,
+        ]);
+        return (int)$stmt->fetchColumn() > 0;
     }
 
     public function listarPorAcademia(int $idAcademia): array
@@ -188,8 +276,7 @@ class AvaliacaoDAO
             INNER JOIN usuario aluno ON aluno.id_usuario = avaliacao.id_usuario_aluno
             INNER JOIN usuario professor ON professor.id_usuario = avaliacao.id_usuario_professor
             LEFT JOIN modalidade ON modalidade.id_modalidade = avaliacao.id_modalidade
-            INNER JOIN turma t ON t.id_modalidade = avaliacao.id_modalidade
-            WHERE t.id_usuario_professor = :id_professor
+            WHERE avaliacao.id_usuario_professor = :id_professor
             ORDER BY avaliacao.data_avaliacao DESC
         ");
         $stmt->execute(['id_professor' => $idProfessor]);

@@ -58,6 +58,42 @@ class GraduacaoDAO
 		return $stmt->execute();
 	}
 
+	public function atualizar(int $idGraduacao, int $idProfessor, string $dataGraduacao, string $faixa, ?string $grau): bool
+	{
+		$stmt = $this->conexao->prepare("
+			UPDATE graduacao
+			SET data_graduacao = :data_graduacao,
+				faixa = :faixa,
+				grau = :grau
+			WHERE id_graduacao = :id_graduacao
+			  AND id_usuario_professor = :id_professor
+		");
+		$stmt->execute([
+			'data_graduacao' => $dataGraduacao,
+			'faixa' => $faixa,
+			'grau' => $grau !== '' ? $grau : null,
+			'id_graduacao' => $idGraduacao,
+			'id_professor' => $idProfessor,
+		]);
+
+		if ($stmt->rowCount() > 0) {
+			return true;
+		}
+
+		$stmt = $this->conexao->prepare("
+			SELECT 1
+			FROM graduacao
+			WHERE id_graduacao = :id_graduacao
+			  AND id_usuario_professor = :id_professor
+		");
+		$stmt->execute([
+			'id_graduacao' => $idGraduacao,
+			'id_professor' => $idProfessor,
+		]);
+
+		return (bool)$stmt->fetchColumn();
+	}
+
 	/**
 	 * Lista alunos da academia para o Gerente
 	 */
@@ -99,7 +135,7 @@ class GraduacaoDAO
 	 */
 	public function listarPorAcademia(int $idAcademia): array
 	{
-		$sql = "SELECT g.id_graduacao, g.data_graduacao, g.faixa, g.grau,
+		$sql = "SELECT g.id_graduacao, g.id_usuario_professor, g.data_graduacao, g.faixa, g.grau,
 					   u.nome AS nome_aluno, m.nome AS nome_modalidade, p.nome AS nome_professor
 				FROM graduacao g
 				INNER JOIN usuario u ON u.id_usuario = g.id_usuario_aluno
@@ -118,7 +154,7 @@ class GraduacaoDAO
 	 */
 	public function listarPorProfessor(int $idProfessor): array
 	{
-		$sql = "SELECT DISTINCT g.id_graduacao, g.data_graduacao, g.faixa, g.grau,
+		$sql = "SELECT DISTINCT g.id_graduacao, g.id_usuario_professor, g.data_graduacao, g.faixa, g.grau,
 					   u.nome AS nome_aluno, m.nome AS nome_modalidade, p.nome AS nome_professor
 				FROM graduacao g
 				INNER JOIN usuario u ON u.id_usuario = g.id_usuario_aluno

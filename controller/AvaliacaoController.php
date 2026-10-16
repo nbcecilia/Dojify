@@ -62,8 +62,75 @@ class AvaliacaoController
         $avaliacao->setHabilidadesMelhorar(trim($habilidades));
         $avaliacao->setObservacoes(trim($observacoes));
 
-        $this->dao->cadastrar($avaliacao, $idModalidade, $dataPrevista);
+        if (!$this->dao->cadastrar($avaliacao, $idModalidade, $dataPrevista)) {
+            return ['status' => false, 'mensagem' => 'Não foi possível registar a avaliação.'];
+        }
+
         return ['status' => true, 'mensagem' => 'Avaliação registada com sucesso!'];
+    }
+
+    public function atualizar(
+        int $idProfessor,
+        int $idAvaliacao,
+        int $idAluno,
+        int $idModalidade,
+        string $data,
+        ?string $dataPrevista,
+        string $habilidades,
+        string $observacoes
+    ): array {
+        if (
+            $idProfessor <= 0 ||
+            $idAvaliacao <= 0 ||
+            $idAluno <= 0 ||
+            $idModalidade <= 0 ||
+            $data === '' ||
+            trim($habilidades) === ''
+        ) {
+            return ['status' => false, 'mensagem' => 'Por favor, preencha todos os campos obrigatórios.'];
+        }
+
+        $dataAvaliacao = DateTime::createFromFormat('!Y-m-d', $data);
+        $errosDataAvaliacao = DateTime::getLastErrors();
+        if (
+            $dataAvaliacao === false ||
+            $dataAvaliacao->format('Y-m-d') !== $data ||
+            ($errosDataAvaliacao !== false &&
+                ($errosDataAvaliacao['warning_count'] > 0 || $errosDataAvaliacao['error_count'] > 0))
+        ) {
+            return ['status' => false, 'mensagem' => 'Informe uma data de avaliação válida.'];
+        }
+
+        if ($dataPrevista !== null && $dataPrevista !== '') {
+            $dataPrevistaObj = DateTime::createFromFormat('!Y-m-d', $dataPrevista);
+            $errosDataPrevista = DateTime::getLastErrors();
+            if (
+                $dataPrevistaObj === false ||
+                $dataPrevistaObj->format('Y-m-d') !== $dataPrevista ||
+                ($errosDataPrevista !== false &&
+                    ($errosDataPrevista['warning_count'] > 0 || $errosDataPrevista['error_count'] > 0))
+            ) {
+                return ['status' => false, 'mensagem' => 'Informe uma previsão de graduação válida.'];
+            }
+        } else {
+            $dataPrevista = null;
+        }
+
+        $avaliacao = new AvaliacaoDTO();
+        $avaliacao->setIdAvaliacao($idAvaliacao);
+        $avaliacao->setIdUsuarioProfessor($idProfessor);
+        $avaliacao->setIdUsuarioAluno($idAluno);
+        $avaliacao->setIdModalidade($idModalidade);
+        $avaliacao->setDataAvaliacao($data);
+        $avaliacao->setDataPrevista($dataPrevista);
+        $avaliacao->setHabilidadesMelhorar(trim($habilidades));
+        $avaliacao->setObservacoes(trim($observacoes));
+
+        if (!$this->dao->atualizar($avaliacao)) {
+            return ['status' => false, 'mensagem' => 'Não foi possível atualizar a avaliação.'];
+        }
+
+        return ['status' => true, 'mensagem' => 'Avaliação atualizada com sucesso!'];
     }
 
     public function listarPorAcademia(int $idAcademia): array
