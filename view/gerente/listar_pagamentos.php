@@ -17,9 +17,17 @@ $dao = new \PagamentoDAO();
 $idAcademia = (int) $_SESSION['id_academia'];
 $pagamentosBrutos = $dao->listarPagamentosDaAcademia($idAcademia);
 
+// Captura o termo digitado na pesquisa
+$termoBusca = trim($_GET['busca'] ?? '');
+
 // Agrupa e soma os valores por Aluno e por Mês/Ano de Vencimento
 $pagamentosAgrupados = [];
 foreach ($pagamentosBrutos as $pag) {
+    // Se houver termo de busca, filtra ignorando maiúsculas/minúsculas
+    if ($termoBusca !== '' && mb_stripos($pag['aluno_nome'], $termoBusca) === false) {
+        continue;
+    }
+
     // Cria uma chave única por Aluno + Mês/Ano de Vencimento + Estado
     $mesAno = date('Y-m', strtotime($pag['data_vencimento']));
     $chave = $pag['aluno_nome'] . '_' . $mesAno . '_' . $pag['status'];
@@ -48,25 +56,6 @@ $pagamentos = array_values($pagamentosAgrupados);
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <!-- Estilo Global Dojify -->
     <link rel="stylesheet" href="../../assets/css/estilo.css">
-    <!-- Estilo inline auxiliar para anular o reset de formulários globais na tabela -->
-    <style>
-        .form-pagamento-inline {
-            background: transparent !important;
-            border: none !important;
-            box-shadow: none !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            max-width: none !important;
-            display: inline-flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-            gap: 8px !important;
-        }
-        .form-pagamento-inline button[type="submit"] {
-            width: auto !important;
-            margin: 0 !important;
-        }
-    </style>
 </head>
 <body>
 
@@ -85,6 +74,24 @@ $pagamentos = array_values($pagamentosAgrupados);
             <div class="mb-4">
                 <h2>Gestão de Pagamentos</h2>
                 <p class="text-muted">Controle das mensalidades dos alunos.</p>
+            </div>
+
+            <!-- Barra de Pesquisa Padronizada (.busca-container) -->
+            <div class="busca-container">
+                <form method="GET" action="listar_pagamentos.php" class="busca-form">
+                    <div class="input-group busca-input">
+                        <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+                        <input type="text" name="busca" class="form-control" placeholder="Pesquisar por nome do aluno..." value="<?= htmlspecialchars($termoBusca) ?>">
+                    </div>
+                    <button type="submit" class="btn btn-dark busca-btn">
+                        Filtrar
+                    </button>
+                    <?php if ($termoBusca !== ''): ?>
+                        <a href="listar_pagamentos.php" class="btn btn-outline-secondary busca-btn" title="Limpar pesquisa">
+                            <i class="bi bi-x-lg"></i>
+                        </a>
+                    <?php endif; ?>
+                </form>
             </div>
 
             <?php
@@ -115,7 +122,7 @@ $pagamentos = array_values($pagamentosAgrupados);
             <?php endif; ?>
 
             <?php if (empty($pagamentos)): ?>
-                <p class="text-center text-muted py-4">Nenhum pagamento registado nesta academia.</p>
+                <p class="text-center text-muted py-4">Nenhum pagamento encontrado com esse nome.</p>
             <?php else: ?>
                 <div class="table-responsive">
                     <table class="table table-hover align-middle">
@@ -159,7 +166,6 @@ $pagamentos = array_values($pagamentosAgrupados);
                                                 <!-- Seletor de Forma de Pagamento -->
                                                 <select name="forma_pagamento" class="form-select form-select-sm" style="width: 110px;" required>
                                                     <option value="DINHEIRO">Dinheiro</option>
-                
                                                     <option value="OUTRO">Outro</option>
                                                 </select>
 

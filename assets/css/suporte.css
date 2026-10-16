@@ -1,0 +1,124 @@
+/* ==========================================================
+   DOJIFY - DASHBOARD EXCLUSIVA DO SUPORTE
+   ========================================================== */
+
+/* Ajuste do contêiner para não esticar em monitores grandes */
+.admin-dashboard {
+    width: min(1000px, 92%);
+    margin: 0 auto;
+    padding: 24px 0 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+/* KPIs em grade justa de 2 colunas */
+.admin-kpis {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+}
+
+/* Redução da escala visual dos cards de ação */
+.admin-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+}
+
+/* Ajustes nos cards para ficarem compactos e alinhados */
+.admin-card {
+    background: #ffffff;
+    border: 1px solid #e4e4e7;
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 180px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.admin-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+}
+
+.admin-card-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.admin-card-icon {
+    width: 42px;
+    height: 42px;
+    background: #18181b;
+    color: #ffffff;
+    border-radius: 10px;
+    display: grid;
+    place-items: center;
+    font-size: 1.25rem;
+    flex-shrink: 0;
+}
+
+.admin-card h3 {
+    margin: 0;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #18181b;
+}
+
+.admin-card p {
+    font-size: 0.8rem;
+    color: #71717a;
+    margin: 0 0 16px 0;
+    line-height: 1.4;
+}
+
+.admin-card-action .btn {
+    width: 100%;
+    padding: 8px 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+/* Painel único de Suporte */
+.admin-support-box {
+    background: #ffffff;
+    border: 1px solid #e4e4e7;
+    border-radius: 12px;
+    padding: 20px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.admin-support-info h4 {
+    margin: 0 0 4px;
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+.admin-support-info p {
+    margin: 0;
+    font-size: 0.85rem;
+    color: #71717a;
+}
+
+@media (max-width: 768px) {
+    .admin-kpis,
+    .admin-grid,
+    .admin-support-box {
+        grid-template-columns: 1fr;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .admin-support-box .btn {
+        width: 100%;
+    }
+}

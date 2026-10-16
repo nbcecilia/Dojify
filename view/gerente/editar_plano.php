@@ -50,11 +50,7 @@ $modalidades = (new ModalidadeDAO())->listarPorAcademia($idAcademia);
 
     <main class="container my-4">
         <header class="d-flex justify-content-between align-items-center mb-4">
-            <div>
-                <a href="listar_plano.php" class="btn btn-dark btn-sm">
-                    <i class="bi bi-arrow-left me-1"></i> Voltar
-                </a>
-            </div>
+            
         </header>
 
         <section class="card shadow-sm border-0 p-4">

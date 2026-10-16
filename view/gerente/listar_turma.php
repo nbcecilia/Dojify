@@ -32,7 +32,7 @@ if (!isset($_SESSION['turma_status_csrf_token'])) {
     <style>
         .turma-actions {
             display: flex;
-            justify-content: flex-end;
+            justify-content: center;
             align-items: center;
             gap: 0.5rem;
         }
@@ -126,9 +126,8 @@ if (!isset($_SESSION['turma_status_csrf_token'])) {
                                 <th>Professor</th>
                                 <th>Modalidade</th>
                                 <th>Capacidade</th>
-                                <th>Nível</th>
                                 <th>Status</th>
-                                <th class="text-end">Ações</th>
+                                <th class="text-center">Ações</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -138,9 +137,8 @@ if (!isset($_SESSION['turma_status_csrf_token'])) {
                                     <td><?= htmlspecialchars($turma['professor_nome']) ?></td>
                                     <td><?= htmlspecialchars($turma['modalidade_nome']) ?></td>
                                     <td><?= htmlspecialchars($turma['capacidade']) ?></td>
-                                    <td><?= htmlspecialchars($turma['nivel']) ?></td>
                                     <td><?= htmlspecialchars($turma['status']) ?></td>
-                                    <td class="text-end">
+                                    <td class="text-center">
                                         <div class="turma-actions">
                                         <a href="gerenciar_horarios_turma.php?id=<?= $turma['id_turma'] ?>" class="btn btn-warning btn-sm">
                                             <i class="bi bi-clock me-1"></i> Gerir Horário

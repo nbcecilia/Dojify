@@ -33,7 +33,7 @@ $kpis = $usuarioDAO->buscarIndicadoresGerente($idAcademia);
           href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
     <link rel="stylesheet" href="../../assets/css/estilo.css">
-    <link rel="stylesheet" href="../../assets/css/gerente.css?v=10">
+    <link rel="stylesheet" href="../../assets/css/gerente.css?v=12">
 </head>
 
 <body class="gerente-page">
@@ -181,7 +181,7 @@ $kpis = $usuarioDAO->buscarIndicadoresGerente($idAcademia);
                     <h3>Planos de matrícula</h3>
 
                     <p>
-                        Cadastre planos, valores e acompanhe os vínculos dos alunos.
+                        Acompanhe os vínculos dos alunos e os planos contratados.
                     </p>
 
                     <div class="gerente-card-action">

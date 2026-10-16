@@ -52,7 +52,7 @@ try {
     <link rel="stylesheet" href="../../assets/css/estilo.css">
 
     <!-- CSS das dashboards -->
-    <link rel="stylesheet" href="../../assets/css/gerente.css?v=2">
+    <link rel="stylesheet" href="../../assets/css/gerente.css">
 </head>
 
 <body class="gerente-page">
@@ -203,37 +203,6 @@ try {
 
             </article>
 
-
-
-            <!-- Sistema -->
-
-            <article class="gerente-kpi">
-
-                <div class="gerente-kpi-top">
-
-                    <span class="gerente-kpi-label">
-                        Sistema
-                    </span>
-
-                    <span class="gerente-kpi-icon">
-
-                        <i class="bi bi-check-circle"></i>
-
-                    </span>
-
-                </div>
-
-
-                <strong class="gerente-kpi-value">
-                    Ativo
-                </strong>
-
-
-                <small class="gerente-kpi-note">
-                    Sistema Dojify em funcionamento
-                </small>
-
-            </article>
 
         </section>
 

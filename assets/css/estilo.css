@@ -1218,7 +1218,7 @@ iframe {
 }
 
 /* ----------------------------------------------------------
-   ALINHAMENTO VERTICAL DE BOTÕES NA TABELA DE AÇÕES ---ADMIN
+   ALINHAMENTO VERTICAL DE BOTÕES NA TABELA DE AÇÕES --- SUPORTE
    ---------------------------------------------------------- */
 .table-actions {
     display: flex;
@@ -1233,8 +1233,120 @@ iframe {
     justify-content: center;
     text-align: center;
 }
- /* Remove a borda superior das linhas seguintes da mesma agrupagem do aluno em listar_plano.php */
+/*----------------------------------------------------------
+   ESTILOS ESPECÍFICOS PARA LISTAGEM DE PLANOS - GERENTE
+   ---------------------------------------------------------- */
       
   .aluno-sub-linha td {
             border-top: none;
         }
+
+
+         .plano-actions {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .plano-status-form {
+            display: inline-flex;
+            align-items: center;
+            width: auto;
+            max-width: none;
+            margin: 0;
+            padding: 0;
+            border: 0;
+            border-radius: 0;
+            box-shadow: none;
+            background: transparent;
+        }
+
+        .table .plano-status-form > button[type="submit"] {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: auto;
+            margin: 0;
+            padding: 5px 10px;
+            font-size: 0.8rem;
+            line-height: 1.5;
+            border: 1px solid transparent;
+            border-radius: 4px;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        .table .plano-status-form > button.btn-danger[type="submit"] {
+            background-color: var(--action-danger);
+            color: #ffffff;
+        }
+
+        .table .plano-status-form > button.btn-danger[type="submit"]:hover {
+            background-color: var(--action-danger-hover);
+        }
+
+        .table .plano-status-form > button.btn-success[type="submit"] {
+            background-color: var(--action-submit);
+            color: #ffffff;
+        }
+
+        .table .plano-status-form > button.btn-success[type="submit"]:hover {
+            background-color: var(--action-submit-hover);
+        }
+
+/* Estilização limpa e padronizada para formulários inline na tabela de pagamentos -- GERENTE */
+.form-pagamento-inline {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    margin: 0;
+    padding: 0;
+    max-width: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.form-pagamento-inline button[type="submit"] {
+    width: auto;
+    margin: 0;
+}
+
+/* Alinhamento dos botões de ação e formulários de status nas tabelas -- GERENTE*/
+.turma-actions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.turma-status-form {
+    display: inline-flex;
+    align-items: center;
+    width: auto;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+}
+/* Botões de ação com largura uniforme e sem esticar */
+.btn-acao-tabela {
+    width: 125px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+}
+
+/* Ajuste nos formulários de status da tabela para não quebrar o layout */
+.turma-status-form {
+    display: inline-block;
+    margin: 0;
+    padding: 0;
+    border: none;
+    background: transparent;
+    box-shadow: none;
+}

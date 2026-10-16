@@ -15,11 +15,23 @@ $idGerenteLogado = $_SESSION['usuario']['id_usuario'] ?? $_SESSION['usuario']['i
 $usuarioDAO = new UsuarioDAO();
 $usuarios = $usuarioDAO->listarPorAcademia($idAcademia);
 
+// Captura o termo digitado na pesquisa
+$termoBusca = trim($_GET['busca'] ?? '');
+
 $gerentes = [];
 $professores = [];
 $alunos = [];
 
 foreach ($usuarios as $u) {
+    // Se houver termo de busca, filtra por nome ou e-mail (ignorando maiúsculas/minúsculas)
+    if ($termoBusca !== '') {
+        $nomeMatch = mb_stripos($u['nome'] ?? '', $termoBusca) !== false;
+        $emailMatch = mb_stripos($u['email'] ?? '', $termoBusca) !== false;
+        if (!$nomeMatch && !$emailMatch) {
+            continue;
+        }
+    }
+
     $perfil = strtolower($u['perfil_nome'] ?? '');
     $perfilId = (int)($u['perfil_id'] ?? 0);
 
@@ -62,10 +74,22 @@ foreach ($usuarios as $u) {
                 <p class="text-muted">Administração de professores e alunos registados na sua academia.</p>
             </div>
 
-            <div class="busca-container mb-0">
-                <div class="busca-form">
-                    <input type="text" id="inputPesquisa" placeholder="Pesquisar por nome ou e-mail..." class="busca-input form-control">
-                </div>
+            <!-- Barra de Pesquisa Padronizada (.busca-container) -->
+            <div class="busca-container">
+                <form method="GET" action="listar_usuarios.php" class="busca-form">
+                    <div class="input-group busca-input">
+                        <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+                        <input type="text" name="busca" class="form-control" placeholder="Pesquisar por nome ou e-mail..." value="<?= htmlspecialchars($termoBusca) ?>">
+                    </div>
+                    <button type="submit" class="btn btn-dark busca-btn">
+                        Filtrar
+                    </button>
+                    <?php if ($termoBusca !== ''): ?>
+                        <a href="listar_usuarios.php" class="btn btn-outline-secondary busca-btn" title="Limpar pesquisa">
+                            <i class="bi bi-x-lg"></i>
+                        </a>
+                    <?php endif; ?>
+                </form>
             </div>
         </section>
 
@@ -277,29 +301,6 @@ foreach ($usuarios as $u) {
             </div>
         </section>
     </main>
-
-    <script>
-    document.getElementById('inputPesquisa').addEventListener('keyup', function() {
-        const termo = this.value.toLowerCase().trim();
-        const tabelas = document.querySelectorAll('table');
-
-        tabelas.forEach(tabela => {
-            const linhas = tabela.querySelectorAll('tbody tr');
-            
-            linhas.forEach(linha => {
-                if (linha.cells.length === 1) return; 
-
-                const textoLinha = linha.textContent.toLowerCase();
-                
-                if (textoLinha.includes(termo)) {
-                    linha.style.display = ''; 
-                } else {
-                    linha.style.display = 'none'; 
-                }
-            });
-        });
-    });
-    </script>
 
     <?php include '../includes/footer.php'; ?>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
