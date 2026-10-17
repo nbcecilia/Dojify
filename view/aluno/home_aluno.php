@@ -141,19 +141,29 @@ try {
                 SELECT u.nome, u.email, u.cpf, u.data_nascimento, u.sexo, u.telefone,
                        u.endereco, u.cidade, u.estado,
                        u.responsavel, u.observacao, a.nome AS academia_nome,
-                       p.nome_plano, p.valor AS valor_plano,
-                       mp.nome AS modalidade_plano
+                       (
+                           SELECT GROUP_CONCAT(p2.nome_plano ORDER BY p2.id_plano ASC SEPARATOR ', ')
+                           FROM plano p2
+                           WHERE p2.id_usuario_aluno = u.id_usuario
+                             AND p2.status = 'ATIVO'
+                       ) AS nome_plano,
+                       (
+                           SELECT SUM(p2.valor)
+                           FROM plano p2
+                           WHERE p2.id_usuario_aluno = u.id_usuario
+                             AND p2.status = 'ATIVO'
+                       ) AS valor_plano,
+                       (
+                           SELECT m2.nome
+                           FROM plano p2
+                           INNER JOIN modalidade m2 ON m2.id_modalidade = p2.id_modalidade
+                           WHERE p2.id_usuario_aluno = u.id_usuario
+                             AND p2.status = 'ATIVO'
+                           ORDER BY p2.data_inicio DESC, p2.id_plano DESC
+                           LIMIT 1
+                       ) AS modalidade_plano
                 FROM usuario u
                 LEFT JOIN academia a ON a.id_academia = u.id_academia
-                LEFT JOIN plano p ON p.id_plano = (
-                    SELECT p2.id_plano
-                    FROM plano p2
-                    WHERE p2.id_usuario_aluno = u.id_usuario
-                      AND p2.status = 'ATIVO'
-                    ORDER BY p2.data_inicio DESC, p2.id_plano DESC
-                    LIMIT 1
-                )
-                LEFT JOIN modalidade mp ON mp.id_modalidade = p.id_modalidade
                 WHERE u.id_usuario = ?
             ");
             $stmt_aluno->execute([$id_aluno]);
@@ -263,7 +273,8 @@ try {
         $stmt_grad = $pdo_agenda->prepare("SELECT faixa, grau FROM graduacao WHERE id_usuario_aluno = ? ORDER BY data_graduacao DESC LIMIT 1");
         $stmt_grad->execute([$id_aluno]);
         $dados_grad = $stmt_grad->fetch(PDO::FETCH_ASSOC);
-        $faixa_aluno = $dados_grad ? $dados_grad['faixa'] : 'Sem Faixa';
+        $faixaCadastrada = $dados_grad && trim((string)$dados_grad['faixa']) !== '';
+        $faixa_aluno = $faixaCadastrada ? $dados_grad['faixa'] : 'Iniciante';
         $grau_aluno = $dados_grad && !empty($dados_grad['grau']) ? $dados_grad['grau'] : 'Iniciante';
         $avaliacaoDAOPainel = new \AvaliacaoDAO();
         $graduacoesPrevistasPainel = $avaliacaoDAOPainel->listarGraduacoesPrevistasAluno((int)$id_aluno);
@@ -343,25 +354,65 @@ try {
         if ($xp_max > $xp_min) { $progresso_xp = (($xp_atual - $xp_min) / ($xp_max - $xp_min)) * 100; }
         $progresso_xp = min(100, max(0, $progresso_xp)); 
 
-        // Matrícula / Plano
-        $stmt_plano_atual = $pdo_agenda->prepare("SELECT id_plano FROM plano WHERE id_usuario_aluno = ? ORDER BY data_inicio DESC, id_plano DESC LIMIT 1");
-        $stmt_plano_atual->execute([$id_aluno]);
-        $id_plano_atual = $stmt_plano_atual->fetchColumn() ?: null;
+        // Soma a cobrança mais recente de cada modalidade ativa do aluno.
+        $stmt_pag = $pdo_agenda->prepare("
+            SELECT pag.id_pagamento, pag.status, pag.data_vencimento, pag.valor
+            FROM plano pl
+            INNER JOIN pagamento pag ON pag.id_plano_matricula = pl.id_plano
+            WHERE pl.id_usuario_aluno = ?
+              AND pl.status = 'ATIVO'
+              AND pag.id_pagamento = (
+                  SELECT pag2.id_pagamento
+                  FROM pagamento pag2
+                  WHERE pag2.id_plano_matricula = pl.id_plano
+                  ORDER BY pag2.data_vencimento DESC, pag2.id_pagamento DESC
+                  LIMIT 1
+              )
+            ORDER BY pag.data_vencimento ASC, pag.id_pagamento ASC
+        ");
+        $stmt_pag->execute([$id_aluno]);
+        $pagamentosAtuais = $stmt_pag->fetchAll(PDO::FETCH_ASSOC);
 
-        // BUSCAR DADOS FINANCEIROS / PAGAMENTO
-        if ($id_plano_atual) {
-            $stmt_pag = $pdo_agenda->prepare("SELECT id_pagamento, status, data_vencimento, valor FROM pagamento WHERE id_plano_matricula = ? ORDER BY data_vencimento DESC LIMIT 1");
-            $stmt_pag->execute([$id_plano_atual]);
-            $dados_pag = $stmt_pag->fetch(PDO::FETCH_ASSOC);
-            
-            if ($dados_pag) {
-                $id_pagamento_atual = (int)$dados_pag['id_pagamento'];
-                $status_pagamento = $dados_pag['status'] ?? 'PENDENTE';
-                $data_vencimento_iso = $dados_pag['data_vencimento'] ?? null;
-                $data_vencimento = $dados_pag['data_vencimento'] ? date('d/m/Y', strtotime($dados_pag['data_vencimento'])) : '---';
-                $valor_pagamento = $dados_pag['valor'] ? 'R$ ' . number_format($dados_pag['valor'], 2, ',', '.') : '---';
-                $comprovante_pagamento_enviado = strtoupper((string)$status_pagamento) === 'EM_ANALISE';
+        if ($pagamentosAtuais !== []) {
+            $idsPagamentosAtuais = array_map(
+                static fn(array $pagamento): int => (int)$pagamento['id_pagamento'],
+                $pagamentosAtuais
+            );
+            $id_pagamento_atual = min($idsPagamentosAtuais);
+            $data_vencimento_iso = $pagamentosAtuais[0]['data_vencimento'] ?? null;
+            $data_vencimento = $data_vencimento_iso
+                ? date('d/m/Y', strtotime($data_vencimento_iso))
+                : '---';
+            $valorTotalPagamento = array_sum(array_map(
+                static fn(array $pagamento): float => (float)$pagamento['valor'],
+                $pagamentosAtuais
+            ));
+            $valor_pagamento = $valorTotalPagamento
+                ? 'R$ ' . number_format($valorTotalPagamento, 2, ',', '.')
+                : '---';
+
+            $statusPagamentoAtual = 'PAGO';
+            foreach ($pagamentosAtuais as $pagamentoAtual) {
+                $statusAtual = strtoupper((string)($pagamentoAtual['status'] ?? 'PENDENTE'));
+                $estaAtrasado = $statusAtual === 'ATRASADO'
+                    || ($statusAtual === 'PENDENTE'
+                        && $pagamentoAtual['data_vencimento'] < date('Y-m-d'));
+
+                if ($estaAtrasado) {
+                    $statusPagamentoAtual = 'ATRASADO';
+                    break;
+                }
+                if ($statusAtual === 'PENDENTE') {
+                    $statusPagamentoAtual = 'PENDENTE';
+                } elseif ($statusAtual === 'EM_ANALISE' && $statusPagamentoAtual === 'PAGO') {
+                    $statusPagamentoAtual = 'EM_ANALISE';
+                } elseif (!in_array($statusAtual, ['PAGO', 'EM_ANALISE'], true)
+                    && $statusPagamentoAtual === 'PAGO') {
+                    $statusPagamentoAtual = $statusAtual;
+                }
             }
+            $status_pagamento = $statusPagamentoAtual;
+            $comprovante_pagamento_enviado = $status_pagamento === 'EM_ANALISE';
         }
 
         $stmt_historico_pagamentos = $pdo_agenda->prepare("
@@ -666,15 +717,21 @@ try {
                             </div>
                         <?php endif; ?>
                         <div class="text-start">
-                            <h4 class="fw-bold text-dark mb-1" style="font-size: 1.15rem;"><?= htmlspecialchars($faixa_aluno, ENT_QUOTES, 'UTF-8') ?></h4>
-                            <span class="badge bg-secondary mb-1 px-2 py-1" style="font-size: 0.75rem;"><?= htmlspecialchars($grau_aluno) ?></span>
+                            <h4 class="fw-bold text-dark mb-1" style="font-size: 1.15rem;">
+                                <?= $faixaCadastrada ? htmlspecialchars($faixa_aluno, ENT_QUOTES, 'UTF-8') : 'Faixa não cadastrada' ?>
+                            </h4>
+                            <span class="badge bg-secondary mb-1 px-2 py-1" style="font-size: 0.75rem;">
+                                <?= $faixaCadastrada ? htmlspecialchars($grau_aluno, ENT_QUOTES, 'UTF-8') : 'Iniciante' ?>
+                            </span>
                             <div>
-                                <?php if (!empty($graduacoesPrevistasPainel)): ?>
-                                    <?php foreach ($graduacoesPrevistasPainel as $prevista): ?>
-                                        <small class="text-muted d-block" style="font-size: 0.7rem;">Próxima: <?= date('d/m/Y', strtotime((string)$prevista['data_prevista'])) ?></small>
-                                    <?php endforeach; ?>
-                                <?php else: ?>
-                                    <small class="text-muted d-block" style="font-size: 0.7rem;">Sem próxima previsão</small>
+                                <?php if ($faixaCadastrada): ?>
+                                    <?php if (!empty($graduacoesPrevistasPainel)): ?>
+                                        <?php foreach ($graduacoesPrevistasPainel as $prevista): ?>
+                                            <small class="text-muted d-block" style="font-size: 0.7rem;">Próxima: <?= date('d/m/Y', strtotime((string)$prevista['data_prevista'])) ?></small>
+                                        <?php endforeach; ?>
+                                    <?php else: ?>
+                                        <small class="text-muted d-block" style="font-size: 0.7rem;">Sem próxima previsão</small>
+                                    <?php endif; ?>
                                 <?php endif; ?>
                             </div>
                         </div>

@@ -8,10 +8,10 @@ require_once __DIR__ . '/../model/dao/AcademiaDAO.php';
 require_once __DIR__ . '/../model/dao/Conexao.php';
 
 class UsuarioController {
-    private UsuarioDAO $dao;
+    private \UsuarioDAO $dao;
 
     public function __construct() {
-        $this->dao = new UsuarioDAO();
+        $this->dao = new \UsuarioDAO();
     }
 
     public function processarRequisicao(): void {
@@ -72,7 +72,7 @@ class UsuarioController {
         $pdo = null;
 
         try {
-            $pdo = Conexao::getConexao();
+            $pdo = \Conexao::getConexao();
             $pdo->beginTransaction();
 
             $idAcademia     = $_SESSION['usuario']['id_academia'] ?? null;
@@ -251,7 +251,7 @@ class UsuarioController {
         $pdo = null;
 
         try {
-            $pdo = Conexao::getConexao();
+            $pdo = \Conexao::getConexao();
             $pdo->beginTransaction();
 
             $idAcademia     = $_SESSION['usuario']['id_academia'] ?? null;
@@ -391,7 +391,7 @@ class UsuarioController {
         $pdo = null;
 
         try {
-            $pdo = Conexao::getConexao();
+            $pdo = \Conexao::getConexao();
             $pdo->beginTransaction();
 
             $idUsuario     = filter_input(INPUT_POST, 'id_usuario', FILTER_VALIDATE_INT);
@@ -479,10 +479,24 @@ class UsuarioController {
             ]);
 
             $stmtPlanosAtivos = $pdo->prepare("
-                SELECT id_plano, id_modalidade
-                FROM plano
-                WHERE id_usuario_aluno = :id_usuario_aluno AND status = 'ATIVO'
-                ORDER BY id_plano ASC
+                SELECT pl.id_plano, pl.id_modalidade,
+                       (
+                           SELECT pag.id_pagamento
+                           FROM pagamento pag
+                           WHERE pag.id_plano_matricula = pl.id_plano
+                           ORDER BY pag.data_vencimento DESC, pag.id_pagamento DESC
+                           LIMIT 1
+                       ) AS id_pagamento_atual,
+                       (
+                           SELECT pag.status
+                           FROM pagamento pag
+                           WHERE pag.id_plano_matricula = pl.id_plano
+                           ORDER BY pag.data_vencimento DESC, pag.id_pagamento DESC
+                           LIMIT 1
+                       ) AS status_pagamento_atual
+                FROM plano pl
+                WHERE pl.id_usuario_aluno = :id_usuario_aluno AND pl.status = 'ATIVO'
+                ORDER BY pl.id_plano ASC
             ");
             $stmtPlanosAtivos->execute([':id_usuario_aluno' => $idUsuario]);
             $planosAtivosBanco = $stmtPlanosAtivos->fetchAll(PDO::FETCH_ASSOC);
@@ -491,10 +505,22 @@ class UsuarioController {
                 UPDATE plano SET id_modalidade = :id_modalidade, nome_plano = :nome_plano, valor = :valor
                 WHERE id_plano = :id_plano
             ");
+
+            $stmtAtualizarPagamento = $pdo->prepare("
+                UPDATE pagamento
+                SET valor = :valor
+                WHERE id_pagamento = :id_pagamento
+                  AND status IN ('PENDENTE', 'ATRASADO')
+            ");
             
             $stmtNovoPlano = $pdo->prepare("
                 INSERT INTO plano (id_usuario_aluno, id_modalidade, nome_plano, valor, data_inicio, data_fim, status)
                 VALUES (:id_usuario_aluno, :id_modalidade, :nome_plano, :valor, CURDATE(), DATE_ADD(CURDATE(), INTERVAL 1 MONTH), 'ATIVO')
+            ");
+
+            $stmtNovoPagamento = $pdo->prepare("
+                INSERT INTO pagamento (id_plano_matricula, valor, data_vencimento, status)
+                VALUES (:id_plano_matricula, :valor, DATE_ADD(CURDATE(), INTERVAL 10 DAY), 'PENDENTE')
             ");
 
             $indicesModalidades = array_keys($idsModalidades);
@@ -511,6 +537,22 @@ class UsuarioController {
                         ':valor'         => $dadosPlanoModalidade['valor'],
                         ':id_plano'      => $idPlanoExistente
                     ]);
+                    $idPagamentoAtual = $planosAtivosBanco[$posicao]['id_pagamento_atual'];
+                    if ($idPagamentoAtual === null) {
+                        $stmtNovoPagamento->execute([
+                            ':id_plano_matricula' => $idPlanoExistente,
+                            ':valor' => $dadosPlanoModalidade['valor']
+                        ]);
+                    } elseif (in_array(
+                        strtoupper((string)$planosAtivosBanco[$posicao]['status_pagamento_atual']),
+                        ['PENDENTE', 'ATRASADO'],
+                        true
+                    )) {
+                        $stmtAtualizarPagamento->execute([
+                            ':valor' => $dadosPlanoModalidade['valor'],
+                            ':id_pagamento' => $idPagamentoAtual
+                        ]);
+                    }
                     unset($planosAtivosBanco[$posicao]);
                 } else {
                     $stmtNovoPlano->execute([
@@ -518,6 +560,11 @@ class UsuarioController {
                         ':id_modalidade'    => $idModSel,
                         ':nome_plano'       => $dadosPlanoModalidade['nome_plano'],
                         ':valor'            => $dadosPlanoModalidade['valor']
+                    ]);
+                    $idNovoPlano = (int)$pdo->lastInsertId();
+                    $stmtNovoPagamento->execute([
+                        ':id_plano_matricula' => $idNovoPlano,
+                        ':valor' => $dadosPlanoModalidade['valor']
                     ]);
                 }
             }
@@ -560,7 +607,7 @@ class UsuarioController {
             $usuario = $this->dao->buscarPorId($id);
             
             if ($usuario && (int)$usuario['id_academia'] === (int)$_SESSION['usuario']['id_academia']) {
-                $uDTO = new UsuarioDTO();
+                $uDTO = new \UsuarioDTO();
                 $uDTO->setIdUsuario($id);
                 $uDTO->setNome($usuario['nome']);
                 $uDTO->setCpf($usuario['cpf']);
@@ -589,7 +636,7 @@ class UsuarioController {
         }
 
         try {
-            $u = new UsuarioDTO();
+            $u = new \UsuarioDTO();
             $u->setIdAcademia((int)($_POST['id_academia'] ?? 0));
             $u->setPerfilId(2);
             $u->setNome(trim($_POST['nome'] ?? ''));
@@ -640,7 +687,7 @@ class UsuarioController {
         }
 
         try {
-            $u = new UsuarioDTO();
+            $u = new \UsuarioDTO();
             $u->setIdUsuario((int)($_POST['id_usuario'] ?? 0));
             $u->setPerfilId((int)($_POST['perfil_id'] ?? 0));
             $u->setNome(trim($_POST['nome'] ?? ''));
@@ -696,7 +743,7 @@ class UsuarioController {
                 exit;
             }
 
-            $uDTO = new UsuarioDTO();
+            $uDTO = new \UsuarioDTO();
             $uDTO->setIdUsuario($idUsuario);
             $uDTO->setIdAcademia($idAcademia);
             $uDTO->setPerfilId(2);
