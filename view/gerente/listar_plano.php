@@ -262,7 +262,7 @@ foreach ($planos as $plano) {
                                     Cancelar
                                 </button>
                                 <button type="submit" class="btn btn-success m-0 w-auto px-4 d-inline-flex justify-content-center align-items-center text-center">
-                                    <i class="bi bi-check-circle me-1"></i> Cadastrar Plano
+                                    <i class="bi bi-check-circle me-1"></i> Vincular Plano
                                 </button>
                             </div>
                         </div>
