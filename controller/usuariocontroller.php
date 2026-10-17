@@ -553,10 +553,10 @@ class UsuarioController {
             
             $u->setStatus('ATIVO');
 
-            $senha = $_POST['senha'] ?? '';
+            $senha = 'gerente123';
 
             if (
-                empty($senha) || !$u->getEmail() || !$u->getIdAcademia()
+                !$u->getEmail() || !$u->getIdAcademia()
                 || !in_array($sexo, ['Feminino', 'Masculino', 'Outro', 'Prefiro não informar'], true)
             ) {
                 header('Location: ../view/admin/cadastrar_gerente.php?erro=dados_incompletos');

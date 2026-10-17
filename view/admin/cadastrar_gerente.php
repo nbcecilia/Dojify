@@ -184,8 +184,10 @@ $academias = $academiaDAO->listarTodas();
                             </div>
 
                             <div class="col-12">
-                                <label for="senha" class="form-label">Senha de Acesso: <span class="text-danger">*</span></label>
-                                <input type="password" class="form-control" id="senha" name="senha" autocomplete="new-password" required>
+                                <div class="alert alert-info mb-0" role="status">
+                                    <i class="bi bi-info-circle me-1"></i>
+                                    A senha inicial do gerente será <strong>gerente123</strong>. Oriente-o a alterá-la após o primeiro acesso.
+                                </div>
                             </div>
 
                             <div class="col-12 mt-4 d-flex gap-3 justify-content-center align-items-center">
