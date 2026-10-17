@@ -140,6 +140,53 @@ class UsuarioDAO {
         }
     }
 
+    public function atualizarProfessor(
+        int $idProfessor,
+        int $idAcademia,
+        string $nome,
+        string $email,
+        string $telefone,
+        string $especialidade,
+        string $status
+    ): bool {
+        try {
+            $sql = "UPDATE usuario
+                    SET nome = :nome,
+                        email = :email,
+                        telefone = :telefone,
+                        especialidade = :especialidade,
+                        status = :status
+                    WHERE id_usuario = :id_usuario
+                    AND id_academia = :id_academia
+                    AND perfil_id = :perfil_id";
+            $stmt = $this->conexao->prepare($sql);
+            $stmt->bindValue(':nome', $nome);
+            $stmt->bindValue(':email', $email);
+            $stmt->bindValue(':telefone', $telefone);
+            $stmt->bindValue(':especialidade', $especialidade);
+            $stmt->bindValue(':status', $status);
+            $stmt->bindValue(':id_usuario', $idProfessor, PDO::PARAM_INT);
+            $stmt->bindValue(':id_academia', $idAcademia, PDO::PARAM_INT);
+            $stmt->bindValue(':perfil_id', self::PERFIL_PROFESSOR, PDO::PARAM_INT);
+            $stmt->execute();
+
+            $sqlExiste = "SELECT 1
+                          FROM usuario
+                          WHERE id_usuario = :id_usuario
+                          AND id_academia = :id_academia
+                          AND perfil_id = :perfil_id";
+            $stmtExiste = $this->conexao->prepare($sqlExiste);
+            $stmtExiste->bindValue(':id_usuario', $idProfessor, PDO::PARAM_INT);
+            $stmtExiste->bindValue(':id_academia', $idAcademia, PDO::PARAM_INT);
+            $stmtExiste->bindValue(':perfil_id', self::PERFIL_PROFESSOR, PDO::PARAM_INT);
+
+            return $stmtExiste->execute() && (bool)$stmtExiste->fetchColumn();
+        } catch (PDOException $e) {
+            error_log('Falha ao atualizar professor ' . $idProfessor . ': ' . $e->getMessage());
+            return false;
+        }
+    }
+
     // DELETE físico por desativação lógica (Soft Delete) */
     public function desativar(int $id): bool {
         try {

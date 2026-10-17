@@ -28,6 +28,9 @@ class UsuarioController {
             case 'atualizar_aluno':
                 $this->atualizarAluno();
                 break;
+            case 'atualizar_professor':
+                $this->atualizarProfessor();
+                break;
             case 'alternar_status': 
                 $this->alternarStatus();
                 break;
@@ -322,6 +325,56 @@ class UsuarioController {
             header('Location: ../view/gerente/cadastrar_aluno_prof.php?erro=falha_cadastro&tipo=professor');
             exit;
         }
+    }
+
+    private function atualizarProfessor(): void {
+        if (!isset($_SESSION['usuario']) || (int)$_SESSION['usuario']['perfil_id'] !== 2) {
+            header('Location: ../view/login.php?erro=acesso_negado');
+            exit;
+        }
+
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header('Location: ../view/gerente/listar_usuarios.php');
+            exit;
+        }
+
+        $idProfessor = filter_var($_POST['id_usuario'] ?? null, FILTER_VALIDATE_INT);
+        $nome = trim((string)($_POST['nome'] ?? ''));
+        $email = filter_var($_POST['email'] ?? '', FILTER_VALIDATE_EMAIL);
+        $telefone = trim((string)($_POST['telefone'] ?? ''));
+        $especialidade = trim((string)($_POST['especialidade'] ?? ''));
+        $status = (string)($_POST['status'] ?? '');
+
+        if (
+            !$idProfessor || $idProfessor < 1 || $nome === '' || !$email
+            || $telefone === '' || $especialidade === ''
+            || !in_array($status, ['ATIVO', 'INATIVO', 'SUSPENSO'], true)
+        ) {
+            header('Location: ../view/gerente/listar_usuarios.php?erro=atualizar_professor');
+            exit;
+        }
+
+        $idAcademia = (int)($_SESSION['usuario']['id_academia'] ?? 0);
+        if ($idAcademia < 1) {
+            header('Location: ../view/gerente/listar_usuarios.php?erro=atualizar_professor');
+            exit;
+        }
+
+        $sucesso = $this->dao->atualizarProfessor(
+            $idProfessor,
+            $idAcademia,
+            $nome,
+            $email,
+            $telefone,
+            $especialidade,
+            $status
+        );
+
+        header(
+            'Location: ../view/gerente/listar_usuarios.php?'
+            . ($sucesso ? 'sucesso=professor_atualizado' : 'erro=atualizar_professor')
+        );
+        exit;
     }
 
     private function atualizarAluno(): void {
