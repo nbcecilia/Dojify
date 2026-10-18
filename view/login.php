@@ -26,9 +26,6 @@ session_start();
                 </div>
             </a>
         </div>
-        <div class="navbar-user">
-            <a href="../index.php" class="btn btn-sm btn-outline-secondary">Início</a>
-        </div>
     </header>
 
     <!-- Container padrão do teu estilo.css -->

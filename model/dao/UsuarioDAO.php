@@ -258,36 +258,44 @@ class UsuarioDAO {
             $stmt->execute([$idAcademia]);
             $indicadores['professores'] = (int)$stmt->fetchColumn();
 
-            // 3. Pagamentos pendentes (apenas os pendentes que NÃO estão em atraso)
-            $sqlPagamento = "SELECT COUNT(p.id_pagamento) 
+           
+         // 3. Quantidade de alunos únicos com pagamentos pendentes
+            $sqlPendentes = "SELECT COUNT(DISTINCT u.id_usuario) 
                              FROM pagamento p
                              JOIN plano pl ON p.id_plano_matricula = pl.id_plano
                              JOIN usuario u ON pl.id_usuario_aluno = u.id_usuario
-                             WHERE u.id_academia = ? AND p.status = 'PENDENTE' AND p.data_vencimento >= CURDATE()";
-            $stmt = $this->conexao->prepare($sqlPagamento);
+                             WHERE u.id_academia = ? 
+                               AND u.perfil_id = 4 
+                               AND p.status = 'PENDENTE' 
+                               AND p.data_vencimento >= CURDATE()";
+            $stmt = $this->conexao->prepare($sqlPendentes);
             $stmt->execute([$idAcademia]);
             $indicadores['pagamentos_pendentes'] = (int)$stmt->fetchColumn();
 
-            // 3.1. Pagamentos realizados
+            // 3.1. Pagamentos realizados - Apenas de Alunos (perfil_id = 4)
             $sqlRealizados = "SELECT COUNT(p.id_pagamento) 
                               FROM pagamento p
                               JOIN plano pl ON p.id_plano_matricula = pl.id_plano
                               JOIN usuario u ON pl.id_usuario_aluno = u.id_usuario
-                              WHERE u.id_academia = ? AND (p.status = 'PAGO' OR p.status LIKE '%Pago%' OR p.status = 'REALIZADO')";
+                              WHERE u.id_academia = ? 
+                                AND u.perfil_id = 4 
+                                AND (p.status = 'PAGO' OR p.status LIKE '%Pago%' OR p.status = 'REALIZADO')";
             $stmt = $this->conexao->prepare($sqlRealizados);
             $stmt->execute([$idAcademia]);
             $indicadores['pagamentos_realizados'] = (int)$stmt->fetchColumn();
 
-            // 3.2. Pagamentos em atraso
-            $sqlAtraso = "SELECT COUNT(p.id_pagamento) 
+            // 3.2. Quantidade de alunos únicos com pagamentos em atraso
+            $sqlAtraso = "SELECT COUNT(DISTINCT u.id_usuario) 
                           FROM pagamento p
                           JOIN plano pl ON p.id_plano_matricula = pl.id_plano
                           JOIN usuario u ON pl.id_usuario_aluno = u.id_usuario
-                          WHERE u.id_academia = ? AND p.status = 'PENDENTE' AND p.data_vencimento < CURDATE()";
+                          WHERE u.id_academia = ? 
+                            AND u.perfil_id = 4 
+                            AND (p.status = 'ATRASADO' OR (p.status = 'PENDENTE' AND p.data_vencimento < CURDATE()))";
             $stmt = $this->conexao->prepare($sqlAtraso);
             $stmt->execute([$idAcademia]);
             $indicadores['pagamentos_em_atraso'] = (int)$stmt->fetchColumn();
-
+            
             // 4. Turmas ativas
             $sqlTurma = "SELECT COUNT(t.id_turma) 
                          FROM turma t

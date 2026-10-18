@@ -61,7 +61,7 @@ session_start();
             <div class="hero-visual">
                 <div class="hero-card-preview">
                     <!-- Imagem do Painel Inteligente no Hero -->
-                    <img src="assets/img/dashboard-preview.png" alt="Painel Inteligente Dojify" class="preview-img">
+                    <img src="assets/img/card1.png" alt="Painel Inteligente Dojify" class="preview-img">
                     <span class="preview-badge">Painel Inteligente</span>
                 </div>
             </div>
@@ -75,7 +75,7 @@ session_start();
                 <!-- Card 1: Alunos -->
                 <div class="feature-card">
                     <div class="card-img-container">
-                        <img src="assets/img/recurso-alunos.jpg" alt="Controle de Alunos" class="card-img">
+                        <img src="assets/img/card2.png" alt="Controle de Alunos" class="card-img">
                     </div>
                     <h4>Controle de Alunos</h4>
                     <p>Gerencie cadastros, faixas e evoluções de forma rápida e centralizada no tatame.</p>
@@ -84,7 +84,7 @@ session_start();
                 <!-- Card 2: Graduações -->
                 <div class="feature-card">
                     <div class="card-img-container">
-                        <img src="assets/img/recurso-graduacoes.jpg" alt="Graduações e Prazos" class="card-img">
+                        <img src="assets/img/card3.png" alt="Graduações e Prazos" class="card-img">
                     </div>
                     <h4>Graduações e Prazos</h4>
                     <p>Acompanhe exames, requisitos e histórico de graduação sem planilhas complexas.</p>
@@ -93,7 +93,7 @@ session_start();
                 <!-- Card 3: Interface -->
                 <div class="feature-card">
                     <div class="card-img-container">
-                        <img src="assets/img/recurso-interface.png" alt="Interface Minimalista" class="card-img-logo">
+                        <img src="assets/img/card4.png" alt="Interface Minimalista" class="card-img">
                     </div>
                     <h4>Interface Minimalista</h4>
                     <p>Foco total na usabilidade, navegação fluida e design profissional em preto e branco.</p>
@@ -112,8 +112,8 @@ session_start();
         <section id="contato" class="section-block">
             <h3>Contato e Suporte</h3>
             <p>Tem dúvidas sobre implantação, parcerias ou precisa de suporte técnico para a sua academia? Nossa equipe está pronta para atender você.</p>
-            <p><strong>E-mail:</strong> suporte@dojify.com.br</p>
-            <p><strong>Telefone:</strong> (00) 00000-0000</p>
+            <p><strong>E-mail:</strong> suporte@dojify.com</p>
+            <p><strong>Telefone:</strong> (61) 99999-9999</p>
         </section>
     </main>
 
