@@ -97,6 +97,26 @@ if (isset($_GET['sucesso'])) {
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <!-- Estilo Global Dojify -->
     <link rel="stylesheet" href="../../assets/css/estilo.css">
+    <style>
+        .graduacao-modal-action-button {
+            box-sizing: border-box !important;
+            display: inline-flex !important;
+            width: 150px !important;
+            height: 36px !important;
+            min-height: 36px !important;
+            max-height: 36px !important;
+            margin: 0 !important;
+            padding: 0 10px !important;
+            font-size: 0.8rem !important;
+            line-height: 1 !important;
+            align-items: center !important;
+            justify-content: center !important;
+        }
+
+        .graduacao-modal-action-footer {
+            gap: 8px !important;
+        }
+    </style>
 </head>
 <body>
 
@@ -230,9 +250,9 @@ if (isset($_GET['sucesso'])) {
                             </div>
                         </div>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="submit" class="btn btn-success">Guardar Graduação</button>
+                    <div class="modal-footer graduacao-modal-action-footer">
+                        <button type="button" class="btn btn-secondary graduacao-modal-action-button" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-success graduacao-modal-action-button">Guardar Graduação</button>
                     </div>
                 </form>
             </div>

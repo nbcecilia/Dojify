@@ -17,18 +17,41 @@ class PagamentoDAO {
                     SUM(p.valor) AS valor, 
                     MIN(p.data_vencimento) AS data_vencimento, 
                     MAX(p.data_pagamento) AS data_pagamento, 
-                    p.status, 
+                    CASE
+                        WHEN SUM(CASE
+                            WHEN UPPER(COALESCE(p.status, 'PENDENTE')) = 'ATRASADO'
+                              OR (UPPER(COALESCE(p.status, 'PENDENTE')) = 'PENDENTE'
+                                  AND p.data_vencimento < CURDATE())
+                            THEN 1 ELSE 0
+                        END) > 0 THEN 'ATRASADO'
+                        WHEN SUM(CASE
+                            WHEN UPPER(COALESCE(p.status, 'PENDENTE')) = 'PENDENTE'
+                            THEN 1 ELSE 0
+                        END) > 0 THEN 'PENDENTE'
+                        WHEN SUM(CASE
+                            WHEN UPPER(COALESCE(p.status, 'PENDENTE')) = 'EM_ANALISE'
+                            THEN 1 ELSE 0
+                        END) > 0 THEN 'EM_ANALISE'
+                        ELSE 'PAGO'
+                    END AS status,
                     MAX(p.forma_pagamento) AS forma_pagamento,
-                    GROUP_CONCAT(pl.nome_plano SEPARATOR ', ') AS nome_plano,
+                    GROUP_CONCAT(DISTINCT pl.nome_plano SEPARATOR ', ') AS nome_plano,
+                    GROUP_CONCAT(
+                        CASE WHEN UPPER(COALESCE(p.status, 'PENDENTE')) <> 'PAGO'
+                            THEN p.id_pagamento
+                        END
+                        ORDER BY p.id_pagamento SEPARATOR ','
+                    ) AS ids_pagamentos,
                     u.nome AS aluno_nome,
-                    u.id_usuario AS id_aluno
+                    u.id_usuario AS id_aluno,
+                    DATE_FORMAT(p.data_vencimento, '%Y-%m') AS mes_ano
                 FROM pagamento p
                 INNER JOIN plano pl ON p.id_plano_matricula = pl.id_plano
                 INNER JOIN usuario u ON pl.id_usuario_aluno = u.id_usuario
                 WHERE u.id_academia = :id_academia
                   AND u.perfil_id = 4
-                GROUP BY u.id_usuario, DATE_FORMAT(p.data_vencimento, '%Y-%m'), p.status
-                ORDER BY p.data_vencimento ASC";
+                GROUP BY u.id_usuario, DATE_FORMAT(p.data_vencimento, '%Y-%m')
+                ORDER BY MIN(p.data_vencimento) ASC";
         
         $stmt = $this->conexao->prepare($sql);
         $stmt->bindValue(':id_academia', $idAcademia, PDO::PARAM_INT);

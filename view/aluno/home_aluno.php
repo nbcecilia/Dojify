@@ -354,15 +354,9 @@ try {
         if ($xp_max > $xp_min) { $progresso_xp = (($xp_atual - $xp_min) / ($xp_max - $xp_min)) * 100; }
         $progresso_xp = min(100, max(0, $progresso_xp)); 
 
-        // Busca a cobrança mais recente de cada plano ativo e o total mensal dos planos.
+        // Busca a cobrança mais recente e soma os valores dos planos ativos.
         $stmt_pag = $pdo_agenda->prepare("
-            SELECT pag.id_pagamento, pag.status, pag.data_vencimento,
-                   (
-                       SELECT COALESCE(SUM(pl2.valor), 0)
-                       FROM plano pl2
-                       WHERE pl2.id_usuario_aluno = pl.id_usuario_aluno
-                         AND pl2.status = 'ATIVO'
-                   ) AS valor_total_planos
+            SELECT pag.id_pagamento, pag.status, pag.data_vencimento, pag.valor
             FROM plano pl
             INNER JOIN pagamento pag ON pag.id_plano_matricula = pl.id_plano
             WHERE pl.id_usuario_aluno = ?
@@ -389,9 +383,12 @@ try {
             $data_vencimento = $data_vencimento_iso
                 ? date('d/m/Y', strtotime($data_vencimento_iso))
                 : '---';
-            $valorMensalidadePlanosAtivos = (float)$pagamentosAtuais[0]['valor_total_planos'];
-            $valor_pagamento = $valorMensalidadePlanosAtivos > 0
-                ? 'R$ ' . number_format($valorMensalidadePlanosAtivos, 2, ',', '.')
+            $valorTotalPagamento = array_sum(array_map(
+                static fn(array $pagamento): float => (float)$pagamento['valor'],
+                $pagamentosAtuais
+            ));
+            $valor_pagamento = $valorTotalPagamento > 0
+                ? 'R$ ' . number_format($valorTotalPagamento, 2, ',', '.')
                 : '---';
 
             $statusPagamentoAtual = 'PAGO';

@@ -102,6 +102,39 @@ if (isset($_GET['sucesso'])) {
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <!-- Estilo Global Dojify -->
     <link rel="stylesheet" href="../../assets/css/estilo.css">
+    <style>
+        #modalNovaAvaliacao .modal-content > form {
+            display: flex;
+            flex: 1 1 auto;
+            flex-direction: column;
+            min-height: 0;
+            overflow: hidden;
+        }
+
+        #modalNovaAvaliacao .modal-body {
+            flex: 1 1 auto;
+            overflow-y: auto;
+        }
+
+        .avaliacao-modal-action-button {
+            box-sizing: border-box !important;
+            display: inline-flex !important;
+            width: 160px !important;
+            height: 36px !important;
+            min-height: 36px !important;
+            max-height: 36px !important;
+            margin: 0 !important;
+            padding: 0 10px !important;
+            font-size: 0.8rem !important;
+            line-height: 1 !important;
+            align-items: center !important;
+            justify-content: center !important;
+        }
+
+        .avaliacao-modal-action-footer {
+            gap: 8px !important;
+        }
+    </style>
 </head>
 <body>
 
@@ -240,9 +273,9 @@ if (isset($_GET['sucesso'])) {
                             </div>
                         </div>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="submit" class="btn btn-success">Guardar avaliação</button>
+                    <div class="modal-footer avaliacao-modal-action-footer">
+                        <button type="button" class="btn btn-secondary avaliacao-modal-action-button" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-success avaliacao-modal-action-button">Guardar avaliação</button>
                     </div>
                 </form>
             </div>

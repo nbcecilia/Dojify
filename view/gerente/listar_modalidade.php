@@ -92,6 +92,21 @@ if (!isset($_SESSION['modalidade_status_csrf_token'])) {
         .modalidade-status-button.btn-success:hover {
             background-color: var(--action-submit-hover) !important;
         }
+
+        .modal-footer > .modalidade-modal-button {
+            box-sizing: border-box !important;
+            display: inline-flex !important;
+            width: 110px !important;
+            height: 34px !important;
+            min-height: 34px !important;
+            max-height: 34px !important;
+            margin: 0 !important;
+            padding: 0 10px !important;
+            font-size: 0.8rem !important;
+            line-height: 1 !important;
+            align-items: center !important;
+            justify-content: center !important;
+        }
     </style>
 </head>
 <body>
@@ -219,8 +234,8 @@ if (!isset($_SESSION['modalidade_status_csrf_token'])) {
                         </div>
                     </div>
                     <div class="modal-footer d-flex justify-content-end gap-2">
-                        <button type="button" class="btn btn-secondary m-0" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="submit" class="btn btn-success m-0">
+                        <button type="button" class="btn btn-secondary btn-sm modalidade-modal-button" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-success btn-sm modalidade-modal-button">
                             <i class="bi bi-check-circle me-1"></i> Cadastrar
                         </button>
                     </div>

@@ -108,6 +108,25 @@ if (!isset($_SESSION['turma_status_csrf_token'])) {
         .table .turma-status-form > button.btn-success[type="submit"]:hover {
             background-color: var(--action-submit-hover);
         }
+
+        .modal-turma-action-button {
+            box-sizing: border-box !important;
+            display: inline-flex !important;
+            width: 120px !important;
+            height: 36px !important;
+            min-height: 36px !important;
+            max-height: 36px !important;
+            margin: 0 !important;
+            padding: 0 10px !important;
+            font-size: 0.8rem !important;
+            line-height: 1 !important;
+            align-items: center !important;
+            justify-content: center !important;
+        }
+
+        .modal-turma-action-footer {
+            gap: 8px !important;
+        }
     </style>
 </head>
 <body>
@@ -278,9 +297,9 @@ if (!isset($_SESSION['turma_status_csrf_token'])) {
                             </div>
                         </div>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="submit" class="btn btn-success">
+                    <div class="modal-footer modal-turma-action-footer">
+                        <button type="button" class="btn btn-secondary modal-turma-action-button" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-success modal-turma-action-button">
                             <i class="bi bi-check-circle me-1"></i> Cadastrar
                         </button>
                     </div>

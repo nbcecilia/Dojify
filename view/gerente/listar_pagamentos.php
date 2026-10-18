@@ -20,29 +20,20 @@ $pagamentosBrutos = $dao->listarPagamentosDaAcademia($idAcademia);
 // Captura o termo digitado na pesquisa
 $termoBusca = trim($_GET['busca'] ?? '');
 
-// Agrupa e soma os valores por Aluno e por Mês/Ano de Vencimento
-$pagamentosAgrupados = [];
+// Mantém uma cobrança consolidada por aluno e mês, com os IDs de cada plano.
+$pagamentos = [];
 foreach ($pagamentosBrutos as $pag) {
     // Se houver termo de busca, filtra ignorando maiúsculas/minúsculas
     if ($termoBusca !== '' && mb_stripos($pag['aluno_nome'], $termoBusca) === false) {
         continue;
     }
 
-    // Cria uma chave única por Aluno + Mês/Ano de Vencimento + Estado
-    $mesAno = date('Y-m', strtotime($pag['data_vencimento']));
-    $chave = $pag['aluno_nome'] . '_' . $mesAno . '_' . $pag['status'];
-
-    if (!isset($pagamentosAgrupados[$chave])) {
-        $pagamentosAgrupados[$chave] = $pag;
-        $pagamentosAgrupados[$chave]['nomes_planos'] = [$pag['nome_plano']];
-        $pagamentosAgrupados[$chave]['ids_pagamentos'] = [$pag['id_pagamento']];
-    } else {
-        $pagamentosAgrupados[$chave]['valor'] += $pag['valor'];
-        $pagamentosAgrupados[$chave]['nomes_planos'][] = $pag['nome_plano'];
-        $pagamentosAgrupados[$chave]['ids_pagamentos'][] = $pag['id_pagamento'];
-    }
+    $pag['nomes_planos'] = !empty($pag['nome_plano']) ? explode(', ', $pag['nome_plano']) : [];
+    $pag['ids_pagamentos'] = !empty($pag['ids_pagamentos'])
+        ? array_map('intval', explode(',', $pag['ids_pagamentos']))
+        : [];
+    $pagamentos[] = $pag;
 }
-$pagamentos = array_values($pagamentosAgrupados);
 ?>
 <!DOCTYPE html>
 <html lang="pt-pt">
@@ -150,6 +141,8 @@ $pagamentos = array_values($pagamentosAgrupados);
                                             <br><small class="text-muted"><?= htmlspecialchars($pag['forma_pagamento']) ?></small>
                                         <?php elseif ($pag['status'] === 'ATRASADO' || (strtotime($pag['data_vencimento']) < time() && $pag['status'] === 'PENDENTE')): ?>
                                             <span class="text-danger fw-semibold">Atrasado</span>
+                                        <?php elseif ($pag['status'] === 'EM_ANALISE'): ?>
+                                            <span class="text-info-emphasis fw-semibold">Em análise</span>
                                         <?php else: ?>
                                             <span class="text-warning fw-semibold">Pendente</span>
                                         <?php endif; ?>
