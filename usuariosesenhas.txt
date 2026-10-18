@@ -5,3 +5,198 @@ otavio@email.com -- gerente123
 ratto@email.com -- prof123
 joao@email.com -- aluno123
 sebastiana@email.com --aluno123
+
+-- ======================================================
+-- INSERTS ADICIONAIS PARA FACILITAR 
+-- ======================================================
+USE `dojify_1`;
+
+-- ==========================================================
+
+-- CADASTRO ACADEMIAS (10 ACADEMIAS)
+-- ==========================================================
+INSERT INTO academia (id_academia, nome, documento, cep, endereco, cidade, estado, telefone, email, status, data_cadastro) VALUES 
+(2, 'Academia Alpha Fight', '12345678000195', '70339-000', 'SCS Quadra 2 Bloco C', 'Brasília', 'DF', '(61) 3223-1101', 'contato@alphafight.com', 'ATIVO', '2026-06-18 09:30:00'),
+(3, 'Team Nogueira Brasília', '98765432000110', '71625-000', 'SHIS QI 11 Bloco F', 'Brasília', 'DF', '(61) 3364-2202', 'bsb@teamnogueira.com', 'ATIVO', '2026-07-25 10:15:00'),
+(4, 'CheckMat Ceilândia', '45678912000133', '72220-000', 'EQNM 18/20', 'Ceilândia', 'DF', '(61) 3371-3303', 'ceilandia@checkmat.com', 'ATIVO', '2026-08-02 14:00:00'),
+(5, 'Gracie Barra Asa Norte', '78912345000188', '70862-000', 'CLN 210 Bloco B', 'Brasília', 'DF', '(61) 3274-4404', 'asanorte@graciebarra.com', 'ATIVO', '2026-09-10 16:20:00'),
+(6, 'Alliance Jiu-Jitsu DF', '32165498000177', '71503-501', 'SHIN CA 01', 'Brasília', 'DF', '(61) 3468-5505', 'df@alliance.com', 'ATIVO', '2026-09-15 08:45:00'),
+(7, 'Fight Club Taguatinga', '65498732000166', '72015-530', 'CNB 03 Lote 02', 'Taguatinga', 'DF', '(61) 3352-6606', 'contato@fightclubtaguam.com', 'ATIVO', '2026-09-22 11:10:00'),
+(8, 'Pitbull Team Águas Claras', '14725836000155', '71906-500', 'Av. das Araucárias Lote 1400', 'Águas Claras', 'DF', '(61) 3435-7707', 'aguasclaras@pitbull.com', 'ATIVO', '2026-10-28 15:30:00'),
+(9, 'Nova União Guará', '25836914000144', '71020-070', 'QE 07 Lote 20', 'Guará', 'DF', '(61) 3561-8808', 'guara@novauniao.com', 'ATIVO', '2026-10-03 09:00:00'),
+(10, 'Zenith BJJ Lúcio Costa', '36914725000133', '71010-000', 'Colônia Agrícola Lúcio Costa Chácara 12', 'Brasília', 'DF', '(61) 3381-9909', 'luciocosta@zenith.com', 'ATIVO', '2026-10-08 10:00:00');
+
+
+-- ==========================================================
+-- GERENTES DAS ACADEMIAS 2 A 10
+-- ==========================================================
+INSERT INTO usuario (
+    id_usuario, 
+    id_academia, 
+    perfil_id, 
+    nome, 
+    cpf, 
+    data_nascimento, 
+    sexo, 
+    telefone, 
+    email, 
+    cep, 
+    endereco, 
+    cidade, 
+    estado, 
+    especialidade, 
+    data_admissao, 
+    responsavel, 
+    observacao, 
+    data_matricula, 
+    status, 
+    data_aceite_contrato, 
+    primeiro_acesso
+) VALUES 
+-- Gerente Academia 2 (Alpha Fight)
+(200, 2, 2, 'Carlos Mendes', '11223344556', '1982-03-15', 'Masculino', '(61) 98888-1102', 'carlos.alpha@email.com', '70339-000', 'SCS Quadra 2 Bloco C', 'Brasília', 'DF', NULL, '2026-06-18', NULL, 'Gerente geral da unidade Academia Alpha Fight', NULL, 'ATIVO', NULL, 0),
+
+-- Gerente Academia 3 (Team Nogueira Brasília)
+(201, 3, 2, 'Carol Lima', '22334455667', '1986-07-22', 'Feminino', '(61) 98888-2203', 'juliana.nogueira@email.com', '71625-000', 'SHIS QI 11 Bloco F', 'Brasília', 'DF', NULL, '2026-07-25', NULL, 'Gerente geral da unidade Team Nogueira Brasília', NULL, 'ATIVO', NULL, 0),
+
+-- Gerente Academia 4 (CheckMat Ceilândia)
+(202, 4, 2, 'Marcos Souza', '33445566778', '1980-11-05', 'Masculino', '(61) 98888-3304', 'marcos.checkmat@email.com', '72220-000', 'EQNM 18/20', 'Ceilândia', 'DF', NULL, '2026-08-02', NULL, 'Gerente geral da unidade CheckMat Ceilândia', NULL, 'ATIVO', NULL, 0),
+
+-- Gerente Academia 5 (Gracie Barra Asa Norte)
+(203, 5, 2, 'Fernanda Martins', '44556677889', '1988-02-14', 'Feminino', '(61) 98888-4405', 'fernanda.gracie@email.com', '70862-000', 'CLN 210 Bloco B', 'Brasília', 'DF', NULL, '2026-09-10', NULL, 'Gerente geral da unidade Gracie Barra Asa Norte', NULL, 'ATIVO', NULL, 0),
+
+-- Gerente Academia 6 (Alliance Jiu-Jitsu DF)
+(204, 6, 2, 'Rodrigo Cardoso', '55667788900', '1983-09-30', 'Masculino', '(61) 98888-5506', 'rodrigo.alliance@email.com', '71503-501', 'SHIN CA 01', 'Brasília', 'DF', NULL, '2026-09-15', NULL, 'Gerente geral da unidade Alliance Jiu-Jitsu DF', NULL, 'ATIVO', NULL, 0),
+
+-- Gerente Academia 7 (Fight Club Taguatinga)
+(205, 7, 2, 'Patricia Araujo', '66778899011', '1985-05-18', 'Feminino', '(61) 98888-6607', 'patricia.fightclub@email.com', '72015-530', 'CNB 03 Lote 02', 'Taguatinga', 'DF', NULL, '2026-09-22', NULL, 'Gerente geral da unidade Fight Club Taguatinga', NULL, 'ATIVO', NULL, 0),
+
+-- Gerente Academia 8 (Pitbull Team Águas Claras)
+(206, 8, 2, 'Bruno Farias', '77889900122', '1979-12-03', 'Masculino', '(61) 98888-7708', 'bruno.pitbull@email.com', '71906-500', 'Av. das Araucárias Lote 1400', 'Águas Claras', 'DF', NULL, '2026-10-28', NULL, 'Gerente geral da unidade Pitbull Team Águas Claras', NULL, 'ATIVO', NULL, 0),
+
+-- Gerente Academia 9 (Nova União Guará)
+(207, 9, 2, 'Larissa Pires', '88990011233', '1991-04-25', 'Feminino', '(61) 98888-8809', 'larissa.novauniao@email.com', '71020-070', 'QE 07 Lote 20', 'Guará', 'DF', NULL, '2026-10-03', NULL, 'Gerente geral da unidade Nova União Guará', NULL, 'ATIVO', NULL, 0),
+
+-- Gerente Academia 10 (Zenith BJJ Lúcio Costa)
+(208, 10, 2, 'Thiago Moraes', '99001122344', '1984-08-19', 'Masculino', '(61) 98888-9910', 'thiago.zenith@email.com', '71010-000', 'Colônia Agrícola Lúcio Costa Chácara 12', 'Brasília', 'DF', NULL, '2026-10-08', NULL, 'Gerente geral da unidade Zenith BJJ Lúcio Costa', NULL, 'ATIVO', NULL, 0);
+
+
+-- ==========================================================
+-- NOVOS PROFESSORES PARA A ACADEMIA "A TOKKA"
+-- ==========================================================
+INSERT INTO usuario (
+    id_usuario, 
+    id_academia, 
+    perfil_id, 
+    nome, 
+    cpf, 
+    data_nascimento, 
+    sexo, 
+    telefone, 
+    email, 
+    cep, 
+    endereco, 
+    cidade, 
+    estado, 
+    especialidade, 
+    data_admissao, 
+    responsavel, 
+    observacao, 
+    data_matricula, 
+    status, 
+    data_aceite_contrato, 
+    primeiro_acesso
+) VALUES 
+-- Professora de Jiu-Jitsu (Flora Maia)
+(6, 1, 3, 'Flora Maia', '22233344455', '1985-06-15', 'Feminino', '(61) 97777-5555', 'flora.maia@email.com', '72215-000', 'Qnm 08 Conj. B lote 34', 'Ceilândia', 'DF', 'Jiu-Jitsu', '2026-08-01', NULL, 'Professora responsável pelas turmas de Jiu-Jitsu feminino e infantil', NULL, 'ATIVO', NULL, 0),
+
+-- Professor de Muay Thai (Bruno Lima)
+(7, 1, 3, 'Bruno Lima', '33344455667', '1982-12-10', 'Masculino', '(61) 97777-4444', 'bruno.lima@email.com', '72215-000', 'Qnm 08 Conj. B lote 34', 'Ceilândia', 'DF', 'Muay Thai', '2026-08-01', NULL, 'Professor responsável pelas turmas de Muay Thai', NULL, 'ATIVO', NULL, 0);
+
+-- ==========================================================
+-- CREDENCIAIS DE LOGIN DOS NOVOS PROFESSORES
+-- ==========================================================
+INSERT INTO `login` (`id_login`, `id_usuario`, `senha_hash`) VALUES 
+(6, 6, '$2y$10$QeVSOdmtx/rEy7wUI/Ith.jKSWlGjRQMb9Ll44CF/pTPs7/LbNBdG'), 
+(7, 7, '$2y$10$QeVSOdmtx/rEy7wUI/Ith.jKSWlGjRQMb9Ll44CF/pTPs7/LbNBdG'); 
+
+-- ==========================================================
+-- 5. MODALIDADE
+-- ==========================================================
+INSERT INTO modalidade (id_modalidade, id_academia, nome, descricao) VALUES 
+(1, 1, 'Jiu-Jítsu', 'Arte suave focada em luta no chão e finalizações'),
+(2, 1, 'Muay Thai', 'Arte com socos, chutes, joelhadas e cotoveladas');
+
+-- =========================================================
+-- TURMAS
+-- =========================================================
+INSERT INTO `turma` (`id_turma`, `id_usuario_professor`, `id_modalidade`, `nome`, `capacidade`, `nivel`, `status`) VALUES
+(6, 7, 2, 'Muay Thai Noite (Prof. Bruno)', 30, 'Todos os Níveis', 'ATIVA'),
+(7, 2, 1, 'Jiu-Jitsu Tarde (Porf. Otávio)', 20, 'Todos os Níveis', 'ATIVA'),
+(8, 6, 1, 'Jiu-Jitsu Noturno Tardio (Profa. Flora)', 20, 'Todos os Níveis', 'ATIVA'),
+(9, 3, 1, 'Jiu-Jitsu Sábado (Mestre Ratto)', 30, 'Todos os Níveis', 'ATIVA'),
+(10, 7, 2, 'Muay Thai Sábado (Prof. Bruno)', 25, 'Todos os Níveis', 'ATIVA');
+
+-- =========================================================
+-- 2. HORÁRIOS 
+-- =========================================================
+INSERT INTO `horario_turma` (`id_horario`, `id_turma`, `dia_semana`, `hora_inicio`, `hora_fim`) VALUES
+-- --- SEGUNDA-FEIRA ---
+(4, 6, 'Segunda-Feira', '19:00:00', '20:30:00'),  -- Muay Thai Noite
+-- --- TERÇA-FEIRA --- 
+-- --- QUARTA-FEIRA (4 Aulas) ---
+(12, 6, 'Quarta-Feira', '19:00:00', '20:30:00'),  -- Muay Thai Noite
+-- --- QUINTA-FEIRA (4 Aulas) ---
+(15, 7, 'Quinta-Feira', '15:00:00', '16:30:00'),  -- Jiu-Jitsu Tarde
+(16, 8, 'Quinta-Feira', '20:30:00', '22:00:00'),  -- Jiu-Jitsu Noturno Tardio
+-- --- SÁBADO (2 Aulas) ---
+(21, 9, 'Sábado', '09:00:00', '10:30:00'),        -- Jiu-Jitsu Sábado
+(22, 10, 'Sábado', '11:00:00', '12:30:00');       -- Muay Thai Sábado
+
+-- ==========================================================
+-- CADASTRO DE 10 ALUNOS (A TOKKA)
+-- ==========================================================
+INSERT INTO usuario (
+    id_usuario, 
+    id_academia, 
+    perfil_id, 
+    nome, 
+    cpf, 
+    data_nascimento, 
+    sexo, 
+    telefone, 
+    email, 
+    cep, 
+    endereco, 
+    cidade, 
+    estado, 
+    especialidade, 
+    data_admissao, 
+    responsavel, 
+    observacao, 
+    data_matricula, 
+    status, 
+    data_aceite_contrato, 
+    primeiro_acesso
+) VALUES 
+(10, 1, 4, 'Lucas Silva', '50000000001', '1998-03-12', 'Masculino', '(61) 98111-0001', 'lucas.silva@email.com', '72215-101', 'QNM 01 Conjunto A', 'Ceilândia', 'DF', NULL, NULL, NULL, 'Nenhuma restrição médica relatada', '2026-09-02', 'ATIVO', '2026-09-02 10:00:00', 1),
+(11, 1, 4, 'Bia Lima', '50000000002', '2001-07-22', 'Feminino', '(61) 98111-0002', 'bia.lima@email.com', '72215-102', 'QNM 02 Conjunto B', 'Ceilândia', 'DF', NULL, NULL, NULL, 'Alergia a frutos do mar', '2026-09-03', 'ATIVO', '2026-09-03 11:30:00', 1),
+(12, 1, 4, 'Enzo Silva', '50000000003', '2012-05-14', 'Masculino', '(61) 98111-0003', 'enzo.silva@email.com', '72215-103', 'QNM 03 Conjunto C', 'Ceilândia', 'DF', NULL, NULL, 'Ana Silva (Mãe)', 'Praticante iniciante - Acompanhado pelo responsável', '2026-09-05', 'ATIVO', '2026-09-05 14:15:00', 1),
+(13, 1, 4, 'Lia Rocha', '50000000004', '1995-11-04', 'Feminino', '(61) 98111-0004', 'lia.rocha@email.com', '72215-104', 'QNM 04 Conjunto D', 'Ceilândia', 'DF', NULL, NULL, NULL, 'Nenhuma restrição médica relatada', '2026-09-08', 'ATIVO', '2026-09-08 09:00:00', 1),
+(14, 1, 4, 'Leo Cruz', '50000000005', '1993-02-19', 'Masculino', '(61) 98111-0005', 'leo.cruz@email.com', '72215-105', 'QNM 05 Conjunto E', 'Ceilândia', 'DF', NULL, NULL, NULL, 'Lesão antiga no joelho direito (requer atenção)', '2026-09-10', 'ATIVO', '2026-09-10 16:45:00', 1),
+(15, 1, 4, 'Lara Melo', '50000000006', '1999-08-30', 'Feminino', '(61) 98111-0006', 'lara.melo@email.com', '72215-106', 'QNM 06 Conjunto F', 'Ceilândia', 'DF', NULL, NULL, NULL, 'Nenhuma restrição médica relatada', '2026-09-11', 'ATIVO', '2026-09-11 13:20:00', 1),
+(16, 1, 4, 'Max Dias', '50000000007', '2004-12-01', 'Masculino', '(61) 98111-0007', 'max.dias@email.com', '72215-107', 'QNM 07 Conjunto G', 'Ceilândia', 'DF', NULL, NULL, NULL, 'Asma leve controlada por bombinha', '2026-09-14', 'ATIVO', '2026-09-14 10:10:00', 1),
+(17, 1, 4, 'Mel Reis', '50000000008', '2011-06-18', 'Feminino', '(61) 98111-0008', 'mel.reis@email.com', '72215-108', 'QNM 08 Conjunto H', 'Ceilândia', 'DF', NULL, NULL, 'Carlos Reis (Pai)', 'Sem restrições', '2026-09-15', 'ATIVO', '2026-09-15 15:00:00', 1),
+(18, 1, 4, 'Rui Lima', '50000000009', '1991-04-15', 'Masculino', '(61) 98111-0009', 'rui.lima@email.com', '72215-109', 'QNM 09 Conjunto I', 'Ceilândia', 'DF', NULL, NULL, NULL, 'Nenhuma restrição médica relatada', '2026-09-16', 'ATIVO', '2026-09-16 11:00:00', 1),
+
+-- ==========================================================
+-- CREDENCIAIS DE LOGIN DOS 10 ALUNOS (IDs 10 a 18)
+-- ==========================================================
+INSERT INTO `login` (`id_login`, `id_usuario`, `senha_hash`) VALUES 
+(10, 10, '$2y$10$cbDvKrrWibvx41K.46HLQu0d.5V80KHO8tg1aJypmNY0vMRnQbo0C'), (11, 11, '$2y$10$cbDvKrrWibvx41K.46HLQu0d.5V80KHO8tg1aJypmNY0vMRnQbo0C'),
+(12, 12, '$2y$10$cbDvKrrWibvx41K.46HLQu0d.5V80KHO8tg1aJypmNY0vMRnQbo0C'), (13, 13, '$2y$10$cbDvKrrWibvx41K.46HLQu0d.5V80KHO8tg1aJypmNY0vMRnQbo0C'),
+(14, 14, '$2y$10$cbDvKrrWibvx41K.46HLQu0d.5V80KHO8tg1aJypmNY0vMRnQbo0C'), (15, 15, '$2y$10$cbDvKrrWibvx41K.46HLQu0d.5V80KHO8tg1aJypmNY0vMRnQbo0C'),
+(16, 16, '$2y$10$cbDvKrrWibvx41K.46HLQu0d.5V80KHO8tg1aJypmNY0vMRnQbo0C'), (17, 17, '$2y$10$cbDvKrrWibvx41K.46HLQu0d.5V80KHO8tg1aJypmNY0vMRnQbo0C'),
+(18, 18, '$2y$10$cbDvKrrWibvx41K.46HLQu0d.5V80KHO8tg1aJypmNY0vMRnQbo0C');
+
+

@@ -16,7 +16,23 @@ require_once __DIR__ . '/../../model/dao/ModalidadeDAO.php';
 
 $dao = new PlanoDAO();
 $idAcademia = (int) $_SESSION['id_academia'];
-$planos = $dao->listarPorAcademia($idAcademia);
+$planosGeral = $dao->listarPorAcademia($idAcademia);
+
+// Captura o termo de busca digitado
+$termoBusca = isset($_GET['busca']) ? trim($_GET['busca']) : '';
+
+// Se houver termo de busca, filtra os planos por nome do plano ou nome do aluno
+if (!empty($termoBusca)) {
+    $planos = array_filter($planosGeral, function($p) use ($termoBusca) {
+        return (
+            stripos($p['nome_plano'], $termoBusca) !== false ||
+            stripos($p['aluno_nome'], $termoBusca) !== false
+        );
+    });
+    $planos = array_values($planos);
+} else {
+    $planos = $planosGeral;
+}
 
 // Dados necessários para carregar as opções nos Modals
 $alunos = $dao->listarAlunosPorAcademia($idAcademia);
@@ -81,10 +97,23 @@ foreach ($planos as $plano) {
             <div class="mb-4">
                 <h2>Planos Contratados</h2>
                 <p class="text-muted">Consulte e gerencie os planos ativos dos alunos na academia.</p>
+
+                <!-- Barra de Pesquisa Padronizada (.busca-container) -->
+                <div class="busca-container mt-3">
+                    <form method="GET" action="listar_plano.php" class="busca-form d-flex gap-2">
+                        <div class="input-group busca-input">
+                            <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+                            <input type="text" name="busca" class="form-control" placeholder="Pesquisar por nome do aluno ou plano..." value="<?= htmlspecialchars($termoBusca) ?>">
+                        </div>
+                        <button type="submit" class="btn btn-dark busca-btn">
+                            Filtrar
+                        </button>
+                    </form>
+                </div>
             </div>
 
             <?php if (empty($alunosAgrupados)): ?>
-                <p class="text-center text-muted py-4">Nenhum plano cadastrado.</p>
+                <p class="text-center text-muted py-4">Nenhum plano encontrado.</p>
             <?php else: ?>
                 <div class="table-responsive">
                     <table class="table table-hover align-middle">

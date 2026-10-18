@@ -340,8 +340,25 @@ SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
 
--- INSERTS PARA TESTE!
 
+-- ===========================================================
+-- ALTERAÇÕES
+-- ===========================================================
+ALTER TABLE usuario ADD primeiro_acesso TINYINT(1) DEFAULT 1;
+ALTER TABLE usuario ADD COLUMN IF NOT EXISTS data_aceite_contrato DATETIME NULL DEFAULT NULL COMMENT 'Data e hora em que o aluno aceitou eletronicamente o contrato.';
+ALTER TABLE academia ADD COLUMN status VARCHAR(20) NOT NULL DEFAULT 'ATIVO'; 
+
+-- Adicionando novos campos na tabela academia 
+ALTER TABLE academia 
+  ADD COLUMN cep VARCHAR(9) NULL DEFAULT NULL COMMENT 'CEP da academia.' AFTER documento,
+  ADD COLUMN cidade VARCHAR(100) NOT NULL DEFAULT '' COMMENT 'Cidade onde a academia está localizada.' AFTER endereco,
+  ADD COLUMN estado CHAR(2) NOT NULL DEFAULT '' COMMENT 'Sigla do estado (UF) onde a academia está localizada.' AFTER cidade;
+
+
+
+-- =================================================================
+-- INSERTS PARA TESTE!
+-- =================================================================
 
 USE `dojify_1`;
 
@@ -358,37 +375,35 @@ INSERT INTO perfil (id_perfil, nome) VALUES
 -- 2. ACADEMIA
 -- ==========================================================
 INSERT INTO academia (id_academia, nome, documento, endereco, telefone, email) VALUES 
-(1, 'A TOKKA - Escola de Lutas', '66790246000112', 'Qnm 08 Conj. B lote 34 - Ceilândia, Brasília - DF', '61998693504', 'contato@atokka.com');
+(1, 'A TOKKA - Escola de Lutas', '66790246000112', '72215-000', 'Qnm 08 Conj. B lote 34', 'Ceilândia', 'DF', '61998693504', 'contato@atokka.com', 'ATIVO', '2026-05-10 08:00:00');
 
 -- ==========================================================
 -- 3. USUARIOS (Suporte, Gerente, Professor e Alunos)
 -- ==========================================================
--- 	Suporte
-INSERT INTO usuario (id_usuario, id_academia, perfil_id, nome, cpf, data_nascimento, telefone, email, status) VALUES 
-(1, NULL, 1, 'Suporte Técnico', '00000000000', '1990-01-01', '(61) 90000-0000', 'suporte@dojify.com', 'ATIVO');
+-- Suporte Técnico
+(1, NULL, 1, 'Suporte Técnico', '00000000000', '1990-01-01', 'Outro', '(61) 90000-0000', 'suporte@dojify.com', '70000-000', 'Setor de TI', 'Brasília', 'DF', NULL, NULL, NULL, 'Equipe de suporte técnico do sistema', NULL, 'ATIVO', NULL, 0),
 
--- Gerente
-INSERT INTO usuario (id_usuario, id_academia, perfil_id, nome, cpf, data_nascimento, telefone, email, status) VALUES 
-(2, 1, 2, 'Otávio Silva (Gerente)', '11111111111', '1985-04-12', '(61) 98888-7777', 'otavio@email.com', 'ATIVO');
+-- Gerente (A Tokka)
+(2, 1, 2, 'Otávio Silva', '11111111111', '1985-04-12', 'Masculino', '(61) 98888-7777', 'otavio@email.com', '72215-000', 'Qnm 08 Conj. B lote 34', 'Ceilândia', 'DF', NULL, '2026-01-01', NULL, 'Gerente geral da unidade A Tokka', NULL, 'ATIVO', NULL, 0),
 
--- Professor
-INSERT INTO usuario (id_usuario, id_academia, perfil_id, nome, cpf, data_nascimento, telefone, email, especialidade, data_admissao, status) VALUES 
-(3, 1, 3, 'Mestre Ratto', '22222222222', '1978-08-20', '(61) 97777-6666', 'ratto@email.com', 'Jiu-Jitsu', '2020-01-15', 'ATIVO');
+-- Professor (Mestre Ratto)
+(3, 1, 3, 'Mestre Ratto', '22222222222', '1978-08-20', 'Masculino', '(61) 97777-6666', 'ratto@email.com', '72215-000', 'Qnm 08 Conj. B lote 34', 'Ceilândia', 'DF', 'Jiu-Jitsu', '2026-07-20', NULL, 'Professor responsável pelas turmas de Jiu-Jitsu', NULL, 'ATIVO', NULL, 0),
 
--- Alunos
-INSERT INTO usuario (id_usuario, id_academia, perfil_id, nome, cpf, data_nascimento, telefone, email, data_matricula, status) VALUES 
-(4, 1, 4, 'João Souza', '33333333333', '2002-05-10', '(61) 96666-5555', 'joao@email.com', '2026-01-10', 'ATIVO'),
-(5, 1, 4, 'Sebastiana Oliveira', '44444444444', '1998-11-25', '(61) 95555-4444', 'sebastiana@email.com', '2026-02-01', 'ATIVO');
+-- Aluno 1 (João Souza)
+(4, 1, 4, 'João Souza', '33333333333', '2002-05-10', 'Masculino', '(61) 96666-5555', 'joao@email.com', '72215-100', 'QNM 12 Conjunto C', 'Ceilândia', 'DF', NULL, NULL, NULL, 'Nenhuma restrição médica relatada', '2026-10-17', 'ATIVO', '2026-10-20 14:30:00', 1),
+
+-- Aluno 2 (Sebastiana Oliveira)
+(5, 1, 4, 'Sebastiana Oliveira', '44444444444', '1998-11-25', 'Feminino', '(61) 95555-4444', 'sebastiana@email.com', '72215-200', 'QNM 14 Conjunto D', 'Ceilândia', 'DF', NULL, NULL, NULL, 'Hérnia de disco', '2026-10-18', 'ATIVO', '2026-10-19 11:15:00', 1);
 
 -- ==========================================================
 -- 4. LOGIN (Hash de senhas de teste)
 -- ==========================================================
 INSERT INTO `login` (`id_login`, `id_usuario`, `senha_hash`) VALUES 
-(1, 1, '$2y$10$IavQv0n.9H8Vq9hbRKoZSu6.YYxdRjgzKRNhiG3UuqaX45Mr9q5bu'), -- admin123
-(2, 2, '$2y$10$GK6AB4AFeGkIIEv1x5ok2.57q3ZbSp4643MVjvuTCEQeU57Bj5/DC'), -- gerente123
-(3, 3, '$2y$10$QeVSOdmtx/rEy7wUI/Ith.jKSWlGjRQMb9Ll44CF/pTPs7/LbNBdG'), -- prof123
-(4, 4, '$2y$10$cbDvKrrWibvx41K.46HLQu0d.5V80KHO8tg1aJypmNY0vMRnQbo0C'), -- aluno123
-(5, 5, '$2y$10$cbDvKrrWibvx41K.46HLQu0d.5V80KHO8tg1aJypmNY0vMRnQbo0C'); -- aluno123
+(1, 1, '$2y$10$IavQv0n.9H8Vq9hbRKoZSu6.YYxdRjgzKRNhiG3UuqaX45Mr9q5bu'), 
+(2, 2, '$2y$10$GK6AB4AFeGkIIEv1x5ok2.57q3ZbSp4643MVjvuTCEQeU57Bj5/DC'), 
+(3, 3, '$2y$10$QeVSOdmtx/rEy7wUI/Ith.jKSWlGjRQMb9Ll44CF/pTPs7/LbNBdG'), 
+(4, 4, '$2y$10$cbDvKrrWibvx41K.46HLQu0d.5V80KHO8tg1aJypmNY0vMRnQbo0C'), 
+(5, 5, '$2y$10$cbDvKrrWibvx41K.46HLQu0d.5V80KHO8tg1aJypmNY0vMRnQbo0C'); 
 
 -- ==========================================================
 -- 5. MODALIDADE
@@ -397,51 +412,63 @@ INSERT INTO modalidade (id_modalidade, id_academia, nome, descricao) VALUES
 (1, 1, 'Jiu-Jítsu', 'Arte suave focada em luta no chão e finalizações'),
 (2, 1, 'Muay Thai', 'Arte com socos, chutes, joelhadas e cotoveladas');
 
--- ==========================================================
--- 6. TURMA E HORARIO_TURMA
--- ==========================================================
-INSERT INTO turma (id_turma, id_usuario_professor, id_modalidade, nome, capacidade, nivel, status) VALUES 
-(1, 2, 1, 'Jiu-Jitsu Adulto Noite', 20, 'Intermediário', 'ATIVA');
+-- =========================================================
+-- TURMAS
+-- =========================================================
+INSERT INTO `turma` (`id_turma`, `id_usuario_professor`, `id_modalidade`, `nome`, `capacidade`, `nivel`, `status`) VALUES
+(1, 3, 1, 'Jiu-Jítsu Manhã (Mestre Ratto)', 20, 'Todos os Níveis', 'ATIVA'),
+(2, 7, 2, 'Muay Thai Manhã (Prof. Prof. Bruno)', 20, 'Todos os Níveis', 'ATIVA'),
+(3, 2, 1, 'Jiu-Jítsu Executivo (Prof. Otávio)', 20, 'Todos os Níveis', 'ATIVA'),
+(4, 7, 2, 'Muay Thai Tarde (Prof. Bruno)', 20, 'Todos os Níveis', 'ATIVA'),
+(5, 6, 1, 'Jiu-Jítsu Noite (Profa. Flora)', 20, 'Todos os Níveis', 'ATIVA');
 
-INSERT INTO horario_turma(id_horario, id_turma, dia_semana, hora_inicio, hora_fim) VALUES 
-(1, 1, 'Segunda-Feira', '19:00:00', '20:30:00'),
-(2, 1, 'Quarta-Feira', '19:00:00', '20:30:00');
+-- =========================================================
+-- 2. HORÁRIOS 
+-- =========================================================
+INSERT INTO `horario_turma` (`id_horario`, `id_turma`, `dia_semana`, `hora_inicio`, `hora_fim`) VALUES
+-- --- SEGUNDA-FEIRA (4 Aulas) ---
+(1, 1, 'Segunda-Feira', '07:00:00', '08:30:00'),  -- Jiu-Jitsu Manhã
+(2, 2, 'Segunda-Feira', '08:30:00', '10:00:00'),  -- Muay Thai Manhã
+(3, 3, 'Segunda-Feira', '12:00:00', '13:15:00'),  -- Jiu-Jitsu Executivo
+-- --- TERÇA-FEIRA (4 Aulas) ---
+(5, 1, 'Terça-Feira', '07:00:00', '08:30:00'),    -- Jiu-Jitsu Manhã
+(6, 2, 'Terça-Feira', '08:30:00', '10:00:00'),    -- Muay Thai Manhã
+(7, 4, 'Terça-Feira', '15:00:00', '16:30:00'),    -- Muay Thai Tarde
+(8, 5, 'Terça-Feira', '19:00:00', '20:30:00'),    -- Jiu-Jitsu Noite
+-- --- QUARTA-FEIRA (4 Aulas) ---
+(9, 1, 'Quarta-Feira', '07:00:00', '08:30:00'),   -- Jiu-Jitsu Manhã
+(10, 2, 'Quarta-Feira', '08:30:00', '10:00:00'),  -- Muay Thai Manhã
+(11, 3, 'Quarta-Feira', '12:00:00', '13:15:00'),  -- Jiu-Jitsu Executivo
+-- --- QUINTA-FEIRA (4 Aulas) ---
+(13, 1, 'Quinta-Feira', '07:00:00', '08:30:00'),  -- Jiu-Jitsu Manhã
+(14, 2, 'Quinta-Feira', '08:30:00', '10:00:00'),  -- Muay Thai Manhã
+-- --- SEXTA-FEIRA (4 Aulas) ---
+(17, 1, 'Sexta-Feira', '07:00:00', '08:30:00'),   -- Jiu-Jitsu Manhã
+(18, 2, 'Sexta-Feira', '08:30:00', '10:00:00'),   -- Muay Thai Manhã
+(19, 4, 'Sexta-Feira', '15:00:00', '16:30:00'),   -- Muay Thai Tarde
+(20, 5, 'Sexta-Feira', '19:00:00', '20:30:00'),   -- Jiu-Jitsu Noite
 
 -- ==========================================================
 -- 7. PLANO E PAGAMENTO
 -- ==========================================================
 INSERT INTO plano(id_plano, id_usuario_aluno, id_modalidade, nome_plano, valor, data_inicio, data_fim, status) VALUES 
-(1, 4, 1, 'Mensal 3x/semana', 140.00, '2026-03-01', '2026-04-01', 'ATIVO'),
-(2, 5, 2,  'Mensal 2x/semana', 100.00, '2026-03-01', '2026-06-01', 'ATIVO'),
-(3, 4, 2, 'Mensal 3x/semana', 140.00, '2026-03-01', '2026-04-01', 'ATIVO');
+(1, 4, 1, 'Mensal 3x/semana', 150.00, '2026-10-17',  NULL, 'ATIVO'),
+(2, 5, 2,  'Mensal 2x/semana', 100.00, '2026-10-17', NULL, 'ATIVO'),
+(3, 4, 2, 'Mensal 3x/semana', 150.00, '2026-10-17', NULL, 'ATIVO');
 
 INSERT INTO pagamento(id_pagamento, id_plano_matricula, valor, data_vencimento, data_pagamento, forma_pagamento, status) VALUES 
-(1, 1, 140.00, '2026-03-10', '2026-03-08', 'PIX', 'PAGO'),
-(2, 2, 100.00, '2026-03-10', NULL, NULL, 'PENDENTE');
+(1, 1, 150.00, '2026-10-27', '2026-10-17', 'PIX', 'PAGO'),
+(2, 2, 100.00, '2026-10-27', NULL, NULL, 'PENDENTE');
 
 -- ==========================================================
 -- 8. AGENDAMENTO, PRESENCA E GRADUACAO
 -- ==========================================================
 INSERT INTO agendamento(id_agendamento, id_turma, id_usuario_aluno, data_agendamento, status) VALUES 
-(1, 1, 4, '2026-03-16 19:00:00', 'CONFIRMADO');
+(1, 1, 4, '2026-10-19 8:00:00', 'CONFIRMADO');
 
 INSERT INTO presenca(id_presenca, id_agendamento, data, status) VALUES 
-(1, 1, '2026-03-16', 1);
+(1, 1, '2026-10-19', 1);
 
 INSERT INTO graduacao(id_graduacao, id_usuario_aluno, id_usuario_professor, id_modalidade, data_graduacao, faixa, grau) VALUES 
 (1, 4, 3, 1, '2026-01-15', 'Branca', '2º Grau');
 
-
-
--- ===========================================================
--- ALTERAÇÕES
--- ===========================================================
-ALTER TABLE usuario ADD primeiro_acesso TINYINT(1) DEFAULT 1;
-ALTER TABLE usuario ADD COLUMN IF NOT EXISTS data_aceite_contrato DATETIME NULL DEFAULT NULL COMMENT 'Data e hora em que o aluno aceitou eletronicamente o contrato.';
-ALTER TABLE academia ADD COLUMN status VARCHAR(20) NOT NULL DEFAULT 'ATIVO'; 
-
--- Adicionando novos campos na tabela academia 
-ALTER TABLE academia 
-  ADD COLUMN cep VARCHAR(9) NULL DEFAULT NULL COMMENT 'CEP da academia.' AFTER documento,
-  ADD COLUMN cidade VARCHAR(100) NOT NULL DEFAULT '' COMMENT 'Cidade onde a academia está localizada.' AFTER endereco,
-  ADD COLUMN estado CHAR(2) NOT NULL DEFAULT '' COMMENT 'Sigla do estado (UF) onde a academia está localizada.' AFTER cidade;

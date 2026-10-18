@@ -13,8 +13,24 @@ $idAcademia = $_SESSION['usuario']['id_academia'] ?? 0;
 $idUsuario = $_SESSION['usuario']['id'] ?? $_SESSION['usuario']['id_usuario'] ?? 0;
 
 $avaliacaoController = new AvaliacaoController();
-$avaliacoes = $avaliacaoController->listarPorPerfilUsuario($perfilId, $idAcademia, $idUsuario);
+$avaliacoesGeral = $avaliacaoController->listarPorPerfilUsuario($perfilId, $idAcademia, $idUsuario);
 $alunos = $avaliacaoController->listarAlunosPorPerfilUsuario($perfilId, $idAcademia, $idUsuario);
+
+// Captura o termo de busca digitado
+$termoBusca = isset($_GET['busca']) ? trim($_GET['busca']) : '';
+
+// Se houver termo de busca, filtra as avaliações por nome do aluno
+if (!empty($termoBusca)) {
+    $avaliacoes = array_filter($avaliacoesGeral, function($av) use ($termoBusca) {
+        return (
+            stripos($av->getNomeAluno(), $termoBusca) !== false
+        );
+    });
+    $avaliacoes = array_values($avaliacoes);
+} else {
+    $avaliacoes = $avaliacoesGeral;
+}
+
 $mensagem = '';
 $tipoMensagem = '';
 
@@ -111,6 +127,19 @@ if (isset($_GET['sucesso'])) {
             <div class="mb-4">
                 <h2>Avaliações Técnicas</h2>
                 <p class="text-muted">Consulte o histórico de evolução, pontos fortes e aspetos a melhorar dos alunos.</p>
+
+                <!-- Barra de Pesquisa Padronizada (.busca-container) -->
+                <div class="busca-container mt-3">
+                    <form method="GET" action="listar_avaliacao.php" class="busca-form d-flex gap-2">
+                        <div class="input-group busca-input">
+                            <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+                            <input type="text" name="busca" class="form-control" placeholder="Pesquisar por nome do aluno..." value="<?= htmlspecialchars($termoBusca) ?>">
+                        </div>
+                        <button type="submit" class="btn btn-dark busca-btn">
+                            Filtrar
+                        </button>
+                    </form>
+                </div>
             </div>
              
             <div class="table-responsive">
@@ -130,7 +159,7 @@ if (isset($_GET['sucesso'])) {
                         <?php if (empty($avaliacoes)): ?>
                             <tr>
                                 <td colspan="<?= $perfilId === 3 ? 7 : 6 ?>" class="text-center py-4 text-muted">
-                                    Nenhuma avaliação registada até o momento.
+                                    Nenhuma avaliação encontrada.
                                 </td>
                             </tr>
                         <?php else: ?>

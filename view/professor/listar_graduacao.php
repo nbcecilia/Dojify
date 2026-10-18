@@ -17,8 +17,24 @@ $idAcademia = $_SESSION['usuario']['id_academia'] ?? 0;
 $idUsuario = $_SESSION['usuario']['id'] ?? $_SESSION['usuario']['id_usuario'] ?? 0;
 
 $controller = new GraduacaoController();
-$graduacoes = $controller->listarPorPerfilUsuario($perfilId, $idAcademia, $idUsuario);
+$graduacoesGeral = $controller->listarPorPerfilUsuario($perfilId, $idAcademia, $idUsuario);
 $alunos = $controller->listarAlunosPorPerfilUsuario($perfilId, $idAcademia, $idUsuario);
+
+// Captura o termo de busca digitado
+$termoBusca = isset($_GET['busca']) ? trim($_GET['busca']) : '';
+
+// Se houver termo de busca, filtra por nome do aluno ou faixa
+if (!empty($termoBusca)) {
+    $graduacoes = array_filter($graduacoesGeral, function($grad) use ($termoBusca) {
+        return (
+            stripos($grad['nome_aluno'] ?? '', $termoBusca) !== false ||
+            stripos($grad['faixa'] ?? '', $termoBusca) !== false
+        );
+    });
+    $graduacoes = array_values($graduacoes);
+} else {
+    $graduacoes = $graduacoesGeral;
+}
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $acao = (string)($_POST['acao'] ?? '');
@@ -106,6 +122,19 @@ if (isset($_GET['sucesso'])) {
             <div class="mb-4">
                 <h2>Histórico de Graduações</h2>
                 <p class="text-muted">Consulte as graduações atribuídas aos alunos nas suas modalidades.</p>
+
+                <!-- Barra de Pesquisa Padronizada (.busca-container) -->
+                <div class="busca-container mt-3">
+                    <form method="GET" action="listar_graduacao.php" class="busca-form d-flex gap-2">
+                        <div class="input-group busca-input">
+                            <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+                            <input type="text" name="busca" class="form-control" placeholder="Pesquisar por nome do aluno ou faixa..." value="<?= htmlspecialchars($termoBusca) ?>">
+                        </div>
+                        <button type="submit" class="btn btn-dark busca-btn">
+                            Filtrar
+                        </button>
+                    </form>
+                </div>
             </div>
 
             <div class="table-responsive">
@@ -123,7 +152,7 @@ if (isset($_GET['sucesso'])) {
                     <tbody>
                         <?php if (empty($graduacoes)): ?>
                             <tr>
-                                <td colspan="<?= $perfilId === 3 ? 6 : 5 ?>" class="text-center text-muted py-4">Nenhuma graduação registada encontrada.</td>
+                                <td colspan="<?= $perfilId === 3 ? 6 : 5 ?>" class="text-center text-muted py-4">Nenhuma graduação encontrada.</td>
                             </tr>
                         <?php else: ?>
                             <?php foreach ($graduacoes as $grad): ?>

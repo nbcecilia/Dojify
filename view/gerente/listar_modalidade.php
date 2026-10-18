@@ -15,7 +15,22 @@ require_once __DIR__ . '/../../model/dao/ModalidadeDAO.php';
 
 $dao = new ModalidadeDAO();
 $idAcademia = (int) $_SESSION['id_academia'];
-$modalidades = $dao->listarTodasPorAcademia($idAcademia);
+
+// Captura o termo de busca caso tenha sido enviado
+$termoBusca = isset($_GET['busca']) ? trim($_GET['busca']) : '';
+
+if (!empty($termoBusca)) {
+    // Certifique-se de que o seu ModalidadeDAO possui um método para buscar por nome/termo, 
+    // ou ajuste conforme a implementação do seu DAO. Caso utilize apenas listarTodas, 
+    // você pode filtrar em memória ou criar o método no DAO.
+    $modalidades = method_exists($dao, 'pesquisarPorNome') 
+        ? $dao->pesquisarPorNome($idAcademia, $termoBusca) 
+        : array_filter($dao->listarTodasPorAcademia($idAcademia), function($m) use ($termoBusca) {
+            return stripos($m['nome'], $termoBusca) !== false;
+        });
+} else {
+    $modalidades = $dao->listarTodasPorAcademia($idAcademia);
+}
 
 if (!isset($_SESSION['modalidade_status_csrf_token'])) {
     $_SESSION['modalidade_status_csrf_token'] = bin2hex(random_bytes(32));
@@ -110,8 +125,21 @@ if (!isset($_SESSION['modalidade_status_csrf_token'])) {
             <div class="mb-4">
                 <h2>Gestão de Modalidades</h2>
                 <p class="text-muted">Gestão das modalidades oferecidas pela academia.</p>
+                
+                <!-- Barra de Pesquisa Padronizada (.busca-container) corrigida -->
+                <div class="busca-container">
+                    <form method="GET" action="listar_modalidade.php" class="busca-form d-flex gap-2">
+                        <div class="input-group busca-input">
+                            <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+                            <input type="text" name="busca" class="form-control" placeholder="Pesquisar por modalidade..." value="<?= htmlspecialchars($termoBusca) ?>">
+                        </div>
+                        <button type="submit" class="btn btn-dark busca-btn">
+                            Filtrar
+                        </button>
+                    </form>
+                </div>
             </div>
-
+                
             <?php if (empty($modalidades)): ?>
                 <p class="text-center text-muted py-4">Nenhuma modalidade cadastrada.</p>
             <?php else: ?>
@@ -190,9 +218,9 @@ if (!isset($_SESSION['modalidade_status_csrf_token'])) {
                             <textarea class="form-control" id="nova_modalidade_descricao" name="descricao" rows="4"></textarea>
                         </div>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="submit" class="btn btn-success">
+                    <div class="modal-footer d-flex justify-content-end gap-2">
+                        <button type="button" class="btn btn-secondary m-0" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-success m-0">
                             <i class="bi bi-check-circle me-1"></i> Cadastrar
                         </button>
                     </div>

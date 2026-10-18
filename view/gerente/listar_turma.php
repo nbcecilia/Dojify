@@ -16,7 +16,28 @@ require_once __DIR__ . '/../../model/dao/HorarioTurmaDAO.php';
 
 $dao = new \TurmaDAO();
 $idAcademia = (int) $_SESSION['id_academia'];
-$turmas = $dao->listarPorAcademia($idAcademia);
+
+// Captura o termo de busca digitado
+$termoBusca = isset($_GET['busca']) ? trim($_GET['busca']) : '';
+
+// Lista todas as turmas da academia
+$turmasGeral = $dao->listarPorAcademia($idAcademia);
+
+// Se houver termo de busca, filtra os resultados em memória de forma segura
+if (!empty($termoBusca)) {
+    $turmas = array_filter($turmasGeral, function($t) use ($termoBusca) {
+        return (
+            stripos($t['nome'], $termoBusca) !== false ||
+            stripos($t['professor_nome'], $termoBusca) !== false ||
+            stripos($t['modalidade_nome'], $termoBusca) !== false
+        );
+    });
+    // Reindexa o array para evitar problemas nos loops
+    $turmas = array_values($turmas);
+} else {
+    $turmas = $turmasGeral;
+}
+
 $professores = $dao->listarProfessoresPorAcademia($idAcademia);
 $modalidades = $dao->listarModalidadesPorAcademia($idAcademia);
 $horarioDAO = new \HorarioTurmaDAO();
@@ -121,10 +142,23 @@ if (!isset($_SESSION['turma_status_csrf_token'])) {
             <div class="mb-4">
                 <h2>Gestão de Turmas e Horários</h2>
                 <p class="text-muted">Gestão das turmas e horários da academia.</p>
+
+                <!-- Barra de Pesquisa Padronizada (.busca-container) -->
+                <div class="busca-container">
+                    <form method="GET" action="listar_turma.php" class="busca-form d-flex gap-2">
+                        <div class="input-group busca-input">
+                            <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+                            <input type="text" name="busca" class="form-control" placeholder="Pesquisar por turma, professor ou modalidade..." value="<?= htmlspecialchars($termoBusca) ?>">
+                        </div>
+                        <button type="submit" class="btn btn-dark busca-btn">
+                            Filtrar
+                        </button>
+                    </form>
+                </div>
             </div>
 
             <?php if (empty($turmas)): ?>
-                <p class="text-center text-muted py-4">Nenhuma turma cadastrada.</p>
+                <p class="text-center text-muted py-4">Nenhuma turma encontrada.</p>
             <?php else: ?>
                 <div class="table-responsive">
                     <table class="table table-hover align-middle">
@@ -306,8 +340,8 @@ if (!isset($_SESSION['turma_status_csrf_token'])) {
                                     <input type="number" class="form-control" id="editar_capacidade_<?= $idTurma ?>" name="capacidade" min="1" value="<?= htmlspecialchars((string) $turma['capacidade'], ENT_QUOTES, 'UTF-8') ?>" required>
                                 </div>
                                 <div class="col-md-6">
-                                    <label for="editar_nivel_<?= $idTurma ?>" class="form-label">Nível <span class="text-danger">*</span></label>
-                                    <select class="form-select" id="editar_nivel_<?= $idTurma ?>" name="nivel" required>
+                                    <label for="editar_nivel_<?= $idTurma ?>" class="form-label">Nível (opcional)</label>
+                                    <select class="form-select" id="editar_nivel_<?= $idTurma ?>" name="nivel">
                                         <option value="">Selecione o nível</option>
                                         <option value="INICIANTE" <?= $turma['nivel'] === 'INICIANTE' ? 'selected' : '' ?>>Iniciante</option>
                                         <option value="INTERMEDIARIO" <?= $turma['nivel'] === 'INTERMEDIARIO' ? 'selected' : '' ?>>Intermediário</option>

@@ -210,23 +210,23 @@ foreach ($lista as $linha) {
                                         <?php endif; ?>
                                     </td>
                                     <td class="text-center">
-                                        <div class="d-flex flex-wrap gap-1 justify-content-center">
-                                            <a href="editar_academia.php?id=<?= $linha['id_academia'] ?>" class="btn btn-sm btn-warning">Editar Academia</a>
+                                        <div class="d-flex flex-nowrap gap-1 justify-content-center align-items-center">
+                                            <a href="editar_academia.php?id=<?= $linha['id_academia'] ?>" class="btn btn-sm btn-warning text-nowrap">Editar Academia</a>
                                             
                                             <a href="../../controller/AcademiaController.php?acao=desativar&id=<?= $linha['id_academia'] ?>" 
-                                               class="btn btn-sm btn-danger" 
+                                               class="btn btn-sm btn-danger text-nowrap" 
                                                onclick="return confirm('Tem certeza que deseja desativar esta academia?')">Desativar Academia</a>
 
                                             <?php if (!empty($linha['id_gerente'])): ?>
-                                                <a href="editar_gerente.php?id=<?= $linha['id_gerente'] ?>" class="btn btn-sm btn-info text-white">Editar Gerente</a>
+                                                <a href="editar_gerente.php?id=<?= $linha['id_gerente'] ?>" class="btn btn-sm btn-info text-white text-nowrap">Editar Gerente</a>
                                                 
                                                 <?php if (isset($linha['gerente_status']) && strtoupper($linha['gerente_status']) === 'INATIVO'): ?>
                                                     <a href="../../controller/UsuarioController.php?acao=reativar&id=<?= $linha['id_gerente'] ?>" 
-                                                       class="btn btn-sm btn-success" 
+                                                       class="btn btn-sm btn-success text-nowrap" 
                                                        onclick="return confirm('Tem certeza que deseja reativar este gerente?')">Reativar Gerente</a>
                                                 <?php else: ?>
                                                     <a href="../../controller/UsuarioController.php?acao=desativar&id=<?= $linha['id_gerente'] ?>" 
-                                                       class="btn btn-sm btn-danger" 
+                                                       class="btn btn-sm btn-danger text-nowrap" 
                                                        onclick="return confirm('Tem certeza que deseja desativar este gerente?')">Desativar Gerente</a>
                                                 <?php endif; ?>
                                             <?php endif; ?>
@@ -284,9 +284,9 @@ foreach ($lista as $linha) {
                                         <?php endif; ?>
                                     </td>
                                     <td class="text-center">
-                                        <div class="d-flex flex-wrap gap-1 justify-content-center">
+                                        <div class="d-flex flex-nowrap gap-1 justify-content-center align-items-center">
                                             <a href="../../controller/AcademiaController.php?acao=reativar&id=<?= $linha['id_academia'] ?>" 
-                                               class="btn btn-sm btn-success" 
+                                               class="btn btn-sm btn-success text-nowrap" 
                                                onclick="return confirm('Tem certeza que deseja reativar esta academia?')">Reativar Academia</a>
                                         </div>
                                     </td>
@@ -329,9 +329,9 @@ foreach ($lista as $linha) {
                                         <?= htmlspecialchars($gi['academia_nome'] ?? 'Nenhuma') ?>
                                     </td>
                                     <td class="text-center">
-                                        <div class="d-flex flex-wrap gap-1 justify-content-center">
+                                        <div class="d-flex flex-nowrap gap-1 justify-content-center align-items-center">
                                             <a href="../../controller/UsuarioController.php?acao=reativar&id=<?= $gi['id_usuario'] ?>" 
-                                               class="btn btn-sm btn-success" 
+                                               class="btn btn-sm btn-success text-nowrap" 
                                                onclick="return confirm('Tem certeza que deseja reativar este gerente?')">Reativar Gerente</a>
                                         </div>
                                     </td>

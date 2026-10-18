@@ -35,7 +35,7 @@ class TurmaDAO {
                         FROM usuario
                         WHERE id_usuario = :id_usuario_professor
                         AND id_academia = :id_academia
-                        AND perfil_id = 3
+                        AND perfil_id IN (2, 3)
                     )
                     AND EXISTS (
                         SELECT 1
@@ -331,7 +331,7 @@ class TurmaDAO {
     }
 
 
-    // Lista os professores da academia
+    // Lista os professores e gerentes da academia (perfil 2 e 3)
     public function listarProfessoresPorAcademia(int $idAcademia): array {
 
         $sql = "SELECT 
@@ -339,7 +339,7 @@ class TurmaDAO {
                     nome
                 FROM usuario
                 WHERE id_academia = :id_academia
-                AND perfil_id = 3
+                AND perfil_id IN (2, 3)
                 ORDER BY nome";
 
         $stmt = $this->conexao->prepare($sql);
