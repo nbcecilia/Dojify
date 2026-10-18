@@ -363,7 +363,7 @@ ALTER TABLE academia
 USE `dojify_1`;
 
 -- ==========================================================
--- 1. PERFIL
+-- PERFIL
 -- ==========================================================
 INSERT INTO perfil (id_perfil, nome) VALUES 
 (1, 'SUPORTE'),
@@ -372,14 +372,19 @@ INSERT INTO perfil (id_perfil, nome) VALUES
 (4, 'ALUNO');
 
 -- ==========================================================
--- 2. ACADEMIA
+-- ACADEMIA
 -- ==========================================================
-INSERT INTO academia (id_academia, nome, documento, endereco, telefone, email) VALUES 
+INSERT INTO academia (id_academia, nome, documento, cep, endereco, cidade, estado, telefone, email, status, data_cadastro) VALUES 
 (1, 'A TOKKA - Escola de Lutas', '66790246000112', '72215-000', 'Qnm 08 Conj. B lote 34', 'Ceilândia', 'DF', '61998693504', 'contato@atokka.com', 'ATIVO', '2026-05-10 08:00:00');
 
+
 -- ==========================================================
--- 3. USUARIOS (Suporte, Gerente, Professor e Alunos)
+-- USUÁRIOS (Suporte, Gerente, Professor e Alunos)
 -- ==========================================================
+-- ==========================================================
+-- USUÁRIOS (Suporte, Gerente, Professor e Alunos)
+-- ==========================================================
+INSERT INTO usuario (id_usuario, id_academia, perfil_id, nome, cpf, data_nascimento, sexo, telefone, email, cep, endereco, cidade, estado, especialidade, data_admissao, responsavel, observacao, data_matricula, status, data_aceite_contrato, primeiro_acesso) VALUES 
 -- Suporte Técnico
 (1, NULL, 1, 'Suporte Técnico', '00000000000', '1990-01-01', 'Outro', '(61) 90000-0000', 'suporte@dojify.com', '70000-000', 'Setor de TI', 'Brasília', 'DF', NULL, NULL, NULL, 'Equipe de suporte técnico do sistema', NULL, 'ATIVO', NULL, 0),
 
@@ -388,22 +393,27 @@ INSERT INTO academia (id_academia, nome, documento, endereco, telefone, email) V
 
 -- Professor (Mestre Ratto)
 (3, 1, 3, 'Mestre Ratto', '22222222222', '1978-08-20', 'Masculino', '(61) 97777-6666', 'ratto@email.com', '72215-000', 'Qnm 08 Conj. B lote 34', 'Ceilândia', 'DF', 'Jiu-Jitsu', '2026-07-20', NULL, 'Professor responsável pelas turmas de Jiu-Jitsu', NULL, 'ATIVO', NULL, 0),
+-- Professora de Jiu-Jitsu (Flora Maia)
+(6, 1, 3, 'Flora Maia', '22233344455', '1985-06-15', 'Feminino', '(61) 97777-5555', 'flora.maia@email.com', '72215-000', 'Qnm 08 Conj. B lote 34', 'Ceilândia', 'DF', 'Jiu-Jitsu', '2026-08-01', NULL, 'Professora responsável pelas turmas de Jiu-Jitsu feminino e infantil', NULL, 'ATIVO', NULL, 0),
+-- Professor de Muay Thai (Bruno Lima)
+(7, 1, 3, 'Bruno Lima', '33344455667', '1982-12-10', 'Masculino', '(61) 97777-4444', 'bruno.lima@email.com', '72215-000', 'Qnm 08 Conj. B lote 34', 'Ceilândia', 'DF', 'Muay Thai', '2026-08-01', NULL, 'Professor responsável pelas turmas de Muay Thai', NULL, 'ATIVO', NULL, 0),
 
 -- Aluno 1 (João Souza)
 (4, 1, 4, 'João Souza', '33333333333', '2002-05-10', 'Masculino', '(61) 96666-5555', 'joao@email.com', '72215-100', 'QNM 12 Conjunto C', 'Ceilândia', 'DF', NULL, NULL, NULL, 'Nenhuma restrição médica relatada', '2026-10-17', 'ATIVO', '2026-10-20 14:30:00', 1),
 
 -- Aluno 2 (Sebastiana Oliveira)
 (5, 1, 4, 'Sebastiana Oliveira', '44444444444', '1998-11-25', 'Feminino', '(61) 95555-4444', 'sebastiana@email.com', '72215-200', 'QNM 14 Conjunto D', 'Ceilândia', 'DF', NULL, NULL, NULL, 'Hérnia de disco', '2026-10-18', 'ATIVO', '2026-10-19 11:15:00', 1);
-
 -- ==========================================================
--- 4. LOGIN (Hash de senhas de teste)
+-- LOGIN (Hash de senhas de teste)
 -- ==========================================================
 INSERT INTO `login` (`id_login`, `id_usuario`, `senha_hash`) VALUES 
 (1, 1, '$2y$10$IavQv0n.9H8Vq9hbRKoZSu6.YYxdRjgzKRNhiG3UuqaX45Mr9q5bu'), 
-(2, 2, '$2y$10$GK6AB4AFeGkIIEv1x5ok2.57q3ZbSp4643MVjvuTCEQeU57Bj5/DC'), 
+(2, 2, '$2y$10$GK6AB4AFeGkIIEv1x5ok2.57q3ZbSp4643MVjvuTCEQeU57Bj5/DC'),
 (3, 3, '$2y$10$QeVSOdmtx/rEy7wUI/Ith.jKSWlGjRQMb9Ll44CF/pTPs7/LbNBdG'), 
-(4, 4, '$2y$10$cbDvKrrWibvx41K.46HLQu0d.5V80KHO8tg1aJypmNY0vMRnQbo0C'), 
-(5, 5, '$2y$10$cbDvKrrWibvx41K.46HLQu0d.5V80KHO8tg1aJypmNY0vMRnQbo0C'); 
+(4, 4, '$2y$10$cbDvKrrWibvx41K.46HLQu0d.5V80KHO8tg1aJypmNY0vMRnQbo0C'),
+(5, 5, '$2y$10$cbDvKrrWibvx41K.46HLQu0d.5V80KHO8tg1aJypmNY0vMRnQbo0C'),
+(6, 6, '$2y$10$QeVSOdmtx/rEy7wUI/Ith.jKSWlGjRQMb9Ll44CF/pTPs7/LbNBdG'), 
+(7, 7, '$2y$10$QeVSOdmtx/rEy7wUI/Ith.jKSWlGjRQMb9Ll44CF/pTPs7/LbNBdG');  
 
 -- ==========================================================
 -- 5. MODALIDADE
@@ -426,49 +436,19 @@ INSERT INTO `turma` (`id_turma`, `id_usuario_professor`, `id_modalidade`, `nome`
 -- 2. HORÁRIOS 
 -- =========================================================
 INSERT INTO `horario_turma` (`id_horario`, `id_turma`, `dia_semana`, `hora_inicio`, `hora_fim`) VALUES
--- --- SEGUNDA-FEIRA (4 Aulas) ---
-(1, 1, 'Segunda-Feira', '07:00:00', '08:30:00'),  -- Jiu-Jitsu Manhã
-(2, 2, 'Segunda-Feira', '08:30:00', '10:00:00'),  -- Muay Thai Manhã
-(3, 3, 'Segunda-Feira', '12:00:00', '13:15:00'),  -- Jiu-Jitsu Executivo
--- --- TERÇA-FEIRA (4 Aulas) ---
-(5, 1, 'Terça-Feira', '07:00:00', '08:30:00'),    -- Jiu-Jitsu Manhã
-(6, 2, 'Terça-Feira', '08:30:00', '10:00:00'),    -- Muay Thai Manhã
-(7, 4, 'Terça-Feira', '15:00:00', '16:30:00'),    -- Muay Thai Tarde
-(8, 5, 'Terça-Feira', '19:00:00', '20:30:00'),    -- Jiu-Jitsu Noite
--- --- QUARTA-FEIRA (4 Aulas) ---
-(9, 1, 'Quarta-Feira', '07:00:00', '08:30:00'),   -- Jiu-Jitsu Manhã
-(10, 2, 'Quarta-Feira', '08:30:00', '10:00:00'),  -- Muay Thai Manhã
-(11, 3, 'Quarta-Feira', '12:00:00', '13:15:00'),  -- Jiu-Jitsu Executivo
--- --- QUINTA-FEIRA (4 Aulas) ---
-(13, 1, 'Quinta-Feira', '07:00:00', '08:30:00'),  -- Jiu-Jitsu Manhã
-(14, 2, 'Quinta-Feira', '08:30:00', '10:00:00'),  -- Muay Thai Manhã
--- --- SEXTA-FEIRA (4 Aulas) ---
-(17, 1, 'Sexta-Feira', '07:00:00', '08:30:00'),   -- Jiu-Jitsu Manhã
-(18, 2, 'Sexta-Feira', '08:30:00', '10:00:00'),   -- Muay Thai Manhã
-(19, 4, 'Sexta-Feira', '15:00:00', '16:30:00'),   -- Muay Thai Tarde
-(20, 5, 'Sexta-Feira', '19:00:00', '20:30:00'),   -- Jiu-Jitsu Noite
-
--- ==========================================================
--- 7. PLANO E PAGAMENTO
--- ==========================================================
-INSERT INTO plano(id_plano, id_usuario_aluno, id_modalidade, nome_plano, valor, data_inicio, data_fim, status) VALUES 
-(1, 4, 1, 'Mensal 3x/semana', 150.00, '2026-10-17',  NULL, 'ATIVO'),
-(2, 5, 2,  'Mensal 2x/semana', 100.00, '2026-10-17', NULL, 'ATIVO'),
-(3, 4, 2, 'Mensal 3x/semana', 150.00, '2026-10-17', NULL, 'ATIVO');
-
-INSERT INTO pagamento(id_pagamento, id_plano_matricula, valor, data_vencimento, data_pagamento, forma_pagamento, status) VALUES 
-(1, 1, 150.00, '2026-10-27', '2026-10-17', 'PIX', 'PAGO'),
-(2, 2, 100.00, '2026-10-27', NULL, NULL, 'PENDENTE');
-
--- ==========================================================
--- 8. AGENDAMENTO, PRESENCA E GRADUACAO
--- ==========================================================
-INSERT INTO agendamento(id_agendamento, id_turma, id_usuario_aluno, data_agendamento, status) VALUES 
-(1, 1, 4, '2026-10-19 8:00:00', 'CONFIRMADO');
-
-INSERT INTO presenca(id_presenca, id_agendamento, data, status) VALUES 
-(1, 1, '2026-10-19', 1);
-
-INSERT INTO graduacao(id_graduacao, id_usuario_aluno, id_usuario_professor, id_modalidade, data_graduacao, faixa, grau) VALUES 
-(1, 4, 3, 1, '2026-01-15', 'Branca', '2º Grau');
-
+(1, 1, 'Segunda-Feira', '07:00:00', '08:30:00'),
+(2, 2, 'Segunda-Feira', '08:30:00', '10:00:00'),
+(3, 3, 'Segunda-Feira', '12:00:00', '13:15:00'),
+(5, 1, 'Terça-Feira', '07:00:00', '08:30:00'),
+(6, 2, 'Terça-Feira', '08:30:00', '10:00:00'),
+(7, 4, 'Terça-Feira', '15:00:00', '16:30:00'),
+(8, 5, 'Terça-Feira', '19:00:00', '20:30:00'),
+(9, 1, 'Quarta-Feira', '07:00:00', '08:30:00'),
+(10, 2, 'Quarta-Feira', '08:30:00', '10:00:00'),
+(11, 3, 'Quarta-Feira', '12:00:00', '13:15:00'),
+(13, 1, 'Quinta-Feira', '07:00:00', '08:30:00'),
+(14, 2, 'Quinta-Feira', '08:30:00', '10:00:00'),
+(17, 1, 'Sexta-Feira', '07:00:00', '08:30:00'),
+(18, 2, 'Sexta-Feira', '08:30:00', '10:00:00'),
+(19, 4, 'Sexta-Feira', '15:00:00', '16:30:00'),
+(20, 5, 'Sexta-Feira', '19:00:00', '20:30:00');
