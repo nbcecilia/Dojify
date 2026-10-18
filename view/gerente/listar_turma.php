@@ -376,9 +376,9 @@ if (!isset($_SESSION['turma_status_csrf_token'])) {
                                 </div>
                             </div>
                         </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                            <button type="submit" class="btn btn-success">
+                        <div class="modal-footer modal-turma-action-footer">
+                            <button type="button" class="btn btn-secondary modal-turma-action-button" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-success modal-turma-action-button">
                                 <i class="bi bi-check-circle me-1"></i> Salvar alterações
                             </button>
                         </div>
