@@ -98,6 +98,19 @@ if (isset($_GET['sucesso'])) {
     <!-- Estilo Global Dojify -->
     <link rel="stylesheet" href="../../assets/css/estilo.css">
     <style>
+        #modalNovaGraduacao .modal-content > form {
+            display: flex;
+            flex: 1 1 auto;
+            flex-direction: column;
+            min-height: 0;
+            overflow: hidden;
+        }
+
+        #modalNovaGraduacao .modal-body {
+            flex: 1 1 auto;
+            overflow-y: auto;
+        }
+
         .graduacao-modal-action-button {
             box-sizing: border-box !important;
             display: inline-flex !important;
