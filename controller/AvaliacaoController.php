@@ -77,7 +77,8 @@ class AvaliacaoController
         string $data,
         ?string $dataPrevista,
         string $habilidades,
-        string $observacoes
+        string $observacoes,
+        int $perfilId = 3
     ): array {
         if (
             $idProfessor <= 0 ||
@@ -126,7 +127,7 @@ class AvaliacaoController
         $avaliacao->setHabilidadesMelhorar(trim($habilidades));
         $avaliacao->setObservacoes(trim($observacoes));
 
-        if (!$this->dao->atualizar($avaliacao)) {
+        if (!$this->dao->atualizar($avaliacao, $perfilId)) {
             return ['status' => false, 'mensagem' => 'Não foi possível atualizar a avaliação.'];
         }
 

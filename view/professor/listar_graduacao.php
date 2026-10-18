@@ -55,14 +55,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         );
         $mensagem = $resposta['mensagem'];
         $sucesso = $resposta['status'];
-    } elseif ($acao === 'atualizar' && $perfilId === 3) {
+    } elseif ($acao === 'atualizar' && in_array($perfilId, [2, 3], true)) {
         $idGraduacao = filter_var($_POST['id_graduacao'] ?? null, FILTER_VALIDATE_INT) ?: 0;
         $resposta = $controller->atualizar(
             $idGraduacao,
             (int)$idUsuario,
             trim((string)($_POST['data_graduacao'] ?? '')),
             trim((string)($_POST['faixa'] ?? '')),
-            trim((string)($_POST['grau'] ?? ''))
+            trim((string)($_POST['grau'] ?? '')),
+            $perfilId
         );
         $mensagem = $resposta['mensagem'];
         $sucesso = $resposta['status'];
@@ -179,13 +180,13 @@ if (isset($_GET['sucesso'])) {
                             <th>Faixa / Grau</th>
                             <th>Professor</th>
                             <th>Data</th>
-                            <?php if ($perfilId === 3): ?><th class="text-end">Ações</th><?php endif; ?>
+                            <?php if (in_array($perfilId, [2, 3], true)): ?><th class="text-end">Ações</th><?php endif; ?>
                         </tr>
                     </thead>
                     <tbody>
                         <?php if (empty($graduacoes)): ?>
                             <tr>
-                                <td colspan="<?= $perfilId === 3 ? 6 : 5 ?>" class="text-center text-muted py-4">Nenhuma graduação encontrada.</td>
+                                <td colspan="<?= in_array($perfilId, [2, 3], true) ? 6 : 5 ?>" class="text-center text-muted py-4">Nenhuma graduação encontrada.</td>
                             </tr>
                         <?php else: ?>
                             <?php foreach ($graduacoes as $grad): ?>
@@ -200,9 +201,14 @@ if (isset($_GET['sucesso'])) {
                                     </td>
                                     <td><?= htmlspecialchars($grad['nome_professor'] ?? '', ENT_QUOTES, 'UTF-8') ?></td>
                                     <td><?= date('d/m/Y', strtotime($grad['data_graduacao'])) ?></td>
-                                    <?php if ($perfilId === 3): ?>
+                                    <?php if (in_array($perfilId, [2, 3], true)): ?>
                                         <td class="text-end">
-                                            <?php if ((int)$grad['id_usuario_professor'] === (int)$idUsuario): ?>
+                                            <?php if ($perfilId === 2 || (int)$grad['id_usuario_professor'] === (int)$idUsuario): ?>
+                                                <?php if ($perfilId === 2): ?>
+                                                    <a href="../gerente/editar_graduacao.php?id=<?= (int)$grad['id_graduacao'] ?>" class="btn btn-info btn-sm">
+                                                        <i class="bi bi-pencil me-1"></i> Editar
+                                                    </a>
+                                                <?php else: ?>
                                                 <button type="button" class="btn btn-info btn-sm"
                                                         data-bs-toggle="modal"
                                                         data-bs-target="#modalEditarGraduacao"
@@ -212,6 +218,7 @@ if (isset($_GET['sucesso'])) {
                                                         data-grau="<?= htmlspecialchars($grad['grau'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
                                                     <i class="bi bi-pencil me-1"></i> Editar
                                                 </button>
+                                                <?php endif; ?>
                                             <?php endif; ?>
                                         </td>
                                     <?php endif; ?>
@@ -272,7 +279,7 @@ if (isset($_GET['sucesso'])) {
         </div>
     </div>
 
-    <?php if ($perfilId === 3): ?>
+    <?php if (in_array($perfilId, [2, 3], true)): ?>
         <div class="modal fade" id="modalEditarGraduacao" tabindex="-1" aria-labelledby="modalEditarGraduacaoLabel" aria-hidden="true">
             <div class="modal-dialog modal-lg modal-dialog-centered">
                 <div class="modal-content border-0 shadow">
@@ -315,7 +322,7 @@ if (isset($_GET['sucesso'])) {
     <?php include '../includes/footer.php'; ?>
     <!-- Bootstrap 5 JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <?php if ($perfilId === 3): ?>
+    <?php if (in_array($perfilId, [2, 3], true)): ?>
         <script>
             document.getElementById('modalEditarGraduacao').addEventListener('show.bs.modal', function (event) {
                 const button = event.relatedTarget;

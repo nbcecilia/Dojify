@@ -285,7 +285,7 @@ $kpis = $usuarioDAO->buscarIndicadoresGerente($idAcademia);
                         <h3>Avaliações</h3>
                         <p>Registre avaliações, acompanhe habilidades e evolução dos alunos.</p>
                         <div class="gerente-card-action">
-                            <a href="../professor/listar_avaliacao.php" class="btn gerente-btn">Acessar avaliações</a>
+                            <a href="../professor/listar_avaliacao.php" class="btn gerente-btn">Gerenciar avaliações</a>
                         </div>
                     </article>
 
@@ -296,7 +296,7 @@ $kpis = $usuarioDAO->buscarIndicadoresGerente($idAcademia);
                         <h3>Graduações</h3>
                         <p>Registre a promoção de graduações e acompanhe as faixas dos alunos por modalidade.</p>
                         <div class="gerente-card-action">
-                            <a href="../professor/listar_graduacao.php" class="btn gerente-btn">Acessar graduações</a>
+                            <a href="../professor/listar_graduacao.php" class="btn gerente-btn">Gerenciar graduações</a>
                         </div>
                     </article>
                 </div>

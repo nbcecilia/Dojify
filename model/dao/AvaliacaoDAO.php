@@ -96,17 +96,33 @@ class AvaliacaoDAO
         ]);
     }
 
-    public function atualizar(AvaliacaoDTO $avaliacao): bool
+    public function atualizar(AvaliacaoDTO $avaliacao, int $perfilId = 3): bool
     {
         $stmt = $this->conexao->prepare("
-            SELECT id_usuario_aluno, id_modalidade
+            SELECT avaliacao.id_usuario_aluno, avaliacao.id_modalidade
             FROM avaliacao
-            WHERE id_avaliacao = :id_avaliacao
-              AND id_usuario_professor = :professor
+            INNER JOIN usuario aluno ON aluno.id_usuario = avaliacao.id_usuario_aluno
+            WHERE avaliacao.id_avaliacao = :id_avaliacao
+              AND (
+                  (avaliacao.id_usuario_professor = :professor AND :perfil_professor = 3)
+                  OR (
+                      :perfil_gerente = 2
+                      AND EXISTS (
+                          SELECT 1
+                          FROM usuario gerente
+                          WHERE gerente.id_usuario = :gerente
+                            AND gerente.perfil_id = 2
+                            AND gerente.id_academia = aluno.id_academia
+                      )
+                  )
+              )
         ");
         $stmt->execute([
             'id_avaliacao' => $avaliacao->getIdAvaliacao(),
             'professor' => $avaliacao->getIdUsuarioProfessor(),
+            'perfil_professor' => $perfilId,
+            'perfil_gerente' => $perfilId,
+            'gerente' => $avaliacao->getIdUsuarioProfessor(),
         ]);
         $vinculoAtual = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -127,6 +143,7 @@ class AvaliacaoDAO
 
         $stmt = $this->conexao->prepare("
             UPDATE avaliacao
+            INNER JOIN usuario aluno ON aluno.id_usuario = avaliacao.id_usuario_aluno
             SET id_usuario_aluno = :aluno,
                 id_modalidade = :modalidade,
                 data_avaliacao = :data,
@@ -134,7 +151,19 @@ class AvaliacaoDAO
                 habilidades_melhorar = :habilidades,
                 observacoes = :observacoes
             WHERE id_avaliacao = :id_avaliacao
-              AND id_usuario_professor = :professor
+              AND (
+                  (avaliacao.id_usuario_professor = :professor AND :perfil_professor = 3)
+                  OR (
+                      :perfil_gerente = 2
+                      AND EXISTS (
+                          SELECT 1
+                          FROM usuario gerente
+                          WHERE gerente.id_usuario = :gerente
+                            AND gerente.perfil_id = 2
+                            AND gerente.id_academia = aluno.id_academia
+                      )
+                  )
+              )
         ");
         $stmt->execute([
             'aluno' => $avaliacao->getIdUsuarioAluno(),
@@ -145,6 +174,9 @@ class AvaliacaoDAO
             'observacoes' => $avaliacao->getObservacoes(),
             'id_avaliacao' => $avaliacao->getIdAvaliacao(),
             'professor' => $avaliacao->getIdUsuarioProfessor(),
+            'perfil_professor' => $perfilId,
+            'perfil_gerente' => $perfilId,
+            'gerente' => $avaliacao->getIdUsuarioProfessor(),
         ]);
 
         if ($stmt->rowCount() > 0) {
@@ -154,12 +186,28 @@ class AvaliacaoDAO
         $stmt = $this->conexao->prepare("
             SELECT 1
             FROM avaliacao
-            WHERE id_avaliacao = :id_avaliacao
-              AND id_usuario_professor = :professor
+            INNER JOIN usuario aluno ON aluno.id_usuario = avaliacao.id_usuario_aluno
+            WHERE avaliacao.id_avaliacao = :id_avaliacao
+              AND (
+                  (avaliacao.id_usuario_professor = :professor AND :perfil_professor = 3)
+                  OR (
+                      :perfil_gerente = 2
+                      AND EXISTS (
+                          SELECT 1
+                          FROM usuario gerente
+                          WHERE gerente.id_usuario = :gerente
+                            AND gerente.perfil_id = 2
+                            AND gerente.id_academia = aluno.id_academia
+                      )
+                  )
+              )
         ");
         $stmt->execute([
             'id_avaliacao' => $avaliacao->getIdAvaliacao(),
             'professor' => $avaliacao->getIdUsuarioProfessor(),
+            'perfil_professor' => $perfilId,
+            'perfil_gerente' => $perfilId,
+            'gerente' => $avaliacao->getIdUsuarioProfessor(),
         ]);
 
         return (bool)$stmt->fetchColumn();

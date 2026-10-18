@@ -39,7 +39,7 @@ class GraduacaoController
 		return ['status' => false, 'mensagem' => 'Erro ao registar a graduação. Tente novamente.'];
 	}
 
-	public function atualizar(int $idGraduacao, int $idProfessor, string $dataGraduacao, string $faixa, ?string $grau): array
+	public function atualizar(int $idGraduacao, int $idProfessor, string $dataGraduacao, string $faixa, ?string $grau, int $perfilId = 3): array
 	{
 		if ($idGraduacao <= 0 || $idProfessor <= 0 || $dataGraduacao === '' || trim($faixa) === '') {
 			return ['status' => false, 'mensagem' => 'Preencha todos os campos obrigatórios.'];
@@ -53,7 +53,7 @@ class GraduacaoController
 			return ['status' => false, 'mensagem' => 'A faixa ou o grau excede o tamanho permitido.'];
 		}
 
-		if (!$this->dao->atualizar($idGraduacao, $idProfessor, $dataGraduacao, trim($faixa), $grau !== null ? trim($grau) : null)) {
+		if (!$this->dao->atualizar($idGraduacao, $idProfessor, $dataGraduacao, trim($faixa), $grau !== null ? trim($grau) : null, $perfilId)) {
 			return ['status' => false, 'mensagem' => 'Não foi possível atualizar a graduação.'];
 		}
 

@@ -55,7 +55,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $habilidades,
                 $observacoes
             );
-        } elseif ($acao === 'atualizar' && $perfilId === 3) {
+        } elseif ($acao === 'atualizar' && in_array($perfilId, [2, 3], true)) {
             $idAvaliacao = filter_var($_POST['id_avaliacao'] ?? null, FILTER_VALIDATE_INT) ?: 0;
             $resposta = $avaliacaoController->atualizar(
                 (int)$idUsuario,
@@ -65,7 +65,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $dataAvaliacao,
                 $dataPrevista !== '' ? $dataPrevista : null,
                 $habilidades,
-                $observacoes
+                $observacoes,
+                $perfilId
             );
         } else {
             $resposta = ['status' => false, 'mensagem' => 'Ação inválida.'];
@@ -185,13 +186,13 @@ if (isset($_GET['sucesso'])) {
                             <th>Professor</th>
                             <th>Habilidades a Melhorar</th>
                             <th>Próxima graduação prevista</th>
-                            <?php if ($perfilId === 3): ?><th class="text-end">Ações</th><?php endif; ?>
+                            <?php if (in_array($perfilId, [2, 3], true)): ?><th class="text-end">Ações</th><?php endif; ?>
                         </tr>
                     </thead>
                     <tbody>
                         <?php if (empty($avaliacoes)): ?>
                             <tr>
-                                <td colspan="<?= $perfilId === 3 ? 7 : 6 ?>" class="text-center py-4 text-muted">
+                                <td colspan="<?= in_array($perfilId, [2, 3], true) ? 7 : 6 ?>" class="text-center py-4 text-muted">
                                     Nenhuma avaliação encontrada.
                                 </td>
                             </tr>
@@ -204,9 +205,14 @@ if (isset($_GET['sucesso'])) {
                                     <td><?= htmlspecialchars($av->getNomeProfessor()) ?></td>
                                     <td><?= htmlspecialchars(mb_strimwidth($av->getHabilidadesMelhorar(), 0, 50, "...")) ?></td>
                                     <td><?= $av->getDataPrevista() ? date('d/m/Y', strtotime($av->getDataPrevista())) : '—' ?></td>
-                                    <?php if ($perfilId === 3): ?>
+                                    <?php if (in_array($perfilId, [2, 3], true)): ?>
                                         <td class="text-end">
-                                            <?php if ((int)$av->getIdUsuarioProfessor() === (int)$idUsuario): ?>
+                                            <?php if ($perfilId === 2 || (int)$av->getIdUsuarioProfessor() === (int)$idUsuario): ?>
+                                                <?php if ($perfilId === 2): ?>
+                                                    <a href="../gerente/editar_avaliacao.php?id=<?= (int)$av->getIdAvaliacao() ?>" class="btn btn-info btn-sm">
+                                                        <i class="bi bi-pencil me-1"></i> Editar
+                                                    </a>
+                                                <?php else: ?>
                                                 <button type="button" class="btn btn-info btn-sm"
                                                         data-bs-toggle="modal"
                                                         data-bs-target="#modalEditarAvaliacao"
@@ -218,6 +224,7 @@ if (isset($_GET['sucesso'])) {
                                                         data-observacoes="<?= htmlspecialchars((string)$av->getObservacoes(), ENT_QUOTES, 'UTF-8') ?>">
                                                     <i class="bi bi-pencil me-1"></i> Editar
                                                 </button>
+                                                <?php endif; ?>
                                             <?php endif; ?>
                                         </td>
                                     <?php endif; ?>
@@ -282,7 +289,7 @@ if (isset($_GET['sucesso'])) {
         </div>
     </div>
 
-    <?php if ($perfilId === 3): ?>
+    <?php if (in_array($perfilId, [2, 3], true)): ?>
         <div class="modal fade" id="modalEditarAvaliacao" tabindex="-1" aria-labelledby="modalEditarAvaliacaoLabel" aria-hidden="true">
             <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
                 <div class="modal-content border-0 shadow">
@@ -340,7 +347,7 @@ if (isset($_GET['sucesso'])) {
     <?php include '../includes/footer.php'; ?>
     <!-- Bootstrap 5 JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <?php if ($perfilId === 3): ?>
+    <?php if (in_array($perfilId, [2, 3], true)): ?>
         <script>
             document.getElementById('modalEditarAvaliacao').addEventListener('show.bs.modal', function (event) {
                 const button = event.relatedTarget;

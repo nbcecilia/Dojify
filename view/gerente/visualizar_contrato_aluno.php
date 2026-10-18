@@ -39,21 +39,9 @@ $stmt = $conexao->prepare("
         aluno.estado,
         aluno.primeiro_acesso,
         aluno.data_aceite_contrato,
-        academia.nome AS academia_nome,
-        plano.nome_plano,
-        plano.valor AS valor_plano,
-        modalidade.nome AS modalidade_plano
+        academia.nome AS academia_nome
     FROM usuario aluno
     LEFT JOIN academia ON academia.id_academia = aluno.id_academia
-    LEFT JOIN plano ON plano.id_plano = (
-        SELECT plano_atual.id_plano
-        FROM plano plano_atual
-        WHERE plano_atual.id_usuario_aluno = aluno.id_usuario
-          AND plano_atual.status = 'ATIVO'
-        ORDER BY plano_atual.data_inicio DESC, plano_atual.id_plano DESC
-        LIMIT 1
-    )
-    LEFT JOIN modalidade ON modalidade.id_modalidade = plano.id_modalidade
     WHERE aluno.id_usuario = :id_aluno
       AND aluno.perfil_id = 4
       " . ($perfilLogado === 2 ? "AND aluno.id_academia = :id_academia" : "") . "
@@ -71,16 +59,17 @@ if (!$aluno || (int)$aluno['primeiro_acesso'] !== 0) {
     exit('Contrato não encontrado ou ainda não aceito.');
 }
 
-$stmtModalidades = $conexao->prepare("
-    SELECT DISTINCT modalidade.nome
+$stmtPlanos = $conexao->prepare("
+    SELECT modalidade.nome AS modalidade_nome, plano.nome_plano, plano.valor
     FROM plano
     INNER JOIN modalidade ON modalidade.id_modalidade = plano.id_modalidade
     WHERE plano.id_usuario_aluno = :id_aluno
       AND plano.status = 'ATIVO'
-    ORDER BY modalidade.nome
+    ORDER BY modalidade.nome, plano.id_plano
 ");
-$stmtModalidades->execute(['id_aluno' => $idAluno]);
-$modalidades = $stmtModalidades->fetchAll(PDO::FETCH_COLUMN);
+$stmtPlanos->execute(['id_aluno' => $idAluno]);
+$planosAtivos = $stmtPlanos->fetchAll(PDO::FETCH_ASSOC);
+$modalidades = array_values(array_unique(array_column($planosAtivos, 'modalidade_nome')));
 
 $escapar = static fn($valor): string => htmlspecialchars((string)($valor ?: 'Não informado'), ENT_QUOTES, 'UTF-8');
 $formatarData = static function ($data): string {
@@ -102,13 +91,6 @@ $cpfFormatado = strlen($cpf) === 11
     ? preg_replace('/(\d{3})(\d{3})(\d{3})(\d{2})/', '$1.$2.$3-$4', $cpf)
     : 'Não informado';
 $nomeAcademia = $aluno['academia_nome'] ?: 'A TOKKA - Escola de Lutas';
-$nomePlano = $aluno['nome_plano'] ?: 'Não especificado';
-if ($aluno['valor_plano'] !== null) {
-    $nomePlano .= ' - R$ ' . number_format((float)$aluno['valor_plano'], 2, ',', '.');
-}
-if ($modalidades === [] && !empty($aluno['modalidade_plano'])) {
-    $modalidades[] = $aluno['modalidade_plano'];
-}
 $nomeModalidades = $modalidades === [] ? 'Artes Marciais / Ver agenda' : implode(', ', $modalidades);
 $observacoes = $aluno['observacao'] ?: 'Nenhuma observação registrada';
 $endereco = trim(implode(', ', array_filter([
@@ -170,8 +152,23 @@ $ocultarAlterarSenhaHeader = true;
                 <strong>Cidade / Estado:</strong> <?= $escapar($cidadeEstado); ?>
             </p>
             <h2>Modalidade e plano</h2>
-            <p><strong>Modalidade:</strong> <?= $escapar($nomeModalidades); ?><br>
-                <strong>Plano:</strong> <?= $escapar($nomePlano); ?></p>
+            <p><strong>Modalidades:</strong> <?= $escapar($nomeModalidades); ?></p>
+            <?php if ($planosAtivos === []): ?>
+                <p><strong>Planos:</strong> Não especificado</p>
+            <?php else: ?>
+                <ul>
+                    <?php foreach ($planosAtivos as $planoAtivo): ?>
+                        <li>
+                            <?= $escapar($planoAtivo['modalidade_nome']); ?> —
+                            <?= $escapar($planoAtivo['nome_plano']); ?> —
+                            R$ <?= number_format((float)$planoAtivo['valor'], 2, ',', '.'); ?>
+                        </li>
+                    <?php endforeach; ?>
+                    <?php if (count($planosAtivos) > 1): ?>
+                        <li><strong>Total mensal: R$ <?= number_format(array_sum(array_column($planosAtivos, 'valor')), 2, ',', '.'); ?></strong></li>
+                    <?php endif; ?>
+                </ul>
+            <?php endif; ?>
             <h2>Informações adicionais</h2>
             <p><strong>Informações médicas / observações:</strong> <?= $escapar($observacoes); ?></p>
             <h2>Dados do contratado</h2>

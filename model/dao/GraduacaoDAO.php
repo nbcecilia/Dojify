@@ -58,22 +58,38 @@ class GraduacaoDAO
 		return $stmt->execute();
 	}
 
-	public function atualizar(int $idGraduacao, int $idProfessor, string $dataGraduacao, string $faixa, ?string $grau): bool
+	public function atualizar(int $idGraduacao, int $idProfessor, string $dataGraduacao, string $faixa, ?string $grau, int $perfilId = 3): bool
 	{
 		$stmt = $this->conexao->prepare("
 			UPDATE graduacao
-			SET data_graduacao = :data_graduacao,
-				faixa = :faixa,
-				grau = :grau
-			WHERE id_graduacao = :id_graduacao
-			  AND id_usuario_professor = :id_professor
+			INNER JOIN usuario aluno ON aluno.id_usuario = graduacao.id_usuario_aluno
+			SET graduacao.data_graduacao = :data_graduacao,
+				graduacao.faixa = :faixa,
+				graduacao.grau = :grau
+			WHERE graduacao.id_graduacao = :id_graduacao
+			  AND (
+				  (graduacao.id_usuario_professor = :professor AND :perfil_professor = 3)
+				  OR (
+					  :perfil_gerente = 2
+					  AND EXISTS (
+						  SELECT 1
+						  FROM usuario gerente
+						  WHERE gerente.id_usuario = :gerente
+							AND gerente.perfil_id = 2
+							AND gerente.id_academia = aluno.id_academia
+					  )
+				  )
+			  )
 		");
 		$stmt->execute([
 			'data_graduacao' => $dataGraduacao,
 			'faixa' => $faixa,
 			'grau' => $grau !== '' ? $grau : null,
 			'id_graduacao' => $idGraduacao,
-			'id_professor' => $idProfessor,
+			'professor' => $idProfessor,
+			'perfil_professor' => $perfilId,
+			'perfil_gerente' => $perfilId,
+			'gerente' => $idProfessor,
 		]);
 
 		if ($stmt->rowCount() > 0) {
@@ -83,12 +99,28 @@ class GraduacaoDAO
 		$stmt = $this->conexao->prepare("
 			SELECT 1
 			FROM graduacao
-			WHERE id_graduacao = :id_graduacao
-			  AND id_usuario_professor = :id_professor
+			INNER JOIN usuario aluno ON aluno.id_usuario = graduacao.id_usuario_aluno
+			WHERE graduacao.id_graduacao = :id_graduacao
+			  AND (
+				  (graduacao.id_usuario_professor = :professor AND :perfil_professor = 3)
+				  OR (
+					  :perfil_gerente = 2
+					  AND EXISTS (
+						  SELECT 1
+						  FROM usuario gerente
+						  WHERE gerente.id_usuario = :gerente
+							AND gerente.perfil_id = 2
+							AND gerente.id_academia = aluno.id_academia
+					  )
+				  )
+			  )
 		");
 		$stmt->execute([
 			'id_graduacao' => $idGraduacao,
-			'id_professor' => $idProfessor,
+			'professor' => $idProfessor,
+			'perfil_professor' => $perfilId,
+			'perfil_gerente' => $perfilId,
+			'gerente' => $idProfessor,
 		]);
 
 		return (bool)$stmt->fetchColumn();
