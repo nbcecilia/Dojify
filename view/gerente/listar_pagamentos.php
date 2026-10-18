@@ -166,6 +166,8 @@ $pagamentos = array_values($pagamentosAgrupados);
                                                 <!-- Seletor de Forma de Pagamento -->
                                                 <select name="forma_pagamento" class="form-select form-select-sm" style="width: 110px;" required>
                                                     <option value="DINHEIRO">Dinheiro</option>
+                                                    <option value="PIX">PIX</option>
+                                                    <option value="CARTAO">Cartão</option>
                                                     <option value="OUTRO">Outro</option>
                                                 </select>
 
