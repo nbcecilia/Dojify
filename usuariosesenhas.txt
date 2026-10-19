@@ -82,45 +82,6 @@ INSERT INTO usuario (
 
 
 -- ==========================================================
--- NOVOS PROFESSORES PARA A ACADEMIA "A TOKKA"
--- ==========================================================
-INSERT INTO usuario (
-    id_usuario, 
-    id_academia, 
-    perfil_id, 
-    nome, 
-    cpf, 
-    data_nascimento, 
-    sexo, 
-    telefone, 
-    email, 
-    cep, 
-    endereco, 
-    cidade, 
-    estado, 
-    especialidade, 
-    data_admissao, 
-    responsavel, 
-    observacao, 
-    data_matricula, 
-    status, 
-    data_aceite_contrato, 
-    primeiro_acesso
-) VALUES 
--- Professora de Jiu-Jitsu (Flora Maia)
-(6, 1, 3, 'Flora Maia', '22233344455', '1985-06-15', 'Feminino', '(61) 97777-5555', 'flora.maia@email.com', '72215-000', 'Qnm 08 Conj. B lote 34', 'Ceilândia', 'DF', 'Jiu-Jitsu', '2026-08-01', NULL, 'Professora responsável pelas turmas de Jiu-Jitsu feminino e infantil', NULL, 'ATIVO', NULL, 0),
-
--- Professor de Muay Thai (Bruno Lima)
-(7, 1, 3, 'Bruno Lima', '33344455667', '1982-12-10', 'Masculino', '(61) 97777-4444', 'bruno.lima@email.com', '72215-000', 'Qnm 08 Conj. B lote 34', 'Ceilândia', 'DF', 'Muay Thai', '2026-08-01', NULL, 'Professor responsável pelas turmas de Muay Thai', NULL, 'ATIVO', NULL, 0);
-
--- ==========================================================
--- CREDENCIAIS DE LOGIN DOS NOVOS PROFESSORES
--- ==========================================================
-INSERT INTO `login` (`id_login`, `id_usuario`, `senha_hash`) VALUES 
-(6, 6, '$2y$10$QeVSOdmtx/rEy7wUI/Ith.jKSWlGjRQMb9Ll44CF/pTPs7/LbNBdG'), 
-(7, 7, '$2y$10$QeVSOdmtx/rEy7wUI/Ith.jKSWlGjRQMb9Ll44CF/pTPs7/LbNBdG'); 
-
--- ==========================================================
 -- 5. MODALIDADE
 -- ==========================================================
 INSERT INTO modalidade (id_modalidade, id_academia, nome, descricao) VALUES 
@@ -141,18 +102,12 @@ INSERT INTO `turma` (`id_turma`, `id_usuario_professor`, `id_modalidade`, `nome`
 -- 2. HORÁRIOS 
 -- =========================================================
 INSERT INTO `horario_turma` (`id_horario`, `id_turma`, `dia_semana`, `hora_inicio`, `hora_fim`) VALUES
--- --- SEGUNDA-FEIRA ---
-(4, 6, 'Segunda-Feira', '19:00:00', '20:30:00'),  -- Muay Thai Noite
--- --- TERÇA-FEIRA --- 
--- --- QUARTA-FEIRA (4 Aulas) ---
-(12, 6, 'Quarta-Feira', '19:00:00', '20:30:00'),  -- Muay Thai Noite
--- --- QUINTA-FEIRA (4 Aulas) ---
-(15, 7, 'Quinta-Feira', '15:00:00', '16:30:00'),  -- Jiu-Jitsu Tarde
-(16, 8, 'Quinta-Feira', '20:30:00', '22:00:00'),  -- Jiu-Jitsu Noturno Tardio
--- --- SÁBADO (2 Aulas) ---
-(21, 9, 'Sábado', '09:00:00', '10:30:00'),        -- Jiu-Jitsu Sábado
-(22, 10, 'Sábado', '11:00:00', '12:30:00');       -- Muay Thai Sábado
-
+(4, 6, 'Segunda-Feira', '19:00:00', '20:30:00'),  
+(12, 6, 'Quarta-Feira', '19:00:00', '20:30:00'),  
+(15, 7, 'Quinta-Feira', '15:00:00', '16:30:00'),  
+(16, 8, 'Quinta-Feira', '20:30:00', '22:00:00'),  
+(21, 9, 'Sábado', '09:00:00', '10:30:00'),       
+(22, 10, 'Sábado', '11:00:00', '12:30:00');     
 -- ==========================================================
 -- CADASTRO DE 10 ALUNOS (A TOKKA)
 -- ==========================================================

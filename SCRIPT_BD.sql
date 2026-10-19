@@ -416,7 +416,7 @@ INSERT INTO `login` (`id_login`, `id_usuario`, `senha_hash`) VALUES
 (7, 7, '$2y$10$QeVSOdmtx/rEy7wUI/Ith.jKSWlGjRQMb9Ll44CF/pTPs7/LbNBdG');  
 
 -- ==========================================================
--- 5. MODALIDADE
+-- MODALIDADE
 -- ==========================================================
 INSERT INTO modalidade (id_modalidade, id_academia, nome, descricao) VALUES 
 (1, 1, 'Jiu-Jítsu', 'Arte suave focada em luta no chão e finalizações'),
@@ -433,7 +433,7 @@ INSERT INTO `turma` (`id_turma`, `id_usuario_professor`, `id_modalidade`, `nome`
 (5, 6, 1, 'Jiu-Jítsu Noite (Profa. Flora)', 20, 'Todos os Níveis', 'ATIVA');
 
 -- =========================================================
--- 2. HORÁRIOS 
+-- HORÁRIOS 
 -- =========================================================
 INSERT INTO `horario_turma` (`id_horario`, `id_turma`, `dia_semana`, `hora_inicio`, `hora_fim`) VALUES
 (1, 1, 'Segunda-Feira', '07:00:00', '08:30:00'),
@@ -452,3 +452,47 @@ INSERT INTO `horario_turma` (`id_horario`, `id_turma`, `dia_semana`, `hora_inici
 (18, 2, 'Sexta-Feira', '08:30:00', '10:00:00'),
 (19, 4, 'Sexta-Feira', '15:00:00', '16:30:00'),
 (20, 5, 'Sexta-Feira', '19:00:00', '20:30:00');
+
+-- ==========================================================
+-- PLANO 
+-- ==========================================================
+INSERT INTO plano (id_plano, id_usuario_aluno, id_modalidade, nome_plano, valor, data_inicio, data_fim, status) VALUES 
+(1, 4, 1, 'Mensal 3x/semana', 150.00, '2026-10-17', NULL, 'ATIVO'),
+(2, 5, 2, 'Mensal 2x/semana', 100.00, '2026-10-17', NULL, 'ATIVO'),
+(3, 4, 2, 'Mensal 3x/semana', 150.00, '2026-10-17', NULL, 'ATIVO');
+
+-- ==========================================================
+-- PAGAMENTO 
+-- ==========================================================
+INSERT INTO pagamento (id_pagamento, id_plano_matricula, valor, data_vencimento, data_pagamento, forma_pagamento, status, observacao) VALUES 
+(1, 1, 150.00, '2026-10-27', '2026-10-17', 'PIX', 'PAGO', 'Mensalidade paga via PIX no ato da matrícula.'),
+(2, 2, 100.00, '2026-10-27', NULL, NULL, 'PENDENTE', 'Aguardando compensação do boleto/cartão.'),
+(3, 3, 150.00, '2026-10-27', '2026-10-17', 'PIX', 'PAGO', 'Mensalidade paga via PIX no ato da matrícula.');
+
+-- ==========================================================
+-- AGENDAMENTO 
+-- ==========================================================
+INSERT INTO agendamento (id_agendamento, id_turma, id_usuario_aluno, data_agendamento, status) VALUES 
+(1, 1, 4, '2026-10-19 07:00:00', 'CONFIRMADO'),
+(2, 2, 5, '2026-10-19 08:30:00', 'CONFIRMADO');
+
+-- ==========================================================
+-- PRESENCA 
+-- ==========================================================
+INSERT INTO presenca (id_presenca, id_agendamento, data, status) VALUES 
+(1, 1, '2026-10-19', 1),
+(2, 2, '2026-10-19', 1);
+
+-- ==========================================================
+-- AVALIACAO 
+-- ==========================================================
+INSERT INTO avaliacao (id_avaliacao, id_usuario_professor, id_usuario_aluno, id_modalidade, data_avaliacao, data_prevista, habilidades_melhorar, observacoes) VALUES 
+(1, 3, 4, 1, '2026-10-15', '2026-12-15', 'Melhorar a reposição de guarda e a postura na pressão por cima.', 'Aluno demonstra excelente dedicação e facilidade com os fundamentos do Jiu-Jitsu.'),
+(2, 7, 5, 2, '2026-10-16', '2026-12-20', 'Ajustar a base nos chutes circulares e controle da respiração.', 'Aluna possui boa força física, mas deve respeitar as recomendações devido à hérnia de disco.');
+
+-- ==========================================================
+-- GRADUACAO 
+-- ==========================================================
+INSERT INTO graduacao (id_graduacao, id_usuario_aluno, id_usuario_professor, id_modalidade, data_graduacao, faixa, grau) VALUES 
+(1, 4, 3, 1, '2026-01-15', 'Faixa Azul', '2º Grau'),
+(2, 5, 7, 2, '2026-02-10', 'Faixa Amarela', NULL);
