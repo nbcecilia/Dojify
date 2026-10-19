@@ -97,6 +97,7 @@ if (!isset($_SESSION['modalidade_status_csrf_token'])) {
             box-sizing: border-box !important;
             display: inline-flex !important;
             width: 110px !important;
+            flex: 0 0 110px !important;
             height: 34px !important;
             min-height: 34px !important;
             max-height: 34px !important;
@@ -104,6 +105,20 @@ if (!isset($_SESSION['modalidade_status_csrf_token'])) {
             padding: 0 10px !important;
             font-size: 0.8rem !important;
             line-height: 1 !important;
+            align-items: center !important;
+            justify-content: center !important;
+        }
+
+        #modalEditarModalidade .modal-footer > button {
+            box-sizing: border-box !important;
+            display: inline-flex !important;
+            width: 110px !important;
+            flex: 0 0 110px !important;
+            height: 34px !important;
+            min-height: 34px !important;
+            max-height: 34px !important;
+            margin: 0 !important;
+            padding: 0 10px !important;
             align-items: center !important;
             justify-content: center !important;
         }
@@ -264,9 +279,9 @@ if (!isset($_SESSION['modalidade_status_csrf_token'])) {
                             <textarea class="form-control" id="editar_descricao_modalidade" name="descricao" rows="4"></textarea>
                         </div>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="submit" class="btn btn-success">
+                    <div class="modal-footer d-flex justify-content-end gap-2">
+                        <button type="button" class="btn btn-secondary btn-sm modalidade-modal-button" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-success btn-sm modalidade-modal-button">
                             <i class="bi bi-check-circle me-1"></i> Salvar alterações
                         </button>
                     </div>

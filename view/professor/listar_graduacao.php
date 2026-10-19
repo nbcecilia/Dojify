@@ -204,11 +204,6 @@ if (isset($_GET['sucesso'])) {
                                     <?php if (in_array($perfilId, [2, 3], true)): ?>
                                         <td class="text-end">
                                             <?php if ($perfilId === 2 || (int)$grad['id_usuario_professor'] === (int)$idUsuario): ?>
-                                                <?php if ($perfilId === 2): ?>
-                                                    <a href="../gerente/editar_graduacao.php?id=<?= (int)$grad['id_graduacao'] ?>" class="btn btn-info btn-sm">
-                                                        <i class="bi bi-pencil me-1"></i> Editar
-                                                    </a>
-                                                <?php else: ?>
                                                 <button type="button" class="btn btn-info btn-sm"
                                                         data-bs-toggle="modal"
                                                         data-bs-target="#modalEditarGraduacao"
@@ -218,7 +213,6 @@ if (isset($_GET['sucesso'])) {
                                                         data-grau="<?= htmlspecialchars($grad['grau'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
                                                     <i class="bi bi-pencil me-1"></i> Editar
                                                 </button>
-                                                <?php endif; ?>
                                             <?php endif; ?>
                                         </td>
                                     <?php endif; ?>
@@ -309,9 +303,9 @@ if (isset($_GET['sucesso'])) {
                                 </div>
                             </div>
                         </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                            <button type="submit" class="btn btn-success">Salvar alterações</button>
+                        <div class="modal-footer graduacao-modal-action-footer">
+                            <button type="button" class="btn btn-secondary graduacao-modal-action-button" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-success graduacao-modal-action-button">Salvar alterações</button>
                         </div>
                     </form>
                 </div>

@@ -104,7 +104,8 @@ if (isset($_GET['sucesso'])) {
     <!-- Estilo Global Dojify -->
     <link rel="stylesheet" href="../../assets/css/estilo.css">
     <style>
-        #modalNovaAvaliacao .modal-content > form {
+        #modalNovaAvaliacao .modal-content > form,
+        #modalEditarAvaliacao .modal-content > form {
             display: flex;
             flex: 1 1 auto;
             flex-direction: column;
@@ -112,7 +113,8 @@ if (isset($_GET['sucesso'])) {
             overflow: hidden;
         }
 
-        #modalNovaAvaliacao .modal-body {
+        #modalNovaAvaliacao .modal-body,
+        #modalEditarAvaliacao .modal-body {
             flex: 1 1 auto;
             overflow-y: auto;
         }
@@ -208,11 +210,6 @@ if (isset($_GET['sucesso'])) {
                                     <?php if (in_array($perfilId, [2, 3], true)): ?>
                                         <td class="text-end">
                                             <?php if ($perfilId === 2 || (int)$av->getIdUsuarioProfessor() === (int)$idUsuario): ?>
-                                                <?php if ($perfilId === 2): ?>
-                                                    <a href="../gerente/editar_avaliacao.php?id=<?= (int)$av->getIdAvaliacao() ?>" class="btn btn-info btn-sm">
-                                                        <i class="bi bi-pencil me-1"></i> Editar
-                                                    </a>
-                                                <?php else: ?>
                                                 <button type="button" class="btn btn-info btn-sm"
                                                         data-bs-toggle="modal"
                                                         data-bs-target="#modalEditarAvaliacao"
@@ -224,7 +221,6 @@ if (isset($_GET['sucesso'])) {
                                                         data-observacoes="<?= htmlspecialchars((string)$av->getObservacoes(), ENT_QUOTES, 'UTF-8') ?>">
                                                     <i class="bi bi-pencil me-1"></i> Editar
                                                 </button>
-                                                <?php endif; ?>
                                             <?php endif; ?>
                                         </td>
                                     <?php endif; ?>
@@ -334,9 +330,9 @@ if (isset($_GET['sucesso'])) {
                                 </div>
                             </div>
                         </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                            <button type="submit" class="btn btn-success">Salvar alterações</button>
+                        <div class="modal-footer avaliacao-modal-action-footer">
+                            <button type="button" class="btn btn-secondary avaliacao-modal-action-button" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-success avaliacao-modal-action-button">Salvar alterações</button>
                         </div>
                     </form>
                 </div>

@@ -172,7 +172,7 @@ $alunosChamada = !empty($idTurma) ? $dao->listarAlunosParaChamada($idTurma, $dat
 
                 <?php if (!empty($alunosChamada)): ?>
                     <div class="text-end mt-4">
-                        <button type="submit" class="btn btn-dark px-4">
+                        <button type="submit" class="btn btn-dark btn-sm btn-confirmar-chamada" style="width: auto; margin-top: 0; padding: 5px 10px; font-size: 0.8rem;">
                             <i class="bi bi-check-circle me-1"></i> Confirmar Chamada
                         </button>
                     </div>

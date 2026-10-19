@@ -63,6 +63,7 @@ $xp_min = 0;
 $xp_max = 150;
 $progresso_xp = 0;
 $faixaImagem = null;
+$faixaCadastrada = false;
 $diasSemanaPt = ['domingo', 'segunda-feira', 'terça-feira', 'quarta-feira', 'quinta-feira', 'sexta-feira', 'sábado'];
 $mesesPt = [
     1 => 'janeiro', 2 => 'fevereiro', 3 => 'março', 4 => 'abril',
@@ -421,7 +422,7 @@ try {
             INNER JOIN plano pl ON pl.id_plano = pag.id_plano_matricula
             WHERE pl.id_usuario_aluno = ?
             ORDER BY pag.data_vencimento DESC, pag.id_pagamento DESC
-            LIMIT 6
+            LIMIT 12
         ");
         $stmt_historico_pagamentos->execute([$id_aluno]);
         $historico_pagamentos = array_reverse($stmt_historico_pagamentos->fetchAll(PDO::FETCH_ASSOC));
@@ -702,103 +703,147 @@ try {
 <?php ob_start(); ?>
 <section class="mb-4">
     <div class="row g-3 align-items-stretch">
-        
-        <!-- CARD 1: GRADUAÇÃO (COM BOTÃO DE SETA NO CANTO INFERIOR DIREITO) -->
+
+        <!-- CARD 1: GRADUAÇÃO -->
         <div class="col-12 col-md-4">
-            <div class="card h-100 shadow-sm border-2 p-3 d-flex flex-column justify-content-between bg-white position-relative overflow-hidden" style="border-color: #111111 !important; border-radius: 12px;">
-                <div class="position-absolute top-0 start-0 bg-dark text-white px-3 py-1 rounded-bottom-end small fw-bold" style="font-size: 0.7rem; letter-spacing: 0.05em;">GRADUAÇÃO</div>
-                
-                <div class="pt-3 d-flex flex-column justify-content-center flex-grow-1">
-                    <!-- Bloco com Imagem à Esquerda e Textos ao Lado -->
-                    <div class="d-flex align-items-center gap-3 my-2">
-                        <?php if ($faixaImagem !== null): ?>
-                            <div class="flex-shrink-0 text-center">
-                                <img src="../../assets/img/<?= htmlspecialchars($faixaImagem, ENT_QUOTES, 'UTF-8') ?>" alt="Faixa" width="110" height="50" style="object-fit: contain;">
-                            </div>
-                        <?php endif; ?>
-                        <div class="text-start">
-                            <h4 class="fw-bold text-dark mb-1" style="font-size: 1.15rem;">
-                                <?= $faixaCadastrada ? htmlspecialchars($faixa_aluno, ENT_QUOTES, 'UTF-8') : 'Faixa não cadastrada' ?>
-                            </h4>
-                            <span class="badge bg-secondary mb-1 px-2 py-1" style="font-size: 0.75rem;">
-                                <?= $faixaCadastrada ? htmlspecialchars($grau_aluno, ENT_QUOTES, 'UTF-8') : 'Iniciante' ?>
-                            </span>
-                            <div>
-                                <?php if ($faixaCadastrada): ?>
-                                    <?php if (!empty($graduacoesPrevistasPainel)): ?>
-                                        <?php foreach ($graduacoesPrevistasPainel as $prevista): ?>
-                                            <small class="text-muted d-block" style="font-size: 0.7rem;">Próxima: <?= date('d/m/Y', strtotime((string)$prevista['data_prevista'])) ?></small>
-                                        <?php endforeach; ?>
-                                    <?php else: ?>
-                                        <small class="text-muted d-block" style="font-size: 0.7rem;">Sem próxima previsão</small>
-                                    <?php endif; ?>
-                                <?php endif; ?>
-                            </div>
+            <div class="aluno-stat-card h-100">
+                <div class="aluno-stat-main">
+                    <?php if ($faixaCadastrada && $faixaImagem !== null): ?>
+                        <div class="aluno-stat-belt-box">
+                            <img src="../../assets/img/<?= htmlspecialchars($faixaImagem, ENT_QUOTES, 'UTF-8') ?>" alt="Faixa <?= htmlspecialchars($faixa_aluno, ENT_QUOTES, 'UTF-8') ?>">
                         </div>
+                    <?php else: ?>
+                        <div class="aluno-stat-icon aluno-stat-icon--muted" aria-hidden="true"><i class="bi bi-award-fill"></i></div>
+                    <?php endif; ?>
+                    <div class="aluno-stat-body">
+                        <span class="aluno-stat-label">Graduação</span>
+                        <?php if ($faixaCadastrada): ?>
+                            <strong class="aluno-stat-value"><?= htmlspecialchars($faixa_aluno, ENT_QUOTES, 'UTF-8') ?></strong>
+                            <small class="aluno-stat-sub">
+                                <?= htmlspecialchars($grau_aluno, ENT_QUOTES, 'UTF-8') ?>
+                                <?php if (!empty($graduacoesPrevistasPainel)): ?>
+                                    · Próxima: <?= date('d/m/Y', strtotime((string)$graduacoesPrevistasPainel[0]['data_prevista'])) ?>
+                                <?php else: ?>
+                                    · Sem próxima previsão
+                                <?php endif; ?>
+                            </small>
+                        <?php else: ?>
+                            <strong class="aluno-stat-value">Faixa não cadastrada</strong>
+                        <?php endif; ?>
                     </div>
                 </div>
-
-                <div class="border-top pt-2 mt-2 d-flex justify-content-between align-items-center">
-                    <span class="text-muted small" style="font-size: 0.75rem;">
-                        <i class="bi bi-clipboard-check me-1"></i><?= !empty($avaliacoesAlunoPainel) ? count($avaliacoesAlunoPainel) . ' avaliação(ões)' : 'Nenhuma avaliação' ?>
-                    </span>
-                    <a href="historico_graduacao.php#graduacoes-previstas" class="btn btn-sm btn-dark py-0 px-2 fw-bold d-inline-flex align-items-center gap-1" style="font-size: 0.75rem;" title="Ver detalhes da graduação">
+                <div class="aluno-stat-footer">
+                    <span><i class="bi bi-clipboard-check me-1"></i><?= !empty($avaliacoesAlunoPainel) ? count($avaliacoesAlunoPainel) . ' avaliação(ões)' : 'Nenhuma avaliação' ?></span>
+                    <a href="historico_graduacao.php#graduacoes-previstas" class="aluno-stat-link" title="Ver detalhes da graduação">
                         Detalhes <i class="bi bi-arrow-right" aria-hidden="true"></i>
                     </a>
                 </div>
             </div>
         </div>
 
-        <!-- CARD 2: NÍVEL E XP (MESMA ALTURA) -->
+        <!-- CARD 2: EVOLUÇÃO (NÍVEL E XP) -->
         <div class="col-12 col-md-4">
-            <div class="card h-100 shadow-sm border-2 p-3 d-flex flex-column justify-content-between position-relative overflow-hidden" style="background: #fffdf4; border-color: #e6b800 !important; border-radius: 12px;">
-                <div class="position-absolute top-0 start-0 bg-warning text-dark px-3 py-1 rounded-bottom-end small fw-bold" style="font-size: 0.7rem; letter-spacing: 0.05em;">EVOLUÇÃO</div>
-                <div class="pt-3">
-                    <div class="d-flex justify-content-between align-items-center mb-1">
-                        <span class="badge bg-warning text-dark fw-bold">Nível <?= $num_nivel ?></span>
-                        <small class="text-muted fw-semibold" style="font-size: 0.75rem;"><i class="bi bi-calendar-event me-1"></i><?= htmlspecialchars($dataAtualAluno, ENT_QUOTES, 'UTF-8') ?></small>
+            <div class="aluno-stat-card aluno-stat-card--gold h-100">
+                <div class="aluno-stat-main">
+                    <div class="aluno-stat-icon aluno-stat-icon--gold" aria-hidden="true"><i class="bi bi-bar-chart-fill"></i></div>
+                    <div class="aluno-stat-body">
+                        <span class="aluno-stat-label">Evolução</span>
+                        <strong class="aluno-stat-value">Nível <?= (int)$num_nivel ?> · <?= htmlspecialchars($nome_nivel, ENT_QUOTES, 'UTF-8') ?></strong>
+                        <div class="aluno-stat-progress" role="progressbar" aria-valuenow="<?= (int)round($progresso_xp) ?>" aria-valuemin="0" aria-valuemax="100">
+                            <div class="aluno-stat-progress-bar" style="width: <?= (float)$progresso_xp ?>%;"></div>
+                        </div>
+                        <small class="aluno-stat-sub"><?= (int)$xp_atual ?> / <?= (int)$xp_max ?> XP</small>
                     </div>
-                    <h5 class="fw-bold text-dark mb-1"><?= htmlspecialchars($nome_nivel, ENT_QUOTES, 'UTF-8') ?></h5>
                 </div>
-                <div class="pb-1">
-                    <div class="d-flex justify-content-between align-items-center mb-1 small fw-bold text-dark" style="font-size: 0.75rem;">
-                        <span>XP Acumulado</span>
-                        <span><?= $xp_atual ?> / <?= $xp_max ?> XP</span>
-                    </div>
-                    <div class="progress shadow-sm" role="progressbar" aria-valuenow="<?= (int)round($progresso_xp) ?>" aria-valuemin="0" aria-valuemax="100" style="height: 10px; border-radius: 5px; background: rgba(0,0,0,0.08);">
-                        <div class="progress-bar bg-warning" style="width: <?= $progresso_xp ?>%;"></div>
-                    </div>
+                <div class="aluno-stat-footer">
+                    <span><i class="bi bi-calendar-event me-1"></i><?= htmlspecialchars($dataAtualAluno, ENT_QUOTES, 'UTF-8') ?></span>
                 </div>
             </div>
         </div>
 
-        <!-- CARD 3: FINANCEIRO (MESMA ALTURA) -->
+        <!-- CARD 3: MENSALIDADE -->
         <div class="col-12 col-md-4">
-            <div class="card h-100 shadow-sm border-2 p-3 d-flex flex-column justify-content-between position-relative overflow-hidden" style="background: #f8f9fa; border-color: #495057 !important; border-radius: 12px;">
-                <div class="position-absolute top-0 start-0 bg-secondary text-white px-3 py-1 rounded-bottom-end small fw-bold" style="font-size: 0.7rem; letter-spacing: 0.05em;">MENSALIDADE</div>
-                <div class="pt-3">
-                    <div class="d-flex justify-content-between align-items-center mb-1">
-                        <?php $statusPagamentoUpper = strtoupper((string)$status_pagamento); ?>
-                        <?php if ($statusPagamentoUpper === 'PAGO'): ?>
-                            <span class="badge bg-success">Confirmado</span>
-                        <?php elseif ($statusPagamentoUpper === 'EM_ANALISE'): ?>
-                            <span class="badge bg-info text-dark">Em análise</span>
-                        <?php else: ?>
-                            <span class="badge bg-danger">Pendente</span>
-                        <?php endif; ?>
-                        <small class="text-muted fw-semibold" style="font-size: 0.75rem;">Venc: <?= htmlspecialchars($data_vencimento, ENT_QUOTES, 'UTF-8') ?></small>
+            <?php
+                $statusPagamentoUpper = strtoupper((string)$status_pagamento);
+                $historicoMensalidadeCard = [];
+                foreach ($historico_pagamentos as $pagHist) {
+                    $stHist = strtoupper((string)($pagHist['status'] ?? 'PENDENTE'));
+                    if ($stHist === 'PENDENTE' && $pagHist['data_vencimento'] < date('Y-m-d')) {
+                        $stHist = 'ATRASADO';
+                    }
+                    $mapaHist = [
+                        'PAGO'       => ['payment-bar--paid', 'Pago'],
+                        'ATRASADO'   => ['payment-bar--late', 'Atrasado'],
+                        'EM_ANALISE' => ['payment-bar--review', 'Em análise'],
+                    ];
+                    [$classeHist, $rotuloHist] = $mapaHist[$stHist] ?? ['payment-bar--pending', 'Pendente'];
+                    $historicoMensalidadeCard[] = [
+                        'valor'      => (float)$pagHist['valor'],
+                        'vencimento' => $pagHist['data_vencimento'],
+                        'pagamento'  => $pagHist['data_pagamento'],
+                        'classe'     => $classeHist,
+                        'rotulo'     => $rotuloHist,
+                    ];
+                }
+                // $historico_pagamentos está em ordem cronológica (mais antigo -> mais recente)
+                $ultimosSeisMeses = array_slice($historicoMensalidadeCard, -6);
+                $maiorValorMini = 0.0;
+                foreach ($ultimosSeisMeses as $itemMini) {
+                    $maiorValorMini = max($maiorValorMini, $itemMini['valor']);
+                }
+            ?>
+            <div class="aluno-stat-card h-100">
+                <div class="aluno-stat-main">
+                    <div class="aluno-stat-icon" aria-hidden="true"><i class="bi bi-credit-card-2-front-fill"></i></div>
+                    <div class="aluno-stat-body">
+                        <div class="d-flex justify-content-between align-items-center gap-2">
+                            <span class="aluno-stat-label">Mensalidade</span>
+                            <?php if ($statusPagamentoUpper === 'PAGO'): ?>
+                                <span class="aluno-stat-pill aluno-stat-pill--ok">Confirmado</span>
+                            <?php elseif ($statusPagamentoUpper === 'EM_ANALISE'): ?>
+                                <span class="aluno-stat-pill aluno-stat-pill--info">Em análise</span>
+                            <?php else: ?>
+                                <span class="aluno-stat-pill aluno-stat-pill--danger">Pendente</span>
+                            <?php endif; ?>
+                        </div>
+                        <strong class="aluno-stat-value"><?= htmlspecialchars($valor_pagamento, ENT_QUOTES, 'UTF-8') ?></strong>
+                        <small class="aluno-stat-sub">Venc: <?= htmlspecialchars($data_vencimento, ENT_QUOTES, 'UTF-8') ?></small>
                     </div>
-                    <h4 class="fw-bold text-dark mb-0 mt-1"><?= htmlspecialchars($valor_pagamento, ENT_QUOTES, 'UTF-8') ?></h4>
                 </div>
-                <div class="border-top pt-2 mt-2 d-flex justify-content-end align-items-center">
+                <!-- HISTÓRICO DOS ÚLTIMOS 6 MESES -->
+                <div class="aluno-mini-history">
+                    <div class="aluno-mini-history-title">Últimos 6 meses</div>
+                    <?php if (empty($ultimosSeisMeses)): ?>
+                        <p class="aluno-stat-sub mb-0">Ainda não há pagamentos registrados.</p>
+                    <?php else: ?>
+                        <ul class="aluno-mini-history-chart list-unstyled mb-0">
+                            <?php foreach ($ultimosSeisMeses as $itemMini): ?>
+                                <?php $alturaMini = $maiorValorMini > 0 ? max(12, ($itemMini['valor'] / $maiorValorMini) * 100) : 12; ?>
+                                <li class="aluno-mini-history-item"
+                                    title="<?= htmlspecialchars(date('m/Y', strtotime($itemMini['vencimento'])) . ' · ' . $itemMini['rotulo'] . ' · R$ ' . number_format($itemMini['valor'], 2, ',', '.'), ENT_QUOTES, 'UTF-8') ?>">
+                                    <span class="aluno-mini-history-bar <?= $itemMini['classe'] ?>" style="height: <?= number_format($alturaMini, 0, '.', '') ?>%;"></span>
+                                    <span class="aluno-mini-history-date"><?= date('m/y', strtotime($itemMini['vencimento'])) ?></span>
+                                </li>
+                            <?php endforeach; ?>
+                        </ul>
+                    <?php endif; ?>
+                </div>
+                <div class="aluno-stat-footer">
+                    <?php if (!empty($historicoMensalidadeCard)): ?>
+                        <button type="button" class="aluno-stat-textlink" data-bs-toggle="modal" data-bs-target="#modalHistoricoMensalidade">
+                            <i class="bi bi-clock-history me-1"></i>Ver histórico
+                        </button>
+                    <?php else: ?>
+                        <span></span>
+                    <?php endif; ?>
                     <?php if ($statusPagamentoUpper !== 'PAGO' && $statusPagamentoUpper !== 'EM_ANALISE' && $id_pagamento_atual !== null && !$comprovante_pagamento_enviado): ?>
-                        <button type="button" class="btn btn-sm btn-dark py-0 px-2 fw-bold d-inline-flex align-items-center gap-1" style="font-size: 0.75rem;" data-bs-toggle="modal" data-bs-target="#modalPagamento">
-                            Escolher pagamento
+                        <button type="button" class="aluno-stat-link" data-bs-toggle="modal" data-bs-target="#modalPagamento">
+                            Escolher pagamento <i class="bi bi-arrow-right" aria-hidden="true"></i>
                         </button>
                     <?php elseif ($statusPagamentoUpper === 'PAGO'): ?>
-                        <p class="small text-success mb-0 fw-semibold text-center"><i class="bi bi-check-circle-fill me-1"></i>Mensalidade em dia</p>
+                        <span class="text-success fw-semibold"><i class="bi bi-check-circle-fill me-1"></i>Mensalidade em dia</span>
                     <?php else: ?>
-                        <p class="small text-info-emphasis mb-0 fw-semibold text-center">Em conferência pela academia</p>
+                        <span class="fw-semibold">Em conferência pela academia</span>
                     <?php endif; ?>
                 </div>
             </div>
@@ -1122,6 +1167,47 @@ try {
                 </div>
                 <div class="modal-footer border-0 pt-0">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <?php endif; ?>
+
+    <!-- MODAL: HISTÓRICO DE MENSALIDADES -->
+    <?php if (!empty($historicoMensalidadeCard)): ?>
+    <div class="modal fade" id="modalHistoricoMensalidade" tabindex="-1" aria-labelledby="modalHistoricoMensalidadeLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content shadow border-0">
+                <div class="modal-header bg-dark text-white">
+                    <h5 class="modal-title fw-bold" id="modalHistoricoMensalidadeLabel">Histórico de mensalidades</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                </div>
+                <div class="modal-body p-0">
+                    <table class="table table-sm align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th class="ps-3">Vencimento</th>
+                                <th>Pago em</th>
+                                <th>Valor</th>
+                                <th class="pe-3 text-end">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach (array_reverse($historicoMensalidadeCard) as $itemHist): ?>
+                                <tr>
+                                    <td class="ps-3"><?= date('d/m/Y', strtotime($itemHist['vencimento'])) ?></td>
+                                    <td><?= !empty($itemHist['pagamento']) ? date('d/m/Y', strtotime($itemHist['pagamento'])) : '---' ?></td>
+                                    <td>R$ <?= number_format($itemHist['valor'], 2, ',', '.') ?></td>
+                                    <td class="pe-3 text-end">
+                                        <span class="aluno-status-chip <?= $itemHist['classe'] ?>"><?= htmlspecialchars($itemHist['rotulo'], ENT_QUOTES, 'UTF-8') ?></span>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Fechar</button>
                 </div>
             </div>
         </div>

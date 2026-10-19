@@ -1,5 +1,7 @@
 <?php
 // view/aluno/historico_aluno.php
+date_default_timezone_set('America/Sao_Paulo');
+
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
@@ -24,10 +26,11 @@ try {
         FROM agendamento a 
         JOIN turma t ON a.id_turma = t.id_turma 
         LEFT JOIN presenca p ON a.id_agendamento = p.id_agendamento 
-        WHERE a.id_usuario_aluno = ? AND a.data_agendamento < NOW()
+        WHERE a.id_usuario_aluno = ? AND a.data_agendamento < ?
         ORDER BY a.data_agendamento DESC
     ");
-    $stmt_hist->execute([$id_aluno]);
+    $agoraSaoPaulo = new DateTimeImmutable('now', new DateTimeZone('America/Sao_Paulo'));
+    $stmt_hist->execute([$id_aluno, $agoraSaoPaulo->format('Y-m-d H:i:s')]);
     $historico_treinos = $stmt_hist->fetchAll(PDO::FETCH_ASSOC);
 
 } catch (Exception $e) {

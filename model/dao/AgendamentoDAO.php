@@ -96,7 +96,8 @@ class AgendamentoDAO
               AND a.data_agendamento >= ?
             ORDER BY a.data_agendamento ASC
         ");
-        $stmt->execute([$id_aluno, date('Y-m-d H:i:s')]);
+        $agoraSaoPaulo = new DateTimeImmutable('now', new DateTimeZone('America/Sao_Paulo'));
+        $stmt->execute([$id_aluno, $agoraSaoPaulo->format('Y-m-d H:i:s')]);
 
         $agendamentos = [];
         foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $registro) {
