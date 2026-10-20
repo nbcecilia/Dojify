@@ -113,46 +113,50 @@ $formatarData = static function ($data): string {
                     <p>Informações cadastradas na academia.</p>
                 </div>
 
-                <div class="aluno-profile-grid">
-                    <article class="aluno-profile-item">
-                        <span>Foto de perfil</span>
-                        <div class="aluno-profile-photo-row">
-                            <div class="aluno-profile-avatar-preview">
-                                <?php
-                                    $avatarUrlAluno = null;
-                                    foreach (['webp','png','jpg','jpeg'] as $extA) {
-                                        $arqA = __DIR__ . '/../../assets/uploads/avatars/user-' . $idAluno . '.' . $extA;
-                                        if (is_file($arqA)) {
-                                            $avatarUrlAluno = '../../assets/uploads/avatars/user-' . $idAluno . '.' . $extA . '?v=' . filemtime($arqA);
-                                            break;
+                <div class="row g-3 align-items-stretch aluno-profile-content">
+                    <aside class="col-12 col-lg-3">
+                        <article class="aluno-profile-item aluno-profile-photo-item">
+                            <span>Foto de perfil</span>
+                            <div class="aluno-profile-photo-row">
+                                <div class="aluno-profile-avatar-preview">
+                                    <?php
+                                        $avatarUrlAluno = null;
+                                        foreach (['webp','png','jpg','jpeg'] as $extA) {
+                                            $arqA = __DIR__ . '/../../assets/uploads/avatars/user-' . $idAluno . '.' . $extA;
+                                            if (is_file($arqA)) {
+                                                $avatarUrlAluno = '../../assets/uploads/avatars/user-' . $idAluno . '.' . $extA . '?v=' . filemtime($arqA);
+                                                break;
+                                            }
                                         }
-                                    }
-                                ?>
-                                <?php if ($avatarUrlAluno): ?>
-                                    <img src="<?= htmlspecialchars($avatarUrlAluno, ENT_QUOTES, 'UTF-8') ?>" alt="Foto de perfil">
-                                <?php else: ?>
-                                    <?= mb_strtoupper(mb_substr((string)$dadosAluno['nome'], 0, 1, 'UTF-8'), 'UTF-8') ?>
-                                <?php endif; ?>
+                                    ?>
+                                    <?php if ($avatarUrlAluno): ?>
+                                        <img src="<?= htmlspecialchars($avatarUrlAluno, ENT_QUOTES, 'UTF-8') ?>" alt="Foto de perfil">
+                                    <?php else: ?>
+                                        <?= mb_strtoupper(mb_substr((string)$dadosAluno['nome'], 0, 1, 'UTF-8'), 'UTF-8') ?>
+                                    <?php endif; ?>
+                                </div>
+                                <div class="aluno-profile-photo-actions">
+                                    <form action="../../controller/ProfileAvatarController.php" method="POST" enctype="multipart/form-data" class="aluno-profile-photo-form">
+                                        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars((string)$_SESSION['avatar_csrf_token'], ENT_QUOTES, 'UTF-8') ?>">
+                                        <input type="hidden" name="return_to" value="<?= htmlspecialchars((string)($_SERVER['REQUEST_URI'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
+                                        <input type="file" name="avatar" accept="image/jpeg,image/png,image/webp" required class="aluno-profile-photo-input">
+                                        <small class="aluno-profile-photo-hint">JPG, PNG ou WebP · até 2 MB</small>
+                                        <div class="aluno-profile-photo-btns">
+                                            <button type="submit" class="aluno-profile-photo-btn">Salvar</button>
+                                            <?php if ($avatarUrlAluno): ?>
+                                                <button type="submit" formnovalidate
+                                                    onclick="this.form.querySelector('[name=acao]').value='remover'; this.form.removeAttribute('enctype');"
+                                                    class="aluno-profile-photo-btn aluno-profile-photo-btn--outline">Remover</button>
+                                                <input type="hidden" name="acao" value="">
+                                            <?php endif; ?>
+                                        </div>
+                                    </form>
+                                </div>
                             </div>
-                            <div class="aluno-profile-photo-actions">
-                                <form action="../../controller/ProfileAvatarController.php" method="POST" enctype="multipart/form-data" class="aluno-profile-photo-form">
-                                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars((string)$_SESSION['avatar_csrf_token'], ENT_QUOTES, 'UTF-8') ?>">
-                                    <input type="hidden" name="return_to" value="<?= htmlspecialchars((string)($_SERVER['REQUEST_URI'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
-                                    <input type="file" name="avatar" accept="image/jpeg,image/png,image/webp" required class="aluno-profile-photo-input">
-                                    <div class="aluno-profile-photo-btns">
-                                        <button type="submit" class="aluno-profile-photo-btn">Salvar</button>
-                                        <?php if ($avatarUrlAluno): ?>
-                                            <button type="submit"
-                                                onclick="this.form.querySelector('[name=acao]').value='remover'; this.form.removeAttribute('enctype');"
-                                                class="aluno-profile-photo-btn aluno-profile-photo-btn--outline">Remover</button>
-                                            <input type="hidden" name="acao" value="">
-                                        <?php endif; ?>
-                                    </div>
-                                </form>
-                                <small class="aluno-profile-photo-hint">JPG, PNG ou WebP · até 2 MB</small>
-                            </div>
-                        </div>
-                    </article>
+                        </article>
+                    </aside>
+                    <div class="col-12 col-lg-9">
+                        <div class="aluno-profile-grid">
                     <article class="aluno-profile-item">
                         <span>Nome completo</span>
                         <strong><?= $escapar($dadosAluno['nome']); ?></strong>
@@ -201,6 +205,8 @@ $formatarData = static function ($data): string {
                         <span>Academia</span>
                         <strong><?= $escapar($dadosAluno['nome_academia']); ?></strong>
                     </article>
+                        </div>
+                    </div>
                 </div>
             </section>
 

@@ -763,13 +763,18 @@ body.aluno-theme.aluno-profile-page .aluno-profile-section-heading p {
 
 body.aluno-theme.aluno-profile-page .aluno-profile-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+    width: 100%;
+    height: 100%;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-auto-rows: 1fr;
+    align-items: stretch;
     gap: 14px;
 }
 
 body.aluno-theme.aluno-profile-page .aluno-profile-item {
     display: flex;
     min-width: 0;
+    min-height: 84px;
     flex-direction: column;
     gap: 6px;
     padding: 14px 16px;
@@ -1097,16 +1102,35 @@ body.aluno-theme:not(.aluno-contract-page) .aluno-agenda-panel .aluno-agenda-mod
     padding: 12px 16px !important;
 }
 
+body.aluno-theme.aluno-profile-page .aluno-profile-photo-item {
+    height: 100%;
+    align-items: center;
+    gap: 12px;
+    padding: 18px 14px;
+}
+
+body.aluno-theme.aluno-profile-page .aluno-profile-photo-form {
+    max-width: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+}
+
 .aluno-theme .aluno-profile-photo-row {
     display: flex;
+    width: 100%;
+    flex-direction: column;
     align-items: center;
-    gap: 8px;
+    gap: 12px;
 }
 
 .aluno-theme .aluno-profile-avatar-preview {
-    flex: 0 0 32px;
-    width: 32px;
-    height: 32px;
+    flex: 0 0 88px;
+    width: 88px;
+    height: 88px;
     border-radius: 50%;
     overflow: hidden;
     border: 2px solid var(--aluno-border);
@@ -1128,7 +1152,10 @@ body.aluno-theme:not(.aluno-contract-page) .aluno-agenda-panel .aluno-agenda-mod
 .aluno-theme .aluno-profile-photo-actions {
     display: flex;
     flex-direction: column;
-    gap: 3px;
+    align-items: center;
+    width: 100%;
+    min-width: 0;
+    gap: 6px;
 }
 
 .aluno-theme .aluno-profile-photo-title {
@@ -1141,7 +1168,9 @@ body.aluno-theme:not(.aluno-contract-page) .aluno-agenda-panel .aluno-agenda-mod
 .aluno-theme .aluno-profile-photo-form {
     display: flex;
     flex-direction: column;
-    gap: 3px;
+    align-items: center;
+    width: 100%;
+    gap: 6px;
 }
 
 .aluno-theme .aluno-profile-photo-btns {
@@ -1151,13 +1180,28 @@ body.aluno-theme:not(.aluno-contract-page) .aluno-agenda-panel .aluno-agenda-mod
 }
 
 .aluno-theme .aluno-profile-photo-input {
+    display: block;
+    width: 100%;
+    min-width: 0;
     font-size: .65rem;
     padding: 1px 4px;
     border: 1px solid var(--aluno-border);
     border-radius: 4px;
     background: var(--aluno-surface);
     color: var(--aluno-text);
-    max-width: 160px;
+    box-sizing: border-box;
+}
+
+@media (max-width: 1199.98px) {
+    body.aluno-theme.aluno-profile-page .aluno-profile-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 575.98px) {
+    body.aluno-theme.aluno-profile-page .aluno-profile-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
 }
 
 .aluno-theme .aluno-profile-photo-btn {
@@ -1180,6 +1224,10 @@ body.aluno-theme:not(.aluno-contract-page) .aluno-agenda-panel .aluno-agenda-mod
 }
 
 .aluno-theme .aluno-profile-photo-hint {
+    display: block;
+    width: 100%;
+    margin: 0;
     font-size: .58rem;
     color: var(--aluno-text-muted);
+    text-align: center;
 }

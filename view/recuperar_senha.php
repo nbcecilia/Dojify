@@ -43,8 +43,8 @@ $mostrarModal = $recuperacaoAtiva && !$sucesso;
                 <div><h1>Dojify</h1></div>
             </a>
         </div>
-        <div class="navbar-user">
-            <a href="login.php" class="btn btn-sm btn-outline-secondary">Voltar ao login</a>
+        <div class="nav-auth-buttons">
+            <a href="login.php" class="btn btn-sm btn-outline-secondary">Login</a>
         </div>
     </header>
 
