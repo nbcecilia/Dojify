@@ -93,7 +93,7 @@ if (isset($_SESSION['usuario']) && $perfilUsuario === 2 && isset($_SESSION['id_a
         <?php if (isset($_SESSION['usuario']) && in_array($perfilUsuario, [2, 3], true)): ?>
             <div class="notificacao-container">
                 <button type="button" id="btnNotificacao" class="btn-notificacao">
-                    🔔
+                    <i class="bi bi-bell-fill" aria-hidden="true"></i>
                     <?php
                     $totalNotificacoesEquipe = $perfilUsuario === 2
                         ? (int)($notifications['total_atrasados'] ?? 0)
@@ -308,6 +308,16 @@ $total_notif_header = count($notificacoes_aluno);
                             <i class="bi bi-person-vcard" aria-hidden="true"></i>
                             Meu perfil
                         </a>
+                    <?php elseif ($perfilUsuario === 2): ?>
+                        <a class="profile-avatar-profile-link" href="../gerente/perfil.php">
+                            <i class="bi bi-person-vcard" aria-hidden="true"></i>
+                            Meu perfil
+                        </a>
+                    <?php elseif ($perfilUsuario === 3): ?>
+                        <a class="profile-avatar-profile-link" href="../professor/perfil.php">
+                            <i class="bi bi-person-vcard" aria-hidden="true"></i>
+                            Meu perfil
+                        </a>
                     <?php endif; ?>
                     <?php if (empty($ocultarAlterarSenhaHeader)): ?>
                         <button type="button"
@@ -326,22 +336,6 @@ $total_notif_header = count($notificacoes_aluno);
                                     ? 'Foto removida. Sua inicial voltou a ser exibida.'
                                     : 'Não foi possível atualizar. Envie JPG, PNG ou WebP de até 2 MB.'); ?>
                         </p>
-                    <?php endif; ?>
-                    <form action="../../controller/ProfileAvatarController.php" method="POST" enctype="multipart/form-data" class="profile-avatar-upload">
-                        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars((string)$_SESSION['avatar_csrf_token'], ENT_QUOTES, 'UTF-8'); ?>">
-                        <input type="hidden" name="return_to" value="<?= htmlspecialchars((string)($_SERVER['REQUEST_URI'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>">
-                        <label for="profileAvatarFile">Escolher foto</label>
-                        <input id="profileAvatarFile" type="file" name="avatar" accept="image/jpeg,image/png,image/webp" required>
-                        <small>JPG, PNG ou WebP · até 2 MB</small>
-                        <button type="submit" class="btn btn-sm btn-dark">Enviar foto</button>
-                    </form>
-                    <?php if ($avatarUsuarioUrl !== null): ?>
-                        <form action="../../controller/ProfileAvatarController.php" method="POST" class="profile-avatar-remove">
-                            <input type="hidden" name="acao" value="remover">
-                            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars((string)$_SESSION['avatar_csrf_token'], ENT_QUOTES, 'UTF-8'); ?>">
-                            <input type="hidden" name="return_to" value="<?= htmlspecialchars((string)($_SERVER['REQUEST_URI'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>">
-                            <button type="submit" class="btn btn-sm btn-outline-secondary">Remover foto e usar inicial</button>
-                        </form>
                     <?php endif; ?>
                     
                 </div>

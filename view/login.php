@@ -69,7 +69,7 @@ session_start();
 
             <!-- Link de Recuperação de Senha -->
             <div style="text-align: right; margin-top: 8px; margin-bottom: 16px;">
-                <a href="login_redefinir.php" style="font-size: 0.8rem; text-decoration: none;" class="text-muted">Esqueceu a palavra-passe?</a>
+                <a href="recuperar_senha.php" style="font-size: 0.8rem; text-decoration: none;" class="text-muted">Esqueceu a palavra-passe?</a>
             </div>
 
             <div class="d-flex gap-3 justify-content-end align-items-center">

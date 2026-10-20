@@ -218,8 +218,8 @@ $opcoesPlano = [
                     </div>
 
                     <div class="col-12 mt-4 d-flex gap-3 justify-content-center align-items-center">
-                        <a href="listar_usuarios.php" class="btn btn-secondary px-4 m-0 w-auto">Cancelar</a>
-                        <button type="submit" class="btn btn-success px-4 m-0 w-auto">
+                        <a href="listar_usuarios.php" class="btn btn-secondary m-0 form-action-button">Cancelar</a>
+                        <button type="submit" class="btn btn-success m-0 form-action-button">
                             <i class="bi bi-check-circle me-1"></i> Salvar Alterações
                         </button>
                     </div>

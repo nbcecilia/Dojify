@@ -708,13 +708,28 @@ try {
         <div class="col-12 col-md-4">
             <div class="aluno-stat-card h-100">
                 <div class="aluno-stat-main">
-                    <?php if ($faixaCadastrada && $faixaImagem !== null): ?>
-                        <div class="aluno-stat-belt-box">
-                            <img src="../../assets/img/<?= htmlspecialchars($faixaImagem, ENT_QUOTES, 'UTF-8') ?>" alt="Faixa <?= htmlspecialchars($faixa_aluno, ENT_QUOTES, 'UTF-8') ?>">
-                        </div>
-                    <?php else: ?>
-                        <div class="aluno-stat-icon aluno-stat-icon--muted" aria-hidden="true"><i class="bi bi-award-fill"></i></div>
-                    <?php endif; ?>
+                    <?php
+                        $corFaixaMap = [
+                            'branca'  => '#f0f0f0',
+                            'amarela' => '#f5c518',
+                            'laranja' => '#f97316',
+                            'azul'    => '#3b82f6',
+                            'verde'   => '#22c55e',
+                            'roxa'    => '#a855f7',
+                            'marrom'  => '#92400e',
+                            'preta'   => '#111111',
+                        ];
+                        $corFaixaAtual = '#9ca3af';
+                        foreach ($corFaixaMap as $nomeCor => $hexCor) {
+                            if (strpos($faixaNormalizada ?? '', $nomeCor) !== false) {
+                                $corFaixaAtual = $hexCor;
+                                break;
+                            }
+                        }
+                    ?>
+                    <div class="aluno-stat-icon aluno-stat-icon--grad" aria-hidden="true">
+                        <i class="bi bi-patch-check-fill"></i>
+                    </div>
                     <div class="aluno-stat-body">
                         <span class="aluno-stat-label">Graduação</span>
                         <?php if ($faixaCadastrada): ?>
@@ -732,6 +747,9 @@ try {
                         <?php endif; ?>
                     </div>
                 </div>
+                <div class="aluno-stat-belt-bar" aria-hidden="true">
+                    <span class="aluno-stat-belt-bar-fill" style="background:<?= $corFaixaAtual ?>;" title="Faixa: <?= htmlspecialchars($faixa_aluno ?? 'Não cadastrada', ENT_QUOTES, 'UTF-8') ?>"></span>
+                </div>
                 <div class="aluno-stat-footer">
                     <span><i class="bi bi-clipboard-check me-1"></i><?= !empty($avaliacoesAlunoPainel) ? count($avaliacoesAlunoPainel) . ' avaliação(ões)' : 'Nenhuma avaliação' ?></span>
                     <a href="historico_graduacao.php#graduacoes-previstas" class="aluno-stat-link" title="Ver detalhes da graduação">
@@ -745,7 +763,7 @@ try {
         <div class="col-12 col-md-4">
             <div class="aluno-stat-card aluno-stat-card--gold h-100">
                 <div class="aluno-stat-main">
-                    <div class="aluno-stat-icon aluno-stat-icon--gold" aria-hidden="true"><i class="bi bi-bar-chart-fill"></i></div>
+                    <div class="aluno-stat-icon aluno-stat-icon--gold" aria-hidden="true"><i class="bi bi-trophy-fill"></i></div>
                     <div class="aluno-stat-body">
                         <span class="aluno-stat-label">Evolução</span>
                         <strong class="aluno-stat-value">Nível <?= (int)$num_nivel ?> · <?= htmlspecialchars($nome_nivel, ENT_QUOTES, 'UTF-8') ?></strong>
@@ -794,7 +812,7 @@ try {
             ?>
             <div class="aluno-stat-card h-100">
                 <div class="aluno-stat-main">
-                    <div class="aluno-stat-icon" aria-hidden="true"><i class="bi bi-credit-card-2-front-fill"></i></div>
+                    <div class="aluno-stat-icon aluno-stat-icon--payment" aria-hidden="true"><i class="bi bi-cash-coin"></i></div>
                     <div class="aluno-stat-body">
                         <div class="d-flex justify-content-between align-items-center gap-2">
                             <span class="aluno-stat-label">Mensalidade</span>

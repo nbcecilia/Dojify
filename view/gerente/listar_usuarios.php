@@ -204,7 +204,9 @@ foreach ($usuarios as $u) {
                                     </td>
                                     <td class="text-end">
                                         <div class="d-flex justify-content-end gap-1 flex-wrap">
-                                            <a href="editar_professor.php?id=<?php echo $u['id_usuario']; ?>" class="btn btn-sm btn-info">Editar</a>
+                                            <button type="button" class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#modalEditarUsuario" data-edit-url="editar_professor.php?id=<?php echo (int)$u['id_usuario']; ?>" data-edit-title="Editar Professor">
+                                                <i class="bi bi-pencil me-1"></i>Editar
+                                            </button>
                                             <?php if ($u['status'] !== 'ATIVO'): ?>
                                                 <a href="../../controller/UsuarioController.php?acao=alternar_status&id=<?php echo $u['id_usuario']; ?>&status=ATIVO" class="btn btn-sm btn-success">Ativar</a>
                                             <?php endif; ?>
@@ -281,7 +283,9 @@ foreach ($usuarios as $u) {
                                     </td>
                                     <td class="text-end">
                                         <div class="d-flex justify-content-end gap-1 flex-wrap">
-                                            <a href="editar_aluno.php?id=<?php echo $u['id_usuario']; ?>" class="btn btn-sm btn-info">Editar</a>
+                                            <button type="button" class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#modalEditarUsuario" data-edit-url="editar_aluno.php?id=<?php echo (int)$u['id_usuario']; ?>" data-edit-title="Editar Aluno">
+                                                <i class="bi bi-pencil me-1"></i>Editar
+                                            </button>
                                             <?php if ($u['status'] !== 'ATIVO'): ?>
                                                 <a href="../../controller/UsuarioController.php?acao=alternar_status&id=<?php echo $u['id_usuario']; ?>&status=ATIVO" class="btn btn-sm btn-success">Ativar</a>
                                             <?php endif; ?>
@@ -302,7 +306,48 @@ foreach ($usuarios as $u) {
         </section>
     </main>
 
+    <div class="modal fade" id="modalEditarUsuario" tabindex="-1" aria-labelledby="modalEditarUsuarioLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header">
+                    <h2 class="modal-title fs-5" id="modalEditarUsuarioLabel">Editar Usuário</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                </div>
+                <div class="modal-body p-0">
+                    <iframe id="frameEditarUsuario" title="Formulário de edição do usuário" class="edit-user-frame"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <?php include '../includes/footer.php'; ?>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const modalEditarUsuario = document.getElementById('modalEditarUsuario');
+        const frameEditarUsuario = document.getElementById('frameEditarUsuario');
+        const tituloModalEditarUsuario = document.getElementById('modalEditarUsuarioLabel');
+
+        modalEditarUsuario.addEventListener('show.bs.modal', event => {
+            const botaoEditar = event.relatedTarget;
+            frameEditarUsuario.src = botaoEditar.dataset.editUrl;
+            tituloModalEditarUsuario.textContent = botaoEditar.dataset.editTitle;
+        });
+
+        frameEditarUsuario.addEventListener('load', () => {
+            try {
+                const urlAtual = new URL(frameEditarUsuario.contentWindow.location.href);
+                if (urlAtual.pathname.endsWith('/listar_usuarios.php')) {
+                    bootstrap.Modal.getOrCreateInstance(modalEditarUsuario).hide();
+                    window.location.reload();
+                }
+            } catch (erro) {
+                return;
+            }
+        });
+
+        modalEditarUsuario.addEventListener('hidden.bs.modal', () => {
+            frameEditarUsuario.src = 'about:blank';
+        });
+    </script>
 </body>
 </html>
