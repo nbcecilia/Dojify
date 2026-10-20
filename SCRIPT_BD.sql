@@ -458,16 +458,16 @@ INSERT INTO `horario_turma` (`id_horario`, `id_turma`, `dia_semana`, `hora_inici
 -- ==========================================================
 INSERT INTO plano (id_plano, id_usuario_aluno, id_modalidade, nome_plano, valor, data_inicio, data_fim, status) VALUES 
 (1, 4, 1, 'Mensal 3x/semana', 150.00, '2026-10-17', NULL, 'ATIVO'),
-(2, 5, 2, 'Mensal 2x/semana', 100.00, '2026-10-17', NULL, 'ATIVO'),
-(3, 4, 2, 'Mensal 3x/semana', 150.00, '2026-10-17', NULL, 'ATIVO');
+(2, 5, 2, 'Mensal 2x/semana', 100.00, '2026-10-17', NULL, 'ATIVO');
+
 
 -- ==========================================================
 -- PAGAMENTO 
 -- ==========================================================
 INSERT INTO pagamento (id_pagamento, id_plano_matricula, valor, data_vencimento, data_pagamento, forma_pagamento, status, observacao) VALUES 
 (1, 1, 150.00, '2026-10-27', '2026-10-17', 'PIX', 'PAGO', 'Mensalidade paga via PIX no ato da matrícula.'),
-(2, 2, 100.00, '2026-10-27', NULL, NULL, 'PENDENTE', 'Aguardando compensação do boleto/cartão.'),
-(3, 3, 150.00, '2026-10-27', '2026-10-17', 'PIX', 'PAGO', 'Mensalidade paga via PIX no ato da matrícula.');
+(2, 2, 100.00, '2026-10-27', NULL, NULL, 'PENDENTE', 'Aguardando compensação do boleto/cartão.');
+
 
 -- ==========================================================
 -- AGENDAMENTO 
