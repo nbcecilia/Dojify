@@ -417,6 +417,14 @@ $total_notif_header = count($notificacoes_aluno);
 
 <!-- SCRIPT PARA ABRIR/FECHAR O DROPDOWN -->
 
+<script>
+    (() => {
+        const modalAlterarSenha = document.getElementById('modalAlterarSenha');
+        if (modalAlterarSenha) {
+            document.body.appendChild(modalAlterarSenha);
+        }
+    })();
+</script>
 <script src="../../assets/js/main.js?v=<?= filemtime(__DIR__ . '/../../assets/js/main.js'); ?>"></script>
 <script>
     <?php if (is_array($senhaModalFeedback)): ?>
