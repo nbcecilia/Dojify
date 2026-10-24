@@ -52,7 +52,7 @@ session_start();
         <section class="hero">
             <div class="hero-text">
                 <h2>A evolução na gestão da sua academia</h2>
-                <p>Simplifique o controle de graduações, alunos, turmas e frequências com uma plataforma moderna, segura e focada na simplicidade do tatame.</p>
+                <p> Simplifique o controle de alunos, mensalidades, graduações, turmas e frequências com uma plataforma moderna, segura e focada na simplicidade do tatame.</p>
                 <div class="hero-buttons">
                     <a href="https://wa.me" target="_blank" class="btn-primary">Começar Agora</a>
                     <a href="#recursos" class="btn-secondary">Ver Recursos</a>
@@ -78,7 +78,7 @@ session_start();
                         <img src="assets/img/card2.png" alt="Controle de Alunos" class="card-img">
                     </div>
                     <h4>Controle de Alunos</h4>
-                    <p>Gerencie cadastros, faixas e evoluções de forma rápida e centralizada no tatame.</p>
+                    <p>Gerencie cadastros, mensalidades, faixas e evoluções de forma rápida e centralizada no tatame.</p>
                 </div>
 
                 <!-- Card 2: Graduações -->
@@ -96,7 +96,7 @@ session_start();
                         <img src="assets/img/card4.png" alt="Interface Minimalista" class="card-img">
                     </div>
                     <h4>Interface Minimalista</h4>
-                    <p>Foco total na usabilidade, navegação fluida e design profissional em preto e branco.</p>
+                    <p>Foco total na usabilidade, navegação fluida e design profissional.</p>
                 </div>
 
             </div>
