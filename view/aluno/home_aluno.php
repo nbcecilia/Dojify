@@ -355,45 +355,49 @@ try {
         if ($xp_max > $xp_min) { $progresso_xp = (($xp_atual - $xp_min) / ($xp_max - $xp_min)) * 100; }
         $progresso_xp = min(100, max(0, $progresso_xp)); 
 
-        // Busca a cobrança mais recente e soma os valores dos planos ativos.
+        // Busca a cobrança consolidada do aluno somando todos os planos ativos da mesma data de vencimento
         $stmt_pag = $pdo_agenda->prepare("
-            SELECT pag.id_pagamento, pag.status, pag.data_vencimento, pag.valor
+            SELECT 
+                MIN(pag.id_pagamento) AS id_pagamento,
+                pag.data_vencimento,
+                SUM(pag.valor) AS valor_total,
+                MIN(pag.status) AS status_geral
             FROM plano pl
             INNER JOIN pagamento pag ON pag.id_plano_matricula = pl.id_plano
             WHERE pl.id_usuario_aluno = ?
               AND pl.status = 'ATIVO'
-              AND pag.id_pagamento = (
-                  SELECT pag2.id_pagamento
-                  FROM pagamento pag2
-                  WHERE pag2.id_plano_matricula = pl.id_plano
-                  ORDER BY pag2.data_vencimento DESC, pag2.id_pagamento DESC
-                  LIMIT 1
-              )
-            ORDER BY pag.data_vencimento ASC, pag.id_pagamento ASC
+              AND pag.status IN ('PENDENTE', 'ATRASADO', 'EM_ANALISE')
+            GROUP BY pag.data_vencimento
+            ORDER BY pag.data_vencimento ASC
+            LIMIT 1
         ");
         $stmt_pag->execute([$id_aluno]);
-        $pagamentosAtuais = $stmt_pag->fetchAll(PDO::FETCH_ASSOC);
+        $pagamentoAtualConsolidado = $stmt_pag->fetch(PDO::FETCH_ASSOC);
 
-        if ($pagamentosAtuais !== []) {
-            $idsPagamentosAtuais = array_map(
-                static fn(array $pagamento): int => (int)$pagamento['id_pagamento'],
-                $pagamentosAtuais
-            );
-            $id_pagamento_atual = min($idsPagamentosAtuais);
-            $data_vencimento_iso = $pagamentosAtuais[0]['data_vencimento'] ?? null;
+        if ($pagamentoAtualConsolidado) {
+            $id_pagamento_atual = (int)$pagamentoAtualConsolidado['id_pagamento'];
+            $data_vencimento_iso = $pagamentoAtualConsolidado['data_vencimento'];
             $data_vencimento = $data_vencimento_iso
                 ? date('d/m/Y', strtotime($data_vencimento_iso))
                 : '---';
-            $valorTotalPagamento = array_sum(array_map(
-                static fn(array $pagamento): float => (float)$pagamento['valor'],
-                $pagamentosAtuais
-            ));
+            $valorTotalPagamento = (float)$pagamentoAtualConsolidado['valor_total'];
             $valor_pagamento = $valorTotalPagamento > 0
                 ? 'R$ ' . number_format($valorTotalPagamento, 2, ',', '.')
                 : '---';
 
             $statusPagamentoAtual = 'PAGO';
-            foreach ($pagamentosAtuais as $pagamentoAtual) {
+            $stmt_status_lote = $pdo_agenda->prepare("
+                SELECT pag.status, pag.data_vencimento
+                FROM plano pl
+                INNER JOIN pagamento pag ON pag.id_plano_matricula = pl.id_plano
+                WHERE pl.id_usuario_aluno = ?
+                  AND pl.status = 'ATIVO'
+                  AND pag.data_vencimento = ?
+            ");
+            $stmt_status_lote->execute([$id_aluno, $data_vencimento_iso]);
+            $pagamentosDoLote = $stmt_status_lote->fetchAll(PDO::FETCH_ASSOC);
+
+            foreach ($pagamentosDoLote as $pagamentoAtual) {
                 $statusAtual = strtoupper((string)($pagamentoAtual['status'] ?? 'PENDENTE'));
                 $estaAtrasado = $statusAtual === 'ATRASADO'
                     || ($statusAtual === 'PENDENTE'
@@ -414,14 +418,41 @@ try {
             }
             $status_pagamento = $statusPagamentoAtual;
             $comprovante_pagamento_enviado = $status_pagamento === 'EM_ANALISE';
+        } else {
+            $stmt_pago = $pdo_agenda->prepare("
+                SELECT 
+                    pag.data_vencimento,
+                    SUM(pag.valor) AS valor_total,
+                    'PAGO' AS status_geral
+                FROM plano pl
+                INNER JOIN pagamento pag ON pag.id_plano_matricula = pl.id_plano
+                WHERE pl.id_usuario_aluno = ?
+                  AND pl.status = 'ATIVO'
+                GROUP BY pag.data_vencimento
+                ORDER BY pag.data_vencimento DESC
+                LIMIT 1
+            ");
+            $stmt_pago->execute([$id_aluno]);
+            $pagamentoPagoRecente = $stmt_pago->fetch(PDO::FETCH_ASSOC);
+
+            if ($pagamentoPagoRecente) {
+                $data_vencimento = date('d/m/Y', strtotime($pagamentoPagoRecente['data_vencimento']));
+                $valor_pagamento = 'R$ ' . number_format((float)$pagamentoPagoRecente['valor_total'], 2, ',', '.');
+                $status_pagamento = 'PAGO';
+            }
         }
 
         $stmt_historico_pagamentos = $pdo_agenda->prepare("
-            SELECT pag.valor, pag.data_vencimento, pag.data_pagamento, pag.status
+            SELECT 
+                SUM(pag.valor) AS valor, 
+                pag.data_vencimento, 
+                MAX(pag.data_pagamento) AS data_pagamento, 
+                MAX(pag.status) AS status
             FROM pagamento pag
             INNER JOIN plano pl ON pl.id_plano = pag.id_plano_matricula
             WHERE pl.id_usuario_aluno = ?
-            ORDER BY pag.data_vencimento DESC, pag.id_pagamento DESC
+            GROUP BY pag.data_vencimento
+            ORDER BY pag.data_vencimento DESC
             LIMIT 12
         ");
         $stmt_historico_pagamentos->execute([$id_aluno]);

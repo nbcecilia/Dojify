@@ -172,8 +172,15 @@ body.gerente-page {
 }
 
 .gerente-home-gestao .gerente-grid {
-    grid-template-columns: repeat(5, minmax(0, 1fr));
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
     gap: 12px;
+}
+
+.gerente-home-gestao .gerente-card {
+    flex: 1 1 240px;
+    max-width: 300px;
 }
 
 .gerente-home-pedagogia .gerente-grid {
@@ -479,6 +486,11 @@ body.gerente-page {
     .gerente-home-gestao .gerente-grid,
     .gerente-finance-box {
         grid-template-columns: 1fr;
+    }
+
+    .gerente-home-gestao .gerente-card {
+        flex-basis: 100%;
+        max-width: 420px;
     }
 
     .turma-actions {

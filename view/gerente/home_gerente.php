@@ -33,7 +33,7 @@ $kpis = $usuarioDAO->buscarIndicadoresGerente($idAcademia);
           href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
     <link rel="stylesheet" href="../../assets/css/estilo.css">
-    <link rel="stylesheet" href="../../assets/css/gerente.css?v=12">
+    <link rel="stylesheet" href="../../assets/css/gerente.css?v=13">
 </head>
 
 <body class="gerente-page">
@@ -173,7 +173,7 @@ $kpis = $usuarioDAO->buscarIndicadoresGerente($idAcademia);
                 </article>
 
 
-                <article class="gerente-card">
+                <!-- <article class="gerente-card">
                     <div class="gerente-card-icon">
                         <i class="bi bi-card-list"></i>
                     </div>
@@ -189,7 +189,7 @@ $kpis = $usuarioDAO->buscarIndicadoresGerente($idAcademia);
                             Gerenciar planos
                         </a>
                     </div>
-                </article>
+                </article> -->
 
 
                 <article class="gerente-card">
