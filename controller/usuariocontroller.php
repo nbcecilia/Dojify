@@ -232,9 +232,56 @@ class UsuarioController {
             } else {
                 $erro = 'falha_cadastro';
             }
+            if (in_array($erro, ['cpf_duplicado', 'email_duplicado'], true)) {
+                $this->guardarDadosCadastroAluno();
+            }
             header('Location: ../view/gerente/cadastrar_aluno_prof.php?erro=' . $erro);
             exit;
         }
+    }
+
+    private function guardarDadosCadastroAluno(): void {
+        $campos = [
+            'nome', 'cpf', 'telefone', 'data_nascimento', 'sexo', 'email',
+            'cep', 'endereco', 'cidade', 'estado', 'data_matricula',
+            'responsavel', 'observacao',
+        ];
+        $dados = [];
+
+        foreach ($campos as $campo) {
+            $valor = $_POST[$campo] ?? '';
+            $dados[$campo] = is_string($valor) ? substr($valor, 0, 1000) : '';
+        }
+
+        $modalidades = $_POST['id_modalidades'] ?? [];
+        $dados['id_modalidades'] = [];
+        if (is_array($modalidades)) {
+            foreach (array_slice($modalidades, 0, 3, true) as $indice => $valor) {
+                if ((is_string($valor) || is_numeric($valor)) && (string)$indice !== '') {
+                    $dados['id_modalidades'][(string)$indice] = substr((string)$valor, 0, 20);
+                }
+            }
+        }
+
+        $planos = $_POST['planos'] ?? [];
+        $dados['planos'] = [];
+        if (is_array($planos)) {
+            foreach (array_slice($planos, 0, 3, true) as $indice => $plano) {
+                if (!is_array($plano)) {
+                    continue;
+                }
+                $dados['planos'][(string)$indice] = [
+                    'nome_plano' => is_string($plano['nome_plano'] ?? null)
+                        ? substr($plano['nome_plano'], 0, 100)
+                        : '',
+                    'valor' => is_string($plano['valor'] ?? null)
+                        ? substr($plano['valor'], 0, 20)
+                        : '',
+                ];
+            }
+        }
+
+        $_SESSION['cadastro_aluno_old_input'] = $dados;
     }
 
     private function cadastrarProfessor(): void {

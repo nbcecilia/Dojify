@@ -20,6 +20,25 @@ if ((int)$usuario['perfil_id'] !== 2) {
 
 $idAcademia = isset($usuario['id_academia']) ? (int)$usuario['id_academia'] : 0;
 $tipoCadastro = ($_GET['tipo'] ?? '') === 'professor' ? 'professor' : 'aluno';
+$dadosCadastroAnterior = [];
+if (
+    $tipoCadastro === 'aluno'
+    && in_array($_GET['erro'] ?? '', ['cpf_duplicado', 'email_duplicado'], true)
+    && is_array($_SESSION['cadastro_aluno_old_input'] ?? null)
+) {
+    $dadosCadastroAnterior = $_SESSION['cadastro_aluno_old_input'];
+}
+unset($_SESSION['cadastro_aluno_old_input']);
+$valorAnterior = static function (string $campo, string $padrao = '') use ($dadosCadastroAnterior): string {
+    $valor = $dadosCadastroAnterior[$campo] ?? $padrao;
+    return htmlspecialchars(is_string($valor) ? $valor : $padrao, ENT_QUOTES, 'UTF-8');
+};
+$modalidadesAnteriores = is_array($dadosCadastroAnterior['id_modalidades'] ?? null)
+    ? $dadosCadastroAnterior['id_modalidades']
+    : [];
+$planosAnteriores = is_array($dadosCadastroAnterior['planos'] ?? null)
+    ? $dadosCadastroAnterior['planos']
+    : [];
 
 $modalidadeDAO = new ModalidadeDAO();
 $modalidades =$modalidadeDAO->listarPorAcademia($idAcademia);$opcoesPlano = [
@@ -96,44 +115,44 @@ $modalidades =$modalidadeDAO->listarPorAcademia($idAcademia);$opcoesPlano = [
                             <!-- ================= CAMPOS COMUNS ================= -->
                             <div class="col-12">
                                 <label for="nome" class="form-label">Nome Completo: <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="nome" name="nome" placeholder="Ex: João da Silva" required>
+                                <input type="text" class="form-control" id="nome" name="nome" placeholder="Ex: João da Silva" value="<?= $valorAnterior('nome'); ?>" required>
                             </div>
 
                             <div class="col-md-6">
                                 <label for="cpf" class="form-label">CPF: <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="cpf" name="cpf" placeholder="000.000.000-00" maxlength="14" required>
+                                <input type="text" class="form-control" id="cpf" name="cpf" placeholder="000.000.000-00" maxlength="14" value="<?= $valorAnterior('cpf'); ?>" required>
                             </div>
 
                             <div class="col-md-6">
                                 <label for="telefone" class="form-label">Telefone: <span class="text-danger">*</span></label>
-                                <input type="tel" class="form-control" id="telefone" name="telefone" inputmode="numeric" maxlength="15" pattern="\([0-9]{2}\) [0-9]{4,5}-[0-9]{4}" placeholder="(61) 98888-7777" required>
+                                <input type="tel" class="form-control" id="telefone" name="telefone" inputmode="numeric" maxlength="15" pattern="\([0-9]{2}\) [0-9]{4,5}-[0-9]{4}" placeholder="(61) 98888-7777" value="<?= $valorAnterior('telefone'); ?>" required>
                             </div>
 
                             <div class="col-md-6">
                                 <label for="data_nascimento" class="form-label">Data de Nascimento: <span class="text-danger">*</span></label>
-                                <input type="date" class="form-control" id="data_nascimento" name="data_nascimento" required>
+                                <input type="date" class="form-control" id="data_nascimento" name="data_nascimento" value="<?= $valorAnterior('data_nascimento'); ?>" required>
                             </div>
 
                             <div class="col-md-6">
                                 <label for="sexo" class="form-label">Sexo: <span class="text-danger">*</span></label>
                                 <select class="form-select" id="sexo" name="sexo" required>
                                     <option value="">Selecione...</option>
-                                    <option value="Feminino">Feminino</option>
-                                    <option value="Masculino">Masculino</option>
-                                    <option value="Outro">Outro</option>
-                                    <option value="Prefiro não informar">Prefiro não informar</option>
+                                    <option value="Feminino" <?= ($dadosCadastroAnterior['sexo'] ?? '') === 'Feminino' ? 'selected' : ''; ?>>Feminino</option>
+                                    <option value="Masculino" <?= ($dadosCadastroAnterior['sexo'] ?? '') === 'Masculino' ? 'selected' : ''; ?>>Masculino</option>
+                                    <option value="Outro" <?= ($dadosCadastroAnterior['sexo'] ?? '') === 'Outro' ? 'selected' : ''; ?>>Outro</option>
+                                    <option value="Prefiro não informar" <?= ($dadosCadastroAnterior['sexo'] ?? '') === 'Prefiro não informar' ? 'selected' : ''; ?>>Prefiro não informar</option>
                                 </select>
                             </div>
 
                             <div class="col-12">
                                 <label for="email" class="form-label">E-mail de Acesso: <span class="text-danger">*</span></label>
-                                <input type="email" class="form-control" id="email" name="email" placeholder="exemplo@email.com" required>
+                                <input type="email" class="form-control" id="email" name="email" placeholder="exemplo@email.com" value="<?= $valorAnterior('email'); ?>" required>
                             </div>
 
                             <div class="col-md-4">
                                 <label for="cep" class="form-label">CEP: <span class="text-danger">*</span></label>
                                 <div class="input-group">
-                                    <input type="text" class="form-control" id="cep" name="cep" inputmode="numeric" autocomplete="postal-code" maxlength="9" pattern="[0-9]{5}-?[0-9]{3}" placeholder="00000-000" required>
+                                    <input type="text" class="form-control" id="cep" name="cep" inputmode="numeric" autocomplete="postal-code" maxlength="9" pattern="[0-9]{5}-?[0-9]{3}" placeholder="00000-000" value="<?= $valorAnterior('cep'); ?>" required>
                                     <button type="button" class="btn btn-outline-secondary" data-cep-lookup>Buscar</button>
                                 </div>
                                 <p id="cep-status" class="form-text text-muted mb-0" aria-live="polite"></p>
@@ -141,32 +160,32 @@ $modalidades =$modalidadeDAO->listarPorAcademia($idAcademia);$opcoesPlano = [
 
                             <div class="col-md-8">
                                 <label for="endereco" class="form-label">Endereço: <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="endereco" name="endereco" autocomplete="street-address" maxlength="100" required>
+                                <input type="text" class="form-control" id="endereco" name="endereco" autocomplete="street-address" maxlength="100" value="<?= $valorAnterior('endereco'); ?>" required>
                             </div>
 
                             <div class="col-md-8">
                                 <label for="cidade" class="form-label">Cidade: <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="cidade" name="cidade" autocomplete="address-level2" maxlength="45" required>
+                                <input type="text" class="form-control" id="cidade" name="cidade" autocomplete="address-level2" maxlength="45" value="<?= $valorAnterior('cidade'); ?>" required>
                             </div>
 
                             <div class="col-md-4">
                                 <label for="estado" class="form-label">Estado (UF): <span class="text-danger">*</span></label>
                                 <select class="form-select" id="estado" name="estado" autocomplete="off" required>
-                                    <option value="" selected>Selecione...</option>
-                                    <option value="AC">AC</option><option value="AL">AL</option>
-                                    <option value="AP">AP</option><option value="AM">AM</option>
-                                    <option value="BA">BA</option><option value="CE">CE</option>
-                                    <option value="DF">DF</option><option value="ES">ES</option>
-                                    <option value="GO">GO</option><option value="MA">MA</option>
-                                    <option value="MT">MT</option><option value="MS">MS</option>
-                                    <option value="MG">MG</option><option value="PA">PA</option>
-                                    <option value="PB">PB</option><option value="PR">PR</option>
-                                    <option value="PE">PE</option><option value="PI">PI</option>
-                                    <option value="RJ">RJ</option><option value="RN">RN</option>
-                                    <option value="RS">RS</option><option value="RO">RO</option>
-                                    <option value="RR">RR</option><option value="SC">SC</option>
-                                    <option value="SP">SP</option><option value="SE">SE</option>
-                                    <option value="TO">TO</option>
+                                    <option value="" <?= $valorAnterior('estado') === '' ? 'selected' : ''; ?>>Selecione...</option>
+                                    <option value="AC" <?= $valorAnterior('estado') === 'AC' ? 'selected' : ''; ?>>AC</option><option value="AL" <?= $valorAnterior('estado') === 'AL' ? 'selected' : ''; ?>>AL</option>
+                                    <option value="AP" <?= $valorAnterior('estado') === 'AP' ? 'selected' : ''; ?>>AP</option><option value="AM" <?= $valorAnterior('estado') === 'AM' ? 'selected' : ''; ?>>AM</option>
+                                    <option value="BA" <?= $valorAnterior('estado') === 'BA' ? 'selected' : ''; ?>>BA</option><option value="CE" <?= $valorAnterior('estado') === 'CE' ? 'selected' : ''; ?>>CE</option>
+                                    <option value="DF" <?= $valorAnterior('estado') === 'DF' ? 'selected' : ''; ?>>DF</option><option value="ES" <?= $valorAnterior('estado') === 'ES' ? 'selected' : ''; ?>>ES</option>
+                                    <option value="GO" <?= $valorAnterior('estado') === 'GO' ? 'selected' : ''; ?>>GO</option><option value="MA" <?= $valorAnterior('estado') === 'MA' ? 'selected' : ''; ?>>MA</option>
+                                    <option value="MT" <?= $valorAnterior('estado') === 'MT' ? 'selected' : ''; ?>>MT</option><option value="MS" <?= $valorAnterior('estado') === 'MS' ? 'selected' : ''; ?>>MS</option>
+                                    <option value="MG" <?= $valorAnterior('estado') === 'MG' ? 'selected' : ''; ?>>MG</option><option value="PA" <?= $valorAnterior('estado') === 'PA' ? 'selected' : ''; ?>>PA</option>
+                                    <option value="PB" <?= $valorAnterior('estado') === 'PB' ? 'selected' : ''; ?>>PB</option><option value="PR" <?= $valorAnterior('estado') === 'PR' ? 'selected' : ''; ?>>PR</option>
+                                    <option value="PE" <?= $valorAnterior('estado') === 'PE' ? 'selected' : ''; ?>>PE</option><option value="PI" <?= $valorAnterior('estado') === 'PI' ? 'selected' : ''; ?>>PI</option>
+                                    <option value="RJ" <?= $valorAnterior('estado') === 'RJ' ? 'selected' : ''; ?>>RJ</option><option value="RN" <?= $valorAnterior('estado') === 'RN' ? 'selected' : ''; ?>>RN</option>
+                                    <option value="RS" <?= $valorAnterior('estado') === 'RS' ? 'selected' : ''; ?>>RS</option><option value="RO" <?= $valorAnterior('estado') === 'RO' ? 'selected' : ''; ?>>RO</option>
+                                    <option value="RR" <?= $valorAnterior('estado') === 'RR' ? 'selected' : ''; ?>>RR</option><option value="SC" <?= $valorAnterior('estado') === 'SC' ? 'selected' : ''; ?>>SC</option>
+                                    <option value="SP" <?= $valorAnterior('estado') === 'SP' ? 'selected' : ''; ?>>SP</option><option value="SE" <?= $valorAnterior('estado') === 'SE' ? 'selected' : ''; ?>>SE</option>
+                                    <option value="TO" <?= $valorAnterior('estado') === 'TO' ? 'selected' : ''; ?>>TO</option>
                                 </select>
                             </div>
 
@@ -183,21 +202,22 @@ $modalidades =$modalidadeDAO->listarPorAcademia($idAcademia);$opcoesPlano = [
                             <div class="row g-3">
                                 <div class="col-md-6">
                                     <label for="data_matricula" class="form-label">Data da Matrícula:</label>
-                                    <input type="date" class="form-control" id="data_matricula" name="data_matricula" value="<?= date('Y-m-d'); ?>">
+                                    <input type="date" class="form-control" id="data_matricula" name="data_matricula" value="<?= $valorAnterior('data_matricula', date('Y-m-d')); ?>">
                                 </div>
 
                                 <div class="col-md-6">
                                     <label for="responsavel" class="form-label">Responsável Legal (Caso menor):</label>
-                                    <input type="text" class="form-control" id="responsavel" name="responsavel" placeholder="Nome do pai ou responsável">
+                                    <input type="text" class="form-control" id="responsavel" name="responsavel" placeholder="Nome do pai ou responsável" value="<?= $valorAnterior('responsavel'); ?>">
                                 </div>
 
                                 <div class="col-12">
                                     <label for="observacao" class="form-label">Observações Médicas / Alergias:</label>
-                                    <textarea class="form-control" id="observacao" name="observacao" rows="2" placeholder="Ex: Alérgico a dipirona, lesão antiga no joelho..."></textarea>
+                                    <textarea class="form-control" id="observacao" name="observacao" rows="2" placeholder="Ex: Alérgico a dipirona, lesão antiga no joelho..."><?= $valorAnterior('observacao'); ?></textarea>
                                 </div>
 
                                 <!-- Modalidades Inline com Bootstrap Grid -->
                                 <?php for ($numeroModalidade = 1; $numeroModalidade <= 3; $numeroModalidade++): ?>
+                                    <?php $indiceModalidade = $numeroModalidade - 1; ?>
                                     <div class="col-md-4">
                                         <label for="id_modalidade_<?= $numeroModalidade; ?>" class="form-label">
                                             Modalidade <?= $numeroModalidade; ?><?=$numeroModalidade === 1 ? ' <span class="text-danger">*</span>' : ' (opcional)'; ?>
@@ -205,7 +225,7 @@ $modalidades =$modalidadeDAO->listarPorAcademia($idAcademia);$opcoesPlano = [
                                         <select class="form-select" id="id_modalidade_<?= $numeroModalidade; ?>" name="id_modalidades[]" <?= $numeroModalidade === 1 ? 'required' : ''; ?>>
                                             <option value="">Selecione...</option>
                                             <?php foreach ($modalidades as$modalidade): ?>
-                                                <option value="<?= (int)$modalidade['id_modalidade']; ?>">
+                                                <option value="<?= (int)$modalidade['id_modalidade']; ?>" <?= (string)($modalidadesAnteriores[$indiceModalidade] ?? '') === (string)$modalidade['id_modalidade'] ? 'selected' : ''; ?>>
                                                     <?= htmlspecialchars($modalidade['nome'], ENT_QUOTES, 'UTF-8'); ?>
                                                 </option>
                                             <?php endforeach; ?>
@@ -228,7 +248,7 @@ $modalidades =$modalidadeDAO->listarPorAcademia($idAcademia);$opcoesPlano = [
                                                         <?php foreach ($opcoesPlano as $grupoPlano =>$opcoes): ?>
                                                             <optgroup label="Planos <?= htmlspecialchars($grupoPlano, ENT_QUOTES, 'UTF-8'); ?>">
                                                                 <?php foreach ($opcoes as $valorPlanoOpcao =>$rotuloPlano): ?>
-                                                                    <option value="<?= htmlspecialchars($valorPlanoOpcao, ENT_QUOTES, 'UTF-8'); ?>">
+                                                                    <option value="<?= htmlspecialchars($valorPlanoOpcao, ENT_QUOTES, 'UTF-8'); ?>" <?= ($planosAnteriores[$indiceModalidade]['nome_plano'] ?? '') === $valorPlanoOpcao ? 'selected' : ''; ?>>
                                                                         <?= htmlspecialchars($rotuloPlano, ENT_QUOTES, 'UTF-8'); ?>
                                                                     </option>
                                                                 <?php endforeach; ?>
@@ -238,7 +258,7 @@ $modalidades =$modalidadeDAO->listarPorAcademia($idAcademia);$opcoesPlano = [
                                                 </div>
                                                 <div class="col-md-4">
                                                     <label for="valor_plano_<?= $numeroModalidade; ?>" class="form-label">Valor (R$):</label>
-                                                    <input type="number" class="form-control" step="0.01" min="0" id="valor_plano_<?= $numeroModalidade; ?>" name="planos[<?= $indiceModalidade; ?>][valor]" placeholder="Ex: 150.00" disabled>
+                                                    <input type="number" class="form-control" step="0.01" min="0" id="valor_plano_<?= $numeroModalidade; ?>" name="planos[<?= $indiceModalidade; ?>][valor]" placeholder="Ex: 150.00" value="<?= htmlspecialchars((string)($planosAnteriores[$indiceModalidade]['valor'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>" disabled>
                                                 </div>
                                             </div>
                                         </div>
