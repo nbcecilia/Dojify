@@ -129,7 +129,7 @@ try {
                 <small class="gerente-kpi-note">Total de alunos matriculados</small>
             </article>
 
-            <article class="gerente-kpi">
+            <!-- <article class="gerente-kpi">
                 <div class="gerente-kpi-top">
                     <span class="gerente-kpi-label">Avaliações Pendentes</span>
                     <span class="gerente-kpi-icon">
@@ -138,7 +138,7 @@ try {
                 </div>
                 <strong class="gerente-kpi-value"><?= $totalAvaliacoes ?></strong>
                 <small class="gerente-kpi-note">Registos a atualizar este mês</small>
-            </article>
+            </article> -->
 
             <article class="gerente-kpi">
                 <div class="gerente-kpi-top">
