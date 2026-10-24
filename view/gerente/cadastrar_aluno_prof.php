@@ -38,11 +38,6 @@ $modalidades =$modalidadeDAO->listarPorAcademia($idAcademia);$opcoesPlano = [
         'Anual 3x/semana' => 'Anual (3x/semana)',
         'Anual Ilimitado' => 'Anual (Ilimitado)',
     ],
-    'All Inclusive' => [
-        'All Inclusive 2x/semana' => 'All Inclusive (2x/semana)',
-        'All Inclusive 4x/semana' => 'All Inclusive (4x/semana)',
-        'All Inclusive Ilimitado' => 'All Inclusive (Ilimitado)',
-    ],
 ];
 ?>
 <!DOCTYPE html>
