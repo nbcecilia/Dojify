@@ -87,7 +87,7 @@ session_start();
                         <img src="assets/img/card3.png" alt="Graduações e Prazos" class="card-img">
                     </div>
                     <h4>Graduações e Prazos</h4>
-                    <p>Acompanhe exames, requisitos e histórico de graduação sem planilhas complexas.</p>
+                    <p>Acompanhe a evolução e histórico de graduação sem planilhas complexas.</p>
                 </div>
 
                 <!-- Card 3: Interface -->
@@ -105,7 +105,7 @@ session_start();
         <!-- Seção Sobre -->
         <section id="sobre" class="section-block">
             <h3>Sobre o Dojify</h3>
-            <p>O Dojify nasceu com uma missão clara: retirar a burocracia do caminho de professores e gestores de artes marciais. Sabemos que o tempo mais valioso de um sensei ou gerente é o dedicado ao tatame e ao desenvolvimento dos alunos, por isso criamos um ambiente digital limpo, intuitivo e extremamente direto ao ponto.</p>
+            <p>O Dojify nasceu com uma missão clara: retirar a burocracia do caminho de professores e gestores de academias de artes marciais. Sabemos que o tempo mais valioso de um sensei ou gerente é o dedicado ao tatame e ao desenvolvimento dos alunos, por isso criamos um ambiente digital limpo, intuitivo e extremamente direto ao ponto.</p>
         </section>
 
         <!-- Seção Contato -->
