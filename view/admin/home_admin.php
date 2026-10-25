@@ -69,7 +69,7 @@ if (empty($mesesLabels)) {
 
     <!-- CSS das dashboards e suporte -->
     <link rel="stylesheet" href="../../assets/css/gerente.css">
-    <link rel="stylesheet" href="../../assets/css/suporte.css?v=4">
+    <link rel="stylesheet" href="../../assets/css/suporte.css?v=5">
 
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -167,7 +167,7 @@ if (empty($mesesLabels)) {
         </section>
 
         <!-- GESTÃO DO SISTEMA -->
-        <section class="gerente-section-box gerente-home-gestao">
+        <section class="gerente-section-box gerente-home-gestao admin-home-gestao">
             <div class="gerente-section-header">
                 <div>
                     <h3 class="gerente-section-title">Gestão do sistema</h3>

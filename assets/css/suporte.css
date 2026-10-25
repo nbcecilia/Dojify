@@ -2,13 +2,19 @@
    DOJIFY - DASHBOARD EXCLUSIVA DO SUPORTE (ADMIN)
    ========================================================== */
 
-/* Mantém o padrão de layout idêntico ao do gerente */
-.gerente-home-gestao .gerente-grid {
+/* Mantém os cards do Admin no mesmo padrão do controle pedagógico */
+.admin-home-gestao .gerente-grid {
+    display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 12px;
 }
+
+.admin-home-gestao .gerente-card {
+    min-width: 0;
+    max-width: none;
+}
 /* Botões proporcionais e confortáveis nos cards do Admin */
-.gerente-home-gestao .gerente-card .gerente-card-action > .gerente-btn {
+.admin-home-gestao .gerente-card .gerente-card-action > .gerente-btn {
     width: 85%;
     padding: 7px 12px;
 }
@@ -32,8 +38,8 @@
     margin-top: 10px;
 }
 
-@media (max-width: 900px) {
-    .gerente-home-gestao .gerente-grid {
+@media (max-width: 768px) {
+    .admin-home-gestao .gerente-grid {
         grid-template-columns: 1fr;
     }
 }
