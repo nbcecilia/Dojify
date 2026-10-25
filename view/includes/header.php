@@ -328,6 +328,16 @@ $total_notif_header = count($notificacoes_aluno);
                             Alterar senha
                         </button>
                     <?php endif; ?>
+                    <?php if ($perfilUsuario === 2): ?>
+                        <button type="button"
+                                class="profile-avatar-profile-link border-0 w-100 text-start"
+                                data-bs-toggle="modal"
+                                data-bs-target="#modalContatoDojify"
+                                data-contact-modal-trigger>
+                            <i class="bi bi-question-circle" aria-hidden="true"></i>
+                            Dúvidas?
+                        </button>
+                    <?php endif; ?>
                     <?php if ($avatarFeedback !== null): ?>
                         <p class="profile-avatar-feedback" role="status">
                             <?= $avatarFeedback === 'sucesso'
@@ -415,6 +425,39 @@ $total_notif_header = count($notificacoes_aluno);
 </div>
 <?php endif; ?>
 
+<?php if (isset($_SESSION['usuario']) && $perfilUsuario === 2): ?>
+<div class="modal fade" id="modalContatoDojify" tabindex="-1" aria-labelledby="modalContatoDojifyLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content shadow border-0">
+            <div class="modal-header bg-dark text-white">
+                <h2 class="modal-title fs-5 fw-bold" id="modalContatoDojifyLabel">Dúvidas? Fale com o Dojify</h2>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar"></button>
+            </div>
+            <div class="modal-body">
+                <p class="text-muted mb-3">Nossa equipe está pronta para ajudar com implantação, parcerias e suporte técnico.</p>
+                <a class="dojify-contact-option" href="mailto:suporte@dojify.com">
+                    <i class="bi bi-envelope" aria-hidden="true"></i>
+                    <span>
+                        <strong>E-mail</strong>
+                        <small>suporte@dojify.com</small>
+                    </span>
+                </a>
+                <a class="dojify-contact-option" href="tel:+5561999999999">
+                    <i class="bi bi-telephone" aria-hidden="true"></i>
+                    <span>
+                        <strong>Telefone</strong>
+                        <small>(61) 99999-9999</small>
+                    </span>
+                </a>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<?php endif; ?>
+
 <!-- SCRIPT PARA ABRIR/FECHAR O DROPDOWN -->
 
 <script>
@@ -423,6 +466,18 @@ $total_notif_header = count($notificacoes_aluno);
         if (modalAlterarSenha) {
             document.body.appendChild(modalAlterarSenha);
         }
+        const modalContatoDojify = document.getElementById('modalContatoDojify');
+        if (modalContatoDojify) {
+            document.body.appendChild(modalContatoDojify);
+        }
+        document.querySelectorAll('[data-contact-modal-trigger]').forEach((trigger) => {
+            trigger.addEventListener('click', () => {
+                const profileMenu = trigger.closest('[data-profile-avatar]');
+                if (profileMenu) {
+                    profileMenu.open = false;
+                }
+            });
+        });
     })();
 </script>
 <script src="../../assets/js/main.js?v=<?= filemtime(__DIR__ . '/../../assets/js/main.js'); ?>"></script>

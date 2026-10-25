@@ -270,6 +270,42 @@ a:hover {
     color: #171717;
 }
 
+.dojify-contact-option {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px;
+    border: 1px solid #dedede;
+    border-radius: 8px;
+    color: #171717;
+    text-decoration: none;
+}
+
+.dojify-contact-option + .dojify-contact-option {
+    margin-top: 10px;
+}
+
+.dojify-contact-option > i {
+    color: #525252;
+    font-size: 1.25rem;
+}
+
+.dojify-contact-option span {
+    display: grid;
+    gap: 2px;
+}
+
+.dojify-contact-option small {
+    color: #737373;
+}
+
+.dojify-contact-option:hover,
+.dojify-contact-option:focus-visible {
+    border-color: #a3a3a3;
+    background: #fafafa;
+    color: #171717;
+}
+
 .profile-avatar-feedback {
     margin: 0 0 10px;
     color: #525252;
