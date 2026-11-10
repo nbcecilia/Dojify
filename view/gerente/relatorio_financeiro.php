@@ -83,11 +83,11 @@ if (isset($_GET['filtrar'])) {
                 <div class="row g-3 align-items-end">
                     <div class="col-md-3">
                         <label for="data_inicio" class="form-label fw-medium">Data Início</label>
-                        <input type="date" name="data_inicio" id="data_inicio" class="form-control" value="<?= htmlspecialchars($dataInicio) ?>" required>
+                        <input type="date" name="data_inicio" id="data_inicio" class="form-control" value="<?= htmlspecialchars($dataInicio) ?>" max="9999-12-31" required>
                     </div>
                     <div class="col-md-3">
                         <label for="data_fim" class="form-label fw-medium">Data Fim</label>
-                        <input type="date" name="data_fim" id="data_fim" class="form-control" value="<?= htmlspecialchars($dataFim) ?>" required>
+                        <input type="date" name="data_fim" id="data_fim" class="form-control" value="<?= htmlspecialchars($dataFim) ?>" max="9999-12-31" required>
                     </div>
                     <div class="col-md-4">
                         <label for="status" class="form-label fw-medium">Estado</label>

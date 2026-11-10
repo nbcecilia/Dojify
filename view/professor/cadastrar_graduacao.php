@@ -92,7 +92,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     <div class="col-md-4">
                         <label for="data_graduacao" class="form-label">Data da Graduação <span class="text-danger">*</span></label>
-                        <input type="date" class="form-control" id="data_graduacao" name="data_graduacao" value="<?= date('Y-m-d') ?>" required>
+                        <input type="date" class="form-control" id="data_graduacao" name="data_graduacao" value="<?= date('Y-m-d') ?>" max="9999-12-31" required>
                     </div>
 
                     <div class="col-md-6">

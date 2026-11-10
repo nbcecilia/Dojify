@@ -108,12 +108,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     <div class="col-md-4">
                         <label for="data_avaliacao" class="form-label">Data da Avaliação <span class="text-danger">*</span></label>
-                        <input type="date" class="form-control" id="data_avaliacao" name="data_avaliacao" value="<?= date('Y-m-d') ?>" required>
+                        <input type="date" class="form-control" id="data_avaliacao" name="data_avaliacao" value="<?= date('Y-m-d') ?>" max="9999-12-31" required>
                     </div>
 
                     <div class="col-md-4">
                         <label for="data_prevista" class="form-label">Previsão da próxima graduação</label>
-                        <input type="date" class="form-control" id="data_prevista" name="data_prevista" min="<?= date('Y-m-d', strtotime('+1 day')) ?>">
+                        <input type="date" class="form-control" id="data_prevista" name="data_prevista" min="<?= date('Y-m-d', strtotime('+1 day')) ?>" max="9999-12-31">
                     </div>
 
                     <div class="col-12">

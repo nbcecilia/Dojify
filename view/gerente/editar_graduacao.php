@@ -78,7 +78,7 @@ $valorCampo = static function (string $nome, $valorAtual): string {
                 <div class="row g-3">
                     <div class="col-md-6">
                         <label for="data_graduacao" class="form-label">Data da graduação <span class="text-danger">*</span></label>
-                        <input type="date" class="form-control" id="data_graduacao" name="data_graduacao" value="<?= $valorCampo('data_graduacao', $graduacao['data_graduacao']) ?>" required>
+                        <input type="date" class="form-control" id="data_graduacao" name="data_graduacao" value="<?= $valorCampo('data_graduacao', $graduacao['data_graduacao']) ?>" max="9999-12-31" required>
                     </div>
                     <div class="col-md-6">
                         <label for="faixa" class="form-label">Faixa <span class="text-danger">*</span></label>

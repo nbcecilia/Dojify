@@ -165,7 +165,7 @@ foreach ($pagamentosBrutos as $pag) {
                                                 </select>
 
                                                 <!-- Calendário para marcar a data do recebimento -->
-                                                <input type="date" name="data_pagamento" class="form-control form-control-sm" style="width: 135px;" value="<?= date('Y-m-d') ?>" required title="Data do Recebimento">
+                                                <input type="date" name="data_pagamento" class="form-control form-control-sm" style="width: 135px;" value="<?= date('Y-m-d') ?>" max="9999-12-31" required title="Data do Recebimento">
                                                 
                                                 <!-- Botão Receber -->
                                                 <button type="submit" class="btn btn-sm btn-success text-nowrap px-2 py-1" onclick="return confirm('Confirmar o recebimento deste pagamento?');">

@@ -154,7 +154,7 @@ foreach ($planos as $plano) {
                                         <td class="text-center">
                                             <div class="plano-actions d-flex justify-content-center gap-2">
                                                 <!-- Botão Editar aciona o Modal de Edição preenchendo os dados automaticamente -->
-                                                <button type="button" class="btn btn-info btn-sm" 
+                                                <button type="button" class="btn btn-info btn-sm"
                                                     data-bs-toggle="modal" 
                                                     data-bs-target="#modalEditarPlano"
                                                     data-id="<?= $plano['id_plano'] ?>"
@@ -264,12 +264,12 @@ foreach ($planos as $plano) {
 
                             <div class="col-md-4">
                                 <label for="data_inicio" class="form-label">Data de Início: <span class="text-danger">*</span></label>
-                                <input type="date" class="form-control" id="data_inicio" name="data_inicio" value="<?= date('Y-m-d') ?>" required>
+                                <input type="date" class="form-control" id="data_inicio" name="data_inicio" value="<?= date('Y-m-d') ?>" max="9999-12-31" required>
                             </div>
 
                             <div class="col-md-4">
                                 <label for="data_fim" class="form-label">Data de Término (Opcional):</label>
-                                <input type="date" class="form-control" id="data_fim" name="data_fim">
+                                <input type="date" class="form-control" id="data_fim" name="data_fim" max="9999-12-31">
                             </div>
 
                             <div class="col-md-4">
@@ -365,12 +365,12 @@ foreach ($planos as $plano) {
 
                             <div class="col-md-4">
                                 <label for="edit_data_inicio" class="form-label">Data de Início: <span class="text-danger">*</span></label>
-                                <input type="date" class="form-control" id="edit_data_inicio" name="data_inicio" required>
+                                <input type="date" class="form-control" id="edit_data_inicio" name="data_inicio" max="9999-12-31" required>
                             </div>
 
                             <div class="col-md-4">
                                 <label for="edit_data_fim" class="form-label">Data de Término (Opcional):</label>
-                                <input type="date" class="form-control" id="edit_data_fim" name="data_fim">
+                                <input type="date" class="form-control" id="edit_data_fim" name="data_fim" max="9999-12-31">
                             </div>
 
                             <div class="col-md-4">

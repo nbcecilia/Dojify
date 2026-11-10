@@ -252,7 +252,7 @@ if (isset($_GET['sucesso'])) {
                             </div>
                             <div class="col-md-4">
                                 <label for="nova_graduacao_data" class="form-label">Data da Graduação <span class="text-danger">*</span></label>
-                                <input type="date" class="form-control" id="nova_graduacao_data" name="data_graduacao" value="<?= date('Y-m-d') ?>" required>
+                                <input type="date" class="form-control" id="nova_graduacao_data" name="data_graduacao" value="<?= date('Y-m-d') ?>" max="9999-12-31" required>
                             </div>
                             <div class="col-md-6">
                                 <label for="nova_graduacao_faixa" class="form-label">Faixa <span class="text-danger">*</span></label>
@@ -291,7 +291,7 @@ if (isset($_GET['sucesso'])) {
                             <div class="row g-3">
                                 <div class="col-md-6">
                                     <label for="editar_graduacao_data" class="form-label">Data da Graduação <span class="text-danger">*</span></label>
-                                    <input type="date" class="form-control" id="editar_graduacao_data" name="data_graduacao" required>
+                                    <input type="date" class="form-control" id="editar_graduacao_data" name="data_graduacao" max="9999-12-31" required>
                                 </div>
                                 <div class="col-md-6">
                                     <label for="editar_graduacao_faixa" class="form-label">Faixa <span class="text-danger">*</span></label>

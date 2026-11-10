@@ -112,11 +112,11 @@ $idModalidadeSelecionada = $_SERVER['REQUEST_METHOD'] === 'POST'
                     </div>
                     <div class="col-md-4">
                         <label for="data_avaliacao" class="form-label">Data da avaliação <span class="text-danger">*</span></label>
-                        <input type="date" class="form-control" id="data_avaliacao" name="data_avaliacao" value="<?= $valorCampo('data_avaliacao', $avaliacao->getDataAvaliacao()) ?>" required>
+                        <input type="date" class="form-control" id="data_avaliacao" name="data_avaliacao" value="<?= $valorCampo('data_avaliacao', $avaliacao->getDataAvaliacao()) ?>" max="9999-12-31" required>
                     </div>
                     <div class="col-md-6">
                         <label for="data_prevista" class="form-label">Previsão da próxima graduação</label>
-                        <input type="date" class="form-control" id="data_prevista" name="data_prevista" value="<?= $valorCampo('data_prevista', $avaliacao->getDataPrevista() ?? '') ?>">
+                        <input type="date" class="form-control" id="data_prevista" name="data_prevista" value="<?= $valorCampo('data_prevista', $avaliacao->getDataPrevista() ?? '') ?>" max="9999-12-31">
                     </div>
                     <div class="col-12">
                         <label for="habilidades_melhorar" class="form-label">Habilidades a melhorar <span class="text-danger">*</span></label>

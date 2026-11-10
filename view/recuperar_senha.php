@@ -33,6 +33,7 @@ $mostrarModal = $recuperacaoAtiva && !$sucesso;
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Recuperar senha - Dojify</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="../assets/css/estilo.css">
 </head>
 <body>
@@ -73,13 +74,13 @@ $mostrarModal = $recuperacaoAtiva && !$sucesso;
                         <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['recuperacao_csrf_token'], ENT_QUOTES, 'UTF-8'); ?>">
 
                         <div class="mb-3">
-                            <label for="cpf" class="form-label">CPF (somente números)</label>
-                            <input type="text" class="form-control" id="cpf" name="cpf" inputmode="numeric" pattern="[0-9]{11}" maxlength="11" autocomplete="off" required>
+                            <label for="cpf" class="form-label">CPF</label>
+                            <input type="text" class="form-control" id="cpf" name="cpf" inputmode="numeric" placeholder="000.000.000-00" maxlength="14" autocomplete="off" required>
                         </div>
 
                         <div class="mb-4">
                             <label for="data_nascimento" class="form-label">Data de nascimento</label>
-                            <input type="date" class="form-control" id="data_nascimento" name="data_nascimento" required>
+                            <input type="date" class="form-control" id="data_nascimento" name="data_nascimento" max="9999-12-31" required>
                         </div>
 
                         <button type="submit" class="btn btn-dark w-100">Verificar dados</button>
@@ -90,6 +91,7 @@ $mostrarModal = $recuperacaoAtiva && !$sucesso;
     </main>
 
     <?php include __DIR__ . '/includes/footer.php'; ?>
+    <script src="../assets/js/cpf.js?v=<?= filemtime(__DIR__ . '/../assets/js/cpf.js'); ?>"></script>
 
     <?php if ($mostrarModal): ?>
         <div class="modal fade" id="novaSenhaModal" tabindex="-1" aria-labelledby="novaSenhaModalLabel" aria-hidden="true">

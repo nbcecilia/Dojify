@@ -127,7 +127,7 @@ $opcoesPlano = [
 
                     <div class="col-md-4">
                         <label for="data_nascimento" class="form-label">Data de Nascimento (Não editável):</label>
-                        <input type="date" class="form-control" id="data_nascimento" value="<?php echo htmlspecialchars($aluno['data_nascimento']); ?>" disabled>
+                        <input type="date" class="form-control" id="data_nascimento" value="<?php echo htmlspecialchars($aluno['data_nascimento']); ?>" max="9999-12-31" disabled>
                     </div>
 
                     <div class="col-md-4">

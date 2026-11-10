@@ -260,11 +260,11 @@ if (isset($_GET['sucesso'])) {
                             </div>
                             <div class="col-md-4">
                                 <label for="nova_avaliacao_data" class="form-label">Data da Avaliação <span class="text-danger">*</span></label>
-                                <input type="date" class="form-control" id="nova_avaliacao_data" name="data_avaliacao" value="<?= date('Y-m-d') ?>" required>
+                                <input type="date" class="form-control" id="nova_avaliacao_data" name="data_avaliacao" value="<?= date('Y-m-d') ?>" max="9999-12-31" required>
                             </div>
                             <div class="col-md-6">
                                 <label for="nova_avaliacao_data_prevista" class="form-label">Previsão da próxima graduação</label>
-                                <input type="date" class="form-control" id="nova_avaliacao_data_prevista" name="data_prevista" min="<?= date('Y-m-d', strtotime('+1 day')) ?>">
+                                <input type="date" class="form-control" id="nova_avaliacao_data_prevista" name="data_prevista" min="<?= date('Y-m-d', strtotime('+1 day')) ?>" max="9999-12-31">
                             </div>
                             <div class="col-12">
                                 <label for="nova_avaliacao_habilidades" class="form-label">Habilidades a Melhorar <span class="text-danger">*</span></label>
@@ -314,11 +314,11 @@ if (isset($_GET['sucesso'])) {
                                 </div>
                                 <div class="col-md-4">
                                     <label for="editar_avaliacao_data" class="form-label">Data da Avaliação <span class="text-danger">*</span></label>
-                                    <input type="date" class="form-control" id="editar_avaliacao_data" name="data_avaliacao" required>
+                                    <input type="date" class="form-control" id="editar_avaliacao_data" name="data_avaliacao" max="9999-12-31" required>
                                 </div>
                                 <div class="col-md-6">
                                     <label for="editar_avaliacao_data_prevista" class="form-label">Previsão da próxima graduação</label>
-                                    <input type="date" class="form-control" id="editar_avaliacao_data_prevista" name="data_prevista">
+                                    <input type="date" class="form-control" id="editar_avaliacao_data_prevista" name="data_prevista" max="9999-12-31">
                                 </div>
                                 <div class="col-12">
                                     <label for="editar_avaliacao_habilidades" class="form-label">Habilidades a Melhorar <span class="text-danger">*</span></label>

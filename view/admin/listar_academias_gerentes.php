@@ -42,6 +42,70 @@ foreach ($lista as $linha) {
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <!-- Estilo Global Dojify -->
     <link rel="stylesheet" href="../../assets/css/estilo.css">
+    <style>
+        .btn.action-icon-btn {
+            width: 2.2rem;
+            height: 2.2rem;
+            padding: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            opacity: 1;
+            background: transparent !important;
+            border: 0 !important;
+            box-shadow: none !important;
+            transition: background-color 0.2s ease-in-out;
+        }
+
+        .btn.action-edit {
+            color: #0d6efd !important;
+        }
+
+        .btn.action-disable {
+            color: #dc3545 !important;
+        }
+
+        .btn.action-reactivate {
+            color: #198754 !important;
+        }
+
+        .btn.action-edit:hover {
+            background-color: rgba(13, 110, 253, 0.15) !important;
+        }
+
+        .btn.action-disable:hover {
+            background-color: rgba(220, 53, 69, 0.15) !important;
+        }
+
+        .btn.action-reactivate:hover {
+            background-color: rgba(25, 135, 84, 0.15) !important;
+        }
+
+        .btn.action-create-academy,
+        .btn.action-create-manager {
+            background: transparent !important;
+            border: 0 !important;
+            box-shadow: none !important;
+            transition: background-color 0.2s ease-in-out;
+        }
+
+        .btn.action-create-academy {
+            color: #198754 !important;
+        }
+
+        .btn.action-create-manager {
+            color: #0d6efd !important;
+        }
+
+        .btn.action-create-academy:hover {
+            background-color: rgba(25, 135, 84, 0.15) !important;
+        }
+
+        .btn.action-create-manager:hover {
+            background-color: rgba(13, 110, 253, 0.15) !important;
+        }
+    </style>
 </head>
 <body>
     <header class="navbar">
@@ -91,10 +155,10 @@ foreach ($lista as $linha) {
     <main class="container my-4">
         <header class="d-flex justify-content-between align-items-center mb-4">
             <div>
-                <a href="cadastrar_academia.php" class="btn btn-success btn-sm">
+                <a href="cadastrar_academia.php" class="btn btn-success btn-sm action-create-academy">
                     <i class="bi bi-building-add me-1"></i> Cadastrar Academia
                 </a>
-                <a href="cadastrar_gerente.php" class="btn btn-info btn-sm text-white">
+                <a href="cadastrar_gerente.php" class="btn btn-info btn-sm text-white action-create-manager">
                     <i class="bi bi-person-plus me-1"></i> Cadastrar Gerente
                 </a>
             </div>
@@ -211,23 +275,45 @@ foreach ($lista as $linha) {
                                     </td>
                                     <td class="text-center">
                                         <div class="d-flex flex-nowrap gap-1 justify-content-center align-items-center">
-                                            <a href="editar_academia.php?id=<?= $linha['id_academia'] ?>" class="btn btn-sm btn-warning text-nowrap">Editar Academia</a>
+                                            <a href="editar_academia.php?id=<?= $linha['id_academia'] ?>"
+                                               class="btn btn-sm action-icon-btn action-edit"
+                                               title="Editar academia"
+                                               aria-label="Editar academia">
+                                                <i class="bi bi-pencil-square"></i>
+                                            </a>
                                             
-                                            <a href="../../controller/AcademiaController.php?acao=desativar&id=<?= $linha['id_academia'] ?>" 
-                                               class="btn btn-sm btn-danger text-nowrap" 
-                                               onclick="return confirm('Tem certeza que deseja desativar esta academia?')">Desativar Academia</a>
+                                            <a href="../../controller/AcademiaController.php?acao=desativar&id=<?= $linha['id_academia'] ?>"
+                                               class="btn btn-sm action-icon-btn action-disable"
+                                               title="Desativar academia"
+                                               aria-label="Desativar academia"
+                                               onclick="return confirm('Tem certeza que deseja desativar esta academia?')">
+                                                <i class="bi bi-slash-circle"></i>
+                                            </a>
 
                                             <?php if (!empty($linha['id_gerente'])): ?>
-                                                <a href="editar_gerente.php?id=<?= $linha['id_gerente'] ?>" class="btn btn-sm btn-info text-white text-nowrap">Editar Gerente</a>
-                                                
+                                                <a href="editar_gerente.php?id=<?= $linha['id_gerente'] ?>"
+                                                   class="btn btn-sm action-icon-btn action-edit"
+                                                   title="Editar gerente"
+                                                   aria-label="Editar gerente">
+                                                    <i class="bi bi-pencil-square"></i>
+                                                </a>
+
                                                 <?php if (isset($linha['gerente_status']) && strtoupper($linha['gerente_status']) === 'INATIVO'): ?>
-                                                    <a href="../../controller/UsuarioController.php?acao=reativar&id=<?= $linha['id_gerente'] ?>" 
-                                                       class="btn btn-sm btn-success text-nowrap" 
-                                                       onclick="return confirm('Tem certeza que deseja reativar este gerente?')">Reativar Gerente</a>
+                                                    <a href="../../controller/UsuarioController.php?acao=reativar&id=<?= $linha['id_gerente'] ?>"
+                                                       class="btn btn-sm action-icon-btn action-reactivate"
+                                                       title="Reativar gerente"
+                                                       aria-label="Reativar gerente"
+                                                       onclick="return confirm('Tem certeza que deseja reativar este gerente?')">
+                                                        <i class="bi bi-person-check"></i>
+                                                    </a>
                                                 <?php else: ?>
-                                                    <a href="../../controller/UsuarioController.php?acao=desativar&id=<?= $linha['id_gerente'] ?>" 
-                                                       class="btn btn-sm btn-danger text-nowrap" 
-                                                       onclick="return confirm('Tem certeza que deseja desativar este gerente?')">Desativar Gerente</a>
+                                                    <a href="../../controller/UsuarioController.php?acao=desativar&id=<?= $linha['id_gerente'] ?>"
+                                                       class="btn btn-sm action-icon-btn action-disable"
+                                                       title="Desativar gerente"
+                                                       aria-label="Desativar gerente"
+                                                       onclick="return confirm('Tem certeza que deseja desativar este gerente?')">
+                                                        <i class="bi bi-person-x"></i>
+                                                    </a>
                                                 <?php endif; ?>
                                             <?php endif; ?>
                                         </div>
@@ -285,9 +371,13 @@ foreach ($lista as $linha) {
                                     </td>
                                     <td class="text-center">
                                         <div class="d-flex flex-nowrap gap-1 justify-content-center align-items-center">
-                                            <a href="../../controller/AcademiaController.php?acao=reativar&id=<?= $linha['id_academia'] ?>" 
-                                               class="btn btn-sm btn-success text-nowrap" 
-                                               onclick="return confirm('Tem certeza que deseja reativar esta academia?')">Reativar Academia</a>
+                                            <a href="../../controller/AcademiaController.php?acao=reativar&id=<?= $linha['id_academia'] ?>"
+                                               class="btn btn-sm action-icon-btn action-reactivate"
+                                               title="Reativar academia"
+                                               aria-label="Reativar academia"
+                                               onclick="return confirm('Tem certeza que deseja reativar esta academia?')">
+                                                <i class="bi bi-arrow-repeat"></i>
+                                            </a>
                                         </div>
                                     </td>
                                 </tr>
@@ -330,9 +420,13 @@ foreach ($lista as $linha) {
                                     </td>
                                     <td class="text-center">
                                         <div class="d-flex flex-nowrap gap-1 justify-content-center align-items-center">
-                                            <a href="../../controller/UsuarioController.php?acao=reativar&id=<?= $gi['id_usuario'] ?>" 
-                                               class="btn btn-sm btn-success text-nowrap" 
-                                               onclick="return confirm('Tem certeza que deseja reativar este gerente?')">Reativar Gerente</a>
+                                            <a href="../../controller/UsuarioController.php?acao=reativar&id=<?= $gi['id_usuario'] ?>"
+                                               class="btn btn-sm action-icon-btn action-reactivate"
+                                               title="Reativar gerente"
+                                               aria-label="Reativar gerente"
+                                               onclick="return confirm('Tem certeza que deseja reativar este gerente?')">
+                                                <i class="bi bi-person-check"></i>
+                                            </a>
                                         </div>
                                     </td>
                                 </tr>

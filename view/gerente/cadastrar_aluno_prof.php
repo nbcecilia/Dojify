@@ -130,7 +130,7 @@ $modalidades =$modalidadeDAO->listarPorAcademia($idAcademia);$opcoesPlano = [
 
                             <div class="col-md-6">
                                 <label for="data_nascimento" class="form-label">Data de Nascimento: <span class="text-danger">*</span></label>
-                                <input type="date" class="form-control" id="data_nascimento" name="data_nascimento" value="<?= $valorAnterior('data_nascimento'); ?>" required>
+                                <input type="date" class="form-control" id="data_nascimento" name="data_nascimento" value="<?= $valorAnterior('data_nascimento'); ?>" max="9999-12-31" required>
                             </div>
 
                             <div class="col-md-6">
@@ -202,7 +202,7 @@ $modalidades =$modalidadeDAO->listarPorAcademia($idAcademia);$opcoesPlano = [
                             <div class="row g-3">
                                 <div class="col-md-6">
                                     <label for="data_matricula" class="form-label">Data da Matrícula:</label>
-                                    <input type="date" class="form-control" id="data_matricula" name="data_matricula" value="<?= $valorAnterior('data_matricula', date('Y-m-d')); ?>">
+                                    <input type="date" class="form-control" id="data_matricula" name="data_matricula" value="<?= $valorAnterior('data_matricula', date('Y-m-d')); ?>" max="9999-12-31">
                                 </div>
 
                                 <div class="col-md-6">
@@ -285,7 +285,7 @@ $modalidades =$modalidadeDAO->listarPorAcademia($idAcademia);$opcoesPlano = [
 
                                 <div class="col-md-6">
                                     <label for="data_admissao" class="form-label">Data de Admissão: <span class="text-danger">*</span></label>
-                                    <input type="date" class="form-control" id="data_admissao" name="data_admissao" value="<?= date('Y-m-d'); ?>">
+                                    <input type="date" class="form-control" id="data_admissao" name="data_admissao" value="<?= date('Y-m-d'); ?>" max="9999-12-31">
                                 </div>
                             </div>
                         </div>

@@ -116,12 +116,12 @@ $modalidades = (new ModalidadeDAO())->listarPorAcademia($idAcademia);
 
                     <div class="col-md-4">
                         <label for="data_inicio" class="form-label">Data de Início: <span class="text-danger">*</span></label>
-                        <input type="date" class="form-control" id="data_inicio" name="data_inicio" value="<?= htmlspecialchars($plano['data_inicio']) ?>" required>
+                        <input type="date" class="form-control" id="data_inicio" name="data_inicio" value="<?= htmlspecialchars($plano['data_inicio']) ?>" max="9999-12-31" required>
                     </div>
 
                     <div class="col-md-4">
                         <label for="data_fim" class="form-label">Data de Término (Opcional):</label>
-                        <input type="date" class="form-control" id="data_fim" name="data_fim" value="<?= htmlspecialchars($plano['data_fim'] ?? '') ?>">
+                        <input type="date" class="form-control" id="data_fim" name="data_fim" value="<?= htmlspecialchars($plano['data_fim'] ?? '') ?>" max="9999-12-31">
                     </div>
 
                     <div class="col-md-4">

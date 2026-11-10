@@ -92,7 +92,7 @@ if (!$gerente || $gerente['perfil_id'] != 2) {
 
                     <div class="col-md-6">
                         <label for="data_nascimento" class="form-label">Data de Nascimento: <span class="text-danger">*</span></label>
-                        <input type="date" class="form-control" id="data_nascimento" name="data_nascimento" value="<?= htmlspecialchars($gerente['data_nascimento']) ?>" required>
+                        <input type="date" class="form-control" id="data_nascimento" name="data_nascimento" value="<?= htmlspecialchars($gerente['data_nascimento']) ?>" max="9999-12-31" required>
                     </div>
 
                     <div class="col-md-6">

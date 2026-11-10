@@ -115,7 +115,7 @@ $alunosChamada = !empty($idTurma) ? $dao->listarAlunosParaChamada($idTurma, $dat
                     </div>
                     <div class="col-md-4">
                         <label for="data" class="form-label">Data da Aula <span class="text-danger">*</span></label>
-                        <input type="date" name="data" id="data" class="form-control" value="<?= $dataAula ?>" required>
+                        <input type="date" name="data" id="data" class="form-control" value="<?= $dataAula ?>" max="9999-12-31" required>
                     </div>
                     <div class="col-md-3">
                         <button type="submit" class="btn btn-dark w-100">

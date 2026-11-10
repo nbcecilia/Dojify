@@ -124,7 +124,7 @@ $academias = $academiaDAO->listarTodas();
 
                             <div class="col-md-6">
                                 <label for="data_nascimento" class="form-label">Data de Nascimento: <span class="text-danger">*</span></label>
-                                <input type="date" class="form-control" id="data_nascimento" name="data_nascimento" required>
+                                <input type="date" class="form-control" id="data_nascimento" name="data_nascimento" max="9999-12-31" required>
                             </div>
 
                             <div class="col-md-6">

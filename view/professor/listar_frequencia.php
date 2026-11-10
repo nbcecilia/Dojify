@@ -77,7 +77,7 @@ if ($perfilId === 2) {
                     </div>
                     <div class="col-md-4">
                         <label for="data" class="form-label">Data da Aula (Opcional)</label>
-                        <input type="date" name="data" id="data" class="form-control" value="<?= htmlspecialchars($dataFiltro) ?>">
+                        <input type="date" name="data" id="data" class="form-control" value="<?= htmlspecialchars($dataFiltro) ?>" max="9999-12-31">
                     </div>
                     <div class="col-md-3">
                         <button type="submit" class="btn btn-dark w-100">
