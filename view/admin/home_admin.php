@@ -77,56 +77,7 @@ if (empty($mesesLabels)) {
 
 <body class="gerente-page">
 
-    <!-- =====================================================
-         CABEÇALHO
-    ====================================================== -->
-    <header class="navbar">
-        <div class="navbar-brand">
-            <a href="home_admin.php" class="logo-link">
-                <img src="../../assets/img/Dojify_original2.png" alt="Dojify Logo" class="navbar-logo">
-                <div>
-                    <h1>Dojify</h1>
-                </div>
-            </a>
-        </div>
-
-        <div class="navbar-user">
-            <!-- Dropdown Menu de Usuário/Suporte -->
-            <div class="dropdown">
-                <button 
-                    class="btn btn-link text-white text-decoration-none dropdown-toggle d-flex align-items-center gap-2 p-0 border-0" 
-                    type="button" 
-                    id="userDropdown" 
-                    data-bs-toggle="dropdown" 
-                    aria-expanded="false"
-                >
-                    <i class="bi bi-person-circle fs-5"></i>
-                    <strong><?= $nomeAdmin ?></strong>
-                </button>
-
-                <ul class="dropdown-menu dropdown-menu-end shadow-sm" aria-labelledby="userDropdown">
-                    <li>
-                        <a class="dropdown-item d-flex align-items-center gap-2" href="../alterar_senha.php">
-                            <i class="bi bi-key"></i> Alterar senha
-                        </a>
-                    </li>
-                </ul>
-            </div>
-
-            <!-- Botão de Sair -->
-            <a 
-                href="../../controller/LoginController.php?acao=logout" 
-                class="btn btn-sm btn-danger header-logout-button" 
-                aria-label="Sair" 
-                title="Sair"
-            >
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" viewBox="0 0 24 24" aria-hidden="true">
-                    <path d="M10 17l5-5-5-5M15 12H3"/>
-                    <path d="M12 3h6a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-6"/>
-                </svg>
-            </a>
-        </div>
-    </header>
+    <?php include __DIR__ . '/../includes/header.php'; ?>
 
 
     <!-- =====================================================
@@ -255,7 +206,7 @@ if (empty($mesesLabels)) {
                         scales: {
                             x: { 
                                 grid: { display: false },
-                                ticks: { font: { size: 9 }, color: '#888' }
+                                ticks: { display: false }
                             },
                             y: { 
                                 display: false,

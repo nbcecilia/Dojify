@@ -79,13 +79,13 @@ $kpis = $usuarioDAO->buscarIndicadoresGerente($idAcademia);
 
             <article class="gerente-kpi">
                 <div class="gerente-kpi-top">
-                    <span class="gerente-kpi-label">Pagamentos pendentes</span>
+                    <span class="gerente-kpi-label">Pagamentos pendentes / em atraso</span>
                     <span class="gerente-kpi-icon">
                         <i class="bi bi-cash-stack"></i>
                     </span>
                 </div>
 
-                <strong class="gerente-kpi-value"><?= $kpis['pagamentos_pendentes'] ?></strong>
+                <strong class="gerente-kpi-value"><?= $kpis['pagamentos_pendentes_ou_atrasados'] ?></strong>
                 <small class="gerente-kpi-note">Mensalidades pendentes ou em atraso</small>
             </article>
 

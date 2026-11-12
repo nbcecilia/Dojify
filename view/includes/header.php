@@ -16,7 +16,7 @@ $nomesPerfis = [
     3 => 'Professor',
     4 => 'Aluno',
 ];
-$perfil = $nomesPerfis[$perfilUsuario] ?? 'Usuário';
+$perfil = $perfilUsuario === 1 ? 'Suporte Técnico' : ($nomesPerfis[$perfilUsuario] ?? 'Usuário');
 $idAcademiaHeader = (int)($_SESSION['usuario']['id_academia'] ?? $_SESSION['id_academia'] ?? 0);
 $nomeAcademiaHeader = null;
 $is_aluno = isset($_SESSION['usuario']) && (int)$_SESSION['usuario']['perfil_id'] === 4;
@@ -57,7 +57,12 @@ $senhaModalFeedback = $_SESSION['senha_modal_feedback'] ?? null;
 unset($_SESSION['senha_modal_feedback']);
 $homeUrl = isset($_SESSION['usuario']) && (int) ($_SESSION['usuario']['perfil_id'] ?? 0) === 4
     ? '../aluno/home_aluno.php'
-    : ($perfilUsuario === 3 ? '../professor/home_professor.php' : '../gerente/home_gerente.php');
+    : ($perfilUsuario === 3
+        ? '../professor/home_professor.php'
+        : ($perfilUsuario === 1 ? '../admin/home_admin.php' : '../gerente/home_gerente.php'));
+$logoutUrl = $perfilUsuario === 1
+    ? '../../controller/LoginController.php?acao=logout'
+    : '../../controller/UsuarioController.php?acao=logout';
 
 if ($idAcademiaHeader > 0) {
     require_once __DIR__ . '/../../model/dao/Conexao.php';
@@ -302,7 +307,9 @@ $total_notif_header = count($notificacoes_aluno);
                     <i class="bi bi-chevron-down profile-avatar-chevron" aria-hidden="true"></i>
                 </summary>
                 <div class="profile-avatar-menu">
-                    <strong class="profile-avatar-menu-title">Personalizar perfil</strong>
+                    <?php if ($perfilUsuario !== 1): ?>
+                        <strong class="profile-avatar-menu-title">Personalizar perfil</strong>
+                    <?php endif; ?>
                     <?php if ($perfilUsuario === 4): ?>
                         <a class="profile-avatar-profile-link" href="../aluno/perfil.php">
                             <i class="bi bi-person-vcard" aria-hidden="true"></i>
@@ -353,7 +360,7 @@ $total_notif_header = count($notificacoes_aluno);
         <?php else: ?>
             <span class="user-greeting">Olá, <strong><?= htmlspecialchars($nomeUsuarioHeader, ENT_QUOTES, 'UTF-8'); ?></strong></span>
         <?php endif; ?>
-        <a href="../../controller/UsuarioController.php?acao=logout"
+        <a href="<?= htmlspecialchars($logoutUrl, ENT_QUOTES, 'UTF-8'); ?>"
            class="btn btn-sm btn-danger header-logout-button"
            aria-label="Sair"
            title="Sair">
