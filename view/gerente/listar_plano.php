@@ -16,23 +16,7 @@ require_once __DIR__ . '/../../model/dao/ModalidadeDAO.php';
 
 $dao = new PlanoDAO();
 $idAcademia = (int) $_SESSION['id_academia'];
-$planosGeral = $dao->listarPorAcademia($idAcademia);
-
-// Captura o termo de busca digitado
-$termoBusca = isset($_GET['busca']) ? trim($_GET['busca']) : '';
-
-// Se houver termo de busca, filtra os planos por nome do plano ou nome do aluno
-if (!empty($termoBusca)) {
-    $planos = array_filter($planosGeral, function($p) use ($termoBusca) {
-        return (
-            stripos($p['nome_plano'], $termoBusca) !== false ||
-            stripos($p['aluno_nome'], $termoBusca) !== false
-        );
-    });
-    $planos = array_values($planos);
-} else {
-    $planos = $planosGeral;
-}
+$planos = $dao->listarPorAcademia($idAcademia);
 
 // Dados necessários para carregar as opções nos Modals
 $alunos = $dao->listarAlunosPorAcademia($idAcademia);
@@ -98,17 +82,13 @@ foreach ($planos as $plano) {
                 <h2>Planos Contratados</h2>
                 <p class="text-muted">Consulte e gerencie os planos ativos dos alunos na academia.</p>
 
-                <!-- Barra de Pesquisa Padronizada (.busca-container) -->
-                <div class="busca-container mt-3">
-                    <form method="GET" action="listar_plano.php" class="busca-form d-flex gap-2">
-                        <div class="input-group busca-input">
-                            <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
-                            <input type="text" name="busca" class="form-control" placeholder="Pesquisar por nome do aluno ou plano..." value="<?= htmlspecialchars($termoBusca) ?>">
-                        </div>
-                        <button type="submit" class="btn btn-dark busca-btn">
-                            Filtrar
-                        </button>
-                    </form>
+                <div class="mb-4" data-live-search-container>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light"><i class="bi bi-search"></i></span>
+                        <input type="text" class="form-control" data-live-search
+                               data-search-target="#tabela-planos tbody tr"
+                               placeholder="Pesquisar por nome do aluno ou plano..." autocomplete="off">
+                    </div>
                 </div>
             </div>
 
@@ -116,7 +96,7 @@ foreach ($planos as $plano) {
                 <p class="text-center text-muted py-4">Nenhum plano encontrado.</p>
             <?php else: ?>
                 <div class="table-responsive">
-                    <table class="table table-hover align-middle">
+                    <table id="tabela-planos" class="table table-hover align-middle">
                         <thead class="table-dark">
                             <tr>
                                 <th>Aluno</th>
@@ -130,12 +110,14 @@ foreach ($planos as $plano) {
                             </tr>
                         </thead>
                         <tbody>
-                            <?php foreach ($alunosAgrupados as $dadosAluno): ?>
+                            <?php foreach ($alunosAgrupados as $indiceGrupo => $dadosAluno): ?>
                                 <?php 
                                 $totalPlanos = count($dadosAluno['planos']);
                                 foreach ($dadosAluno['planos'] as $index => $plano): 
                                 ?>
-                                    <tr <?= $index > 0 ? 'class="aluno-sub-linha"' : '' ?>>
+                                    <tr <?= $index > 0 ? 'class="aluno-sub-linha"' : '' ?>
+                                        data-search-group="<?= htmlspecialchars((string)$indiceGrupo, ENT_QUOTES, 'UTF-8') ?>"
+                                        data-search-text="<?= htmlspecialchars($dadosAluno['nome'] . ' ' . $plano['nome_plano'], ENT_QUOTES, 'UTF-8') ?>">
                                         <?php if ($index === 0): ?>
                                             <td rowspan="<?= $totalPlanos ?>" class="align-middle bg-white">
                                                 <strong><?= htmlspecialchars($dadosAluno['nome']) ?></strong>
@@ -399,6 +381,7 @@ foreach ($planos as $plano) {
 
     <?php include '../includes/footer.php'; ?>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../../assets/js/busca.js"></script>
     <script>
         // Script para preencher automaticamente o modal de edição com os dados da linha correspondente
         const modalEditarPlano = document.getElementById('modalEditarPlano');

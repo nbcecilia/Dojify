@@ -129,10 +129,12 @@ foreach ($lista as $linha) {
             </div>
 
             <!-- Barra de Pesquisa em Tempo Real -->
-            <div class="mb-4">
+            <div class="mb-4" data-live-search-container>
                 <div class="input-group">
                     <span class="input-group-text bg-light"><i class="bi bi-search"></i></span>
-                    <input type="text" id="inputPesquisa" placeholder="Pesquisar por nome da academia, documento, e-mail ou gerente..." class="form-control">
+                    <input type="text" id="inputPesquisa" class="form-control" data-live-search
+                           data-search-target="table tbody tr"
+                           placeholder="Pesquisar por nome da academia, documento, e-mail ou gerente..." autocomplete="off">
                 </div>
             </div>
 
@@ -396,24 +398,7 @@ foreach ($lista as $linha) {
         </section>
     </main>
 
-    <!-- Script de Pesquisa em Tempo Real -->
-    <script>
-    document.getElementById('inputPesquisa').addEventListener('keyup', function() {
-        const termo = this.value.toLowerCase().trim();
-        const linhas = document.querySelectorAll('table tbody tr');
-        
-        linhas.forEach(linha => {
-            if (linha.classList.contains('linha-vazia') || linha.cells.length === 1) return; 
-
-            const textoLinha = linha.textContent.toLowerCase();
-            if (textoLinha.includes(termo)) {
-                linha.style.display = ''; 
-            } else {
-                linha.style.display = 'none'; 
-            }
-        });
-    });
-    </script>
+    <script src="../../assets/js/busca.js"></script>
 
     <footer class="footer">
         <p>&copy; <?= date('Y'); ?> Dojify. Todos os direitos reservados.</p>

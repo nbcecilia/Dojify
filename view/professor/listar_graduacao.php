@@ -17,24 +17,8 @@ $idAcademia = $_SESSION['usuario']['id_academia'] ?? 0;
 $idUsuario = $_SESSION['usuario']['id'] ?? $_SESSION['usuario']['id_usuario'] ?? 0;
 
 $controller = new GraduacaoController();
-$graduacoesGeral = $controller->listarPorPerfilUsuario($perfilId, $idAcademia, $idUsuario);
+$graduacoes = $controller->listarPorPerfilUsuario($perfilId, $idAcademia, $idUsuario);
 $alunos = $controller->listarAlunosPorPerfilUsuario($perfilId, $idAcademia, $idUsuario);
-
-// Captura o termo de busca digitado
-$termoBusca = isset($_GET['busca']) ? trim($_GET['busca']) : '';
-
-// Se houver termo de busca, filtra por nome do aluno ou faixa
-if (!empty($termoBusca)) {
-    $graduacoes = array_filter($graduacoesGeral, function($grad) use ($termoBusca) {
-        return (
-            stripos($grad['nome_aluno'] ?? '', $termoBusca) !== false ||
-            stripos($grad['faixa'] ?? '', $termoBusca) !== false
-        );
-    });
-    $graduacoes = array_values($graduacoes);
-} else {
-    $graduacoes = $graduacoesGeral;
-}
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $acao = (string)($_POST['acao'] ?? '');
@@ -191,22 +175,18 @@ if (isset($_GET['sucesso'])) {
                 <h2>Histórico de Graduações</h2>
                 <p class="text-muted">Consulte as graduações atribuídas aos alunos nas suas modalidades.</p>
 
-                <!-- Barra de Pesquisa Padronizada (.busca-container) -->
-                <div class="busca-container mt-3">
-                    <form method="GET" action="listar_graduacao.php" class="busca-form d-flex gap-2">
-                        <div class="input-group busca-input">
-                            <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
-                            <input type="text" name="busca" class="form-control" placeholder="Pesquisar por nome do aluno ou faixa..." value="<?= htmlspecialchars($termoBusca) ?>">
-                        </div>
-                        <button type="submit" class="btn btn-dark busca-btn">
-                            Filtrar
-                        </button>
-                    </form>
+                <div class="mb-4" data-live-search-container>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light"><i class="bi bi-search"></i></span>
+                        <input type="text" class="form-control" data-live-search
+                               data-search-target="#tabela-graduacoes tbody tr"
+                               placeholder="Pesquisar por nome do aluno ou faixa..." autocomplete="off">
+                    </div>
                 </div>
             </div>
 
             <div class="table-responsive">
-                <table class="table table-hover align-middle">
+                <table id="tabela-graduacoes" class="table table-hover align-middle">
                     <thead class="table-dark">
                         <tr>
                             <th>Aluno</th>
@@ -352,6 +332,7 @@ if (isset($_GET['sucesso'])) {
     <?php include '../includes/footer.php'; ?>
     <!-- Bootstrap 5 JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../../assets/js/busca.js"></script>
     <?php if (in_array($perfilId, [2, 3], true)): ?>
         <script>
             document.getElementById('modalEditarGraduacao').addEventListener('show.bs.modal', function (event) {

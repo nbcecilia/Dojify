@@ -17,26 +17,7 @@ require_once __DIR__ . '/../../model/dao/HorarioTurmaDAO.php';
 $dao = new \TurmaDAO();
 $idAcademia = (int) $_SESSION['id_academia'];
 
-// Captura o termo de busca digitado
-$termoBusca = isset($_GET['busca']) ? trim($_GET['busca']) : '';
-
-// Lista todas as turmas da academia
-$turmasGeral = $dao->listarPorAcademia($idAcademia);
-
-// Se houver termo de busca, filtra os resultados em memória de forma segura
-if (!empty($termoBusca)) {
-    $turmas = array_filter($turmasGeral, function($t) use ($termoBusca) {
-        return (
-            stripos($t['nome'], $termoBusca) !== false ||
-            stripos($t['professor_nome'], $termoBusca) !== false ||
-            stripos($t['modalidade_nome'], $termoBusca) !== false
-        );
-    });
-    // Reindexa o array para evitar problemas nos loops
-    $turmas = array_values($turmas);
-} else {
-    $turmas = $turmasGeral;
-}
+$turmas = $dao->listarPorAcademia($idAcademia);
 
 $professores = $dao->listarProfessoresPorAcademia($idAcademia);
 $modalidades = $dao->listarModalidadesPorAcademia($idAcademia);
@@ -212,17 +193,13 @@ if (!isset($_SESSION['turma_status_csrf_token'])) {
                 <h2>Gestão de Turmas e Horários</h2>
                 <p class="text-muted">Gestão das turmas e horários da academia.</p>
 
-                <!-- Barra de Pesquisa Padronizada (.busca-container) -->
-                <div class="busca-container">
-                    <form method="GET" action="listar_turma.php" class="busca-form d-flex gap-2">
-                        <div class="input-group busca-input">
-                            <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
-                            <input type="text" name="busca" class="form-control" placeholder="Pesquisar por turma, professor ou modalidade..." value="<?= htmlspecialchars($termoBusca) ?>">
-                        </div>
-                        <button type="submit" class="btn btn-dark busca-btn">
-                            Filtrar
-                        </button>
-                    </form>
+                <div class="mb-4" data-live-search-container>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light"><i class="bi bi-search"></i></span>
+                        <input type="text" class="form-control" data-live-search
+                               data-search-target="#tabela-turmas tbody tr"
+                               placeholder="Pesquisar por turma, professor ou modalidade..." autocomplete="off">
+                    </div>
                 </div>
             </div>
 
@@ -230,7 +207,7 @@ if (!isset($_SESSION['turma_status_csrf_token'])) {
                 <p class="text-center text-muted py-4">Nenhuma turma encontrada.</p>
             <?php else: ?>
                 <div class="table-responsive">
-                    <table class="table table-hover align-middle">
+                    <table id="tabela-turmas" class="table table-hover align-middle">
                         <thead class="table-dark">
                             <tr>
                                 <th>Turma</th>
@@ -538,6 +515,7 @@ if (!isset($_SESSION['turma_status_csrf_token'])) {
 
     <?php include '../includes/footer.php'; ?>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../../assets/js/busca.js"></script>
     <?php if (isset($_GET['modal_editar']) && filter_var($_GET['modal_editar'], FILTER_VALIDATE_INT)): ?>
         <script>
             document.addEventListener('DOMContentLoaded', function () {

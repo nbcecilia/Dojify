@@ -17,17 +17,9 @@ $dao = new \PagamentoDAO();
 $idAcademia = (int) $_SESSION['id_academia'];
 $pagamentosBrutos = $dao->listarPagamentosDaAcademia($idAcademia);
 
-// Captura o termo digitado na pesquisa
-$termoBusca = trim($_GET['busca'] ?? '');
-
 // Mantém uma cobrança consolidada por aluno e mês, com os IDs de cada plano.
 $pagamentos = [];
 foreach ($pagamentosBrutos as $pag) {
-    // Se houver termo de busca, filtra ignorando maiúsculas/minúsculas
-    if ($termoBusca !== '' && mb_stripos($pag['aluno_nome'], $termoBusca) === false) {
-        continue;
-    }
-
     $pag['nomes_planos'] = !empty($pag['nome_plano']) ? explode(', ', $pag['nome_plano']) : [];
     $pag['ids_pagamentos'] = !empty($pag['ids_pagamentos'])
         ? array_map('intval', explode(',', $pag['ids_pagamentos']))
@@ -67,22 +59,13 @@ foreach ($pagamentosBrutos as $pag) {
                 <p class="text-muted">Controle das mensalidades dos alunos.</p>
             </div>
 
-            <!-- Barra de Pesquisa Padronizada (.busca-container) -->
-            <div class="busca-container">
-                <form method="GET" action="listar_pagamentos.php" class="busca-form">
-                    <div class="input-group busca-input">
-                        <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
-                        <input type="text" name="busca" class="form-control" placeholder="Pesquisar por nome do aluno..." value="<?= htmlspecialchars($termoBusca) ?>">
-                    </div>
-                    <button type="submit" class="btn btn-dark busca-btn">
-                        Filtrar
-                    </button>
-                    <?php if ($termoBusca !== ''): ?>
-                        <a href="listar_pagamentos.php" class="btn btn-outline-secondary busca-btn" title="Limpar pesquisa">
-                            <i class="bi bi-x-lg"></i>
-                        </a>
-                    <?php endif; ?>
-                </form>
+            <div class="mb-4" data-live-search-container>
+                <div class="input-group">
+                    <span class="input-group-text bg-light"><i class="bi bi-search"></i></span>
+                    <input type="text" class="form-control" data-live-search
+                           data-search-target="#tabela-pagamentos tbody tr"
+                           placeholder="Pesquisar por nome do aluno..." autocomplete="off">
+                </div>
             </div>
 
             <?php
@@ -113,10 +96,10 @@ foreach ($pagamentosBrutos as $pag) {
             <?php endif; ?>
 
             <?php if (empty($pagamentos)): ?>
-                <p class="text-center text-muted py-4">Nenhum pagamento encontrado com esse nome.</p>
+                <p class="text-center text-muted py-4">Nenhum pagamento encontrado.</p>
             <?php else: ?>
                 <div class="table-responsive">
-                    <table class="table table-hover align-middle">
+                    <table id="tabela-pagamentos" class="table table-hover align-middle">
                         <thead class="table-dark">
                             <tr>
                                 <th>Aluno</th>
@@ -188,5 +171,6 @@ foreach ($pagamentosBrutos as $pag) {
     <?php include '../includes/footer.php'; ?>
     <!-- Bootstrap 5 JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../../assets/js/busca.js"></script>
 </body>
 </html>

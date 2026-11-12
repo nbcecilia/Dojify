@@ -13,23 +13,8 @@ $idAcademia = $_SESSION['usuario']['id_academia'] ?? 0;
 $idUsuario = $_SESSION['usuario']['id'] ?? $_SESSION['usuario']['id_usuario'] ?? 0;
 
 $avaliacaoController = new AvaliacaoController();
-$avaliacoesGeral = $avaliacaoController->listarPorPerfilUsuario($perfilId, $idAcademia, $idUsuario);
+$avaliacoes = $avaliacaoController->listarPorPerfilUsuario($perfilId, $idAcademia, $idUsuario);
 $alunos = $avaliacaoController->listarAlunosPorPerfilUsuario($perfilId, $idAcademia, $idUsuario);
-
-// Captura o termo de busca digitado
-$termoBusca = isset($_GET['busca']) ? trim($_GET['busca']) : '';
-
-// Se houver termo de busca, filtra as avaliações por nome do aluno
-if (!empty($termoBusca)) {
-    $avaliacoes = array_filter($avaliacoesGeral, function($av) use ($termoBusca) {
-        return (
-            stripos($av->getNomeAluno(), $termoBusca) !== false
-        );
-    });
-    $avaliacoes = array_values($avaliacoes);
-} else {
-    $avaliacoes = $avaliacoesGeral;
-}
 
 $mensagem = '';
 $tipoMensagem = '';
@@ -198,22 +183,18 @@ if (isset($_GET['sucesso'])) {
                 <h2>Avaliações Técnicas</h2>
                 <p class="text-muted">Consulte o histórico de evolução, pontos fortes e aspetos a melhorar dos alunos.</p>
 
-                <!-- Barra de Pesquisa Padronizada (.busca-container) -->
-                <div class="busca-container mt-3">
-                    <form method="GET" action="listar_avaliacao.php" class="busca-form d-flex gap-2">
-                        <div class="input-group busca-input">
-                            <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
-                            <input type="text" name="busca" class="form-control" placeholder="Pesquisar por nome do aluno..." value="<?= htmlspecialchars($termoBusca) ?>">
-                        </div>
-                        <button type="submit" class="btn btn-dark busca-btn">
-                            Filtrar
-                        </button>
-                    </form>
+                <div class="mb-4" data-live-search-container>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light"><i class="bi bi-search"></i></span>
+                        <input type="text" class="form-control" data-live-search
+                               data-search-target="#tabela-avaliacoes tbody tr"
+                               placeholder="Pesquisar por nome do aluno..." autocomplete="off">
+                    </div>
                 </div>
             </div>
              
             <div class="table-responsive">
-                <table class="table table-hover align-middle">
+                <table id="tabela-avaliacoes" class="table table-hover align-middle">
                     <thead class="table-dark">
                         <tr>
                             <th>Data</th>
@@ -379,6 +360,7 @@ if (isset($_GET['sucesso'])) {
     <?php include '../includes/footer.php'; ?>
     <!-- Bootstrap 5 JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../../assets/js/busca.js"></script>
     <?php if (in_array($perfilId, [2, 3], true)): ?>
         <script>
             document.getElementById('modalEditarAvaliacao').addEventListener('show.bs.modal', function (event) {
