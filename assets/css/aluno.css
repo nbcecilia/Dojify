@@ -501,6 +501,8 @@ body.aluno-theme:not(.aluno-contract-page) .aluno-dashboard-section-subtitle {
 }
 
 body.aluno-theme:not(.aluno-contract-page) .aluno-upcoming-panel .agendamento-cancel-form {
+    display: inline-flex;
+    align-items: center;
     width: auto;
     max-width: none;
     margin: 0;
@@ -515,10 +517,12 @@ body.aluno-theme:not(.aluno-contract-page) .aluno-upcoming-panel .agendamento-ca
     appearance: none;
     -webkit-appearance: none;
     display: inline-flex;
-    width: 2.2rem;
-    height: 2.2rem;
+    width: 2.5rem;
+    height: 2.5rem;
+    flex: 0 0 2.5rem;
     align-items: center;
     justify-content: center;
+    margin: 0;
     padding: 0;
     border: 0;
     border-radius: 50%;
@@ -527,8 +531,9 @@ body.aluno-theme:not(.aluno-contract-page) .aluno-upcoming-panel .agendamento-ca
     background: transparent;
     color: var(--action-danger);
     font-family: inherit;
-    font-size: 1rem;
+    font-size: 1.15rem;
     font-weight: 600;
+    line-height: 1;
     text-align: center;
     cursor: pointer;
     transition: background-color 0.2s ease-in-out;
