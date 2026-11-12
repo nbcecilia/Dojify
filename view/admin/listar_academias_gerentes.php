@@ -41,7 +41,7 @@ foreach ($lista as $linha) {
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <!-- Estilo Global Dojify -->
-    <link rel="stylesheet" href="../../assets/css/estilo.css">
+    <link rel="stylesheet" href="../../assets/css/estilo.css?v=<?= filemtime(__DIR__ . '/../../assets/css/estilo.css'); ?>">
     <style>
         .btn.action-icon-btn {
             width: 2.2rem;
@@ -113,12 +113,12 @@ foreach ($lista as $linha) {
     <main class="container my-4">
         <header class="d-flex justify-content-between align-items-center mb-4">
             <div>
-                <a href="cadastrar_academia.php" class="btn btn-success btn-sm action-create-academy">
+                <button type="button" class="btn btn-success btn-sm action-create-academy" data-bs-toggle="modal" data-bs-target="#modalCadastrarAcademia">
                     <i class="bi bi-building-add me-1"></i> Cadastrar Academia
-                </a>
-                <a href="cadastrar_gerente.php" class="btn btn-info btn-sm text-white action-create-manager">
+                </button>
+                <button type="button" class="btn btn-info btn-sm text-white action-create-manager" data-bs-toggle="modal" data-bs-target="#modalCadastrarGerente">
                     <i class="bi bi-person-plus me-1"></i> Cadastrar Gerente
-                </a>
+                </button>
             </div>
         </header>
 
@@ -139,7 +139,7 @@ foreach ($lista as $linha) {
             </div>
 
             <!-- Mensagens de Feedback -->
-            <?php if (isset($_GET['sucesso'])): ?>
+            <?php if (isset($_GET['sucesso']) && ($_GET['modal'] ?? '') !== '1'): ?>
                 <div class="alert alert-success alert-dismissible fade show" role="alert">
                     <?php 
                         switch ($_GET['sucesso']) {
@@ -398,6 +398,34 @@ foreach ($lista as $linha) {
         </section>
     </main>
 
+    <div class="modal fade" id="modalCadastrarAcademia" tabindex="-1" aria-labelledby="tituloModalCadastrarAcademia" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header">
+                    <h2 class="modal-title fs-5" id="tituloModalCadastrarAcademia">Cadastrar Academia</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                </div>
+                <div class="modal-body p-0">
+                    <iframe class="edit-user-frame" title="Formulário para cadastrar academia"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalCadastrarGerente" tabindex="-1" aria-labelledby="tituloModalCadastrarGerente" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header">
+                    <h2 class="modal-title fs-5" id="tituloModalCadastrarGerente">Cadastrar Gerente</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                </div>
+                <div class="modal-body p-0">
+                    <iframe class="edit-user-frame" title="Formulário para cadastrar gerente"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="../../assets/js/busca.js"></script>
 
     <footer class="footer">
@@ -406,5 +434,49 @@ foreach ($lista as $linha) {
 
     <!-- Bootstrap 5 JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const listPath = new URL('listar_academias_gerentes.php', window.location.href).pathname;
+
+            function configurarModalCadastro(modalId, formPath, sucesso, mensagem) {
+                const modalElement = document.getElementById(modalId);
+                const frame = modalElement.querySelector('iframe');
+                const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
+
+                modalElement.addEventListener('show.bs.modal', function () {
+                    frame.src = formPath + '?modal=1';
+                });
+
+                frame.addEventListener('load', function () {
+                    const frameUrl = new URL(frame.contentWindow.location.href);
+                    if (frameUrl.pathname !== listPath) {
+                        return;
+                    }
+
+                    if (frameUrl.searchParams.get('sucesso') === sucesso) {
+                        window.alert(mensagem);
+                        modal.hide();
+                        window.location.reload();
+                        return;
+                    }
+
+                    modal.hide();
+                });
+            }
+
+            configurarModalCadastro(
+                'modalCadastrarAcademia',
+                'cadastrar_academia.php',
+                'academia_cadastrada',
+                'Academia cadastrada com sucesso!'
+            );
+            configurarModalCadastro(
+                'modalCadastrarGerente',
+                'cadastrar_gerente.php',
+                'gerente_cadastrado',
+                'Gerente cadastrado com sucesso!'
+            );
+        });
+    </script>
 </body>
 </html>

@@ -38,7 +38,7 @@ if (!isset($_SESSION['turma_status_csrf_token'])) {
     <title>Turmas - Dojify</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <link rel="stylesheet" href="../../assets/css/estilo.css">
+    <link rel="stylesheet" href="../../assets/css/estilo.css?v=<?= filemtime(__DIR__ . '/../../assets/css/estilo.css'); ?>">
     <style>
         .btn.action-icon-btn {
             width: 2.2rem;
@@ -243,10 +243,10 @@ if (!isset($_SESSION['turma_status_csrf_token'])) {
                                                 </button>
                                             </form>
                                         <?php else: ?>
-                                            <form action="../../controller/TurmaController.php?acao=desativar" method="POST" class="turma-status-form" onsubmit="return confirm('Deseja desativar esta turma?');">
+                                            <form action="../../controller/TurmaController.php?acao=desativar" method="POST" class="turma-status-form" onsubmit="return confirm('Tem certeza de que deseja inativar esta turma?');">
                                                 <input type="hidden" name="id" value="<?= (int)$turma['id_turma'] ?>">
                                                 <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['turma_status_csrf_token'], ENT_QUOTES, 'UTF-8') ?>">
-                                                <button type="submit" class="btn btn-sm action-icon-btn action-disable" title="Desativar turma" aria-label="Desativar turma">
+                                                <button type="submit" class="btn btn-sm action-icon-btn action-disable" title="Inativar turma" aria-label="Inativar turma">
                                                     <i class="bi bi-power" aria-hidden="true"></i>
                                                 </button>
                                             </form>

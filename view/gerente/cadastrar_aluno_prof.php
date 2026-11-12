@@ -19,6 +19,7 @@ if ((int)$usuario['perfil_id'] !== 2) {
 }
 
 $idAcademia = isset($usuario['id_academia']) ? (int)$usuario['id_academia'] : 0;
+$modoModal = ($_GET['modal'] ?? '') === '1';
 $tipoCadastro = ($_GET['tipo'] ?? '') === 'professor' ? 'professor' : 'aluno';
 $dadosCadastroAnterior = [];
 if (
@@ -72,31 +73,38 @@ $modalidades =$modalidadeDAO->listarPorAcademia($idAcademia);$opcoesPlano = [
     <!-- Estilo Global Dojify -->
     <link rel="stylesheet" href="../../assets/css/estilo.css?v=<?= filemtime(__DIR__ . '/../../assets/css/estilo.css'); ?>">
 </head>
-<body>
-    <?php include '../includes/header.php'; ?>
+<body class="<?= $modoModal ? 'user-edit-modal-page' : ''; ?>">
+    <?php if (!$modoModal): ?>
+        <?php include '../includes/header.php'; ?>
+    <?php endif; ?>
 
-    <main class="container my-4">
-        <div class="row justify-content-center">
-            <div class="col-lg-9 col-xl-8">
+    <main class="<?= $modoModal ? 'container-fluid p-0' : 'container my-4'; ?>">
+        <div class="<?= $modoModal ? 'row g-0' : 'row justify-content-center'; ?>">
+            <div class="<?= $modoModal ? 'col-12' : 'col-lg-9 col-xl-8'; ?>">
                 <!-- Container para alertas de erro enviados via URL -->
                 <div id="alerta-container"></div>
 
-                <header class="d-flex justify-content-between align-items-center mb-4">
-                    <div>
-                        <a href="listar_usuarios.php" class="btn btn-dark btn-sm">
-                            <i class="bi bi-arrow-left me-1"></i> Lista de Utilizadores
-                        </a>
-                    </div>
-                </header>
+                <?php if (!$modoModal): ?>
+                    <header class="d-flex justify-content-between align-items-center mb-4">
+                        <div>
+                            <a href="listar_usuarios.php" class="btn btn-dark btn-sm">
+                                <i class="bi bi-arrow-left me-1"></i> Lista de Utilizadores
+                            </a>
+                        </div>
+                    </header>
+                <?php endif; ?>
 
-                <section class="card shadow-sm border-0 p-4">
+                <section class="<?= $modoModal ? 'p-3 p-md-4' : 'card shadow-sm border-0 p-4'; ?>">
 
-                    <div class="mb-4">
-                        <h2 class="fs-4 fw-bold">Cadastrar Novo Utilizador</h2>
-                        <p class="text-muted">Cadastrar novos professores e alunos na sua academia.</p>
-                    </div>
+                    <?php if (!$modoModal): ?>
+                        <div class="mb-4">
+                            <h2 class="fs-4 fw-bold">Cadastrar Novo Utilizador</h2>
+                            <p class="text-muted">Cadastrar novos professores e alunos na sua academia.</p>
+                        </div>
+                    <?php endif; ?>
 
                     <form id="form-cadastro" action="../../controller/UsuarioController.php?acao=cadastrar_aluno" method="POST" data-cep-form autocomplete="off" class="w-100 mw-100 p-0 m-0 border-0 shadow-none bg-transparent">
+                        <input type="hidden" name="modal" value="<?= $modoModal ? '1' : ''; ?>">
 
                         <div class="row g-3">
                             <!-- SELETOR DO TIPO DE UTILIZADOR -->
@@ -291,10 +299,10 @@ $modalidades =$modalidadeDAO->listarPorAcademia($idAcademia);$opcoesPlano = [
                         </div>
 
                         <!-- BOTÕES DE AÇÃO -->
-                        <div class="col-12 mt-4 d-flex gap-3 justify-content-center align-items-center">
+                        <div class="col-12 mt-4 d-flex gap-3 justify-content-end align-items-center">
                             <a href="listar_usuarios.php" class="btn btn-secondary px-4 m-0 w-auto">Cancelar</a>
                             <button type="submit" class="btn btn-success px-4 m-0 w-auto" id="btn-submit">
-                                <i class="bi bi-check-circle me-1"></i> Concluir Matrícula
+                                <i class="bi bi-check-circle me-1"></i> Concluir Cadastro
                             </button>
                         </div>
                     </form>
@@ -303,7 +311,9 @@ $modalidades =$modalidadeDAO->listarPorAcademia($idAcademia);$opcoesPlano = [
         </div>
     </main>
 
-    <?php include '../includes/footer.php'; ?>
+    <?php if (!$modoModal): ?>
+        <?php include '../includes/footer.php'; ?>
+    <?php endif; ?>
 
     <!-- Bootstrap 5 JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
@@ -380,7 +390,7 @@ $modalidades =$modalidadeDAO->listarPorAcademia($idAcademia);$opcoesPlano = [
                     secaoProfessor.classList.add('d-none');
 
                     form.action = '../../controller/UsuarioController.php?acao=cadastrar_aluno';
-                    btnSubmit.innerHTML = '<i class="bi bi-check-circle me-1"></i> Concluir Matrícula';
+                    btnSubmit.innerHTML = '<i class="bi bi-check-circle me-1"></i> Concluir Cadastro';
 
                     camposProfessor.forEach(campo => {
                         if(campo) campo.removeAttribute('required');
@@ -394,7 +404,7 @@ $modalidades =$modalidadeDAO->listarPorAcademia($idAcademia);$opcoesPlano = [
                     secaoProfessor.classList.remove('d-none');
 
                     form.action = '../../controller/UsuarioController.php?acao=cadastrar_professor';
-                    btnSubmit.innerHTML = '<i class="bi bi-check-circle me-1"></i> Cadastrar Professor';
+                    btnSubmit.innerHTML = '<i class="bi bi-check-circle me-1"></i> Concluir Cadastro';
 
                     camposProfessor.forEach(campo => {
                         if(campo) campo.setAttribute('required', 'required');

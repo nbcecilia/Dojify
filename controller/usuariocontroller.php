@@ -69,6 +69,7 @@ class UsuarioController {
             exit;
         }
 
+        $retornoModal = ($_POST['modal'] ?? '') === '1' ? '&modal=1' : '';
         $pdo = null;
 
         try {
@@ -235,7 +236,7 @@ class UsuarioController {
             if (in_array($erro, ['cpf_duplicado', 'email_duplicado'], true)) {
                 $this->guardarDadosCadastroAluno();
             }
-            header('Location: ../view/gerente/cadastrar_aluno_prof.php?erro=' . $erro);
+            header('Location: ../view/gerente/cadastrar_aluno_prof.php?erro=' . $erro . $retornoModal);
             exit;
         }
     }
@@ -295,6 +296,7 @@ class UsuarioController {
             exit;
         }
 
+        $retornoModal = ($_POST['modal'] ?? '') === '1' ? '&modal=1' : '';
         $pdo = null;
 
         try {
@@ -365,11 +367,11 @@ class UsuarioController {
             }
     
             if ($e->getCode() == '23000' || strpos($e->getMessage(), '1062') !== false) {
-                header('Location: ../view/gerente/cadastrar_aluno_prof.php?erro=cpf_duplicado&tipo=professor');
+                header('Location: ../view/gerente/cadastrar_aluno_prof.php?erro=cpf_duplicado&tipo=professor' . $retornoModal);
                 exit;
             }
 
-            header('Location: ../view/gerente/cadastrar_aluno_prof.php?erro=falha_cadastro&tipo=professor');
+            header('Location: ../view/gerente/cadastrar_aluno_prof.php?erro=falha_cadastro&tipo=professor' . $retornoModal);
             exit;
         }
     }
@@ -389,12 +391,28 @@ class UsuarioController {
         $nome = trim((string)($_POST['nome'] ?? ''));
         $email = filter_var($_POST['email'] ?? '', FILTER_VALIDATE_EMAIL);
         $telefone = trim((string)($_POST['telefone'] ?? ''));
+        $sexo = trim((string)($_POST['sexo'] ?? ''));
+        $cep = preg_replace('/\D/', '', (string)($_POST['cep'] ?? ''));
+        $endereco = trim((string)($_POST['endereco'] ?? ''));
+        $cidade = trim((string)($_POST['cidade'] ?? ''));
+        $estado = strtoupper(trim((string)($_POST['estado'] ?? '')));
         $especialidade = trim((string)($_POST['especialidade'] ?? ''));
+        $dataAdmissao = trim((string)($_POST['data_admissao'] ?? ''));
         $status = (string)($_POST['status'] ?? '');
+        $sexosPermitidos = ['Feminino', 'Masculino', 'Outro', 'Prefiro não informar'];
+        $dataAdmissaoValida = $dataAdmissao === ''
+            ? null
+            : DateTime::createFromFormat('!Y-m-d', $dataAdmissao);
 
         if (
             !$idProfessor || $idProfessor < 1 || $nome === '' || !$email
-            || $telefone === '' || $especialidade === ''
+            || $telefone === '' || !in_array($sexo, $sexosPermitidos, true)
+            || strlen($cep) !== 8 || $endereco === '' || $cidade === ''
+            || !preg_match('/^[A-Z]{2}$/', $estado) || $especialidade === ''
+            || ($dataAdmissao !== '' && (
+                !$dataAdmissaoValida
+                || $dataAdmissaoValida->format('Y-m-d') !== $dataAdmissao
+            ))
             || !in_array($status, ['ATIVO', 'INATIVO', 'SUSPENSO'], true)
         ) {
             header('Location: ../view/gerente/listar_usuarios.php?erro=atualizar_professor');
@@ -413,7 +431,13 @@ class UsuarioController {
             $nome,
             $email,
             $telefone,
+            $sexo,
+            substr($cep, 0, 5) . '-' . substr($cep, 5),
+            $endereco,
+            $cidade,
+            $estado,
             $especialidade,
+            $dataAdmissao === '' ? null : $dataAdmissao,
             $status
         );
 
@@ -446,9 +470,19 @@ class UsuarioController {
             $nome          = trim($_POST['nome'] ?? '');
             $telefone      = trim($_POST['telefone'] ?? '');
             $email         = filter_input(INPUT_POST, 'email', FILTER_VALIDATE_EMAIL);
+            $sexo          = trim($_POST['sexo'] ?? '');
+            $cep           = preg_replace('/\D/', '', $_POST['cep'] ?? '');
+            $endereco      = trim($_POST['endereco'] ?? '');
+            $cidade        = trim($_POST['cidade'] ?? '');
+            $estado        = strtoupper(trim($_POST['estado'] ?? ''));
+            $dataMatricula = trim($_POST['data_matricula'] ?? '');
             $responsavel   = !empty($_POST['responsavel']) ? trim($_POST['responsavel']) : null;
             $observacao    = !empty($_POST['observacao']) ? trim($_POST['observacao']) : null;
             $status        = $_POST['status'] ?? 'ATIVO';
+            $sexosPermitidos = ['Feminino', 'Masculino', 'Outro', 'Prefiro não informar'];
+            $dataMatriculaValida = $dataMatricula === ''
+                ? null
+                : DateTime::createFromFormat('!Y-m-d', $dataMatricula);
 
             $modalidadesPost = $_POST['id_modalidades'] ?? [];
             $planosPost = $_POST['planos'] ?? [];
@@ -494,6 +528,13 @@ class UsuarioController {
 
             if (
                 !$idUsuario || empty($idAcademia) || empty($nome) || !$email 
+                || !in_array($sexo, $sexosPermitidos, true) || strlen($cep) !== 8
+                || $endereco === '' || $cidade === '' || !preg_match('/^[A-Z]{2}$/', $estado)
+                || ($dataMatricula !== '' && (
+                    !$dataMatriculaValida
+                    || $dataMatriculaValida->format('Y-m-d') !== $dataMatricula
+                ))
+                || !in_array($status, ['ATIVO', 'INATIVO', 'SUSPENSO'], true)
                 || count($idsModalidades) < 1 || count($idsModalidades) > 3 
                 || !array_key_exists(0, $idsModalidades)
             ) {
@@ -510,7 +551,10 @@ class UsuarioController {
 
             $sqlUsuario = "UPDATE usuario 
                            SET nome = :nome, telefone = :telefone, email = :email, 
-                               responsavel = :responsavel, observacao = :observacao, status = :status 
+                               sexo = :sexo, cep = :cep, endereco = :endereco,
+                               cidade = :cidade, estado = :estado,
+                               responsavel = :responsavel, observacao = :observacao,
+                               data_matricula = :data_matricula, status = :status
                            WHERE id_usuario = :id_usuario AND id_academia = :id_academia";
             
             $stmt = $pdo->prepare($sqlUsuario);
@@ -518,8 +562,14 @@ class UsuarioController {
                 ':nome'        => $nome,
                 ':telefone'    => $telefone,
                 ':email'       => $email,
+                ':sexo'        => $sexo,
+                ':cep'         => substr($cep, 0, 5) . '-' . substr($cep, 5),
+                ':endereco'    => $endereco,
+                ':cidade'      => $cidade,
+                ':estado'      => $estado,
                 ':responsavel' => $responsavel,
                 ':observacao'  => $observacao,
+                ':data_matricula' => $dataMatricula === '' ? null : $dataMatricula,
                 ':status'      => $status,
                 ':id_usuario'  => $idUsuario,
                 ':id_academia' => $idAcademia
@@ -682,6 +732,8 @@ class UsuarioController {
             exit;
         }
 
+        $retornoModal = ($_POST['modal'] ?? '') === '1' ? '&modal=1' : '';
+
         try {
             $u = new \UsuarioDTO();
             $u->setIdAcademia((int)($_POST['id_academia'] ?? 0));
@@ -706,18 +758,19 @@ class UsuarioController {
                 !$u->getEmail() || !$u->getIdAcademia()
                 || !in_array($sexo, ['Feminino', 'Masculino', 'Outro', 'Prefiro não informar'], true)
             ) {
-                header('Location: ../view/admin/cadastrar_gerente.php?erro=dados_incompletos');
+                header('Location: ../view/admin/cadastrar_gerente.php?erro=dados_incompletos' . $retornoModal);
                 exit;
             }
             $u->setSexo($sexo);
 
             if ($this->dao->cadastrar($u, $senha)) {
-                header('Location: ../view/admin/listar_academias_gerentes.php?sucesso=1');
+                $sucesso = $retornoModal !== '' ? 'gerente_cadastrado' : '1';
+                header('Location: ../view/admin/listar_academias_gerentes.php?sucesso=' . $sucesso . $retornoModal);
             } else {
-                header('Location: ../view/admin/cadastrar_gerente.php?erro=1');
+                header('Location: ../view/admin/cadastrar_gerente.php?erro=1' . $retornoModal);
             }
         } catch (Exception $e) {
-            header('Location: ../view/admin/cadastrar_gerente.php?erro=excecao');
+            header('Location: ../view/admin/cadastrar_gerente.php?erro=excecao' . $retornoModal);
         }
         exit;
     }

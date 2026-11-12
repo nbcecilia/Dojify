@@ -92,7 +92,7 @@ class ModalidadeController {
         $m->setDescricao(trim($_POST['descricao'] ?? ''));
 
         if ($this->dao->atualizar($m)) {
-            header('Location: ../view/gerente/listar_modalidade.php?sucesso=1');
+            header('Location: ../view/gerente/listar_modalidade.php?sucesso=atualizado');
         } else {
             header('Location: ../view/gerente/listar_modalidade.php?erro=1');
         }

@@ -30,7 +30,7 @@ if (!isset($_SESSION['modalidade_status_csrf_token'])) {
     <title>Modalidades - Dojify</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <link rel="stylesheet" href="../../assets/css/estilo.css">
+    <link rel="stylesheet" href="../../assets/css/estilo.css?v=<?= filemtime(__DIR__ . '/../../assets/css/estilo.css'); ?>">
     <style>
         .btn.action-icon-btn {
             width: 2.2rem;
@@ -150,7 +150,7 @@ if (!isset($_SESSION['modalidade_status_csrf_token'])) {
         </header>
 
         <section class="card shadow-sm border-0 p-4">
-            <?php if (isset($_GET['sucesso'])): ?>
+            <?php if (isset($_GET['sucesso']) && $_GET['sucesso'] !== 'atualizado'): ?>
                 <div class="alert alert-success alert-dismissible fade show" role="alert">
                     <i class="bi bi-check-circle-fill me-2"></i> Operação realizada com sucesso!
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
@@ -217,13 +217,13 @@ if (!isset($_SESSION['modalidade_status_csrf_token'])) {
                                         <?php endif; ?>
                                         <form action="../../controller/ModalidadeController.php?acao=<?= $modalidade['status'] === 'ATIVA' ? 'desativar' : 'reativar' ?>"
                                               method="POST" class="modalidade-status-form"
-                                              onsubmit="return confirm('<?= $modalidade['status'] === 'ATIVA' ? 'Deseja realmente desativar esta modalidade?' : 'Deseja reativar esta modalidade?' ?>');">
+                                              onsubmit="return confirm('<?= $modalidade['status'] === 'ATIVA' ? 'Tem certeza de que deseja inativar esta modalidade?' : 'Deseja reativar esta modalidade?' ?>');">
                                             <input type="hidden" name="id" value="<?= (int)$modalidade['id_modalidade'] ?>">
                                             <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['modalidade_status_csrf_token'], ENT_QUOTES, 'UTF-8') ?>">
                                             <button type="submit"
                                                     class="btn btn-sm action-icon-btn <?= $modalidade['status'] === 'ATIVA' ? 'action-disable' : 'action-reactivate' ?>"
-                                                    title="<?= $modalidade['status'] === 'ATIVA' ? 'Desativar modalidade' : 'Reativar modalidade' ?>"
-                                                    aria-label="<?= $modalidade['status'] === 'ATIVA' ? 'Desativar modalidade' : 'Reativar modalidade' ?>">
+                                                    title="<?= $modalidade['status'] === 'ATIVA' ? 'Inativar modalidade' : 'Reativar modalidade' ?>"
+                                                    aria-label="<?= $modalidade['status'] === 'ATIVA' ? 'Inativar modalidade' : 'Reativar modalidade' ?>">
                                                 <i class="bi <?= $modalidade['status'] === 'ATIVA' ? 'bi-power' : 'bi-arrow-counterclockwise' ?>" aria-hidden="true"></i>
                                             </button>
                                         </form>
@@ -309,6 +309,14 @@ if (!isset($_SESSION['modalidade_status_csrf_token'])) {
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="../../assets/js/busca.js"></script>
     <script>
+        const parametrosUrl = new URLSearchParams(window.location.search);
+        if (parametrosUrl.get('sucesso') === 'atualizado') {
+            window.alert('Modalidade editada com sucesso');
+            const urlAtual = new URL(window.location.href);
+            urlAtual.searchParams.delete('sucesso');
+            window.history.replaceState({}, document.title, urlAtual.toString());
+        }
+
         <?php if (isset($_GET['modal']) && $_GET['modal'] === 'cadastrar' && isset($_GET['erro'])): ?>
         document.addEventListener('DOMContentLoaded', function () {
             bootstrap.Modal.getOrCreateInstance(document.getElementById('modalCadastrarModalidade')).show();

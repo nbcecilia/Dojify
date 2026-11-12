@@ -5,6 +5,7 @@ if (!isset($_SESSION['usuario']) || $_SESSION['usuario']['perfil_id'] != 1) {
     header('Location: ../login.php'); 
     exit; 
 }
+$modoModal = ($_GET['modal'] ?? '') === '1';
 
 require_once '../../model/dao/AcademiaDAO.php';
 $academiaDAO = new AcademiaDAO();
@@ -21,23 +22,25 @@ $academias = $academiaDAO->listarTodas();
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <!-- Estilo Global Dojify -->
-    <link rel="stylesheet" href="../../assets/css/estilo.css">
+    <link rel="stylesheet" href="../../assets/css/estilo.css?v=<?= filemtime(__DIR__ . '/../../assets/css/estilo.css'); ?>">
 </head>
-<body>
-    <?php include __DIR__ . '/../includes/header.php'; ?>
+<body<?= $modoModal ? ' class="user-edit-modal-page"' : '' ?>>
+    <?php if (!$modoModal) include __DIR__ . '/../includes/header.php'; ?>
 
-    <main class="container my-4">
-        <div class="row justify-content-center">
-            <div class="col-lg-9 col-xl-8">
-                <header class="d-flex justify-content-between align-items-center mb-4">
-                    <div>
-                        <a href="listar_academias_gerentes.php" class="btn btn-dark btn-sm">
-                            <i class="bi bi-arrow-left me-1"></i> Gestão de Academias & Gerentes
-                        </a>
-                    </div>
-                </header>
+    <main class="<?= $modoModal ? 'container-fluid p-0' : 'container my-4' ?>">
+        <div class="<?= $modoModal ? 'row g-0' : 'row justify-content-center' ?>">
+            <div class="<?= $modoModal ? 'col-12' : 'col-lg-9 col-xl-8' ?>">
+                <?php if (!$modoModal): ?>
+                    <header class="d-flex justify-content-between align-items-center mb-4">
+                        <div>
+                            <a href="listar_academias_gerentes.php" class="btn btn-dark btn-sm">
+                                <i class="bi bi-arrow-left me-1"></i> Gestão de Academias & Gerentes
+                            </a>
+                        </div>
+                    </header>
+                <?php endif; ?>
 
-                <section class="card shadow-sm border-0 p-4">
+                <section class="<?= $modoModal ? 'p-3 p-md-4' : 'card shadow-sm border-0 p-4' ?>">
                     <?php if (isset($_GET['erro'])): ?>
                         <div class="alert alert-danger alert-dismissible fade show" role="alert">
                             Erro ao cadastrar gerente. Verifique se o CPF ou E-mail já estão em uso.
@@ -45,13 +48,16 @@ $academias = $academiaDAO->listarTodas();
                         </div>
                     <?php endif; ?>
 
-                    <div class="mb-4">
-                        <h2 class="fs-4 fw-bold">Cadastrar Gerente</h2>
-                        <p class="text-muted">Preencha os campos abaixo para cadastrar um novo gerente.</p>
-                    </div>
+                    <?php if (!$modoModal): ?>
+                        <div class="mb-4">
+                            <h2 class="fs-4 fw-bold">Cadastrar Gerente</h2>
+                            <p class="text-muted">Preencha os campos abaixo para cadastrar um novo gerente.</p>
+                        </div>
+                    <?php endif; ?>
 
                     <form action="../../controller/UsuarioController.php" method="POST" data-cep-form autocomplete="off" class="w-100 mw-100 p-0 m-0 border-0 shadow-none bg-transparent">
                         <input type="hidden" name="acao" value="cadastrar_gerente">
+                        <input type="hidden" name="modal" value="<?= $modoModal ? '1' : '0' ?>">
                         
                         <div class="row g-3">
                             <div class="col-12">
@@ -147,8 +153,8 @@ $academias = $academiaDAO->listarTodas();
                                 </div>
                             </div>
 
-                            <div class="col-12 mt-4 d-flex gap-3 justify-content-center align-items-center">
-                                <a href="home_admin.php" class="btn btn-secondary px-4 m-0 w-auto">Cancelar</a>
+                            <div class="col-12 mt-4 d-flex gap-3 justify-content-<?= $modoModal ? 'end' : 'center' ?> align-items-center">
+                                <a href="<?= $modoModal ? 'listar_academias_gerentes.php' : 'home_admin.php' ?>" class="btn btn-secondary px-4 m-0 w-auto">Cancelar</a>
                                 <button type="submit" class="btn btn-success px-4 m-0 w-auto">
                                     <i class="bi bi-check-circle me-1"></i> Cadastrar Gerente
                                 </button>
@@ -160,9 +166,11 @@ $academias = $academiaDAO->listarTodas();
         </div>
     </main>
 
-    <footer class="footer">
-        <p>&copy; <?php echo date('Y'); ?> Dojify. Todos os direitos reservados.</p>
-    </footer>
+    <?php if (!$modoModal): ?>
+        <footer class="footer">
+            <p>&copy; <?php echo date('Y'); ?> Dojify. Todos os direitos reservados.</p>
+        </footer>
+    <?php endif; ?>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="../../assets/js/cep.js" defer></script>

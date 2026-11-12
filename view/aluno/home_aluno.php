@@ -585,6 +585,23 @@ try {
     <link rel="stylesheet" href="../../assets/css/estilo.css?v=<?= filemtime(__DIR__ . '/../../assets/css/estilo.css'); ?>">
     <link rel="stylesheet" href="../../assets/css/aluno.css?v=<?= filemtime(__DIR__ . '/../../assets/css/aluno.css'); ?>">
     <link rel="stylesheet" href="../../assets/css/gerente.css">
+    <style>
+        .aluno-agendamento-confirmation .agendamento-confirm-form {
+            display: inline-flex;
+            width: auto;
+            max-width: none;
+            margin: 0;
+            padding: 0;
+            background: transparent;
+            border: 0;
+            box-shadow: none;
+        }
+
+        .aluno-agendamento-confirmation .agendamento-confirm-form > button[type="submit"] {
+            width: auto;
+            margin: 0;
+        }
+    </style>
 </head>
 
 <body class="aluno-theme<?= $is_primeiro_acesso ? ' aluno-contract-page' : ''; ?>">
@@ -1132,14 +1149,14 @@ try {
                                     <dd class="col-8"><?= date('H:i', strtotime($modalAgendamento['hora'])); ?></dd>
                                 </dl>
                             </div>
-                            <div class="modal-footer">
+                            <div class="modal-footer d-flex flex-nowrap justify-content-end align-items-center gap-2">
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Voltar</button>
-                                <form method="POST" action="../../controller/AgendamentoController.php?acao=agendar_semana" class="m-0 p-0 bg-transparent border-0 shadow-none">
+                                <form method="POST" action="../../controller/AgendamentoController.php?acao=agendar_semana" class="agendamento-confirm-form">
                                     <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'], ENT_QUOTES, 'UTF-8'); ?>">
                                     <input type="hidden" name="id_turma" value="<?= $modalAgendamento['id_turma']; ?>">
                                     <input type="hidden" name="data_escolhida" value="<?= htmlspecialchars($modalAgendamento['data_iso'], ENT_QUOTES, 'UTF-8'); ?>">
                                     <input type="hidden" name="hora_aula" value="<?= htmlspecialchars($modalAgendamento['hora'], ENT_QUOTES, 'UTF-8'); ?>">
-                                    <button type="submit" class="btn btn-success fw-bold">Confirmar agendamento</button>
+                                    <button type="submit" class="btn btn-success fw-bold">Agendar</button>
                                 </form>
                             </div>
                         </div>

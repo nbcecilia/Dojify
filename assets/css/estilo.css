@@ -829,20 +829,36 @@ input[type="time"]:focus {
 }
 
 .btn-notificacao {
-    background: none;
-    border: none;
-    font-size: 1.5rem;
-    cursor: pointer;
     position: relative;
-    padding: 4px;
-    display: flex;
-    align-items: center;
+    display: inline-grid !important;
+    flex: 0 0 40px;
+    width: 40px;
+    height: 40px;
+    margin: 0 !important;
+    padding: 0 !important;
+    place-items: center;
+    border: 1px solid #495057 !important;
+    border-radius: 50% !important;
+    background: #212529 !important;
+    color: #fff !important;
+    font-size: 1rem;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, .16);
+    line-height: 1;
+}
+
+.btn-notificacao:hover,
+.btn-notificacao:focus-visible {
+    border-color: #737373 !important;
+    background: #343a40 !important;
+    color: #fff !important;
 }
 
 .notificacao-badge {
     position: absolute;
-    top: -2px;
-    right: -4px;
+    top: 0;
+    right: 0;
+    transform: translate(30%, -30%);
     background-color: var(--action-danger);
     color: var(--text-on-dark);
     border-radius: 50%;
@@ -1242,7 +1258,42 @@ iframe {
     justify-content: center;
 }
 
-#modalEditarUsuario .edit-user-frame {
+body.user-edit-modal-page {
+    display: block;
+    min-height: 0;
+    background: transparent;
+}
+
+.user-edit-modal-actions {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.user-edit-modal-actions > .user-edit-modal-button {
+    box-sizing: border-box;
+    display: inline-flex;
+    width: 160px;
+    min-width: 0;
+    flex: 0 1 160px;
+    height: 38px;
+    min-height: 38px;
+    max-height: 38px;
+    margin: 0;
+    padding: 0 10px;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+}
+
+#modalEditarUsuario .edit-user-frame,
+#modalCadastrarUsuario .edit-user-frame,
+#modalCadastrarAcademia .edit-user-frame,
+#modalCadastrarGerente .edit-user-frame {
     display: block;
     width: 100%;
     height: 75vh;

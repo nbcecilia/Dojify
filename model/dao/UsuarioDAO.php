@@ -146,7 +146,13 @@ class UsuarioDAO {
         string $nome,
         string $email,
         string $telefone,
+        string $sexo,
+        string $cep,
+        string $endereco,
+        string $cidade,
+        string $estado,
         string $especialidade,
+        ?string $dataAdmissao,
         string $status
     ): bool {
         try {
@@ -154,7 +160,13 @@ class UsuarioDAO {
                     SET nome = :nome,
                         email = :email,
                         telefone = :telefone,
+                        sexo = :sexo,
+                        cep = :cep,
+                        endereco = :endereco,
+                        cidade = :cidade,
+                        estado = :estado,
                         especialidade = :especialidade,
+                        data_admissao = :data_admissao,
                         status = :status
                     WHERE id_usuario = :id_usuario
                     AND id_academia = :id_academia
@@ -163,7 +175,17 @@ class UsuarioDAO {
             $stmt->bindValue(':nome', $nome);
             $stmt->bindValue(':email', $email);
             $stmt->bindValue(':telefone', $telefone);
+            $stmt->bindValue(':sexo', $sexo);
+            $stmt->bindValue(':cep', $cep);
+            $stmt->bindValue(':endereco', $endereco);
+            $stmt->bindValue(':cidade', $cidade);
+            $stmt->bindValue(':estado', $estado);
             $stmt->bindValue(':especialidade', $especialidade);
+            $stmt->bindValue(
+                ':data_admissao',
+                $dataAdmissao,
+                $dataAdmissao === null ? PDO::PARAM_NULL : PDO::PARAM_STR
+            );
             $stmt->bindValue(':status', $status);
             $stmt->bindValue(':id_usuario', $idProfessor, PDO::PARAM_INT);
             $stmt->bindValue(':id_academia', $idAcademia, PDO::PARAM_INT);

@@ -33,6 +33,11 @@ if (!$aluno) {
 }
 
 $modalidades = (new ModalidadeDAO())->listarPorAcademia((int)$_SESSION['usuario']['id_academia']);
+$cepDigitos = preg_replace('/\D/', '', (string)($aluno['cep'] ?? ''));
+$cepFormatado = strlen($cepDigitos) === 8
+    ? substr($cepDigitos, 0, 5) . '-' . substr($cepDigitos, 5)
+    : (string)($aluno['cep'] ?? '');
+$ufs = ['AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MT', 'MS', 'MG', 'PA', 'PB', 'PR', 'PE', 'PI', 'RJ', 'RN', 'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO'];
 
 // Busca os planos ativos do aluno associados às modalidades
 $stmtPlanosAluno = $pdo->prepare("
@@ -90,27 +95,12 @@ $opcoesPlano = [
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <link rel="stylesheet" href="../../assets/css/estilo.css">
+    <link rel="stylesheet" href="../../assets/css/estilo.css?v=<?= filemtime(__DIR__ . '/../../assets/css/estilo.css'); ?>">
+    <script src="../../assets/js/cep.js" defer></script>
 </head>
-<body>
-    <?php include '../includes/header.php'; ?>
-
-    <main class="container my-4">
-        <header class="d-flex justify-content-between align-items-center mb-4">
-            <div>
-                <a href="listar_usuarios.php" class="btn btn-dark btn-sm">
-                    <i class="bi bi-arrow-left me-1"></i> Voltar
-                </a>
-            </div>
-        </header>
-
-        <section class="card shadow-sm border-0 p-4">
-            <div class="text-center mb-4">
-                <h2 class="fs-4 fw-bold">Editar Dados do Aluno</h2>
-                <p class="text-muted">Atualize as informações cadastrais e planos do aluno.</p>
-            </div>
-
-            <form action="../../controller/UsuarioController.php?acao=atualizar_aluno" method="POST" class="w-100 mw-100 p-0 m-0 border-0 shadow-none bg-transparent" autocomplete="off">
+<body class="user-edit-modal-page">
+    <main class="container-fluid p-0">
+            <form action="../../controller/UsuarioController.php?acao=atualizar_aluno" method="POST" class="w-100 mw-100 p-3 p-md-4 m-0 border-0 shadow-none bg-transparent" autocomplete="off" data-cep-form>
                 <!-- ID Oculto do Aluno -->
                 <input type="hidden" name="id_usuario" value="<?php echo $aluno['id_usuario']; ?>">
 
@@ -131,6 +121,18 @@ $opcoesPlano = [
                     </div>
 
                     <div class="col-md-4">
+                        <label for="sexo" class="form-label">Sexo: <span class="text-danger">*</span></label>
+                        <select class="form-select" id="sexo" name="sexo" required>
+                            <option value="">Selecione...</option>
+                            <?php foreach (['Feminino', 'Masculino', 'Outro', 'Prefiro não informar'] as $sexo): ?>
+                                <option value="<?= htmlspecialchars($sexo, ENT_QUOTES, 'UTF-8'); ?>" <?= ($aluno['sexo'] ?? '') === $sexo ? 'selected' : ''; ?>>
+                                    <?= htmlspecialchars($sexo, ENT_QUOTES, 'UTF-8'); ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+
+                    <div class="col-md-4">
                         <label for="email" class="form-label">E-mail: <span class="text-danger">*</span></label>
                         <input type="email" class="form-control" id="email" name="email" value="<?php echo htmlspecialchars($aluno['email']); ?>" required>
                     </div>
@@ -138,6 +140,40 @@ $opcoesPlano = [
                     <div class="col-md-4">
                         <label for="telefone" class="form-label">Telefone / WhatsApp:</label>
                         <input type="text" class="form-control" id="telefone" name="telefone" value="<?php echo htmlspecialchars($aluno['telefone']); ?>">
+                    </div>
+
+                    <div class="col-md-4">
+                        <label for="cep" class="form-label">CEP: <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="cep" name="cep" inputmode="numeric" autocomplete="postal-code" maxlength="9" pattern="[0-9]{5}-?[0-9]{3}" value="<?= htmlspecialchars($cepFormatado, ENT_QUOTES, 'UTF-8'); ?>" required>
+                            <button type="button" class="btn btn-outline-secondary" data-cep-lookup>Buscar</button>
+                        </div>
+                        <p id="cep-status" class="form-text text-muted mb-0" aria-live="polite"></p>
+                    </div>
+
+                    <div class="col-md-8">
+                        <label for="endereco" class="form-label">Endereço: <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="endereco" name="endereco" autocomplete="street-address" maxlength="100" value="<?= htmlspecialchars($aluno['endereco'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" required>
+                    </div>
+
+                    <div class="col-md-8">
+                        <label for="cidade" class="form-label">Cidade: <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="cidade" name="cidade" autocomplete="address-level2" maxlength="45" value="<?= htmlspecialchars($aluno['cidade'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" required>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label for="estado" class="form-label">Estado (UF): <span class="text-danger">*</span></label>
+                        <select class="form-select" id="estado" name="estado" autocomplete="off" required>
+                            <option value="">Selecione...</option>
+                            <?php foreach ($ufs as $uf): ?>
+                                <option value="<?= $uf; ?>" <?= strtoupper((string)($aluno['estado'] ?? '')) === $uf ? 'selected' : ''; ?>><?= $uf; ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="data_matricula" class="form-label">Data da Matrícula:</label>
+                        <input type="date" class="form-control" id="data_matricula" name="data_matricula" value="<?= htmlspecialchars($aluno['data_matricula'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" max="9999-12-31">
                     </div>
 
                     <div class="col-md-6">
@@ -217,20 +253,16 @@ $opcoesPlano = [
                         <?php endfor; ?>
                     </div>
 
-                    <div class="col-12 mt-4 d-flex gap-3 justify-content-center align-items-center">
-                        <a href="listar_usuarios.php" class="btn btn-secondary m-0 form-action-button">Cancelar</a>
-                        <button type="submit" class="btn btn-success m-0 form-action-button">
+                    <div class="col-12 user-edit-modal-actions mt-4">
+                        <a href="listar_usuarios.php" class="btn btn-secondary btn-sm user-edit-modal-button">Cancelar</a>
+                        <button type="submit" class="btn btn-success btn-sm user-edit-modal-button">
                             <i class="bi bi-check-circle me-1"></i> Salvar Alterações
                         </button>
                     </div>
                 </div>
             </form>
-        </section>
     </main>
 
-    <?php include '../includes/footer.php'; ?>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    
     <!-- Script para dinamismo das caixas de planos por modalidade -->
     <script>
         document.addEventListener("DOMContentLoaded", function() {

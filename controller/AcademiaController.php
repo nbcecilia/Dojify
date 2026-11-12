@@ -41,6 +41,7 @@ class AcademiaController {
     private function cadastrar(): void {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') return;
 
+        $retornoModal = ($_POST['modal'] ?? '') === '1' ? '&modal=1' : '';
         $a = new AcademiaDTO();
         $cep = preg_replace('/\D/', '', $_POST['cep'] ?? '');
         $nome = trim($_POST['nome'] ?? '');
@@ -56,7 +57,7 @@ class AcademiaController {
             || $cidade === '' || !preg_match('/^[A-Z]{2}$/', $estado)
             || $telefone === '' || !$email
         ) {
-            header('Location: ../view/admin/cadastrar_academia.php?erro=1');
+            header('Location: ../view/admin/cadastrar_academia.php?erro=1' . $retornoModal);
             exit;
         }
 
@@ -70,9 +71,10 @@ class AcademiaController {
         $a->setEmail($email);
 
         if ($this->dao->cadastrar($a)) {
-            header('Location: ../view/admin/listar_academias_gerentes.php?sucesso=1');
+            $sucesso = $retornoModal !== '' ? 'academia_cadastrada' : '1';
+            header('Location: ../view/admin/listar_academias_gerentes.php?sucesso=' . $sucesso . $retornoModal);
         } else {
-            header('Location: ../view/admin/cadastrar_academia.php?erro=1');
+            header('Location: ../view/admin/cadastrar_academia.php?erro=1' . $retornoModal);
         }
         exit;
     }
