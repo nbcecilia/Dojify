@@ -100,6 +100,7 @@ $endereco = trim(implode(', ', array_filter([
 $cidadeEstado = trim(implode(' / ', array_filter([$aluno['cidade'], $aluno['estado']])));
 $dataAceiteContrato = $formatarDataHora($aluno['data_aceite_contrato']);
 $ocultarAlterarSenhaHeader = true;
+$ocultarContatoHeader = true;
 ?>
 <!DOCTYPE html>
 <html lang="pt-br">
@@ -108,11 +109,16 @@ $ocultarAlterarSenhaHeader = true;
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Contrato do aluno - Dojify</title>
     <link rel="stylesheet" href="../../assets/css/estilo.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <style>
         .contrato-documento { max-width: 900px; margin: 24px auto; padding: 32px; background: #fff; border: 1px solid #ddd; border-radius: 8px; line-height: 1.6; }
         .contrato-documento h1 { font-size: 1.5rem; text-align: center; }
         .contrato-documento h2 { margin-top: 1.5rem; font-size: 1.1rem; }
         .contrato-nota { max-width: 900px; margin: 24px auto 0; }
+        .contrato-print-button:hover {
+            background-color: #dee2e6;
+            color: #212529 !important;
+        }
         @media print { .d-print-none { display: none !important; } .contrato-documento { margin: 0 auto; border: 0; } }
     </style>
 </head>
@@ -121,18 +127,18 @@ $ocultarAlterarSenhaHeader = true;
         <?php include __DIR__ . '/../includes/header.php'; ?>
     </div>
     <main class="container">
+        <div class="d-flex justify-content-between gap-2 flex-wrap d-print-none">
+            <a class="btn btn-info" href="<?= $perfilLogado === 4 ? '../aluno/perfil.php' : 'listar_usuarios.php'; ?>">
+                <?= $perfilLogado === 4 ? 'Voltar ao perfil' : 'Voltar para alunos'; ?>
+            </a>
+            <button class="btn btn-outline contrato-print-button" type="button" onclick="window.print()">Imprimir cópia</button>
+        </div>
         <div class="contrato-nota alert alert-info d-print-none" role="status">
             <strong>Aceite registrado.</strong> <?php if ($aluno['data_aceite_contrato']): ?>
                 Data e hora do aceite eletrônico: <?= $escapar($dataAceiteContrato); ?>.
             <?php else: ?>
                 A data e hora do aceite não foram armazenadas para este contrato. Esta cópia é reconstruída com os dados atualmente cadastrados.
             <?php endif; ?>
-        </div>
-        <div class="d-flex justify-content-between gap-2 flex-wrap d-print-none">
-            <a class="btn btn-info" href="<?= $perfilLogado === 4 ? '../aluno/perfil.php' : 'listar_usuarios.php'; ?>">
-                <?= $perfilLogado === 4 ? 'Voltar ao perfil' : 'Voltar para alunos'; ?>
-            </a>
-            <button class="btn btn-outline" type="button" onclick="window.print()">Imprimir cópia</button>
         </div>
         <article class="contrato-documento">
             <header class="text-center">

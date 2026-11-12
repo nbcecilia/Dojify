@@ -55,6 +55,65 @@ foreach ($usuarios as $u) {
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="../../assets/css/estilo.css">
+    <style>
+        .btn.action-icon-btn {
+            width: 2.2rem;
+            height: 2.2rem;
+            padding: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            background: transparent !important;
+            border: 0 !important;
+            box-shadow: none !important;
+            transition: background-color 0.2s ease-in-out;
+        }
+
+        .btn.action-edit {
+            color: #0d6efd !important;
+        }
+
+        .btn.action-suspend {
+            color: #b58100 !important;
+        }
+
+        .btn.action-disable {
+            color: #dc3545 !important;
+        }
+
+        .btn.action-reactivate {
+            color: #198754 !important;
+        }
+
+        .btn.action-edit:hover {
+            background-color: rgba(13, 110, 253, 0.15) !important;
+        }
+
+        .btn.action-suspend:hover {
+            background-color: rgba(255, 193, 7, 0.2) !important;
+        }
+
+        .btn.action-disable:hover {
+            background-color: rgba(220, 53, 69, 0.15) !important;
+        }
+
+        .btn.action-reactivate:hover {
+            background-color: rgba(25, 135, 84, 0.15) !important;
+        }
+
+        .btn.action-create-user {
+            background: transparent !important;
+            border: 0 !important;
+            box-shadow: none !important;
+            color: #198754 !important;
+            transition: background-color 0.2s ease-in-out;
+        }
+
+        .btn.action-create-user:hover {
+            background-color: rgba(25, 135, 84, 0.15) !important;
+        }
+    </style>
 </head>
 <body>    
     <?php include '../includes/header.php'; ?> 
@@ -62,7 +121,7 @@ foreach ($usuarios as $u) {
     <main class="container my-4">
         <header class="d-flex justify-content-between align-items-center mb-4">
             <div>
-                <a href="cadastrar_aluno_prof.php" class="btn btn-success">
+                <a href="cadastrar_aluno_prof.php" class="btn btn-success btn-sm action-create-user">
                     <i class="bi bi-plus-circle me-1"></i> Cadastrar Novo Usuário
                 </a>
             </div>
@@ -107,7 +166,7 @@ foreach ($usuarios as $u) {
                             <th>E-mail</th>
                             <th>Telefone</th>
                             <th>Estado</th>
-                            <th class="text-end">Ações</th>
+                            <th class="text-center">Ações</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -137,19 +196,25 @@ foreach ($usuarios as $u) {
                                             <span class="text-danger fw-semibold">Inativo</span>
                                         <?php endif; ?>
                                     </td>
-                                    <td class="text-end">
+                                    <td class="text-center">
                                         <?php if ($isPropraConta): ?>
                                             <span class="text-muted small">Não aplicável</span>
                                         <?php else: ?>
-                                            <div class="d-flex justify-content-end gap-1 flex-wrap">
+                                            <div class="d-flex justify-content-center gap-1 flex-nowrap">
                                                 <?php if ($u['status'] !== 'ATIVO'): ?>
-                                                    <a href="../../controller/UsuarioController.php?acao=alternar_status&id=<?php echo $u['id_usuario']; ?>&status=ATIVO" class="btn btn-sm btn-success">Ativar</a>
+                                                    <a href="../../controller/UsuarioController.php?acao=alternar_status&id=<?php echo $u['id_usuario']; ?>&status=ATIVO" class="btn btn-sm action-icon-btn action-reactivate" title="Ativar" aria-label="Ativar">
+                                                        <i class="bi bi-person-check"></i>
+                                                    </a>
                                                 <?php endif; ?>
                                                 <?php if ($u['status'] !== 'SUSPENSO'): ?>
-                                                    <a href="../../controller/UsuarioController.php?acao=alternar_status&id=<?php echo $u['id_usuario']; ?>&status=SUSPENSO" class="btn btn-sm btn-warning">Suspender</a>
+                                                    <a href="../../controller/UsuarioController.php?acao=alternar_status&id=<?php echo $u['id_usuario']; ?>&status=SUSPENSO" class="btn btn-sm action-icon-btn action-suspend" title="Suspender" aria-label="Suspender">
+                                                        <i class="bi bi-person-dash"></i>
+                                                    </a>
                                                 <?php endif; ?>
                                                 <?php if ($u['status'] !== 'INATIVO'): ?>
-                                                    <a href="../../controller/UsuarioController.php?acao=alternar_status&id=<?php echo $u['id_usuario']; ?>&status=INATIVO" class="btn btn-sm btn-danger">Inativar</a>
+                                                    <a href="../../controller/UsuarioController.php?acao=alternar_status&id=<?php echo $u['id_usuario']; ?>&status=INATIVO" class="btn btn-sm action-icon-btn action-disable" title="Inativar" aria-label="Inativar">
+                                                        <i class="bi bi-person-x"></i>
+                                                    </a>
                                                 <?php endif; ?>
                                             </div>
                                         <?php endif; ?>
@@ -177,7 +242,7 @@ foreach ($usuarios as $u) {
                             <th>E-mail</th>
                             <th>Telefone</th>
                             <th>Estado</th>
-                            <th class="text-end">Ações</th>
+                            <th class="text-center">Ações</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -202,19 +267,25 @@ foreach ($usuarios as $u) {
                                             <span class="text-danger fw-semibold">Inativo</span>
                                         <?php endif; ?>
                                     </td>
-                                    <td class="text-end">
-                                        <div class="d-flex justify-content-end gap-1 flex-wrap">
-                                            <button type="button" class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#modalEditarUsuario" data-edit-url="editar_professor.php?id=<?php echo (int)$u['id_usuario']; ?>" data-edit-title="Editar Professor">
-                                                <i class="bi bi-pencil me-1"></i>Editar
+                                    <td class="text-center">
+                                        <div class="d-flex justify-content-center gap-1 flex-nowrap">
+                                            <button type="button" class="btn btn-sm action-icon-btn action-edit" title="Editar professor" aria-label="Editar professor" data-bs-toggle="modal" data-bs-target="#modalEditarUsuario" data-edit-url="editar_professor.php?id=<?php echo (int)$u['id_usuario']; ?>" data-edit-title="Editar Professor">
+                                                <i class="bi bi-pencil-square"></i>
                                             </button>
                                             <?php if ($u['status'] !== 'ATIVO'): ?>
-                                                <a href="../../controller/UsuarioController.php?acao=alternar_status&id=<?php echo $u['id_usuario']; ?>&status=ATIVO" class="btn btn-sm btn-success">Ativar</a>
+                                                <a href="../../controller/UsuarioController.php?acao=alternar_status&id=<?php echo $u['id_usuario']; ?>&status=ATIVO" class="btn btn-sm action-icon-btn action-reactivate" title="Ativar professor" aria-label="Ativar professor">
+                                                    <i class="bi bi-person-check"></i>
+                                                </a>
                                             <?php endif; ?>
                                             <?php if ($u['status'] !== 'SUSPENSO'): ?>
-                                                <a href="../../controller/UsuarioController.php?acao=alternar_status&id=<?php echo $u['id_usuario']; ?>&status=SUSPENSO" class="btn btn-sm btn-warning">Suspender</a>
+                                                <a href="../../controller/UsuarioController.php?acao=alternar_status&id=<?php echo $u['id_usuario']; ?>&status=SUSPENSO" class="btn btn-sm action-icon-btn action-suspend" title="Suspender professor" aria-label="Suspender professor">
+                                                    <i class="bi bi-person-dash"></i>
+                                                </a>
                                             <?php endif; ?>
                                             <?php if ($u['status'] !== 'INATIVO'): ?>
-                                                <a href="../../controller/UsuarioController.php?acao=alternar_status&id=<?php echo $u['id_usuario']; ?>&status=INATIVO" class="btn btn-sm btn-danger">Inativar</a>
+                                                <a href="../../controller/UsuarioController.php?acao=alternar_status&id=<?php echo $u['id_usuario']; ?>&status=INATIVO" class="btn btn-sm action-icon-btn action-disable" title="Inativar professor" aria-label="Inativar professor">
+                                                    <i class="bi bi-person-x"></i>
+                                                </a>
                                             <?php endif; ?>
                                         </div>
                                     </td>
@@ -242,7 +313,7 @@ foreach ($usuarios as $u) {
                             <th>Telefone</th>
                             <th>Estado</th>
                             <th>Contrato</th>
-                            <th class="text-end">Ações</th>
+                            <th class="text-center">Ações</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -276,24 +347,32 @@ foreach ($usuarios as $u) {
                                     <td>
                                         <?php if ($contratoAceito): ?>
                                             <span class="badge bg-success">Aceito</span>
-                                            <a href="visualizar_contrato_aluno.php?id=<?php echo (int)$u['id_usuario']; ?>" class="btn btn-sm btn-info ms-1">Ver contrato</a>
+                                            <a href="visualizar_contrato_aluno.php?id=<?php echo (int)$u['id_usuario']; ?>" class="btn btn-sm action-icon-btn action-edit ms-1" title="Ver contrato do aluno" aria-label="Ver contrato do aluno">
+                                                <i class="bi bi-file-earmark-text"></i>
+                                            </a>
                                         <?php else: ?>
                                             <span class="badge bg-warning text-dark">Pendente</span>
                                         <?php endif; ?>
                                     </td>
-                                    <td class="text-end">
-                                        <div class="d-flex justify-content-end gap-1 flex-wrap">
-                                            <button type="button" class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#modalEditarUsuario" data-edit-url="editar_aluno.php?id=<?php echo (int)$u['id_usuario']; ?>" data-edit-title="Editar Aluno">
-                                                <i class="bi bi-pencil me-1"></i>Editar
+                                    <td class="text-center">
+                                        <div class="d-flex justify-content-center gap-1 flex-nowrap">
+                                            <button type="button" class="btn btn-sm action-icon-btn action-edit" title="Editar aluno" aria-label="Editar aluno" data-bs-toggle="modal" data-bs-target="#modalEditarUsuario" data-edit-url="editar_aluno.php?id=<?php echo (int)$u['id_usuario']; ?>" data-edit-title="Editar Aluno">
+                                                <i class="bi bi-pencil-square"></i>
                                             </button>
                                             <?php if ($u['status'] !== 'ATIVO'): ?>
-                                                <a href="../../controller/UsuarioController.php?acao=alternar_status&id=<?php echo $u['id_usuario']; ?>&status=ATIVO" class="btn btn-sm btn-success">Ativar</a>
+                                                <a href="../../controller/UsuarioController.php?acao=alternar_status&id=<?php echo $u['id_usuario']; ?>&status=ATIVO" class="btn btn-sm action-icon-btn action-reactivate" title="Ativar aluno" aria-label="Ativar aluno">
+                                                    <i class="bi bi-person-check"></i>
+                                                </a>
                                             <?php endif; ?>
                                             <?php if ($u['status'] !== 'SUSPENSO'): ?>
-                                                <a href="../../controller/UsuarioController.php?acao=alternar_status&id=<?php echo $u['id_usuario']; ?>&status=SUSPENSO" class="btn btn-sm btn-warning">Suspender</a>
+                                                <a href="../../controller/UsuarioController.php?acao=alternar_status&id=<?php echo $u['id_usuario']; ?>&status=SUSPENSO" class="btn btn-sm action-icon-btn action-suspend" title="Suspender aluno" aria-label="Suspender aluno">
+                                                    <i class="bi bi-person-dash"></i>
+                                                </a>
                                             <?php endif; ?>
                                             <?php if ($u['status'] !== 'INATIVO'): ?>
-                                                <a href="../../controller/UsuarioController.php?acao=alternar_status&id=<?php echo $u['id_usuario']; ?>&status=INATIVO" class="btn btn-sm btn-danger">Inativar</a>
+                                                <a href="../../controller/UsuarioController.php?acao=alternar_status&id=<?php echo $u['id_usuario']; ?>&status=INATIVO" class="btn btn-sm action-icon-btn action-disable" title="Inativar aluno" aria-label="Inativar aluno">
+                                                    <i class="bi bi-person-x"></i>
+                                                </a>
                                             <?php endif; ?>
                                         </div>
                                     </td>

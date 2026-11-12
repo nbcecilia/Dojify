@@ -1168,7 +1168,7 @@ try {
                                     <th scope="col">Turma</th>
                                     <th scope="col">Data e hora</th>
                                     <th scope="col">Estado</th>
-                                    <th scope="col" class="text-end">Ação</th>
+                                    <th scope="col" class="text-center">Ação</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -1177,15 +1177,16 @@ try {
                                         <td class="fw-bold"><?= htmlspecialchars($ag->getNomeTurma(), ENT_QUOTES, 'UTF-8'); ?></td>
                                         <td><?= date('d/m/Y H:i', strtotime($ag->getDataAgendamento())); ?></td>
                                         <td><span class="badge bg-success"><?= htmlspecialchars($ag->getStatus(), ENT_QUOTES, 'UTF-8'); ?></span></td>
-                                        <td class="text-end">
+                                        <td class="text-center">
                                             <form method="POST" action="../../controller/AgendamentoController.php?acao=cancelar" class="d-inline agendamento-cancel-form">
                                                 <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'], ENT_QUOTES, 'UTF-8'); ?>">
                                                 <input type="hidden" name="id_agendamento" value="<?= $ag->getIdAgendamento(); ?>">
                                                 <button type="submit"
                                                         class="agendamento-cancel-button"
-                                                        style="border: 0 !important; outline: 0 !important; box-shadow: none !important; appearance: none; -webkit-appearance: none;"
+                                                        title="Cancelar agendamento"
+                                                        aria-label="Cancelar agendamento"
                                                         onclick="return confirm('Deseja cancelar este agendamento?')">
-                                                    Cancelar
+                                                    <i class="bi bi-calendar-x" aria-hidden="true"></i>
                                                 </button>
                                             </form>
                                         </td>

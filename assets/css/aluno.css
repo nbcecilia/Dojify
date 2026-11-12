@@ -512,24 +512,26 @@ body.aluno-theme:not(.aluno-contract-page) .aluno-upcoming-panel .agendamento-ca
 }
 
 body.aluno-theme:not(.aluno-contract-page) .aluno-upcoming-panel .agendamento-cancel-button {
-    all: unset;
     appearance: none;
     -webkit-appearance: none;
     display: inline-flex;
+    width: 2.2rem;
+    height: 2.2rem;
     align-items: center;
     justify-content: center;
-    padding: .35em .65em;
+    padding: 0;
     border: 0;
-    border-radius: 4px;
-    outline: 0;
+    border-radius: 50%;
+    outline: none;
     box-shadow: none;
-    background: var(--action-danger);
-    color: #fff;
+    background: transparent;
+    color: var(--action-danger);
     font-family: inherit;
-    font-size: .75rem;
+    font-size: 1rem;
     font-weight: 600;
     text-align: center;
     cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
 }
 
 body.aluno-theme:not(.aluno-contract-page) .aluno-upcoming-panel .agendamento-cancel-button:hover,
@@ -541,12 +543,12 @@ body.aluno-theme:not(.aluno-contract-page) .aluno-upcoming-panel .agendamento-ca
 }
 
 body.aluno-theme:not(.aluno-contract-page) .aluno-upcoming-panel .agendamento-cancel-button:hover {
-    color: var(--action-danger-hover);
-    background: var(--action-danger-hover);
+    color: var(--action-danger);
+    background: rgba(220, 53, 69, 0.15);
 }
 
 body.aluno-theme:not(.aluno-contract-page) .aluno-upcoming-panel .agendamento-cancel-button:focus-visible {
-    outline: 2px solid var(--aluno-dark);
+    outline: 2px solid var(--action-danger);
     outline-offset: 2px;
 }
 

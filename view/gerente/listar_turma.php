@@ -59,6 +59,56 @@ if (!isset($_SESSION['turma_status_csrf_token'])) {
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="../../assets/css/estilo.css">
     <style>
+        .btn.action-icon-btn {
+            width: 2.2rem;
+            height: 2.2rem;
+            padding: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            background: transparent !important;
+            border: 0 !important;
+            box-shadow: none !important;
+            transition: background-color 0.2s ease-in-out;
+        }
+
+        .btn.action-edit {
+            color: #0d6efd !important;
+        }
+
+        .btn.action-disable {
+            color: #dc3545 !important;
+        }
+
+        .btn.action-reactivate {
+            color: #198754 !important;
+        }
+
+        .btn.action-edit:hover {
+            background-color: rgba(13, 110, 253, 0.15) !important;
+        }
+
+        .btn.action-disable:hover {
+            background-color: rgba(220, 53, 69, 0.15) !important;
+        }
+
+        .btn.action-reactivate:hover {
+            background-color: rgba(25, 135, 84, 0.15) !important;
+        }
+
+        .btn.action-create-class {
+            background: transparent !important;
+            border: 0 !important;
+            box-shadow: none !important;
+            color: #198754 !important;
+            transition: background-color 0.2s ease-in-out;
+        }
+
+        .btn.action-create-class:hover {
+            background-color: rgba(25, 135, 84, 0.15) !important;
+        }
+
         .turma-actions {
             display: flex;
             justify-content: center;
@@ -136,7 +186,7 @@ if (!isset($_SESSION['turma_status_csrf_token'])) {
     <main class="container my-4">
         <header class="d-flex justify-content-between align-items-center mb-4">
             <div>
-                <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalNovaTurma">
+                <button type="button" class="btn btn-success btn-sm action-create-class" data-bs-toggle="modal" data-bs-target="#modalNovaTurma">
                     <i class="bi bi-plus-circle me-1"></i> Cadastrar Turma
                 </button>
             </div>
@@ -201,26 +251,26 @@ if (!isset($_SESSION['turma_status_csrf_token'])) {
                                     <td><?= htmlspecialchars($turma['status']) ?></td>
                                     <td class="text-center">
                                         <div class="turma-actions">
-                                        <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#modalHorarios<?= (int) $turma['id_turma'] ?>">
-                                            <i class="bi bi-clock me-1"></i> Gerir Horário
+                                        <button type="button" class="btn btn-sm action-icon-btn action-edit" title="Gerir horários da turma" aria-label="Gerir horários da turma" data-bs-toggle="modal" data-bs-target="#modalHorarios<?= (int) $turma['id_turma'] ?>">
+                                            <i class="bi bi-clock" aria-hidden="true"></i>
                                         </button>
-                                        <button type="button" class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#modalEditarTurma<?= (int) $turma['id_turma'] ?>">
-                                            <i class="bi bi-pencil me-1"></i> Editar
+                                        <button type="button" class="btn btn-sm action-icon-btn action-edit" title="Editar turma" aria-label="Editar turma" data-bs-toggle="modal" data-bs-target="#modalEditarTurma<?= (int) $turma['id_turma'] ?>">
+                                            <i class="bi bi-pencil-square" aria-hidden="true"></i>
                                         </button>
                                         <?php if (strtoupper((string)$turma['status']) === 'INATIVA'): ?>
                                             <form action="../../controller/TurmaController.php?acao=reativar" method="POST" class="turma-status-form" onsubmit="return confirm('Deseja reativar esta turma?');">
                                                 <input type="hidden" name="id" value="<?= (int)$turma['id_turma'] ?>">
                                                 <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['turma_status_csrf_token'], ENT_QUOTES, 'UTF-8') ?>">
-                                                <button type="submit" class="btn btn-success btn-sm">
-                                                    <i class="bi bi-arrow-counterclockwise me-1"></i> Ativar
+                                                <button type="submit" class="btn btn-sm action-icon-btn action-reactivate" title="Reativar turma" aria-label="Reativar turma">
+                                                    <i class="bi bi-arrow-counterclockwise" aria-hidden="true"></i>
                                                 </button>
                                             </form>
                                         <?php else: ?>
                                             <form action="../../controller/TurmaController.php?acao=desativar" method="POST" class="turma-status-form" onsubmit="return confirm('Deseja desativar esta turma?');">
                                                 <input type="hidden" name="id" value="<?= (int)$turma['id_turma'] ?>">
                                                 <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['turma_status_csrf_token'], ENT_QUOTES, 'UTF-8') ?>">
-                                                <button type="submit" class="btn btn-danger btn-sm">
-                                                    <i class="bi bi-power me-1"></i> Desativar
+                                                <button type="submit" class="btn btn-sm action-icon-btn action-disable" title="Desativar turma" aria-label="Desativar turma">
+                                                    <i class="bi bi-power" aria-hidden="true"></i>
                                                 </button>
                                             </form>
                                         <?php endif; ?>
@@ -422,7 +472,7 @@ if (!isset($_SESSION['turma_status_csrf_token'])) {
                                             <th>Dia da semana</th>
                                             <th>Início</th>
                                             <th>Fim</th>
-                                            <th class="text-end">Ação</th>
+                                            <th class="text-center">Ação</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -431,9 +481,9 @@ if (!isset($_SESSION['turma_status_csrf_token'])) {
                                                 <td><?= htmlspecialchars($horario['dia_semana'], ENT_QUOTES, 'UTF-8') ?></td>
                                                 <td><?= htmlspecialchars(substr((string) $horario['hora_inicio'], 0, 5), ENT_QUOTES, 'UTF-8') ?></td>
                                                 <td><?= htmlspecialchars(substr((string) $horario['hora_fim'], 0, 5), ENT_QUOTES, 'UTF-8') ?></td>
-                                                <td class="text-end">
-                                                    <a href="../../controller/HorarioTurmaController.php?acao=excluir&amp;id_horario=<?= (int) $horario['id_horario'] ?>&amp;id_turma=<?= $idTurma ?>&amp;retorno=listar_turma" class="btn btn-danger btn-sm" onclick="return confirm('Deseja realmente remover este horário?');">
-                                                        <i class="bi bi-trash me-1"></i> Excluir
+                                                <td class="text-center">
+                                                    <a href="../../controller/HorarioTurmaController.php?acao=excluir&amp;id_horario=<?= (int) $horario['id_horario'] ?>&amp;id_turma=<?= $idTurma ?>&amp;retorno=listar_turma" class="btn btn-sm action-icon-btn action-disable" title="Excluir horário" aria-label="Excluir horário" onclick="return confirm('Deseja realmente remover este horário?');">
+                                                        <i class="bi bi-trash" aria-hidden="true"></i>
                                                     </a>
                                                 </td>
                                             </tr>

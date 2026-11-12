@@ -97,8 +97,11 @@ if (isset($_SESSION['usuario']) && $perfilUsuario === 2 && isset($_SESSION['id_a
         <!-- ÍCONE DE NOTIFICAÇÕES -->
         <?php if (isset($_SESSION['usuario']) && in_array($perfilUsuario, [2, 3], true)): ?>
             <div class="notificacao-container">
-                <button type="button" id="btnNotificacao" class="btn-notificacao">
-                    <i class="bi bi-bell-fill" aria-hidden="true"></i>
+                <button type="button" id="btnNotificacao" class="btn-notificacao" aria-label="Abrir notificações" title="Notificações">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/>
+                        <path d="M10 21h4"/>
+                    </svg>
                     <?php
                     $totalNotificacoesEquipe = $perfilUsuario === 2
                         ? (int)($notifications['total_atrasados'] ?? 0)
@@ -335,7 +338,7 @@ $total_notif_header = count($notificacoes_aluno);
                             Alterar senha
                         </button>
                     <?php endif; ?>
-                    <?php if ($perfilUsuario === 2): ?>
+                    <?php if ($perfilUsuario === 2 && empty($ocultarContatoHeader)): ?>
                         <button type="button"
                                 class="profile-avatar-profile-link border-0 w-100 text-start"
                                 data-bs-toggle="modal"
@@ -432,7 +435,7 @@ $total_notif_header = count($notificacoes_aluno);
 </div>
 <?php endif; ?>
 
-<?php if (isset($_SESSION['usuario']) && $perfilUsuario === 2): ?>
+<?php if (isset($_SESSION['usuario']) && $perfilUsuario === 2 && empty($ocultarContatoHeader)): ?>
 <div class="modal fade" id="modalContatoDojify" tabindex="-1" aria-labelledby="modalContatoDojifyLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content shadow border-0">

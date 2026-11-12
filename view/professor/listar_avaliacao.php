@@ -104,6 +104,40 @@ if (isset($_GET['sucesso'])) {
     <!-- Estilo Global Dojify -->
     <link rel="stylesheet" href="../../assets/css/estilo.css">
     <style>
+        .btn.action-icon-btn {
+            width: 2.2rem;
+            height: 2.2rem;
+            padding: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            background: transparent !important;
+            border: 0 !important;
+            box-shadow: none !important;
+            transition: background-color 0.2s ease-in-out;
+        }
+
+        .btn.action-edit {
+            color: #0d6efd !important;
+        }
+
+        .btn.action-edit:hover {
+            background-color: rgba(13, 110, 253, 0.15) !important;
+        }
+
+        .btn.action-create-record {
+            background: transparent !important;
+            border: 0 !important;
+            box-shadow: none !important;
+            color: #198754 !important;
+            transition: background-color 0.2s ease-in-out;
+        }
+
+        .btn.action-create-record:hover {
+            background-color: rgba(25, 135, 84, 0.15) !important;
+        }
+
         #modalNovaAvaliacao .modal-content > form,
         #modalEditarAvaliacao .modal-content > form {
             display: flex;
@@ -146,7 +180,7 @@ if (isset($_GET['sucesso'])) {
     <main class="container my-4">
         <header class="d-flex justify-content-between align-items-center mb-4">
             <div>
-                <button type="button" class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#modalNovaAvaliacao">
+                <button type="button" class="btn btn-success btn-sm action-create-record" data-bs-toggle="modal" data-bs-target="#modalNovaAvaliacao">
                     <i class="bi bi-plus-circle me-1"></i> Registar Nova Avaliação
                 </button>
             </div>
@@ -188,7 +222,7 @@ if (isset($_GET['sucesso'])) {
                             <th>Professor</th>
                             <th>Habilidades a Melhorar</th>
                             <th>Próxima graduação prevista</th>
-                            <?php if (in_array($perfilId, [2, 3], true)): ?><th class="text-end">Ações</th><?php endif; ?>
+                            <?php if (in_array($perfilId, [2, 3], true)): ?><th class="text-center">Ações</th><?php endif; ?>
                         </tr>
                     </thead>
                     <tbody>
@@ -208,9 +242,11 @@ if (isset($_GET['sucesso'])) {
                                     <td><?= htmlspecialchars(mb_strimwidth($av->getHabilidadesMelhorar(), 0, 50, "...")) ?></td>
                                     <td><?= $av->getDataPrevista() ? date('d/m/Y', strtotime($av->getDataPrevista())) : '—' ?></td>
                                     <?php if (in_array($perfilId, [2, 3], true)): ?>
-                                        <td class="text-end">
+                                        <td class="text-center">
                                             <?php if ($perfilId === 2 || (int)$av->getIdUsuarioProfessor() === (int)$idUsuario): ?>
-                                                <button type="button" class="btn btn-info btn-sm"
+                                                <button type="button" class="btn btn-sm action-icon-btn action-edit"
+                                                        title="Editar avaliação"
+                                                        aria-label="Editar avaliação"
                                                         data-bs-toggle="modal"
                                                         data-bs-target="#modalEditarAvaliacao"
                                                         data-id="<?= (int)$av->getIdAvaliacao() ?>"
@@ -219,7 +255,7 @@ if (isset($_GET['sucesso'])) {
                                                         data-data-prevista="<?= htmlspecialchars((string)($av->getDataPrevista() ?? ''), ENT_QUOTES, 'UTF-8') ?>"
                                                         data-habilidades="<?= htmlspecialchars((string)$av->getHabilidadesMelhorar(), ENT_QUOTES, 'UTF-8') ?>"
                                                         data-observacoes="<?= htmlspecialchars((string)$av->getObservacoes(), ENT_QUOTES, 'UTF-8') ?>">
-                                                    <i class="bi bi-pencil me-1"></i> Editar
+                                                    <i class="bi bi-pencil-square" aria-hidden="true"></i>
                                                 </button>
                                             <?php endif; ?>
                                         </td>

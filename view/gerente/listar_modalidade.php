@@ -46,6 +46,56 @@ if (!isset($_SESSION['modalidade_status_csrf_token'])) {
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="../../assets/css/estilo.css">
     <style>
+        .btn.action-icon-btn {
+            width: 2.2rem;
+            height: 2.2rem;
+            padding: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            background: transparent !important;
+            border: 0 !important;
+            box-shadow: none !important;
+            transition: background-color 0.2s ease-in-out;
+        }
+
+        .btn.action-edit {
+            color: #0d6efd !important;
+        }
+
+        .btn.action-disable {
+            color: #dc3545 !important;
+        }
+
+        .btn.action-reactivate {
+            color: #198754 !important;
+        }
+
+        .btn.action-edit:hover {
+            background-color: rgba(13, 110, 253, 0.15) !important;
+        }
+
+        .btn.action-disable:hover {
+            background-color: rgba(220, 53, 69, 0.15) !important;
+        }
+
+        .btn.action-reactivate:hover {
+            background-color: rgba(25, 135, 84, 0.15) !important;
+        }
+
+        .btn.action-create-modality {
+            background: transparent !important;
+            border: 0 !important;
+            box-shadow: none !important;
+            color: #198754 !important;
+            transition: background-color 0.2s ease-in-out;
+        }
+
+        .btn.action-create-modality:hover {
+            background-color: rgba(25, 135, 84, 0.15) !important;
+        }
+
         .modalidade-status-form {
             display: inline-flex !important;
             align-items: center !important;
@@ -59,38 +109,14 @@ if (!isset($_SESSION['modalidade_status_csrf_token'])) {
             vertical-align: middle;
         }
 
-        .modalidade-status-button {
+        .table .modalidade-status-form > button[type="submit"] {
             display: inline-flex !important;
+            width: 2.2rem !important;
+            min-width: 2.2rem !important;
+            margin: 0 !important;
+            padding: 0 !important;
             align-items: center !important;
             justify-content: center !important;
-            width: auto !important;
-            min-width: 0 !important;
-            margin: 0 !important;
-            padding: 5px 10px !important;
-            border: 0 !important;
-            border-radius: 4px !important;
-            box-shadow: none !important;
-            color: #fff !important;
-            font-size: 0.8rem !important;
-            font-weight: 500 !important;
-            line-height: 1.5 !important;
-            white-space: nowrap;
-        }
-
-        .modalidade-status-button.btn-danger {
-            background-color: var(--action-danger) !important;
-        }
-
-        .modalidade-status-button.btn-danger:hover {
-            background-color: var(--action-danger-hover) !important;
-        }
-
-        .modalidade-status-button.btn-success {
-            background-color: var(--action-submit) !important;
-        }
-
-        .modalidade-status-button.btn-success:hover {
-            background-color: var(--action-submit-hover) !important;
         }
 
         .modal-footer > .modalidade-modal-button {
@@ -131,7 +157,7 @@ if (!isset($_SESSION['modalidade_status_csrf_token'])) {
     <main class="container my-4">
         <header class="d-flex justify-content-between align-items-center mb-4">
             <div>
-                <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalCadastrarModalidade">
+                <button type="button" class="btn btn-success btn-sm action-create-modality" data-bs-toggle="modal" data-bs-target="#modalCadastrarModalidade">
                     <i class="bi bi-plus-circle me-1"></i> Cadastrar Modalidade
                 </button>
             </div>
@@ -180,7 +206,7 @@ if (!isset($_SESSION['modalidade_status_csrf_token'])) {
                                 <th>Nome</th>
                                 <th>Descrição</th>
                                 <th>Status</th>
-                                <th class="text-end">Ações</th>
+                                <th class="text-center">Ações</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -193,15 +219,18 @@ if (!isset($_SESSION['modalidade_status_csrf_token'])) {
                                             <?= htmlspecialchars($modalidade['status']) ?>
                                         </span>
                                     </td>
-                                    <td class="text-end">
+                                    <td class="text-center">
+                                        <div class="d-flex justify-content-center align-items-center gap-1 flex-nowrap">
                                         <?php if ($modalidade['status'] === 'ATIVA'): ?>
-                                        <button type="button" class="btn btn-info btn-sm"
+                                        <button type="button" class="btn btn-sm action-icon-btn action-edit"
+                                                title="Editar modalidade"
+                                                aria-label="Editar modalidade"
                                                 data-bs-toggle="modal"
                                                 data-bs-target="#modalEditarModalidade"
                                                 data-id="<?= (int)$modalidade['id_modalidade'] ?>"
                                                 data-nome="<?= htmlspecialchars($modalidade['nome'], ENT_QUOTES, 'UTF-8') ?>"
                                                 data-descricao="<?= htmlspecialchars($modalidade['descricao'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
-                                            <i class="bi bi-pencil me-1"></i> Editar
+                                            <i class="bi bi-pencil-square" aria-hidden="true"></i>
                                         </button>
                                         <?php endif; ?>
                                         <form action="../../controller/ModalidadeController.php?acao=<?= $modalidade['status'] === 'ATIVA' ? 'desativar' : 'reativar' ?>"
@@ -209,10 +238,14 @@ if (!isset($_SESSION['modalidade_status_csrf_token'])) {
                                               onsubmit="return confirm('<?= $modalidade['status'] === 'ATIVA' ? 'Deseja realmente desativar esta modalidade?' : 'Deseja reativar esta modalidade?' ?>');">
                                             <input type="hidden" name="id" value="<?= (int)$modalidade['id_modalidade'] ?>">
                                             <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['modalidade_status_csrf_token'], ENT_QUOTES, 'UTF-8') ?>">
-                                            <button type="submit" class="btn btn-sm modalidade-status-button <?= $modalidade['status'] === 'ATIVA' ? 'btn-danger' : 'btn-success' ?>">
-                                                <i class="bi <?= $modalidade['status'] === 'ATIVA' ? 'bi-power' : 'bi-arrow-counterclockwise' ?> me-1" aria-hidden="true"></i><?= $modalidade['status'] === 'ATIVA' ? 'Desativar' : 'Reativar' ?>
+                                            <button type="submit"
+                                                    class="btn btn-sm action-icon-btn <?= $modalidade['status'] === 'ATIVA' ? 'action-disable' : 'action-reactivate' ?>"
+                                                    title="<?= $modalidade['status'] === 'ATIVA' ? 'Desativar modalidade' : 'Reativar modalidade' ?>"
+                                                    aria-label="<?= $modalidade['status'] === 'ATIVA' ? 'Desativar modalidade' : 'Reativar modalidade' ?>">
+                                                <i class="bi <?= $modalidade['status'] === 'ATIVA' ? 'bi-power' : 'bi-arrow-counterclockwise' ?>" aria-hidden="true"></i>
                                             </button>
                                         </form>
+                                        </div>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>

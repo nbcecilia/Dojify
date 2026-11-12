@@ -99,6 +99,40 @@ if (isset($_GET['sucesso'])) {
     <!-- Estilo Global Dojify -->
     <link rel="stylesheet" href="../../assets/css/estilo.css">
     <style>
+        .btn.action-icon-btn {
+            width: 2.2rem;
+            height: 2.2rem;
+            padding: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            background: transparent !important;
+            border: 0 !important;
+            box-shadow: none !important;
+            transition: background-color 0.2s ease-in-out;
+        }
+
+        .btn.action-edit {
+            color: #0d6efd !important;
+        }
+
+        .btn.action-edit:hover {
+            background-color: rgba(13, 110, 253, 0.15) !important;
+        }
+
+        .btn.action-create-record {
+            background: transparent !important;
+            border: 0 !important;
+            box-shadow: none !important;
+            color: #198754 !important;
+            transition: background-color 0.2s ease-in-out;
+        }
+
+        .btn.action-create-record:hover {
+            background-color: rgba(25, 135, 84, 0.15) !important;
+        }
+
         #modalNovaGraduacao .modal-content > form {
             display: flex;
             flex: 1 1 auto;
@@ -139,7 +173,7 @@ if (isset($_GET['sucesso'])) {
     <main class="container my-4">
         <header class="d-flex justify-content-between align-items-center mb-4">
             <div>
-                <button type="button" class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#modalNovaGraduacao">
+                <button type="button" class="btn btn-success btn-sm action-create-record" data-bs-toggle="modal" data-bs-target="#modalNovaGraduacao">
                     <i class="bi bi-plus-circle me-1"></i> Registar Nova Graduação
                 </button>
             </div>
@@ -180,7 +214,7 @@ if (isset($_GET['sucesso'])) {
                             <th>Faixa / Grau</th>
                             <th>Professor</th>
                             <th>Data</th>
-                            <?php if (in_array($perfilId, [2, 3], true)): ?><th class="text-end">Ações</th><?php endif; ?>
+                            <?php if (in_array($perfilId, [2, 3], true)): ?><th class="text-center">Ações</th><?php endif; ?>
                         </tr>
                     </thead>
                     <tbody>
@@ -202,16 +236,18 @@ if (isset($_GET['sucesso'])) {
                                     <td><?= htmlspecialchars($grad['nome_professor'] ?? '', ENT_QUOTES, 'UTF-8') ?></td>
                                     <td><?= date('d/m/Y', strtotime($grad['data_graduacao'])) ?></td>
                                     <?php if (in_array($perfilId, [2, 3], true)): ?>
-                                        <td class="text-end">
+                                        <td class="text-center">
                                             <?php if ($perfilId === 2 || (int)$grad['id_usuario_professor'] === (int)$idUsuario): ?>
-                                                <button type="button" class="btn btn-info btn-sm"
+                                                <button type="button" class="btn btn-sm action-icon-btn action-edit"
+                                                        title="Editar graduação"
+                                                        aria-label="Editar graduação"
                                                         data-bs-toggle="modal"
                                                         data-bs-target="#modalEditarGraduacao"
                                                         data-id="<?= (int)$grad['id_graduacao'] ?>"
                                                         data-data="<?= htmlspecialchars($grad['data_graduacao'], ENT_QUOTES, 'UTF-8') ?>"
                                                         data-faixa="<?= htmlspecialchars($grad['faixa'], ENT_QUOTES, 'UTF-8') ?>"
                                                         data-grau="<?= htmlspecialchars($grad['grau'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
-                                                    <i class="bi bi-pencil me-1"></i> Editar
+                                                    <i class="bi bi-pencil-square" aria-hidden="true"></i>
                                                 </button>
                                             <?php endif; ?>
                                         </td>
