@@ -46,6 +46,11 @@ class LoginController {
         
         $usuario = $loginDAO->autenticar($email, $senha);
 
+        if (is_array($usuario) && isset($usuario['erro_login'])) {
+            header('Location: ../view/login.php?erro=' . rawurlencode($usuario['erro_login']));
+            exit;
+        }
+
         if ($usuario) {
             // 1. Variáveis planas de sessão
             $_SESSION['id_usuario']   = $usuario['id_usuario'];

@@ -65,7 +65,7 @@ if (empty($mesesLabels)) {
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
     <!-- CSS principal do Dojify -->
-    <link rel="stylesheet" href="../../assets/css/estilo.css">
+    <link rel="stylesheet" href="../../assets/css/estilo.css?v=<?= filemtime(__DIR__ . '/../../assets/css/estilo.css'); ?>">
 
     <!-- CSS das dashboards e suporte -->
     <link rel="stylesheet" href="../../assets/css/gerente.css">
@@ -135,7 +135,7 @@ if (empty($mesesLabels)) {
                     <h3>Cadastrar academia</h3>
                     <p>Adicione uma nova academia ao sistema Dojify, registrando suas informações institucionais.</p>
                     <div class="gerente-card-action">
-                        <a href="cadastrar_academia.php" class="btn gerente-btn">Cadastrar academia</a>
+                        <button type="button" class="btn gerente-btn" data-bs-toggle="modal" data-bs-target="#modalCadastrarAcademia">Cadastrar academia</button>
                     </div>
                 </article>
 
@@ -147,7 +147,7 @@ if (empty($mesesLabels)) {
                     <h3>Cadastrar gerente</h3>
                     <p>Cadastre um novo gerente e vincule-o à academia pela qual será responsável.</p>
                     <div class="gerente-card-action">
-                        <a href="cadastrar_gerente.php" class="btn gerente-btn">Cadastrar gerente</a>
+                        <button type="button" class="btn gerente-btn" data-bs-toggle="modal" data-bs-target="#modalCadastrarGerente">Cadastrar gerente</button>
                     </div>
                 </article>
 
@@ -167,6 +167,40 @@ if (empty($mesesLabels)) {
 
     </main>
 
+    <div class="modal fade" id="modalCadastrarAcademia" tabindex="-1" aria-labelledby="tituloModalCadastrarAcademia" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header">
+                    <div>
+                        <h2 class="modal-title fs-5" id="tituloModalCadastrarAcademia">Cadastrar Academia</h2>
+                        <p class="text-muted small mb-0">Cadastrar uma nova academia no sistema.</p>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                </div>
+                <div class="modal-body p-0">
+                    <iframe class="edit-user-frame" title="Formulário para cadastrar academia"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalCadastrarGerente" tabindex="-1" aria-labelledby="tituloModalCadastrarGerente" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header">
+                    <div>
+                        <h2 class="modal-title fs-5" id="tituloModalCadastrarGerente">Cadastrar Gerente</h2>
+                        <p class="text-muted small mb-0">Preencha os campos abaixo para cadastrar um novo gerente.</p>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                </div>
+                <div class="modal-body p-0">
+                    <iframe class="edit-user-frame" title="Formulário para cadastrar gerente"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- =====================================================
          RODAPÉ
     ====================================================== -->
@@ -176,6 +210,51 @@ if (empty($mesesLabels)) {
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const listPath = new URL('listar_academias_gerentes.php', window.location.href).pathname;
+
+            function configurarModalCadastro(modalId, formPath, sucesso, mensagem) {
+                const modalElement = document.getElementById(modalId);
+                const frame = modalElement.querySelector('iframe');
+                const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
+
+                modalElement.addEventListener('show.bs.modal', function () {
+                    frame.src = formPath + '?modal=1';
+                });
+
+                frame.addEventListener('load', function () {
+                    const frameUrl = new URL(frame.contentWindow.location.href);
+                    if (frameUrl.pathname !== listPath) {
+                        return;
+                    }
+
+                    if (frameUrl.searchParams.get('sucesso') === sucesso) {
+                        window.alert(mensagem);
+                        modal.hide();
+                        window.location.reload();
+                        return;
+                    }
+
+                    modal.hide();
+                });
+            }
+
+            configurarModalCadastro(
+                'modalCadastrarAcademia',
+                'cadastrar_academia.php',
+                'academia_cadastrada',
+                'Academia cadastrada com sucesso!'
+            );
+            configurarModalCadastro(
+                'modalCadastrarGerente',
+                'cadastrar_gerente.php',
+                'gerente_cadastrado',
+                'Gerente cadastrado com sucesso!'
+            );
+        });
+    </script>
 
     <!-- Script para renderizar o Gráfico com Dados Reais do Banco -->
     <script>

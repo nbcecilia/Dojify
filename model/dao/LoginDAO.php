@@ -19,7 +19,7 @@ class LoginDAO {
      * 
      * @param string $email
      * @param string $senha
-     * @return array|false Retorna os dados do utilizador ou false se falhar.
+     * @return array|false Dados do utilizador, código de bloqueio ou false para credenciais inválidas.
      */
     public function autenticar($email, $senha) {
         try {
@@ -40,21 +40,23 @@ class LoginDAO {
                 return false; // Email não encontrado
             }
 
-            // 2. Verificar se o status é 'ATIVO'
+            // 2. Verificar a senha antes de informar o status da conta.
+            if (!password_verify($senha, $usuario['senha_hash'])) {
+                return false;
+            }
+
+            if ($usuario['status'] === 'INATIVO') {
+                return ['erro_login' => 'usuario_inativo'];
+            }
+            if ($usuario['status'] === 'SUSPENSO') {
+                return ['erro_login' => 'usuario_suspenso'];
+            }
             if ($usuario['status'] !== 'ATIVO') {
-                return false; // Utilizador existe mas não está ativo
+                return false;
             }
 
-            // 3. Verificar a senha com a hash armazenada
-            if (password_verify($senha, $usuario['senha_hash'])) {
-                // Senha correta! Remove a hash da senha por segurança antes de retornar
-                unset($usuario['senha_hash']);
-                // Remove também o status, pois não é necessário na sessão
-                unset($usuario['status']);
-                return $usuario; // Retorna os dados do utilizador para a sessão
-            }
-
-            return false; // Senha incorreta
+            unset($usuario['senha_hash'], $usuario['status']);
+            return $usuario;
 
         } catch (PDOException $e) {
             error_log("Erro no LoginDAO::autenticar - " . $e->getMessage());

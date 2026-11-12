@@ -47,6 +47,10 @@ session_start();
                             echo 'E-mail ou palavra-passe incorretos!';
                         } elseif ($_GET['erro'] == 'campos_vazios') {
                             echo 'Por favor, preencha todos os campos.';
+                        } elseif ($_GET['erro'] == 'usuario_inativo') {
+                            echo 'Seu usuário está inativo. Entre em contato com o gerente da academia.';
+                        } elseif ($_GET['erro'] == 'usuario_suspenso') {
+                            echo 'Seu usuário está suspenso. Entre em contato com o gerente da academia.';
                         } else {
                             echo 'E-mail ou palavra-passe inválidos!';
                         }
