@@ -11,6 +11,59 @@ class PagamentoDTO {
     private string $status = 'PENDENTE';
     private ?string $observacao = null;
 
+    public static function fromArray(array $dados): self {
+        $valor = $dados['valor'] ?? null;
+        if (!is_scalar($valor) || !is_numeric($valor) || !is_finite((float)$valor)
+            || (float)$valor <= 0 || (float)$valor > 99999999.99) {
+            throw new InvalidArgumentException('Informe um valor válido para o pagamento.');
+        }
+
+        $dataVencimento = $dados['data_vencimento'] ?? '';
+        if (!is_string($dataVencimento)) {
+            throw new InvalidArgumentException('Informe uma data de vencimento válida.');
+        }
+        $dataVencimento = trim($dataVencimento);
+        if (!self::dataValida($dataVencimento)) {
+            throw new InvalidArgumentException('Informe uma data de vencimento válida.');
+        }
+
+        $dataPagamento = $dados['data_pagamento'] ?? '';
+        if (!is_string($dataPagamento)) {
+            throw new InvalidArgumentException('Informe uma data de pagamento válida.');
+        }
+        $dataPagamento = trim($dataPagamento);
+        if ($dataPagamento !== '' && !self::dataValida($dataPagamento)) {
+            throw new InvalidArgumentException('Informe uma data de pagamento válida.');
+        }
+
+        $formaPagamento = $dados['forma_pagamento'] ?? '';
+        if (!is_string($formaPagamento)) {
+            throw new InvalidArgumentException('Selecione uma forma de pagamento válida.');
+        }
+        $formaPagamento = strtoupper(trim($formaPagamento));
+        $formasPermitidas = ['DINHEIRO', 'PIX', 'CARTAO', 'OUTRO'];
+        if ($formaPagamento !== '' && !in_array($formaPagamento, $formasPermitidas, true)) {
+            throw new InvalidArgumentException('Selecione uma forma de pagamento válida.');
+        }
+
+        $pagamento = new self();
+        $pagamento->setValor((float)$valor);
+        $pagamento->setDataVencimento($dataVencimento);
+        $pagamento->setDataPagamento($dataPagamento !== '' ? $dataPagamento : null);
+        $pagamento->setFormaPagamento($formaPagamento !== '' ? $formaPagamento : null);
+
+        return $pagamento;
+    }
+
+    private static function dataValida(string $data): bool {
+        $dataObj = DateTimeImmutable::createFromFormat('!Y-m-d', $data);
+        $erros = DateTimeImmutable::getLastErrors();
+
+        return $dataObj !== false
+            && $dataObj->format('Y-m-d') === $data
+            && ($erros === false || ($erros['warning_count'] === 0 && $erros['error_count'] === 0));
+    }
+
     public function getIdPagamento(): ?int { return $this->idPagamento; }
     public function setIdPagamento(?int $id): void { $this->idPagamento = $id; }
 
