@@ -167,7 +167,7 @@ class PagamentoDAO {
                 INNER JOIN usuario u ON pl.id_usuario_aluno = u.id_usuario
                 WHERE u.id_academia = :id_academia
                   AND u.perfil_id = 4
-                  AND UPPER(COALESCE(p.status, 'PENDENTE')) NOT IN ('PAGO', 'CANCELADO')
+                  AND UPPER(COALESCE(p.status, 'PENDENTE')) <> 'CANCELADO'
                 GROUP BY u.id_usuario, DATE_FORMAT(p.data_vencimento, '%Y-%m')
                 ORDER BY MIN(p.data_vencimento) DESC";
         

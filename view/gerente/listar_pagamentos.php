@@ -18,7 +18,7 @@ $idAcademia = (int) $_SESSION['id_academia'];
 $dao->gerarMensalidadesRecorrentes($idAcademia);
 $pagamentosBrutos = $dao->listarPagamentosDaAcademia($idAcademia);
 
-// Consolida as cobranças abertas por aluno, mantendo cada mês separado.
+// Consolida as mensalidades por aluno, mantendo cada mês separado.
 $alunosComPendencias = [];
 $hoje = date('Y-m-d');
 foreach ($pagamentosBrutos as $pag) {
@@ -34,19 +34,22 @@ foreach ($pagamentosBrutos as $pag) {
             'cobrancas' => [],
             'total' => 0.0,
             'pendentes' => 0,
-            'atrasadas' => 0
+            'atrasadas' => 0,
+            'pagas' => 0
         ];
     }
 
     $status = strtoupper((string)$pag['status']);
     $atrasada = $status === 'ATRASADO'
         || ($status === 'PENDENTE' && $pag['data_vencimento'] < $hoje);
-    $pag['status_exibicao'] = $status === 'EM_ANALISE'
-        ? 'EM_ANALISE'
-        : ($atrasada ? 'ATRASADO' : 'PENDENTE');
+    $pag['status_exibicao'] = $status === 'PAGO'
+        ? 'PAGO'
+        : ($status === 'EM_ANALISE' ? 'EM_ANALISE' : ($atrasada ? 'ATRASADO' : 'PENDENTE'));
     $alunosComPendencias[$idAluno]['cobrancas'][] = $pag;
     $alunosComPendencias[$idAluno]['total'] += (float)$pag['valor'];
-    if ($atrasada) {
+    if ($status === 'PAGO') {
+        $alunosComPendencias[$idAluno]['pagas']++;
+    } elseif ($atrasada) {
         $alunosComPendencias[$idAluno]['atrasadas']++;
     } else {
         $alunosComPendencias[$idAluno]['pendentes']++;
@@ -199,7 +202,7 @@ foreach ($pagamentosBrutos as $pag) {
         <section class="card shadow-sm border-0 p-4">
             <div class="mb-4">
                 <h2>Gestão de Pagamentos</h2>
-                <p class="text-muted">Cada aluno aparece uma vez, com suas mensalidades pendentes e atrasadas.</p>
+                <p class="text-muted">Cada aluno aparece uma vez, com suas mensalidades pendentes, atrasadas e pagas.</p>
             </div>
 
             <div class="mb-4" data-live-search-container>
@@ -244,15 +247,15 @@ foreach ($pagamentosBrutos as $pag) {
             <?php endif; ?>
 
             <?php if (empty($alunosComPendencias)): ?>
-                <p class="text-center text-muted py-4">Nenhuma cobrança pendente ou atrasada.</p>
+                <p class="text-center text-muted py-4">Nenhuma mensalidade encontrada.</p>
             <?php else: ?>
                 <div class="table-responsive">
                     <table id="tabela-pagamentos" class="table table-hover align-middle">
                         <thead class="table-dark">
                             <tr>
                                 <th>Aluno</th>
-                                <th>Mensalidades em aberto</th>
-                                <th class="text-end">Total em aberto</th>
+                                <th>Mensalidades</th>
+                                <th class="text-end">Total mensalidades</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -267,6 +270,9 @@ foreach ($pagamentosBrutos as $pag) {
                                             <?php if ($aluno['atrasadas'] > 0): ?>
                                                 <span class="badge text-bg-danger"><?= $aluno['atrasadas'] ?> atrasada(s)</span>
                                             <?php endif; ?>
+                                            <?php if ($aluno['pagas'] > 0): ?>
+                                                <span class="badge text-bg-success"><?= $aluno['pagas'] ?> paga(s)</span>
+                                            <?php endif; ?>
                                         </div>
                                     </td>
                                     <td class="cobrancas-aluno">
@@ -280,6 +286,9 @@ foreach ($pagamentosBrutos as $pag) {
                                                 <div>
                                                     <strong><?= date('m/Y', strtotime($cobranca['mes_ano'] . '-01')) ?></strong>
                                                     <span class="text-muted"> · vence <?= date('d/m/Y', strtotime($cobranca['data_vencimento'])) ?></span>
+                                                    <?php if ($status === 'PAGO' && !empty($cobranca['data_pagamento'])): ?>
+                                                        <div class="small text-success">Pago em <?= date('d/m/Y', strtotime($cobranca['data_pagamento'])) ?></div>
+                                                    <?php endif; ?>
                                                     <div class="small text-muted">
                                                         <?= htmlspecialchars(implode(', ', array_unique($cobranca['nomes_planos'])), ENT_QUOTES, 'UTF-8') ?>
                                                     </div>
@@ -288,12 +297,15 @@ foreach ($pagamentosBrutos as $pag) {
                                                     <span class="fw-semibold">R$ <?= number_format((float)$cobranca['valor'], 2, ',', '.') ?></span>
                                                     <?php if ($status === 'ATRASADO'): ?>
                                                         <span class="badge text-bg-danger">Atrasado</span>
+                                                    <?php elseif ($status === 'PAGO'): ?>
+                                                        <span class="badge text-bg-success">Pago</span>
                                                     <?php elseif ($status === 'EM_ANALISE'): ?>
                                                         <span class="badge text-bg-info">Em análise</span>
                                                     <?php else: ?>
                                                         <span class="badge text-bg-warning">Pendente</span>
                                                     <?php endif; ?>
                                                 </div>
+                                                <?php if ($status !== 'PAGO'): ?>
                                                 <div class="d-flex align-items-center gap-2">
                                                     <select class="form-select form-select-sm pagamento-form-field"
                                                             name="forma_pagamento" form="form-receber-<?= $idPagamento ?>" required
@@ -328,6 +340,7 @@ foreach ($pagamentosBrutos as $pag) {
                                                         </button>
                                                     <?php endif; ?>
                                                 </div>
+                                                <?php endif; ?>
                                             </div>
                                         <?php endforeach; ?>
                                     </td>
