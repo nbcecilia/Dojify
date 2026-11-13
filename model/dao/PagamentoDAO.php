@@ -345,7 +345,9 @@ class PagamentoDAO {
     }
 
     public function relatorioPagamentos(int $idAcademia, string $dataInicio, string $dataFim, string $status): array {
-        $sql = "SELECT p.id_pagamento, p.valor, p.data_vencimento, p.data_pagamento, p.status, p.forma_pagamento,
+        $sql = "SELECT p.id_pagamento, p.valor, p.data_vencimento, p.data_pagamento,
+                       COALESCE(p.status, 'PENDENTE') AS status, p.forma_pagamento,
+                       u.id_usuario AS id_aluno,
                        pl.nome_plano, u.nome AS aluno_nome
                 FROM pagamento p
                 INNER JOIN plano pl ON p.id_plano_matricula = pl.id_plano
@@ -356,9 +358,10 @@ class PagamentoDAO {
                       OR 
                       (DATE(p.data_pagamento) >= :data_inicio AND DATE(p.data_pagamento) <= :data_fim)
                   )";
-
-        if ($status !== 'TODOS') {
-            $sql .= " AND UPPER(p.status) = :status";
+        if ($status === 'TODOS') {
+            $sql .= " AND UPPER(COALESCE(p.status, 'PENDENTE')) <> 'CANCELADO'";
+        } else {
+            $sql .= " AND UPPER(COALESCE(p.status, 'PENDENTE')) = :status";
         }
 
         $sql .= " ORDER BY p.data_vencimento ASC";

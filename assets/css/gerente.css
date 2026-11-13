@@ -483,6 +483,7 @@ body.gerente-page {
 
     .gerente-kpis,
     .gerente-grid,
+    .gerente-home-pedagogia .gerente-grid,
     .gerente-home-gestao .gerente-grid,
     .gerente-finance-box {
         grid-template-columns: 1fr;

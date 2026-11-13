@@ -21,12 +21,53 @@ $totalValor = 0;
 
 // Se o formulário de filtro foi submetido, busca os dados
 if (isset($_GET['filtrar'])) {
-    $dadosRelatorio = $dao->relatorioPagamentos($idAcademia, $dataInicio, $dataFim, $status);
-    foreach ($dadosRelatorio as $pag) {
+    $linhasRelatorio = $dao->relatorioPagamentos($idAcademia, $dataInicio, $dataFim, $status);
+    $pagamentosPorAluno = [];
+
+    foreach ($linhasRelatorio as $pag) {
+        $idAluno = (int)$pag['id_aluno'];
+        if (!isset($pagamentosPorAluno[$idAluno])) {
+            $pagamentosPorAluno[$idAluno] = [
+                'aluno_nome' => $pag['aluno_nome'],
+                'planos' => [],
+                'vencimentos' => [],
+                'status_pagamentos' => [],
+                'formas_pagamento' => [],
+                'valor' => 0
+            ];
+        }
+
+        $pagamentosPorAluno[$idAluno]['planos'][(string)$pag['nome_plano']] = true;
+        $pagamentosPorAluno[$idAluno]['vencimentos'][(string)$pag['data_vencimento']] = true;
+        $pagamentosPorAluno[$idAluno]['status_pagamentos'][strtoupper((string)$pag['status'])] = true;
+        $formaPagamento = trim((string)($pag['forma_pagamento'] ?? ''));
+        $pagamentosPorAluno[$idAluno]['formas_pagamento'][$formaPagamento !== '' ? $formaPagamento : '-'] = true;
+        $pagamentosPorAluno[$idAluno]['valor'] += (float)$pag['valor'];
+
         if (strtoupper($pag['status']) === 'PAGO') {
-            $totalValor += $pag['valor'];
+            $totalValor += (float)$pag['valor'];
         }
     }
+
+    foreach ($pagamentosPorAluno as &$pagamentoAluno) {
+        $pagamentoAluno['planos'] = array_keys($pagamentoAluno['planos']);
+        sort($pagamentoAluno['planos'], SORT_NATURAL | SORT_FLAG_CASE);
+
+        $pagamentoAluno['vencimentos'] = array_keys($pagamentoAluno['vencimentos']);
+        sort($pagamentoAluno['vencimentos']);
+
+        $pagamentoAluno['status_pagamentos'] = array_keys($pagamentoAluno['status_pagamentos']);
+        sort($pagamentoAluno['status_pagamentos']);
+
+        $pagamentoAluno['formas_pagamento'] = array_keys($pagamentoAluno['formas_pagamento']);
+        sort($pagamentoAluno['formas_pagamento'], SORT_NATURAL | SORT_FLAG_CASE);
+    }
+    unset($pagamentoAluno);
+
+    $dadosRelatorio = array_values($pagamentosPorAluno);
+    usort($dadosRelatorio, static function (array $a, array $b): int {
+        return strcasecmp($a['aluno_nome'], $b['aluno_nome']);
+    });
 }
 ?>
 
@@ -95,8 +136,8 @@ if (isset($_GET['filtrar'])) {
                             <option value="TODOS" <?= $status === 'TODOS' ? 'selected' : '' ?>>Todos</option>
                             <option value="PAGO" <?= $status === 'PAGO' ? 'selected' : '' ?>>Pagos</option>
                             <option value="PENDENTE" <?= $status === 'PENDENTE' ? 'selected' : '' ?>>Pendentes</option>
-                            <option value="EM_ANALISE" <?= $status === 'EM_ANALISE' ? 'selected' : '' ?>>Comprovante em análise</option>
                             <option value="ATRASADO" <?= $status === 'ATRASADO' ? 'selected' : '' ?>>Atrasados</option>
+                            <option value="CANCELADO" <?= $status === 'CANCELADO' ? 'selected' : '' ?>>Cancelados</option>
                         </select>
                     </div>
                     <div class="col-md-2">
@@ -128,38 +169,61 @@ if (isset($_GET['filtrar'])) {
                                     <th>Aluno</th>
                                     <th>Plano</th>
                                     <th>Vencimento</th>
-                                    <th>Valor (R$)</th>
+                                    <th>Total (R$)</th>
                                     <th>Estado</th>
                                     <th>Forma de Pag.</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <?php foreach ($dadosRelatorio as $pag): ?>
-                                    <?php 
-                                        $statusUpper = strtoupper($pag['status']);
-                                        if ($statusUpper === 'PAGO') {
-                                            $badgeClass = 'bg-success';
-                                        } elseif ($statusUpper === 'PENDENTE') {
-                                            $badgeClass = 'bg-warning text-dark';
-                                        } elseif ($statusUpper === 'ATRASADO') {
-                                            $badgeClass = 'bg-danger';
-                                        } elseif ($statusUpper === 'EM_ANALISE') {
-                                            $badgeClass = 'bg-info text-dark';
-                                        } else {
-                                            $badgeClass = 'bg-secondary';
-                                        }
-                                    ?>
                                     <tr>
                                         <td><strong><?= htmlspecialchars($pag['aluno_nome']) ?></strong></td>
-                                        <td><?= htmlspecialchars($pag['nome_plano']) ?></td>
-                                        <td><?= date('d/m/Y', strtotime($pag['data_vencimento'])) ?></td>
+                                        <td>
+                                            <ul class="list-unstyled mb-0">
+                                                <?php foreach ($pag['planos'] as $nomePlano): ?>
+                                                    <li><?= htmlspecialchars($nomePlano, ENT_QUOTES, 'UTF-8') ?></li>
+                                                <?php endforeach; ?>
+                                            </ul>
+                                        </td>
+                                        <td>
+                                            <ul class="list-unstyled mb-0">
+                                                <?php foreach ($pag['vencimentos'] as $dataVencimento): ?>
+                                                    <li><?= date('d/m/Y', strtotime($dataVencimento)) ?></li>
+                                                <?php endforeach; ?>
+                                            </ul>
+                                        </td>
                                         <td>R$ <?= number_format($pag['valor'], 2, ',', '.') ?></td>
                                         <td>
-                                            <span class="badge <?= $badgeClass ?> px-3 py-2">
-                                                <?= htmlspecialchars($pag['status']) ?>
-                                            </span>
+                                            <ul class="list-unstyled mb-0">
+                                                <?php foreach ($pag['status_pagamentos'] as $statusPagamento): ?>
+                                                    <?php
+                                                    if ($statusPagamento === 'PAGO') {
+                                                        $badgeClass = 'bg-success';
+                                                    } elseif ($statusPagamento === 'PENDENTE') {
+                                                        $badgeClass = 'bg-warning text-dark';
+                                                    } elseif ($statusPagamento === 'ATRASADO') {
+                                                        $badgeClass = 'bg-danger';
+                                                    } elseif ($statusPagamento === 'EM_ANALISE') {
+                                                        $badgeClass = 'bg-info text-dark';
+                                                    } else {
+                                                        $badgeClass = 'bg-secondary';
+                                                    }
+                                                    ?>
+                                                    <li class="mb-1">
+                                                        <span class="badge <?= $badgeClass ?> px-3 py-2">
+                                                            <?= htmlspecialchars($statusPagamento, ENT_QUOTES, 'UTF-8') ?>
+                                                        </span>
+                                                    </li>
+                                                <?php endforeach; ?>
+                                            </ul>
                                         </td>
-                                        <td><?= $pag['forma_pagamento'] ? htmlspecialchars($pag['forma_pagamento']) : '-' ?></td>
+                                        <td>
+                                            <ul class="list-unstyled mb-0">
+                                                <?php foreach ($pag['formas_pagamento'] as $formaPagamento): ?>
+                                                    <li><?= htmlspecialchars($formaPagamento, ENT_QUOTES, 'UTF-8') ?></li>
+                                                <?php endforeach; ?>
+                                            </ul>
+                                        </td>
                                     </tr>
                                 <?php endforeach; ?>
                             </tbody>

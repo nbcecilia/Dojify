@@ -72,7 +72,7 @@ try {
 
     <!-- Folhas de Estilo Dojify -->
     <link rel="stylesheet" href="../../assets/css/estilo.css">
-    <link rel="stylesheet" href="../../assets/css/gerente.css?v=12">
+    <link rel="stylesheet" href="../../assets/css/gerente.css?v=14">
 
     <!-- Estilos específicos para garantir espaçamento correto e ordem no topo -->
     <style>
@@ -87,6 +87,7 @@ try {
         .gerente-kpis {
             margin-bottom: 5px !important;
         }
+
     </style>
 </head>
 
