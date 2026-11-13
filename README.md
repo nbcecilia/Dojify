@@ -22,6 +22,7 @@ O **Dojify** é o projeto final do Curso Técnico em Informática desenvolvido p
 
 ### Controle Financeiro
 * **Mensalidades:** Controle de status (pago, pendente e atrasado).
+* **Recorrência:** Ao abrir a lista financeira, o sistema cria as mensalidades que faltam para os planos ativos até o mês atual.
 * **Relatórios:** Identificação rápida de fluxo de caixa e alertas de inadimplência.
 
 ---
@@ -71,4 +72,3 @@ http://localhost/dojify
 # Licença e Fins Acadêmicos
 
 Este projeto foi desenvolvido exclusivamente para fins acadêmicos como requisito para conclusão do **Curso Técnico em Informática**.
-

@@ -11,6 +11,103 @@ class PagamentoDAO {
         $this->conexao = \Conexao::getConexao();
     }
 
+    public function gerarMensalidadesRecorrentes(int $idAcademia): int {
+        if ($idAcademia <= 0) {
+            return 0;
+        }
+
+        $dataLimite = new DateTimeImmutable('last day of this month');
+        $geradas = 0;
+
+        $this->conexao->beginTransaction();
+
+        try {
+            $stmtPlanos = $this->conexao->prepare(
+                "SELECT pl.id_plano, pl.valor
+                 FROM plano pl
+                 INNER JOIN usuario u ON u.id_usuario = pl.id_usuario_aluno
+                 WHERE u.id_academia = :id_academia
+                   AND u.perfil_id = 4
+                   AND pl.status = 'ATIVO'
+                 ORDER BY pl.id_plano
+                 FOR UPDATE"
+            );
+            $stmtPlanos->execute([':id_academia' => $idAcademia]);
+            $planos = $stmtPlanos->fetchAll(PDO::FETCH_ASSOC);
+
+            $stmtDatas = $this->conexao->prepare(
+                "SELECT MIN(data_vencimento) AS primeiro_vencimento,
+                        MAX(data_vencimento) AS ultimo_vencimento
+                 FROM pagamento
+                 WHERE id_plano_matricula = :id_plano"
+            );
+            $stmtExiste = $this->conexao->prepare(
+                "SELECT 1
+                 FROM pagamento
+                 WHERE id_plano_matricula = :id_plano
+                   AND data_vencimento = :data_vencimento
+                 LIMIT 1"
+            );
+            $stmtInserir = $this->conexao->prepare(
+                "INSERT INTO pagamento (id_plano_matricula, valor, data_vencimento, status)
+                 VALUES (:id_plano, :valor, :data_vencimento, 'PENDENTE')"
+            );
+
+            foreach ($planos as $plano) {
+                $idPlano = (int)$plano['id_plano'];
+                $stmtDatas->execute([':id_plano' => $idPlano]);
+                $datas = $stmtDatas->fetch(PDO::FETCH_ASSOC);
+
+                if (empty($datas['primeiro_vencimento']) || empty($datas['ultimo_vencimento'])) {
+                    continue;
+                }
+
+                $primeiroVencimento = new DateTimeImmutable($datas['primeiro_vencimento']);
+                $ultimoVencimento = new DateTimeImmutable($datas['ultimo_vencimento']);
+                $diaOriginal = (int)$primeiroVencimento->format('d');
+
+                while ($ultimoVencimento < $dataLimite) {
+                    $proximoMes = $ultimoVencimento->modify('first day of next month');
+                    $diaVencimento = min($diaOriginal, (int)$proximoMes->format('t'));
+                    $proximoVencimento = $proximoMes->setDate(
+                        (int)$proximoMes->format('Y'),
+                        (int)$proximoMes->format('m'),
+                        $diaVencimento
+                    );
+
+                    if ($proximoVencimento > $dataLimite) {
+                        break;
+                    }
+
+                    $dataVencimento = $proximoVencimento->format('Y-m-d');
+                    $stmtExiste->execute([
+                        ':id_plano' => $idPlano,
+                        ':data_vencimento' => $dataVencimento
+                    ]);
+
+                    if (!$stmtExiste->fetchColumn()) {
+                        $stmtInserir->execute([
+                            ':id_plano' => $idPlano,
+                            ':valor' => $plano['valor'],
+                            ':data_vencimento' => $dataVencimento
+                        ]);
+                        $geradas++;
+                    }
+
+                    $ultimoVencimento = $proximoVencimento;
+                }
+            }
+
+            $this->conexao->commit();
+            return $geradas;
+        } catch (Throwable $e) {
+            if ($this->conexao->inTransaction()) {
+                $this->conexao->rollBack();
+            }
+            throw $e;
+        }
+    }
+
     public function listarPagamentosDaAcademia(int $idAcademia): array {
         $sql = "SELECT 
                     MIN(p.id_pagamento) AS id_pagamento, 
@@ -70,6 +167,7 @@ class PagamentoDAO {
                 INNER JOIN usuario u ON pl.id_usuario_aluno = u.id_usuario
                 WHERE u.id_academia = :id_academia
                   AND u.perfil_id = 4
+                  AND UPPER(COALESCE(p.status, 'PENDENTE')) NOT IN ('PAGO', 'CANCELADO')
                 GROUP BY u.id_usuario, DATE_FORMAT(p.data_vencimento, '%Y-%m')
                 ORDER BY MIN(p.data_vencimento) DESC";
         

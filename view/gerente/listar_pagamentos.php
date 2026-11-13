@@ -15,16 +15,42 @@ require_once __DIR__ . '/../../model/dao/PagamentoDAO.php';
 
 $dao = new \PagamentoDAO();
 $idAcademia = (int) $_SESSION['id_academia'];
+$dao->gerarMensalidadesRecorrentes($idAcademia);
 $pagamentosBrutos = $dao->listarPagamentosDaAcademia($idAcademia);
 
-// Mantém uma cobrança consolidada por aluno e mês, com os IDs de cada plano.
-$pagamentos = [];
+// Consolida as cobranças abertas por aluno, mantendo cada mês separado.
+$alunosComPendencias = [];
+$hoje = date('Y-m-d');
 foreach ($pagamentosBrutos as $pag) {
     $pag['nomes_planos'] = !empty($pag['nome_plano']) ? explode(', ', $pag['nome_plano']) : [];
     $pag['ids_pagamentos'] = !empty($pag['ids_pagamentos'])
         ? array_map('intval', explode(',', $pag['ids_pagamentos']))
         : [];
-    $pagamentos[] = $pag;
+
+    $idAluno = (int)$pag['id_aluno'];
+    if (!isset($alunosComPendencias[$idAluno])) {
+        $alunosComPendencias[$idAluno] = [
+            'aluno_nome' => $pag['aluno_nome'],
+            'cobrancas' => [],
+            'total' => 0.0,
+            'pendentes' => 0,
+            'atrasadas' => 0
+        ];
+    }
+
+    $status = strtoupper((string)$pag['status']);
+    $atrasada = $status === 'ATRASADO'
+        || ($status === 'PENDENTE' && $pag['data_vencimento'] < $hoje);
+    $pag['status_exibicao'] = $status === 'EM_ANALISE'
+        ? 'EM_ANALISE'
+        : ($atrasada ? 'ATRASADO' : 'PENDENTE');
+    $alunosComPendencias[$idAluno]['cobrancas'][] = $pag;
+    $alunosComPendencias[$idAluno]['total'] += (float)$pag['valor'];
+    if ($atrasada) {
+        $alunosComPendencias[$idAluno]['atrasadas']++;
+    } else {
+        $alunosComPendencias[$idAluno]['pendentes']++;
+    }
 }
 ?>
 <!DOCTYPE html>
@@ -41,13 +67,29 @@ foreach ($pagamentosBrutos as $pag) {
     <link rel="stylesheet" href="../../assets/css/estilo.css?v=<?= filemtime(__DIR__ . '/../../assets/css/estilo.css'); ?>">
     <style>
         #tabela-pagamentos {
-            min-width: 1050px;
+            min-width: 900px;
             margin-top: 0;
+        }
+
+        #tabela-pagamentos .cobrancas-aluno {
+            min-width: 700px;
+        }
+
+        #tabela-pagamentos .cobranca-mensal {
+            display: grid;
+            grid-template-columns: minmax(180px, 1fr) auto minmax(260px, auto);
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        #tabela-pagamentos .cobranca-mensal:last-child {
+            border-bottom: 0;
         }
 
         #tabela-pagamentos .pagamento-actions {
             display: flex;
-            justify-content: center;
             align-items: center;
             gap: 0.25rem;
             white-space: nowrap;
@@ -157,7 +199,7 @@ foreach ($pagamentosBrutos as $pag) {
         <section class="card shadow-sm border-0 p-4">
             <div class="mb-4">
                 <h2>Gestão de Pagamentos</h2>
-                <p class="text-muted">Controle das mensalidades dos alunos, organizadas da mais recente para a mais antiga pela data de vencimento.</p>
+                <p class="text-muted">Cada aluno aparece uma vez, com suas mensalidades pendentes e atrasadas.</p>
             </div>
 
             <div class="mb-4" data-live-search-container>
@@ -201,135 +243,95 @@ foreach ($pagamentosBrutos as $pag) {
                 </script>
             <?php endif; ?>
 
-            <?php if (empty($pagamentos)): ?>
-                <p class="text-center text-muted py-4">Nenhum pagamento encontrado.</p>
+            <?php if (empty($alunosComPendencias)): ?>
+                <p class="text-center text-muted py-4">Nenhuma cobrança pendente ou atrasada.</p>
             <?php else: ?>
                 <div class="table-responsive">
                     <table id="tabela-pagamentos" class="table table-hover align-middle">
                         <thead class="table-dark">
                             <tr>
                                 <th>Aluno</th>
-                                <th>Plano</th>
-                                <th>Vencimento</th>
-                                <th>Valor (R$)</th>
-                                <th>Estado</th>
-                                <th>Forma de Pagamento</th>
-                                <th>Data de Pagamento</th>
-                                <th class="text-center">Ações</th>
+                                <th>Mensalidades em aberto</th>
+                                <th class="text-end">Total em aberto</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <?php foreach ($pagamentos as $pag): ?>
-                                <?php
-                                $idPagamento = (int)$pag['id_pagamento'];
-                                $pagamentoPendente = in_array($pag['status'], ['PENDENTE', 'ATRASADO', 'EM_ANALISE'], true);
-                                $permiteEditarVencimento = in_array($pag['status'], ['PENDENTE', 'ATRASADO'], true);
-                                ?>
+                            <?php foreach ($alunosComPendencias as $aluno): ?>
                                 <tr>
-                                    <td><strong><?= htmlspecialchars($pag['aluno_nome']) ?></strong></td>
                                     <td>
-                                        <ul class="list-unstyled mb-0">
-                                            <?php foreach (array_unique($pag['nomes_planos']) as $nomePlano): ?>
-                                                <li><?= htmlspecialchars($nomePlano, ENT_QUOTES, 'UTF-8') ?></li>
-                                            <?php endforeach; ?>
-                                        </ul>
+                                        <strong><?= htmlspecialchars($aluno['aluno_nome'], ENT_QUOTES, 'UTF-8') ?></strong>
+                                        <div class="small mt-1">
+                                            <?php if ($aluno['pendentes'] > 0): ?>
+                                                <span class="badge text-bg-warning"><?= $aluno['pendentes'] ?> pendente(s)</span>
+                                            <?php endif; ?>
+                                            <?php if ($aluno['atrasadas'] > 0): ?>
+                                                <span class="badge text-bg-danger"><?= $aluno['atrasadas'] ?> atrasada(s)</span>
+                                            <?php endif; ?>
+                                        </div>
                                     </td>
-                                    <td><?= !empty($pag['data_vencimento']) ? date('d/m/Y', strtotime($pag['data_vencimento'])) : '-' ?></td>
-                                    <td class="fw-semibold">R$ <?= number_format($pag['valor'], 2, ',', '.') ?></td>
-                                    <td>
-                                        <?php if ($pag['status'] === 'CANCELADO'): ?>
-                                            <span class="text-muted fw-semibold">Cancelado</span>
-                                        <?php elseif ($pag['status'] === 'PAGO'): ?>
-                                            <span class="text-success fw-semibold">Pago</span>
-                                        <?php elseif ($pag['status'] === 'ATRASADO' || (strtotime($pag['data_vencimento']) < time() && $pag['status'] === 'PENDENTE')): ?>
-                                            <span class="text-danger fw-semibold">Atrasado</span>
-                                        <?php elseif ($pag['status'] === 'EM_ANALISE'): ?>
-                                            <span class="text-info-emphasis fw-semibold">Em análise</span>
-                                        <?php else: ?>
-                                            <span class="text-warning fw-semibold">Pendente</span>
-                                        <?php endif; ?>
-                                    </td>
-                                    <td>
-                                        <?php if ($pagamentoPendente): ?>
-                                            <select class="form-select form-select-sm pagamento-form-field"
-                                                    name="forma_pagamento" form="form-receber-<?= $idPagamento ?>" required
-                                                    aria-label="Forma de pagamento de <?= htmlspecialchars($pag['aluno_nome'], ENT_QUOTES, 'UTF-8') ?>">
-                                                <option value="DINHEIRO">Dinheiro</option>
-                                                <option value="PIX">PIX</option>
-                                                <option value="CARTAO">Cartão</option>
-                                                <option value="OUTRO">Outro</option>
-                                            </select>
-                                        <?php else: ?>
-                                            <?= !empty($pag['forma_pagamento']) ? htmlspecialchars($pag['forma_pagamento'], ENT_QUOTES, 'UTF-8') : '-' ?>
-                                        <?php endif; ?>
-                                    </td>
-                                    <td>
-                                        <?php if ($pagamentoPendente): ?>
-                                            <input type="date" class="form-control form-control-sm pagamento-form-field"
-                                                   name="data_pagamento" form="form-receber-<?= $idPagamento ?>"
-                                                   value="<?= date('Y-m-d') ?>" required
-                                                   aria-label="Data de pagamento de <?= htmlspecialchars($pag['aluno_nome'], ENT_QUOTES, 'UTF-8') ?>">
-                                        <?php else: ?>
-                                            <?= !empty($pag['data_pagamento']) ? date('d/m/Y', strtotime($pag['data_pagamento'])) : '-' ?>
-                                        <?php endif; ?>
-                                    </td>
-
-                                    <td class="text-center">
-                                        <?php if ($pag['status'] === 'CANCELADO'): ?>
-                                            <span class="text-muted small">—</span>
-                                        <?php elseif ($pagamentoPendente): ?>
-                                            <div class="pagamento-actions">
-                                                <form id="form-receber-<?= $idPagamento ?>"
-                                                      action="../../controller/FinanceiroController.php" method="POST"
-                                                      class="pagamento-action-form"
-                                                      onsubmit="return confirm('Confirmar o recebimento deste pagamento?');">
-                                                    <input type="hidden" name="acao" value="baixar_pagamento">
-                                                    <input type="hidden" name="id_pagamento" value="<?= $idPagamento ?>">
-                                                    <button type="submit" class="btn btn-sm action-icon-btn action-reactivate"
-                                                            title="Confirmar recebimento" aria-label="Confirmar recebimento">
-                                                        <i class="bi bi-check-circle" aria-hidden="true"></i>
-                                                    </button>
-                                                </form>
-                                                <?php if ($permiteEditarVencimento): ?>
-                                                    <button type="button" class="btn btn-sm action-icon-btn action-edit"
-                                                            title="Editar vencimento" aria-label="Editar vencimento"
-                                                            data-bs-toggle="modal" data-bs-target="#modalEditarVencimento"
-                                                            data-pagamento-id="<?= $idPagamento ?>"
-                                                            data-vencimento="<?= htmlspecialchars((string)$pag['data_vencimento'], ENT_QUOTES, 'UTF-8') ?>">
-                                                        <i class="bi bi-pencil-square" aria-hidden="true"></i>
-                                                    </button>
-                                                <?php endif; ?>
+                                    <td class="cobrancas-aluno">
+                                        <?php foreach ($aluno['cobrancas'] as $cobranca): ?>
+                                            <?php
+                                            $idPagamento = (int)$cobranca['id_pagamento'];
+                                            $status = $cobranca['status_exibicao'];
+                                            $nomeAluno = htmlspecialchars($aluno['aluno_nome'], ENT_QUOTES, 'UTF-8');
+                                            ?>
+                                            <div class="cobranca-mensal">
+                                                <div>
+                                                    <strong><?= date('m/Y', strtotime($cobranca['mes_ano'] . '-01')) ?></strong>
+                                                    <span class="text-muted"> · vence <?= date('d/m/Y', strtotime($cobranca['data_vencimento'])) ?></span>
+                                                    <div class="small text-muted">
+                                                        <?= htmlspecialchars(implode(', ', array_unique($cobranca['nomes_planos'])), ENT_QUOTES, 'UTF-8') ?>
+                                                    </div>
+                                                </div>
+                                                <div class="text-nowrap">
+                                                    <span class="fw-semibold">R$ <?= number_format((float)$cobranca['valor'], 2, ',', '.') ?></span>
+                                                    <?php if ($status === 'ATRASADO'): ?>
+                                                        <span class="badge text-bg-danger">Atrasado</span>
+                                                    <?php elseif ($status === 'EM_ANALISE'): ?>
+                                                        <span class="badge text-bg-info">Em análise</span>
+                                                    <?php else: ?>
+                                                        <span class="badge text-bg-warning">Pendente</span>
+                                                    <?php endif; ?>
+                                                </div>
+                                                <div class="d-flex align-items-center gap-2">
+                                                    <select class="form-select form-select-sm pagamento-form-field"
+                                                            name="forma_pagamento" form="form-receber-<?= $idPagamento ?>" required
+                                                            aria-label="Forma de pagamento de <?= $nomeAluno ?>">
+                                                        <option value="DINHEIRO">Dinheiro</option>
+                                                        <option value="PIX">PIX</option>
+                                                        <option value="CARTAO">Cartão</option>
+                                                        <option value="OUTRO">Outro</option>
+                                                    </select>
+                                                    <input type="date" class="form-control form-control-sm pagamento-form-field"
+                                                           name="data_pagamento" form="form-receber-<?= $idPagamento ?>"
+                                                           value="<?= date('Y-m-d') ?>" required
+                                                           aria-label="Data de pagamento de <?= $nomeAluno ?>">
+                                                    <form id="form-receber-<?= $idPagamento ?>"
+                                                          action="../../controller/FinanceiroController.php" method="POST"
+                                                          class="pagamento-action-form"
+                                                          onsubmit="return confirm('Confirmar o recebimento desta mensalidade?');">
+                                                        <input type="hidden" name="acao" value="baixar_pagamento">
+                                                        <input type="hidden" name="id_pagamento" value="<?= $idPagamento ?>">
+                                                        <button type="submit" class="btn btn-sm action-icon-btn action-reactivate"
+                                                                title="Confirmar recebimento" aria-label="Confirmar recebimento de <?= $nomeAluno ?>">
+                                                            <i class="bi bi-check-circle" aria-hidden="true"></i>
+                                                        </button>
+                                                    </form>
+                                                    <?php if ($status !== 'EM_ANALISE'): ?>
+                                                        <button type="button" class="btn btn-sm action-icon-btn action-edit"
+                                                                title="Editar vencimento" aria-label="Editar vencimento"
+                                                                data-bs-toggle="modal" data-bs-target="#modalEditarVencimento"
+                                                                data-pagamento-id="<?= $idPagamento ?>"
+                                                                data-vencimento="<?= htmlspecialchars((string)$cobranca['data_vencimento'], ENT_QUOTES, 'UTF-8') ?>">
+                                                            <i class="bi bi-pencil-square" aria-hidden="true"></i>
+                                                        </button>
+                                                    <?php endif; ?>
+                                                </div>
                                             </div>
-                                        <?php else: ?>
-                                            <div class="pagamento-actions">
-                                                <span class="btn btn-sm action-icon-btn action-reactivate disabled" title="Pago" aria-label="Pago">
-                                                    <i class="bi bi-check-circle-fill" aria-hidden="true"></i>
-                                                </span>
-                                                <button type="button" class="btn btn-sm action-icon-btn action-edit"
-                                                        title="Editar pagamento" aria-label="Editar pagamento"
-                                                        data-bs-toggle="modal" data-bs-target="#modalEditarPagamento"
-                                                        data-pagamento-id="<?= $idPagamento ?>"
-                                                        data-valor="<?= number_format((float)$pag['valor'], 2, '.', '') ?>"
-                                                        data-vencimento="<?= htmlspecialchars((string)$pag['data_vencimento'], ENT_QUOTES, 'UTF-8') ?>"
-                                                        data-data-pagamento="<?= htmlspecialchars((string)($pag['data_pagamento'] ?? ''), ENT_QUOTES, 'UTF-8') ?>"
-                                                        data-forma-pagamento="<?= htmlspecialchars((string)($pag['forma_pagamento'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
-                                                    <i class="bi bi-pencil-square" aria-hidden="true"></i>
-                                                </button>
-                                                <form id="form-cancelar-<?= $idPagamento ?>"
-                                                      action="../../controller/FinanceiroController.php" method="POST"
-                                                      class="pagamento-action-form" hidden
-                                                      onsubmit="return confirm('Deseja realmente cancelar este pagamento?');">
-                                                    <input type="hidden" name="acao" value="cancelar_pagamento">
-                                                    <input type="hidden" name="id_pagamento" value="<?= $idPagamento ?>">
-                                                </form>
-                                                <button type="submit" form="form-cancelar-<?= $idPagamento ?>"
-                                                        class="btn btn-sm action-icon-btn action-disable"
-                                                        title="Cancelar pagamento" aria-label="Cancelar pagamento">
-                                                    <i class="bi bi-x-circle" aria-hidden="true"></i>
-                                                </button>
-                                            </div>
-                                        <?php endif; ?>
+                                        <?php endforeach; ?>
                                     </td>
+                                    <td class="text-end fw-semibold">R$ <?= number_format($aluno['total'], 2, ',', '.') ?></td>
                                 </tr>
                             <?php endforeach; ?>
                         </tbody>
