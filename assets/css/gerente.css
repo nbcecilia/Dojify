@@ -172,15 +172,8 @@ body.gerente-page {
 }
 
 .gerente-home-gestao .gerente-grid {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 12px;
-}
-
-.gerente-home-gestao .gerente-card {
-    flex: 1 1 240px;
-    max-width: 300px;
 }
 
 .gerente-home-pedagogia .gerente-grid {
@@ -312,6 +305,11 @@ body.gerente-page {
     transition: background-color .18s ease, border-color .18s ease;
 }
 
+.gerente-home-acoes .gerente-quick-action {
+    min-height: 44px;
+    padding: 5px 14px;
+}
+
 .gerente-quick-action:hover {
     background: var(--gerente-surface-soft);
     border-color: var(--gerente-border-dark);
@@ -326,6 +324,12 @@ body.gerente-page {
     background: var(--gerente-gray);
     flex-shrink: 0;
     font-size: 1.15rem;
+}
+
+.gerente-home-acoes .gerente-quick-action i {
+    width: 32px;
+    height: 32px;
+    font-size: 1.05rem;
 }
 
 .gerente-quick-action strong {
@@ -454,12 +458,6 @@ body.gerente-page {
 /* ==========================================================
    RESPONSIVIDADE
    ========================================================== */
-@media (max-width: 1300px) {
-    .gerente-home-gestao .gerente-grid {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
-}
-
 @media (max-width: 1100px) {
     .gerente-kpis {
         grid-template-columns: repeat(2, 1fr);
@@ -489,11 +487,6 @@ body.gerente-page {
         grid-template-columns: 1fr;
     }
 
-    .gerente-home-gestao .gerente-card {
-        flex-basis: 100%;
-        max-width: 420px;
-    }
-
     .turma-actions {
     display: flex;
     justify-content: flex-end;
@@ -512,3 +505,4 @@ body.gerente-page {
     box-shadow: none;
 }
 }
+
