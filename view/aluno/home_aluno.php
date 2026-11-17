@@ -841,6 +841,7 @@ try {
                         'PAGO'       => ['payment-bar--paid', 'Pago'],
                         'ATRASADO'   => ['payment-bar--late', 'Atrasado'],
                         'EM_ANALISE' => ['payment-bar--review', 'Em análise'],
+                        'CANCELADO'  => ['payment-bar--cancelled', 'Cancelado'],
                     ];
                     [$classeHist, $rotuloHist] = $mapaHist[$stHist] ?? ['payment-bar--pending', 'Pendente'];
                     $historicoMensalidadeCard[] = [
@@ -1002,6 +1003,9 @@ try {
                                                 } elseif ($statusHistorico === 'EM_ANALISE') {
                                                     $classeBarra = 'payment-bar--review';
                                                     $rotuloStatus = 'Em análise';
+                                                } elseif ($statusHistorico === 'CANCELADO') {
+                                                    $classeBarra = 'payment-bar--cancelled';
+                                                    $rotuloStatus = 'Cancelado';
                                                 } else {
                                                     $classeBarra = 'payment-bar--pending';
                                                     $rotuloStatus = 'Pendente';

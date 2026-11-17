@@ -169,13 +169,56 @@ class PagamentoDAO {
                   AND u.perfil_id = 4
                   AND UPPER(COALESCE(p.status, 'PENDENTE')) <> 'CANCELADO'
                 GROUP BY u.id_usuario, DATE_FORMAT(p.data_vencimento, '%Y-%m')
-                ORDER BY MIN(p.data_vencimento) DESC";
+                                ORDER BY mes_ano DESC, MIN(p.data_vencimento) DESC, u.nome ASC";
         
         $stmt = $this->conexao->prepare($sql);
         $stmt->bindValue(':id_academia', $idAcademia, PDO::PARAM_INT);
         $stmt->execute();
         
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function contarMensalidadesPorStatus(int $idAcademia): array {
+        $contagens = [
+            'realizados' => 0,
+            'pendentes' => 0,
+            'atrasados' => 0
+        ];
+
+        try {
+            $sql = "SELECT
+                        COALESCE(SUM(CASE
+                            WHEN UPPER(COALESCE(p.status, 'PENDENTE')) = 'PAGO' THEN 1 ELSE 0
+                        END), 0) AS realizados,
+                        COALESCE(SUM(CASE
+                            WHEN UPPER(COALESCE(p.status, 'PENDENTE')) = 'PENDENTE'
+                             AND p.data_vencimento >= CURDATE() THEN 1 ELSE 0
+                        END), 0) AS pendentes,
+                        COALESCE(SUM(CASE
+                            WHEN UPPER(COALESCE(p.status, 'PENDENTE')) = 'ATRASADO'
+                              OR (UPPER(COALESCE(p.status, 'PENDENTE')) = 'PENDENTE'
+                                  AND p.data_vencimento < CURDATE())
+                            THEN 1 ELSE 0
+                        END), 0) AS atrasados
+                    FROM pagamento p
+                    INNER JOIN plano pl ON pl.id_plano = p.id_plano_matricula
+                    INNER JOIN usuario u ON u.id_usuario = pl.id_usuario_aluno
+                    WHERE u.id_academia = :id_academia
+                      AND u.perfil_id = 4
+                      AND UPPER(COALESCE(p.status, 'PENDENTE')) <> 'CANCELADO'";
+            $stmt = $this->conexao->prepare($sql);
+            $stmt->bindValue(':id_academia', $idAcademia, PDO::PARAM_INT);
+            $stmt->execute();
+            $resultado = $stmt->fetch(PDO::FETCH_ASSOC) ?: [];
+
+            foreach ($contagens as $status => $valor) {
+                $contagens[$status] = (int)($resultado[$status] ?? $valor);
+            }
+        } catch (PDOException $e) {
+            return $contagens;
+        }
+
+        return $contagens;
     }
 
     public function registarRecebimento(int $idPagamento, int $idAcademia, string $formaPagamento, string $dataPagamento): bool {

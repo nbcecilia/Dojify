@@ -179,6 +179,10 @@
     background-color: #7296ad;
 }
 
+.aluno-theme .payment-bar--cancelled {
+    background-color: #7a7f85;
+}
+
 .aluno-theme .aluno-calendar-day-header {
     background-color: var(--aluno-dark) !important;
 }

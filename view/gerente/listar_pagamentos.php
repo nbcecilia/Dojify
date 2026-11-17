@@ -70,31 +70,69 @@ foreach ($pagamentosBrutos as $pag) {
     <link rel="stylesheet" href="../../assets/css/estilo.css?v=<?= filemtime(__DIR__ . '/../../assets/css/estilo.css'); ?>">
     <style>
         #tabela-pagamentos {
-            min-width: 900px;
+            min-width: 1020px;
             margin-top: 0;
+            --bs-table-bg: #fff;
+            --bs-table-hover-bg: #f7f8fa;
         }
 
-        #tabela-pagamentos .cobrancas-aluno {
-            min-width: 700px;
+        #tabela-pagamentos thead th {
+            padding: 0.65rem 0.45rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            white-space: normal;
         }
 
-        #tabela-pagamentos .cobranca-mensal {
-            display: grid;
-            grid-template-columns: minmax(180px, 1fr) auto minmax(260px, auto);
-            align-items: center;
-            gap: 0.75rem;
-            padding: 0.75rem 0;
-            border-bottom: 1px solid #dee2e6;
+        #tabela-pagamentos thead th:last-child {
+            text-align: center;
         }
 
-        #tabela-pagamentos .cobranca-mensal:last-child {
-            border-bottom: 0;
+        #tabela-pagamentos tbody td {
+            padding: 0.7rem 0.45rem;
+            border-color: #e9ecef;
+            vertical-align: middle;
+        }
+
+        #tabela-pagamentos .payment-student {
+            min-width: 160px;
+        }
+
+        #tabela-pagamentos .payment-student-name {
+            display: block;
+            color: #212529;
+            font-weight: 650;
+        }
+
+        #tabela-pagamentos .payment-student-plan {
+            display: block;
+            max-width: 220px;
+            margin-top: 0.2rem;
+            color: #6c757d;
+            font-size: 0.78rem;
+        }
+
+        #tabela-pagamentos .payment-reference,
+        #tabela-pagamentos .payment-due,
+        #tabela-pagamentos .payment-value,
+        #tabela-pagamentos .payment-method,
+        #tabela-pagamentos .payment-date {
+            white-space: nowrap;
+        }
+
+        #tabela-pagamentos .payment-value {
+            font-weight: 600;
+        }
+
+        #tabela-pagamentos .payment-actions-cell {
+            min-width: 315px;
         }
 
         #tabela-pagamentos .pagamento-actions {
             display: flex;
+            flex-wrap: nowrap;
             align-items: center;
-            gap: 0.25rem;
+            gap: 0.2rem;
             white-space: nowrap;
         }
 
@@ -111,24 +149,33 @@ foreach ($pagamentosBrutos as $pag) {
             box-shadow: none;
         }
 
-        #tabela-pagamentos .pagamento-action-form[hidden] {
-            display: none;
+        #tabela-pagamentos .pagamento-receber-form {
+            display: inline-flex;
+            flex: 0 0 auto;
+            gap: 0.2rem;
         }
 
         #tabela-pagamentos .pagamento-form-field {
             width: 100%;
-            min-width: 130px;
+            min-width: 0;
             margin: 0;
-            padding: 0.25rem 0.5rem;
-            font-size: 0.875rem;
+            padding: 0.3rem 0.4rem;
+            font-size: 0.78rem;
+        }
+
+        #tabela-pagamentos select.pagamento-form-field {
+            flex: 0 0 88px;
+            width: 88px;
         }
 
         #tabela-pagamentos input.pagamento-form-field {
-            min-width: 145px;
+            flex: 0 0 112px;
+            width: 112px;
         }
 
         #tabela-pagamentos .btn.action-icon-btn {
             display: inline-flex;
+            flex: 0 0 2.2rem;
             align-items: center;
             justify-content: center;
             width: 2.2rem;
@@ -136,6 +183,7 @@ foreach ($pagamentosBrutos as $pag) {
             margin: 0 !important;
             padding: 0;
             border: 0 !important;
+            border-radius: 0.4rem;
             background: transparent !important;
             box-shadow: none !important;
             font-size: 1rem;
@@ -155,15 +203,15 @@ foreach ($pagamentosBrutos as $pag) {
         }
 
         #tabela-pagamentos .btn.action-edit:hover {
-            background-color: rgba(13, 110, 253, 0.15) !important;
+            background-color: rgba(13, 110, 253, 0.12) !important;
         }
 
         #tabela-pagamentos .btn.action-disable:hover {
-            background-color: rgba(220, 53, 69, 0.15) !important;
+            background-color: rgba(220, 53, 69, 0.12) !important;
         }
 
         #tabela-pagamentos .btn.action-reactivate:hover {
-            background-color: rgba(25, 135, 84, 0.15) !important;
+            background-color: rgba(25, 135, 84, 0.12) !important;
         }
 
         #modalEditarPagamento form,
@@ -184,6 +232,12 @@ foreach ($pagamentosBrutos as $pag) {
             margin: 0;
             padding: 8px 16px;
         }
+
+        @media (max-width: 768px) {
+            #tabela-pagamentos .payment-actions-cell {
+                min-width: 315px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -202,7 +256,7 @@ foreach ($pagamentosBrutos as $pag) {
         <section class="card shadow-sm border-0 p-4">
             <div class="mb-4">
                 <h2>Gestão de Pagamentos</h2>
-                <p class="text-muted">Cada aluno aparece uma vez, com suas mensalidades pendentes, atrasadas e pagas.</p>
+                <p class="text-muted">Mensalidades da academia, com vencimentos e recebimentos organizados por aluno.</p>
             </div>
 
             <div class="mb-4" data-live-search-container>
@@ -250,81 +304,107 @@ foreach ($pagamentosBrutos as $pag) {
                 <p class="text-center text-muted py-4">Nenhuma mensalidade encontrada.</p>
             <?php else: ?>
                 <div class="table-responsive">
-                    <table id="tabela-pagamentos" class="table table-hover align-middle">
+                    <table id="tabela-pagamentos" class="table table-hover align-middle mb-0">
                         <thead class="table-dark">
                             <tr>
                                 <th>Aluno</th>
-                                <th>Mensalidades</th>
-                                <th class="text-end">Total mensalidades</th>
+                                <th>Referência</th>
+                                <th>Vencimento</th>
+                                <th>Valor</th>
+                                <th>Status</th>
+                                <th>Forma de pagamento</th>
+                                <th>Data de pagamento</th>
+                                <th>Ações</th>
                             </tr>
                         </thead>
                         <tbody>
                             <?php foreach ($alunosComPendencias as $aluno): ?>
-                                <tr>
-                                    <td>
-                                        <strong><?= htmlspecialchars($aluno['aluno_nome'], ENT_QUOTES, 'UTF-8') ?></strong>
-                                        <div class="small mt-1">
-                                            <?php if ($aluno['pendentes'] > 0): ?>
-                                                <span class="badge text-bg-warning"><?= $aluno['pendentes'] ?> pendente(s)</span>
+                                <?php foreach ($aluno['cobrancas'] as $cobranca): ?>
+                                    <?php
+                                    $idPagamento = (int)$cobranca['id_pagamento'];
+                                    $status = $cobranca['status_exibicao'];
+                                    $nomeAluno = htmlspecialchars($aluno['aluno_nome'], ENT_QUOTES, 'UTF-8');
+                                    $nomesPlanos = implode(', ', array_unique($cobranca['nomes_planos']));
+                                    $formasPagamento = [
+                                        'DINHEIRO' => 'Dinheiro',
+                                        'PIX' => 'Pix',
+                                        'CARTAO' => 'Cartão',
+                                        'OUTRO' => 'Outro'
+                                    ];
+                                    $formaPagamento = strtoupper(trim((string)($cobranca['forma_pagamento'] ?? '')));
+                                    $formaExibicao = $status === 'PAGO'
+                                        ? ($formasPagamento[$formaPagamento] ?? ($formaPagamento !== '' ? $formaPagamento : '—'))
+                                        : '—';
+                                    $dataPagamento = $status === 'PAGO' && !empty($cobranca['data_pagamento'])
+                                        ? date('d/m/Y', strtotime($cobranca['data_pagamento']))
+                                        : '—';
+                                    $statusRotulos = [
+                                        'ATRASADO' => 'Atrasado',
+                                        'PAGO' => 'Pago',
+                                        'EM_ANALISE' => 'Em análise',
+                                        'PENDENTE' => 'Pendente'
+                                    ];
+                                    $statusClasses = [
+                                        'ATRASADO' => 'text-bg-danger',
+                                        'PAGO' => 'text-bg-success',
+                                        'EM_ANALISE' => 'text-bg-info',
+                                        'PENDENTE' => 'text-bg-warning'
+                                    ];
+                                    ?>
+                                    <tr>
+                                        <td class="payment-student">
+                                            <span class="payment-student-name"><?= $nomeAluno ?></span>
+                                            <?php if ($nomesPlanos !== ''): ?>
+                                                <span class="payment-student-plan"><?= htmlspecialchars($nomesPlanos, ENT_QUOTES, 'UTF-8') ?></span>
                                             <?php endif; ?>
-                                            <?php if ($aluno['atrasadas'] > 0): ?>
-                                                <span class="badge text-bg-danger"><?= $aluno['atrasadas'] ?> atrasada(s)</span>
-                                            <?php endif; ?>
-                                            <?php if ($aluno['pagas'] > 0): ?>
-                                                <span class="badge text-bg-success"><?= $aluno['pagas'] ?> paga(s)</span>
-                                            <?php endif; ?>
-                                        </div>
-                                    </td>
-                                    <td class="cobrancas-aluno">
-                                        <?php foreach ($aluno['cobrancas'] as $cobranca): ?>
-                                            <?php
-                                            $idPagamento = (int)$cobranca['id_pagamento'];
-                                            $status = $cobranca['status_exibicao'];
-                                            $nomeAluno = htmlspecialchars($aluno['aluno_nome'], ENT_QUOTES, 'UTF-8');
-                                            ?>
-                                            <div class="cobranca-mensal">
-                                                <div>
-                                                    <strong><?= date('m/Y', strtotime($cobranca['mes_ano'] . '-01')) ?></strong>
-                                                    <span class="text-muted"> · vence <?= date('d/m/Y', strtotime($cobranca['data_vencimento'])) ?></span>
-                                                    <?php if ($status === 'PAGO' && !empty($cobranca['data_pagamento'])): ?>
-                                                        <div class="small text-success">Pago em <?= date('d/m/Y', strtotime($cobranca['data_pagamento'])) ?></div>
-                                                    <?php endif; ?>
-                                                    <div class="small text-muted">
-                                                        <?= htmlspecialchars(implode(', ', array_unique($cobranca['nomes_planos'])), ENT_QUOTES, 'UTF-8') ?>
-                                                    </div>
-                                                </div>
-                                                <div class="text-nowrap">
-                                                    <span class="fw-semibold">R$ <?= number_format((float)$cobranca['valor'], 2, ',', '.') ?></span>
-                                                    <?php if ($status === 'ATRASADO'): ?>
-                                                        <span class="badge text-bg-danger">Atrasado</span>
-                                                    <?php elseif ($status === 'PAGO'): ?>
-                                                        <span class="badge text-bg-success">Pago</span>
-                                                    <?php elseif ($status === 'EM_ANALISE'): ?>
-                                                        <span class="badge text-bg-info">Em análise</span>
-                                                    <?php else: ?>
-                                                        <span class="badge text-bg-warning">Pendente</span>
-                                                    <?php endif; ?>
-                                                </div>
-                                                <?php if ($status !== 'PAGO'): ?>
-                                                <div class="d-flex align-items-center gap-2">
-                                                    <select class="form-select form-select-sm pagamento-form-field"
-                                                            name="forma_pagamento" form="form-receber-<?= $idPagamento ?>" required
-                                                            aria-label="Forma de pagamento de <?= $nomeAluno ?>">
-                                                        <option value="DINHEIRO">Dinheiro</option>
-                                                        <option value="PIX">PIX</option>
-                                                        <option value="CARTAO">Cartão</option>
-                                                        <option value="OUTRO">Outro</option>
-                                                    </select>
-                                                    <input type="date" class="form-control form-control-sm pagamento-form-field"
-                                                           name="data_pagamento" form="form-receber-<?= $idPagamento ?>"
-                                                           value="<?= date('Y-m-d') ?>" required
-                                                           aria-label="Data de pagamento de <?= $nomeAluno ?>">
+                                        </td>
+                                        <td class="payment-reference"><?= date('m/Y', strtotime($cobranca['mes_ano'] . '-01')) ?></td>
+                                        <td class="payment-due"><?= date('d/m/Y', strtotime($cobranca['data_vencimento'])) ?></td>
+                                        <td class="payment-value">R$ <?= number_format((float)$cobranca['valor'], 2, ',', '.') ?></td>
+                                        <td><span class="badge <?= $statusClasses[$status] ?? 'text-bg-secondary' ?>"><?= $statusRotulos[$status] ?? htmlspecialchars($status, ENT_QUOTES, 'UTF-8') ?></span></td>
+                                        <td class="payment-method"><?= htmlspecialchars($formaExibicao, ENT_QUOTES, 'UTF-8') ?></td>
+                                        <td class="payment-date"><?= htmlspecialchars($dataPagamento, ENT_QUOTES, 'UTF-8') ?></td>
+                                        <td class="payment-actions-cell">
+                                            <div class="pagamento-actions">
+                                                <?php if ($status === 'PAGO'): ?>
+                                                    <button type="button" class="btn btn-sm action-icon-btn action-edit"
+                                                            title="Editar pagamento" aria-label="Editar pagamento de <?= $nomeAluno ?>"
+                                                            data-bs-toggle="modal" data-bs-target="#modalEditarPagamento"
+                                                            data-pagamento-id="<?= $idPagamento ?>"
+                                                            data-valor="<?= htmlspecialchars((string)$cobranca['valor'], ENT_QUOTES, 'UTF-8') ?>"
+                                                            data-vencimento="<?= htmlspecialchars((string)$cobranca['data_vencimento'], ENT_QUOTES, 'UTF-8') ?>"
+                                                            data-data-pagamento="<?= htmlspecialchars((string)($cobranca['data_pagamento'] ?? ''), ENT_QUOTES, 'UTF-8') ?>"
+                                                            data-forma-pagamento="<?= htmlspecialchars($formaPagamento, ENT_QUOTES, 'UTF-8') ?>">
+                                                        <i class="bi bi-pencil-square" aria-hidden="true"></i>
+                                                    </button>
+                                                    <form action="../../controller/FinanceiroController.php" method="POST"
+                                                          class="pagamento-action-form"
+                                                          onsubmit="return confirm('Deseja cancelar este pagamento?');">
+                                                        <input type="hidden" name="acao" value="cancelar_pagamento">
+                                                        <input type="hidden" name="id_pagamento" value="<?= $idPagamento ?>">
+                                                        <button type="submit" class="btn btn-sm action-icon-btn action-disable"
+                                                                title="Cancelar pagamento" aria-label="Cancelar pagamento de <?= $nomeAluno ?>">
+                                                            <i class="bi bi-x-circle" aria-hidden="true"></i>
+                                                        </button>
+                                                    </form>
+                                                <?php else: ?>
                                                     <form id="form-receber-<?= $idPagamento ?>"
                                                           action="../../controller/FinanceiroController.php" method="POST"
-                                                          class="pagamento-action-form"
+                                                          class="pagamento-action-form pagamento-receber-form"
                                                           onsubmit="return confirm('Confirmar o recebimento desta mensalidade?');">
                                                         <input type="hidden" name="acao" value="baixar_pagamento">
                                                         <input type="hidden" name="id_pagamento" value="<?= $idPagamento ?>">
+                                                        <select class="form-select form-select-sm pagamento-form-field"
+                                                                name="forma_pagamento" required
+                                                                aria-label="Forma de pagamento de <?= $nomeAluno ?>">
+                                                            <option value="DINHEIRO">Dinheiro</option>
+                                                            <option value="PIX">Pix</option>
+                                                            <option value="CARTAO">Cartão</option>
+                                                            <option value="OUTRO">Outro</option>
+                                                        </select>
+                                                        <input type="date" class="form-control form-control-sm pagamento-form-field"
+                                                               name="data_pagamento" value="<?= date('Y-m-d') ?>" required
+                                                               aria-label="Data de recebimento de <?= $nomeAluno ?>">
                                                         <button type="submit" class="btn btn-sm action-icon-btn action-reactivate"
                                                                 title="Confirmar recebimento" aria-label="Confirmar recebimento de <?= $nomeAluno ?>">
                                                             <i class="bi bi-check-circle" aria-hidden="true"></i>
@@ -332,20 +412,18 @@ foreach ($pagamentosBrutos as $pag) {
                                                     </form>
                                                     <?php if ($status !== 'EM_ANALISE'): ?>
                                                         <button type="button" class="btn btn-sm action-icon-btn action-edit"
-                                                                title="Editar vencimento" aria-label="Editar vencimento"
+                                                                title="Editar vencimento" aria-label="Editar vencimento de <?= $nomeAluno ?>"
                                                                 data-bs-toggle="modal" data-bs-target="#modalEditarVencimento"
                                                                 data-pagamento-id="<?= $idPagamento ?>"
                                                                 data-vencimento="<?= htmlspecialchars((string)$cobranca['data_vencimento'], ENT_QUOTES, 'UTF-8') ?>">
-                                                            <i class="bi bi-pencil-square" aria-hidden="true"></i>
+                                                            <i class="bi bi-calendar2-event" aria-hidden="true"></i>
                                                         </button>
                                                     <?php endif; ?>
-                                                </div>
                                                 <?php endif; ?>
                                             </div>
-                                        <?php endforeach; ?>
-                                    </td>
-                                    <td class="text-end fw-semibold">R$ <?= number_format($aluno['total'], 2, ',', '.') ?></td>
-                                </tr>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
                             <?php endforeach; ?>
                         </tbody>
                     </table>

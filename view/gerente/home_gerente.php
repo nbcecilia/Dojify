@@ -11,6 +11,7 @@ if (!isset($_SESSION['usuario']) || (int)$_SESSION['usuario']['perfil_id'] !== 2
 // Importações necessárias para buscar os dados no banco
 require_once __DIR__ . '/../../model/dao/Conexao.php';
 require_once __DIR__ . '/../../model/dao/UsuarioDAO.php';
+require_once __DIR__ . '/../../model/dao/PagamentoDAO.php';
 
 $nomeGerente = htmlspecialchars($_SESSION['usuario']['nome'] ?? 'Gerente');
 $idAcademia  = $_SESSION['usuario']['id_academia'] ?? 0;
@@ -18,6 +19,14 @@ $idAcademia  = $_SESSION['usuario']['id_academia'] ?? 0;
 // Busca os indicadores (KPIs) da academia
 $usuarioDAO = new UsuarioDAO();
 $kpis = $usuarioDAO->buscarIndicadoresGerente($idAcademia);
+$pagamentoDAO = new PagamentoDAO();
+$contagensPagamentos = $pagamentoDAO->contarMensalidadesPorStatus((int)$idAcademia);
+$rotulosGraficoPagamentos = ['Realizados', 'Pendentes', 'Em atraso'];
+$valoresGraficoPagamentos = [
+    $contagensPagamentos['realizados'],
+    $contagensPagamentos['pendentes'],
+    $contagensPagamentos['atrasados']
+];
 ?>
 
 <!DOCTYPE html>
@@ -33,7 +42,8 @@ $kpis = $usuarioDAO->buscarIndicadoresGerente($idAcademia);
           href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
     <link rel="stylesheet" href="../../assets/css/estilo.css">
-    <link rel="stylesheet" href="../../assets/css/gerente.css?v=18">
+    <link rel="stylesheet" href="../../assets/css/gerente.css?v=23">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body class="gerente-page">
@@ -344,11 +354,16 @@ $kpis = $usuarioDAO->buscarIndicadoresGerente($idAcademia);
                         Consulte os dados financeiros consolidados da academia.
                     </p>
 
-                    <div class="gerente-panel-action">
-                        <a href="relatorio_financeiro.php" class="btn gerente-btn">
-                            <i class="bi bi-bar-chart me-2"></i>
-                            Emitir relatórios
-                        </a>
+                    <div class="gerente-report-actions">
+                        <div class="gerente-payment-chart">
+                            <canvas id="graficoPagamentos" role="img" aria-label="Gráfico de barras com pagamentos realizados, pendentes e em atraso"></canvas>
+                        </div>
+                        <div class="gerente-panel-action">
+                            <a href="relatorio_financeiro.php" class="btn gerente-btn">
+                                <i class="bi bi-bar-chart me-2"></i>
+                                Emitir relatórios
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -360,6 +375,47 @@ $kpis = $usuarioDAO->buscarIndicadoresGerente($idAcademia);
     <?php include '../includes/footer.php'; ?>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const canvas = document.getElementById('graficoPagamentos');
+            if (!canvas || typeof Chart === 'undefined') return;
+
+            new Chart(canvas.getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: <?= json_encode($rotulosGraficoPagamentos, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>,
+                    datasets: [{
+                        label: 'Mensalidades',
+                        data: <?= json_encode($valoresGraficoPagamentos) ?>,
+                        backgroundColor: ['#35835f', '#c89828', '#c15353'],
+                        borderRadius: 3,
+                        barThickness: 10
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { enabled: true }
+                    },
+                    scales: {
+                        x: {
+                            display: false,
+                            beginAtZero: true,
+                            grid: { display: false },
+                            ticks: { display: false }
+                        },
+                        y: {
+                            grid: { display: false },
+                            ticks: { color: '#525252', font: { size: 10 } }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
 
 </body>
 </html>
