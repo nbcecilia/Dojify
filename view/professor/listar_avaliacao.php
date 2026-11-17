@@ -173,7 +173,7 @@ if (isset($_GET['sucesso'])) {
 
         <section class="card shadow-sm border-0 p-4">
             <?php if ($mensagem !== ''): ?>
-                <div class="alert alert-<?= $tipoMensagem ?> alert-dismissible fade show" role="alert">
+                <div id="avaliacao-feedback" class="alert alert-<?= $tipoMensagem ?> alert-dismissible fade show" role="alert">
                     <?= htmlspecialchars($mensagem, ENT_QUOTES, 'UTF-8') ?>
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
                 </div>
@@ -361,6 +361,24 @@ if (isset($_GET['sucesso'])) {
     <!-- Bootstrap 5 JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="../../assets/js/busca.js"></script>
+    <?php if ($mensagem !== ''): ?>
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const aviso = document.getElementById('avaliacao-feedback');
+                const url = new URL(window.location.href);
+                url.searchParams.delete('<?= $tipoMensagem ?>');
+                window.history.replaceState({}, '', url);
+
+                <?php if ($tipoMensagem === 'success'): ?>
+                    window.setTimeout(function () {
+                        if (aviso && aviso.isConnected) {
+                            bootstrap.Alert.getOrCreateInstance(aviso).close();
+                        }
+                    }, 5000);
+                <?php endif; ?>
+            });
+        </script>
+    <?php endif; ?>
     <?php if (in_array($perfilId, [2, 3], true)): ?>
         <script>
             document.getElementById('modalEditarAvaliacao').addEventListener('show.bs.modal', function (event) {

@@ -530,6 +530,20 @@ if (!isset($_SESSION['turma_status_csrf_token'])) {
             document.addEventListener('DOMContentLoaded', function () {
                 const modal = document.getElementById('modalHorarios<?= (int) $_GET['modal_horario'] ?>');
                 if (modal) {
+                    modal.addEventListener('hidden.bs.modal', function () {
+                        const aviso = modal.querySelector('.modal-body > .alert');
+                        if (aviso) {
+                            aviso.remove();
+                        }
+
+                        const url = new URL(window.location.href);
+                        if (url.searchParams.get('modal_horario') === '<?= (int) $_GET['modal_horario'] ?>') {
+                            url.searchParams.delete('modal_horario');
+                            url.searchParams.delete('sucesso');
+                            url.searchParams.delete('erro');
+                            window.history.replaceState({}, '', url);
+                        }
+                    });
                     bootstrap.Modal.getOrCreateInstance(modal).show();
                 }
             });
