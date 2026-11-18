@@ -137,7 +137,7 @@ session_start();
                 <article class="feature-card plan-card">
                     <h4>Mestre</h4>
                     <p class="plan-price">R$ 249<span>/mês</span></p>
-                    <p class="plan-limit">Alunos ilimitados</p>
+                    <p class="plan-limit">Mais de 150 alunos</p>
                     <ul class="plan-benefits">
                         <li>Ideal para múltiplas modalidades</li>
                         <li>Gestão de vários professores</li>
