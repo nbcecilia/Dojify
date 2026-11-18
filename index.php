@@ -8,7 +8,7 @@ session_start();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dojify - Gestão Inteligente para Academias de Artes Marciais</title>
-    <link rel="stylesheet" href="assets/css/landing.css">
+    <link rel="stylesheet" href="assets/css/landing.css?v=<?= filemtime(__DIR__ . '/assets/css/landing.css') ?>">
 </head>
 <body>
 
@@ -22,6 +22,7 @@ session_start();
         <!-- Links e Botões para Desktop -->
         <nav class="nav-links">
             <a href="#recursos">Recursos</a>
+            <a href="#planos">Planos</a>
             <a href="#sobre">Sobre</a>
             <a href="#contato">Contato</a>
             <div class="nav-auth-buttons">
@@ -40,6 +41,7 @@ session_start();
     <!-- Menu Dropdown Mobile -->
     <div class="mobile-menu" id="mobileMenu">
         <a href="#recursos">Recursos</a>
+        <a href="#planos">Planos</a>
         <a href="#sobre">Sobre</a>
         <a href="#contato">Contato</a>
         <div class="mobile-auth">
@@ -99,6 +101,51 @@ session_start();
                     <p>Foco total na usabilidade, navegação fluida e design profissional.</p>
                 </div>
 
+            </div>
+        </section>
+
+        <!-- Seção de Planos -->
+        <section id="planos" class="features-section plans-section">
+            <h3>Planos para sua academia</h3>
+            <div class="features-grid">
+                <article class="feature-card plan-card">
+                    <h4>Iniciante</h4>
+                    <p class="plan-price">R$ 79<span>/mês</span></p>
+                    <p class="plan-limit">Até 50 alunos</p>
+                    <ul class="plan-benefits">
+                        <li>Gestão de alunos</li>
+                        <li>Gestão de turmas e modalidades</li>
+                        <li>Controle financeiro básico</li>
+                    </ul>
+                    <a href="https://wa.me/?text=Ol%C3%A1%2C%20tenho%20interesse%20no%20Plano%20Iniciante%20do%20Dojify."
+                       target="_blank" rel="noopener noreferrer" class="btn-primary">Falar no WhatsApp</a>
+                </article>
+
+                <article class="feature-card plan-card">
+                    <h4>Profissional</h4>
+                    <p class="plan-price">R$ 149<span>/mês</span></p>
+                    <p class="plan-limit">Até 150 alunos</p>
+                    <ul class="plan-benefits">
+                        <li>Todos os recursos do plano Iniciante</li>
+                        <li>Relatórios financeiros consolidados</li>
+                        <li>Suporte prioritário</li>
+                    </ul>
+                    <a href="https://wa.me/?text=Ol%C3%A1%2C%20tenho%20interesse%20no%20Plano%20Profissional%20do%20Dojify."
+                       target="_blank" rel="noopener noreferrer" class="btn-primary">Falar no WhatsApp</a>
+                </article>
+
+                <article class="feature-card plan-card">
+                    <h4>Mestre</h4>
+                    <p class="plan-price">R$ 249<span>/mês</span></p>
+                    <p class="plan-limit">Alunos ilimitados</p>
+                    <ul class="plan-benefits">
+                        <li>Ideal para múltiplas modalidades</li>
+                        <li>Gestão de vários professores</li>
+                        <li>Mais espaço para sua academia crescer</li>
+                    </ul>
+                    <a href="https://wa.me/?text=Ol%C3%A1%2C%20tenho%20interesse%20no%20Plano%20Mestre%20do%20Dojify."
+                       target="_blank" rel="noopener noreferrer" class="btn-primary">Falar no WhatsApp</a>
+                </article>
             </div>
         </section>
 

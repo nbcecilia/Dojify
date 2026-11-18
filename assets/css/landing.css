@@ -385,6 +385,56 @@ body {
     font-size: 0.95rem;
 }
 
+.plan-card {
+    display: flex;
+    flex-direction: column;
+}
+
+.plan-card h4 {
+    margin-bottom: 0.5rem;
+}
+
+.plan-price {
+    color: var(--text-primary) !important;
+    font-size: 2rem !important;
+    font-weight: 700;
+    letter-spacing: -1px;
+    margin-bottom: 0.25rem;
+}
+
+.plan-price span {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    font-weight: 500;
+    letter-spacing: normal;
+    margin-left: 0.25rem;
+}
+
+.plan-limit {
+    margin-bottom: 1.25rem;
+}
+
+.plan-benefits {
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin: 0 0 1rem;
+    padding-left: 1.25rem;
+}
+
+.plan-card .btn-primary {
+    position: static;
+    display: table;
+    width: auto;
+    max-width: 100%;
+    margin: auto 0 0 auto;
+    padding: 4px 8px;
+    font-size: 0.75rem;
+    line-height: 1.2;
+    text-align: center;
+    white-space: nowrap;
+    box-shadow: none;
+}
+
 /* Seções Sobre e Contato */
 .section-block {
     background: var(--card-bg);
