@@ -870,7 +870,7 @@ try {
                             <?php elseif ($statusPagamentoUpper === 'EM_ANALISE'): ?>
                                 <span class="aluno-stat-pill aluno-stat-pill--info">Em análise</span>
                             <?php else: ?>
-                                <span class="aluno-stat-pill aluno-stat-pill--danger">Pendente</span>
+                                <span class="aluno-stat-pill aluno-stat-pill--danger" data-payment-status-label>Pendente</span>
                             <?php endif; ?>
                         </div>
                         <strong class="aluno-stat-value"><?= htmlspecialchars($valor_pagamento, ENT_QUOTES, 'UTF-8') ?></strong>
@@ -904,7 +904,7 @@ try {
                         <span></span>
                     <?php endif; ?>
                     <?php if ($statusPagamentoUpper !== 'PAGO' && $statusPagamentoUpper !== 'EM_ANALISE' && $id_pagamento_atual !== null && !$comprovante_pagamento_enviado): ?>
-                        <button type="button" class="aluno-stat-link" data-bs-toggle="modal" data-bs-target="#modalPagamento">
+                        <button type="button" class="aluno-stat-link" data-payment-trigger data-bs-toggle="modal" data-bs-target="#modalPagamento">
                             Escolher pagamento <i class="bi bi-arrow-right" aria-hidden="true"></i>
                         </button>
                     <?php elseif ($statusPagamentoUpper === 'PAGO'): ?>
@@ -941,7 +941,7 @@ try {
                         <?php elseif ($id_pagamento_atual === null): ?>
                             <span class="badge rounded-pill bg-secondary px-3 py-2">Sem cobrança disponível</span>
                         <?php else: ?>
-                            <span class="badge rounded-pill bg-warning text-dark px-3 py-2">
+                            <span class="badge rounded-pill bg-warning text-dark px-3 py-2" data-payment-status-label>
                                 <?= $statusPagamentoUpper === 'ATRASADO' ? 'Pagamento atrasado' : 'Pagamento pendente'; ?>
                             </span>
                         <?php endif; ?>
@@ -958,7 +958,7 @@ try {
                                     </div>
                                 </div>
                                 <?php if ($statusPagamentoUpper !== 'PAGO' && $statusPagamentoUpper !== 'EM_ANALISE' && $id_pagamento_atual !== null && !$comprovante_pagamento_enviado): ?>
-                                    <button type="button" class="btn btn-danger btn-sm fw-bold px-3" data-bs-toggle="modal" data-bs-target="#modalPagamento">
+                                    <button type="button" class="btn btn-danger btn-sm fw-bold px-3" data-payment-trigger data-bs-toggle="modal" data-bs-target="#modalPagamento">
                                         Escolher forma de pagamento
                                     </button>
                                 <?php elseif ($statusPagamentoUpper === 'EM_ANALISE' || $comprovante_pagamento_enviado): ?>
@@ -1333,6 +1333,28 @@ try {
                         </div>
                     </div>
                 </div>
+                <div class="modal-footer flex-column align-items-stretch">
+                    <button type="button" class="btn btn-success fw-bold" data-simulate-payment-confirmation>
+                        Confirmar pagamento
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="modalPagamentoSucesso" tabindex="-1" aria-labelledby="modalPagamentoSucessoLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content shadow border-0">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title fw-bold" id="modalPagamentoSucessoLabel">Pagamento confirmado</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                </div>
+                <div class="modal-body text-center p-4">
+                    <i class="bi bi-check-circle-fill text-success display-4" aria-hidden="true"></i>
+                    <p class="fw-semibold mt-3 mb-1">Pagamento realizado com sucesso!</p>
+                </div>
+                <div class="modal-footer justify-content-center">
+                    <button type="button" class="btn btn-success px-4" data-bs-dismiss="modal">Fechar</button>
+                </div>
             </div>
         </div>
     </div>
@@ -1399,6 +1421,46 @@ try {
             drawFinder(0, 0);
             drawFinder(modules - 7, 0);
             drawFinder(0, modules - 7);
+        });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const confirmButton = document.querySelector('[data-simulate-payment-confirmation]');
+            if (!confirmButton) return;
+
+            confirmButton.addEventListener('click', function () {
+                if (confirmButton.disabled) return;
+                confirmButton.disabled = true;
+
+                document.querySelectorAll('[data-payment-status-label]').forEach(function (label) {
+                    if (label.classList.contains('badge')) {
+                        label.classList.remove('bg-warning', 'text-dark');
+                        label.classList.add('bg-success');
+                        label.textContent = 'Pagamento confirmado';
+                    } else {
+                        label.classList.remove('aluno-stat-pill--danger');
+                        label.classList.add('aluno-stat-pill--ok');
+                        label.textContent = 'Confirmado';
+                    }
+                });
+
+                document.querySelectorAll('[data-payment-trigger]').forEach(function (trigger) {
+                    const confirmation = document.createElement('span');
+                    confirmation.className = trigger.classList.contains('aluno-stat-link')
+                        ? 'text-success fw-semibold'
+                        : 'small text-success';
+                    confirmation.textContent = 'Pagamento confirmado.';
+                    trigger.replaceWith(confirmation);
+                });
+
+                const paymentModal = confirmButton.closest('.modal');
+                paymentModal.addEventListener('hidden.bs.modal', function () {
+                    bootstrap.Modal.getOrCreateInstance(
+                        document.getElementById('modalPagamentoSucesso')
+                    ).show();
+                }, { once: true });
+                bootstrap.Modal.getOrCreateInstance(paymentModal).hide();
+            });
         });
     </script>
 </body>

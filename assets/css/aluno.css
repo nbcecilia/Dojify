@@ -251,6 +251,12 @@
     font-size: 1rem;
 }
 
+.aluno-theme .aluno-header-notifications .dropdown-menu[data-notification-menu] {
+    max-height: min(70vh, 480px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
+
 .aluno-theme .profile-avatar-picker {
     display: inline-flex;
     align-items: center;
